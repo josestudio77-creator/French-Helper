@@ -4,29 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>French Phrases Helper</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="French Helper">
-    
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="icon.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#4A6FA5">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
+<link rel="apple-touch-icon" href="icon.png?v=3">
+<link rel="icon" type="image/png" href="icon.png?v=3">
+<meta name="theme-color" content="#4A6FA5">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -255,43 +235,7 @@ Au revoir !</textarea>
         </div>
     </div>
 
-    <!-- Add this manifest.json file in the same directory as your HTML -->
     <script>
-        // Create manifest.json dynamically if it doesn't exist
-        if (!window.manifestCreated) {
-            fetch('manifest.json')
-                .catch(() => {
-                    // If manifest doesn't exist, create it
-                    const manifest = {
-                        "name": "French Phrases Helper",
-                        "short_name": "French Helper",
-                        "description": "Practice French phrases with translation and pronunciation",
-                        "start_url": ".",
-                        "display": "standalone",
-                        "background_color": "#4A6FA5",
-                        "theme_color": "#4A6FA5",
-                        "icons": [
-                            {
-                                "src": "icon.png",
-                                "sizes": "192x192",
-                                "type": "image/png",
-                                "purpose": "any maskable"
-                            },
-                            {
-                                "src": "icon.png",
-                                "sizes": "512x512",
-                                "type": "image/png",
-                                "purpose": "any maskable"
-                            }
-                        ]
-                    };
-                    
-                    // You can optionally create the manifest file via JS
-                    console.log('Add a manifest.json file to your repository with the above content');
-                });
-            window.manifestCreated = true;
-        }
-        
         // Dictionary for common first-grade French phrases
         const translationDictionary = {
             // Greetings
@@ -412,15 +356,6 @@ Au revoir !</textarea>
             }
             
             updatePhraseList();
-            
-            // Register Service Worker for PWA
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js')
-                        .then(reg => console.log('Service Worker registered'))
-                        .catch(err => console.log('Service Worker registration failed:', err));
-                });
-            }
         });
         
         function savePhrases() {
