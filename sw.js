@@ -1,5 +1,5 @@
 // sw.js - Service Worker for French Phrases Helper
-const CACHE_NAME = 'french-helper-v2';
+const CACHE_NAME = 'french-helper-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -43,4 +43,5 @@ self.addEventListener('activate', event => {
       );
     })
   );
+
 });
