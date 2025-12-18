@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <title>French Phrases Helper</title>
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png">
+    <style>
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 15px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4A6FA5 0%, #2E5987 100%);
+            color: white;
+            padding: 22px 18px;
+            text-align: center;
+        }
+        h1 { 
+            font-size: 24px; 
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .content-area {
+            padding: 20px;
+        }
+        h2 {
+            font-size: 19px;
+            color: #2C3E50;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        h3 {
+            font-size: 16px;
+            color: #4A6FA5;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .phrase-sets {
+            margin-bottom: 25px;
+            padding: 18px;
+            background: #f8f9ff;
+            border-radius: 14px;
+            border: 2px solid #E0E7FF;
+        }
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        @media (min-width: 480px) {
+            .preset-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .preset-btn {
+            padding: 14px 10px;
+            background: white;
+            border: 2px solid #E0E7FF;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4A6FA5;
+            transition: all 0.2s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+        }
+        .preset-btn:hover, .preset-btn.active {
+            background: #4A6FA5;
+            color: white;
+            border-color: #4A6FA5;
+            transform: translateY(-1px);
+        }
+        textarea { 
+            width: 100%; 
+            height: 140px; 
+            padding: 18px; 
+            font-size: 16px; 
+            border: 2px solid #E0E7FF; 
+            border-radius: 12px; 
+            margin: 18px 0; 
+            font-family: inherit;
+            resize: vertical;
+            background: #fdfdfe;
+        }
+        .button-row { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+        .button-row button { 
+            flex: 1;
+            min-width: calc(50% - 6px);
+            padding: 16px; 
+            background: #4A6FA5; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            font-weight: 600;
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .clear-btn { 
+            background: #F44336;
+        }
+        .button-row button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .button-row button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .section-divider {
+            border-top: 2px solid #E0E7FF;
+            margin: 28px 0;
+            padding-top: 20px;
+        }
+        .phrases-container {
+            margin-top: 25px;
+        }
+        .phrase-card {
+            background: white;
+            border: 2px solid #E0E7FF;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 18px;
+            transition: all 0.3s;
+        }
+        .phrase-card.speaking {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .french-text {
+            font-size: 22px;
+            color: #2C3E50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .english-text {
+            font-size: 16px;
+            color: #7f8c8d;
+            text-align: center;
+            font-style: italic;
+            min-height: 22px;
+            transition: all 0.3s;
+            line-height: 1.4;
+        }
+        .phrase-card.has-translation .english-text {
+            color: #4A6FA5;
+            font-weight: 500;
+        }
+        .buttons-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .speak-btn, .translate-btn {
+            padding: 14px 20px;
+            border-radius: 10px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            transition: all 0.2s;
+            min-height: 50px;
+        }
+        .speak-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        }
+        .translate-btn {
+            background: linear-gradient(135deg, #FF9800 0%, #EF6C00 100%);
+        }
+        .translate-btn.translating {
+            background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%);
+        }
+        .speak-btn:hover, .translate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .speaking-indicator {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+            color: #4CAF50;
+            font-weight: 500;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .phrase-card.speaking .speaking-indicator {
+            display: flex;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .empty-state {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px 20px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .translation-progress {
+            display: none;
+            background: #E3F2FD;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E0E7FF;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .status-message {
+            color: #4A6FA5;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .progress-text {
+            color: #666;
+            font-size: 14px;
+        }
+        .scroll-hint {
+            display: none;
+            text-align: center;
+            color: #4A6FA5;
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        @media (max-width: 380px) {
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+            .button-row button {
+                min-width: 100%;
+            }
+            .french-text {
+                font-size: 20px;
+            }
+            .buttons-row {
+                flex-direction: column;
+            }
+            .scroll-hint {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🇫🇷</span>
+                French Phrases Helper
+                <span>🇬🇧</span>
+            </h1>
+            <p>Tap green for French • Tap orange for English</p>
+        </div>
+        
+        <div class="content-area">
+            <!-- Pre-saved Phrase Sets -->
+            <div class="phrase-sets">
+                <h3>📚 Quick Practice Sets:</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset('greetings')">👋 Greetings</button>
+                    <button class="preset-btn" onclick="loadPreset('classroom')">🏫 Classroom</button>
+                    <button class="preset-btn" onclick="loadPreset('numbers')">🔢 Numbers</button>
+                    <button class="preset-btn" onclick="loadPreset('colors')">🎨 Colors</button>
+                    <button class="preset-btn" onclick="loadPreset('days')">📅 Days</button>
+                    <button class="preset-btn" onclick="loadPreset('months')">🗓️ Months</button>
+                    <button class="preset-btn" onclick="loadPreset('alphabet')">🔤 Alphabet</button>
+                    <button class="preset-btn" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
+                    <button class="preset-btn" onclick="loadPreset('food')">🍎 Food</button>
+                    <button class="preset-btn" onclick="loadPreset('animals')">🐶 Animals</button>
+                    <button class="preset-btn" onclick="loadPreset('weather')">☀️ Weather</button>
+                    <button class="preset-btn" onclick="loadPreset('feelings')">😊 Feelings</button>
+                </div>
+            </div>
+
+            <!-- Translation Progress Bar -->
+            <div id="translationProgress" class="translation-progress">
+                <div class="status-message" id="statusMessage">Translating phrases...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progressText">0/0 phrases translated</span>
+                    <span id="cacheStatus"></span>
+                </div>
+            </div>
+
+            <div class="section-divider">
+                <h2>📝 This Week's Assignment:</h2>
+                <textarea id="phrasesInput" placeholder="Enter phrases from your teacher here (one per line)...
+
+Example:
+Bonjour, comment ça va ?
+Je m'appelle Marie.
+J'ai six ans."></textarea>
+                
+                <div class="button-row">
+                    <button id="saveBtn" onclick="savePhrases()">
+                        <span>💾</span>
+                        Save & Translate All
+                    </button>
+                    <button class="clear-btn" onclick="clearPhrases()">
+                        <span>🗑️</span>
+                        Clear
+                    </button>
+                </div>
+            </div>
+            
+            <div class="phrases-container">
+                <h2>Practice: <small id="cachedCount"></small></h2>
+                <div id="phrasesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pre-saved phrase sets
+        const phraseSets = {
+            greetings: [
+                "Bonjour",
+                "Bonjour, comment ça va ?",
+                "Ça va bien, merci",
+                "Et toi ?",
+                "Merci beaucoup",
+                "De rien",
+                "S'il te plaît",
+                "Excusez-moi",
+                "Au revoir",
+                "À bientôt",
+                "À demain",
+                "Bonne journée"
+            ],
+            classroom: [
+                "Je vais à l'école",
+                "J'aime l'école",
+                "Mon professeur",
+                "Mon ami",
+                "Mon amie",
+                "La récréation",
+                "La cantine",
+                "La salle de classe",
+                "Où sont les toilettes ?",
+                "La bibliothèque",
+                "Un crayon",
+                "Un livre",
+                "Un cahier"
+            ],
+            numbers: [
+                "Un", "Deux", "Trois", "Quatre", "Cinq",
+                "Six", "Sept", "Huit", "Neuf", "Dix",
+                "Onze", "Douze", "Treize", "Quatorze", "Quinze",
+                "Seize", "Dix-sept", "Dix-huit", "Dix-neuf", "Vingt"
+            ],
+            colors: [
+                "Rouge", "Bleu", "Vert", "Jaune", "Noir",
+                "Blanc", "Rose", "Violet", "Orange", "Marron",
+                "Gris", "Beige", "Turquoise"
+            ],
+            days: [
+                "Lundi", "Mardi", "Mercredi", "Jeudi",
+                "Vendredi", "Samedi", "Dimanche",
+                "Aujourd'hui", "Demain", "Hier"
+            ],
+            months: [
+                "Janvier", "Février", "Mars", "Avril",
+                "Mai", "Juin", "Juillet", "Août",
+                "Septembre", "Octobre", "Novembre", "Décembre"
+            ],
+            alphabet: [
+                "A", "B", "C", "D", "E", "F", "G",
+                "H", "I", "J", "K", "L", "M", "N",
+                "O", "P", "Q", "R", "S", "T", "U",
+                "V", "W", "X", "Y", "Z"
+            ],
+            family: [
+                "Maman", "Papa", "Mon frère", "Ma sœur",
+                "Grand-mère", "Grand-père", "Ma famille",
+                "J'aime ma famille", "Mon oncle", "Ma tante"
+            ],
+            food: [
+                "Une pomme", "Une banane", "Du pain",
+                "Du fromage", "Du lait", "De l'eau",
+                "Un croissant", "Une pizza", "Des frites",
+                "Un gâteau", "Une glace"
+            ],
+            animals: [
+                "Un chat", "Un chien", "Un oiseau",
+                "Un poisson", "Un cheval", "Une vache",
+                "Un mouton", "Un cochon", "Un lapin",
+                "Un lion", "Un éléphant"
+            ],
+            weather: [
+                "Il fait beau", "Il pleut", "Il neige",
+                "Il fait chaud", "Il fait froid",
+                "Il y a du vent", "Il y a du soleil",
+                "Il fait nuageux", "Il y a un arc-en-ciel"
+            ],
+            feelings: [
+                "Je suis content", "Je suis contente",
+                "Je suis triste", "Je suis fatigué",
+                "Je suis fatiguée", "Je suis malade",
+                "J'ai faim", "J'ai soif", "J'ai peur",
+                "Je suis excité", "Je suis excitéée"
+            ]
+        };
+
+        // Dictionary for translations
+        const translationDictionary = {
+            "bonjour": "Hello",
+            "bonjour, comment ça va": "Hello, how are you",
+            "bonjour, comment ça va ?": "Hello, how are you?",
+            "comment ça va": "how are you",
+            "comment ça va ?": "how are you?",
+            "ça va bien": "I'm fine",
+            "ça va bien, merci": "I'm fine, thank you",
+            "et toi": "and you",
+            "et toi ?": "and you?",
+            "merci": "thank you",
+            "merci beaucoup": "thank you very much",
+            "de rien": "you're welcome",
+            "s'il vous plaît": "please",
+            "s'il te plaît": "please",
+            "excusez-moi": "excuse me",
+            "pardon": "sorry",
+            "au revoir": "goodbye",
+            "à bientôt": "see you soon",
+            "à demain": "see you tomorrow",
+            "bonne journée": "have a good day",
+            "je m'appelle": "my name is",
+            "je suis": "I am",
+            "j'ai": "I have",
+            "j'ai six ans": "I am six years old",
+            "j'ai sept ans": "I am seven years old",
+            "j'ai huit ans": "I am eight years old",
+            "j'aime": "I like",
+            "je voudrais": "I would like",
+            "j'ai faim": "I'm hungry",
+            "j'ai soif": "I'm thirsty",
+            "je vais à l'école": "I go to school",
+            "j'aime l'école": "I like school",
+            "mon professeur": "my teacher",
+            "maîtresse": "teacher (female)",
+            "mon ami": "my friend (boy)",
+            "mon amie": "my friend (girl)",
+            "la récréation": "recess",
+            "la cantine": "cafeteria",
+            "la salle de classe": "classroom",
+            "je voudrais un croissant": "I would like a croissant",
+            "je voudrais de l'eau": "I would like some water",
+            "je voudrais jouer": "I would like to play",
+            "je voudrais lire": "I would like to read",
+            "je voudrais dessiner": "I would like to draw",
+            "où est": "where is",
+            "où sont": "where are",
+            "où sont les toilettes": "where is the bathroom",
+            "où sont les toilettes ?": "where is the bathroom?",
+            "les toilettes": "the bathroom",
+            "la bibliothèque": "the library",
+            "la cour": "the playground",
+            "combien ça coûte": "how much does it cost",
+            "c'est quoi": "what is it",
+            "comment tu t'appelles": "what is your name",
+            "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow",
+            "noir": "black", "blanc": "white", "rose": "pink", "violet": "purple",
+            "orange": "orange", "marron": "brown", "gris": "gray", "beige": "beige",
+            "turquoise": "turquoise",
+            "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
+            "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
+            "onze": "eleven", "douze": "twelve", "treize": "thirteen", "quatorze": "fourteen",
+            "quinze": "fifteen", "seize": "sixteen", "dix-sept": "seventeen", "dix-huit": "eighteen",
+            "dix-neuf": "nineteen", "vingt": "twenty",
+            "lundi": "Monday", "mardi": "Tuesday", "mercredi": "Wednesday", 
+            "jeudi": "Thursday", "vendredi": "Friday", "samedi": "Saturday", 
+            "dimanche": "Sunday", "aujourd'hui": "today", "demain": "tomorrow", 
+            "hier": "yesterday",
+            "janvier": "January", "février": "February", "mars": "March", 
+            "avril": "April", "mai": "May", "juin": "June", 
+            "juillet": "July", "août": "August", "septembre": "September", 
+            "octobre": "October", "novembre": "November", "décembre": "December",
+            "a": "A", "b": "B", "c": "C", "d": "D", "e": "E",
+            "f": "F", "g": "G", "h": "H", "i": "I", "j": "J",
+            "k": "K", "l": "L", "m": "M", "n": "N", "o": "O",
+            "p": "P", "q": "Q", "r": "R", "s": "S", "t": "T",
+            "u": "U", "v": "V", "w": "W", "x": "X", "y": "Y",
+            "z": "Z",
+            "une pomme": "an apple", "une banane": "a banana", "du pain": "bread",
+            "du fromage": "cheese", "du lait": "milk", "de l'eau": "water",
+            "un croissant": "a croissant", "une pizza": "a pizza", "des frites": "fries",
+            "un gâteau": "a cake", "une glace": "an ice cream",
+            "un chat": "a cat", "un chien": "a dog", "un oiseau": "a bird",
+            "un poisson": "a fish", "un cheval": "a horse", "une vache": "a cow",
+            "un mouton": "a sheep", "un cochon": "a pig", "un lapin": "a rabbit",
+            "un lion": "a lion", "un éléphant": "an elephant",
+            "il fait beau": "the weather is nice", "il pleut": "it's raining",
+            "il neige": "it's snowing", "il fait chaud": "it's hot",
+            "il fait froid": "it's cold", "il y a du vent": "it's windy",
+            "il y a du soleil": "it's sunny", "il fait nuageux": "it's cloudy",
+            "il y a un arc-en-ciel": "there's a rainbow",
+            "maman": "mom", "papa": "dad", "mon frère": "my brother", "ma sœur": "my sister",
+            "frère": "brother", "sœur": "sister",
+            "grand-mère": "grandmother", "grand-père": "grandfather",
+            "ma famille": "my family",
+            "j'aime ma famille": "I love my family",
+            "mon oncle": "my uncle", "ma tante": "my aunt",
+            "je suis content": "I am happy (boy)", "je suis contente": "I am happy (girl)",
+            "je suis triste": "I am sad",
+            "je suis fatigué": "I am tired (boy)", "je suis fatiguée": "I am tired (girl)",
+            "je suis malade": "I am sick",
+            "j'ai peur": "I'm scared",
+            "je suis excité": "I'm excited (boy)", "je suis excitéée": "I'm excited (girl)",
+            "un crayon": "a pencil", "un stylo": "a pen", "une gomme": "an eraser",
+            "une règle": "a ruler", "des ciseaux": "scissors", "de la colle": "glue",
+            "un livre": "a book", "un cahier": "a notebook", "un cartable": "a backpack"
+        };
+        
+        let currentSpeech = null;
+        let phraseTranslations = {};
+        let currentPreset = null;
+        let isTranslating = false;
+        
+        // Load saved phrases and translations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved translations from localStorage
+            const savedTranslations = localStorage.getItem('phraseTranslations');
+            if (savedTranslations) {
+                try {
+                    phraseTranslations = JSON.parse(savedTranslations);
+                    updateCachedCount();
+                } catch (e) {
+                    phraseTranslations = {};
+                }
+            }
+            
+            // Load custom phrases from teacher
+            const savedPhrases = localStorage.getItem('frenchPhrases');
+            if (savedPhrases) {
+                document.getElementById('phrasesInput').value = savedPhrases;
+                updatePhraseList();
+            }
+            
+            // Check online status
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+        });
+        
+        function updateOnlineStatus() {
+            const status = document.getElementById('cacheStatus');
+            if (status) {
+                if (navigator.onLine) {
+                    status.textContent = ' (Online)';
+                    status.style.color = '#4CAF50';
+                } else {
+                    status.textContent = ' (Offline - cached only)';
+                    status.style.color = '#FF9800';
+                }
+            }
+        }
+        
+        function updateCachedCount() {
+            const count = Object.keys(phraseTranslations).length;
+            const cachedCount = document.getElementById('cachedCount');
+            if (cachedCount) {
+                cachedCount.textContent = ` - ${count} translations cached`;
+                cachedCount.style.color = '#4A6FA5';
+                cachedCount.style.fontWeight = 'normal';
+            }
+        }
+        
+        async function savePhrases() {
+            const text = document.getElementById('phrasesInput').value.trim();
+            if (!text) {
+                alert('Please enter some phrases first!');
+                return;
+            }
+            
+            const phrases = text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            if (phrases.length === 0) {
+                alert('Please enter some phrases first!');
+                return;
+            }
+            
+            // Save phrases to localStorage
+            localStorage.setItem('frenchPhrases', text);
+            currentPreset = null;
+            
+            // Remove active state from preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show progress bar
+            const progressBar = document.getElementById('translationProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const statusMessage = document.getElementById('statusMessage');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            progressBar.style.display = 'block';
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span>⏳</span> Translating...';
+            isTranslating = true;
+            
+            // Get phrases that need translation
+            const phrasesToTranslate = phrases.filter(phrase => 
+                !phraseTranslations[phrase] && 
+                !getDictionaryTranslation(phrase)
+            );
+            
+            const alreadyCached = phrases.length - phrasesToTranslate.length;
+            
+            if (phrasesToTranslate.length === 0) {
+                // All phrases already cached
+                statusMessage.textContent = '✅ All phrases already translated!';
+                progressFill.style.width = '100%';
+                progressText.textContent = `${phrases.length}/${phrases.length} phrases ready`;
+                
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<span>💾</span> Save & Translate All';
+                    updatePhraseList();
+                    updateCachedCount();
+                }, 1500);
+                return;
+            }
+            
+            if (!navigator.onLine) {
+                statusMessage.textContent = '📴 Offline - using cached translations only';
+                progressFill.style.width = '100%';
+                progressText.textContent = `${alreadyCached}/${phrases.length} phrases cached`;
+                
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<span>💾</span> Save & Translate All';
+                    updatePhraseList();
+                }, 2000);
+                return;
+            }
+            
+            // Translate phrases in batches
+            statusMessage.textContent = 'Translating phrases...';
+            
+            let translatedCount = alreadyCached;
+            const batchSize = 3; // Translate 3 at a time to avoid rate limits
+            
+            for (let i = 0; i < phrasesToTranslate.length; i += batchSize) {
+                const batch = phrasesToTranslate.slice(i, i + batchSize);
+                
+                // Update progress
+                const progress = Math.round((translatedCount / phrases.length) * 100);
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${translatedCount}/${phrases.length} phrases translated`;
+                
+                // Translate batch
+                const batchPromises = batch.map(phrase => translatePhrase(phrase));
+                
+                try {
+                    const results = await Promise.all(batchPromises);
+                    
+                    // Save translations
+                    batch.forEach((phrase, index) => {
+                        if (results[index] && results[index] !== "Could not translate") {
+                            phraseTranslations[phrase] = results[index];
+                        }
+                    });
+                    
+                    translatedCount += batch.length;
+                    
+                    // Save to localStorage after each batch
+                    localStorage.setItem('phraseTranslations', JSON.stringify(phraseTranslations));
+                    
+                } catch (error) {
+                    console.error('Translation batch failed:', error);
+                    statusMessage.textContent = '⚠️ Some translations failed - will retry offline';
+                }
+                
+                // Small delay to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Final update
+            progressFill.style.width = '100%';
+            progressText.textContent = `${phrases.length}/${phrases.length} phrases translated`;
+            statusMessage.textContent = '✅ All phrases translated and saved!';
+            
+            // Save final state
+            localStorage.setItem('phraseTranslations', JSON.stringify(phraseTranslations));
+            
+            // Update UI
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<span>💾</span> Save & Translate All';
+                updatePhraseList();
+                updateCachedCount();
+                isTranslating = false;
+            }, 1500);
+            
+            alert('Assignment saved and translated! All phrases are now available offline.');
+        }
+        
+        async function translatePhrase(frenchText) {
+            // First try dictionary (instant, no internet needed)
+            const dictTranslation = getDictionaryTranslation(frenchText);
+            if (dictTranslation) {
+                return dictTranslation;
+            }
+            
+            // Try translation API
+            try {
+                // Try LibreTranslate
+                const response = await fetch('https://libretranslate.com/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        q: frenchText,
+                        source: 'fr',
+                        target: 'en',
+                        format: 'text'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.translatedText;
+                }
+            } catch (error) {
+                console.log('LibreTranslate failed, trying backup...');
+            }
+            
+            // Backup: MyMemory Translation
+            try {
+                const response = await fetch(
+                    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(frenchText)}&langpair=fr|en`
+                );
+                const data = await response.json();
+                return data.responseData.translatedText;
+            } catch (error) {
+                return "Could not translate";
+            }
+        }
+        
+        function getDictionaryTranslation(frenchText) {
+            const lowerText = frenchText.toLowerCase();
+            
+            // Try exact match
+            if (translationDictionary[lowerText]) {
+                return translationDictionary[lowerText];
+            }
+            
+            // Try to match parts
+            for (const [key, value] of Object.entries(translationDictionary)) {
+                if (lowerText.includes(key.toLowerCase()) && key.length > 3) {
+                    return value;
+                }
+            }
+            
+            return null;
+        }
+        
+        function loadPreset(presetName) {
+            currentPreset = presetName;
+            
+            // Update button styles
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Load phrases from preset
+            const phrases = phraseSets[presetName];
+            displayPhrases(phrases);
+        }
+        
+        function clearPhrases() {
+            if (confirm('Clear current phrases?')) {
+                document.getElementById('phrasesInput').value = '';
+                currentPreset = null;
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                updatePhraseList();
+            }
+        }
+        
+        function updatePhraseList() {
+            const text = document.getElementById('phrasesInput').value;
+            const phrases = text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            displayPhrases(phrases);
+        }
+        
+        function displayPhrases(phrases) {
+            const container = document.getElementById('phrasesList');
+            
+            if (phrases.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>👆 Choose a practice set above</p>
+                        <p>or enter phrases from your teacher!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            phrases.forEach((phrase, index) => {
+                const translation = phraseTranslations[phrase] || '';
+                
+                const phraseCard = document.createElement('div');
+                phraseCard.className = 'phrase-card';
+                phraseCard.id = `phrase-${index}`;
+                
+                if (translation) {
+                    phraseCard.classList.add('has-translation');
+                }
+                
+                phraseCard.innerHTML = `
+                    <div class="french-text">${phrase}</div>
+                    <div class="english-text">${translation || 'Tap orange button for translation'}</div>
+                    <div class="buttons-row">
+                        <button class="speak-btn" onclick="speakFrench(${index})">
+                            <span>🔊</span>
+                            French
+                        </button>
+                        <button class="translate-btn" onclick="translateAndSpeak(${index})" id="translate-btn-${index}">
+                            <span>🇬🇧</span>
+                            English
+                        </button>
+                    </div>
+                    <div class="speaking-indicator">
+                        <div class="pulse-dot"></div>
+                        <span>Speaking...</span>
+                    </div>
+                `;
+                
+                container.appendChild(phraseCard);
+            });
+        }
+        
+        function speakFrench(index) {
+            const phraseCard = document.getElementById(`phrase-${index}`);
+            const phraseText = phraseCard.querySelector('.french-text').textContent;
+            
+            // Stop any current speech
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+            
+            // Update UI
+            document.querySelectorAll('.phrase-card').forEach(card => {
+                card.classList.remove('speaking');
+            });
+            phraseCard.classList.add('speaking');
+            
+            // Speak French
+            const utterance = new SpeechSynthesisUtterance(phraseText);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.85;
+            
+            utterance.onend = utterance.onerror = () => {
+                phraseCard.classList.remove('speaking');
+                currentSpeech = null;
+            };
+            
+            currentSpeech = utterance;
+            speechSynthesis.speak(utterance);
+        }
+        
+        async function translateAndSpeak(index) {
+            const phraseCard = document.getElementById(`phrase-${index}`);
+            const frenchText = phraseCard.querySelector('.french-text').textContent;
+            const englishTextElement = phraseCard.querySelector('.english-text');
+            const translateBtn = document.getElementById(`translate-btn-${index}`);
+            
+            // Check if we already have translation (from localStorage)
+            if (phraseTranslations[frenchText]) {
+                // We have translation, just speak it
+                speakEnglishTranslation(phraseCard, phraseTranslations[frenchText]);
+                return;
+            }
+            
+            // Show translating state
+            translateBtn.classList.add('translating');
+            translateBtn.innerHTML = '<span>⏳</span> Translating...';
+            
+            // Get translation
+            try {
+                const translation = await translatePhrase(frenchText);
+                
+                // Save translation in memory AND localStorage
+                phraseTranslations[frenchText] = translation;
+                localStorage.setItem('phraseTranslations', JSON.stringify(phraseTranslations));
+                englishTextElement.textContent = translation;
+                phraseCard.classList.add('has-translation');
+                
+                // Speak the translation
+                speakEnglishTranslation(phraseCard, translation);
+                
+            } catch (error) {
+                alert('Translation failed. Please check your internet connection.');
+            } finally {
+                // Reset button
+                translateBtn.classList.remove('translating');
+                translateBtn.innerHTML = '<span>🇬🇧</span> English';
+            }
+        }
+        
+        function speakEnglishTranslation(phraseCard, englishText) {
+            // Stop any current speech
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+            
+            // Update UI
+            document.querySelectorAll('.phrase-card').forEach(card => {
+                card.classList.remove('speaking');
+            });
+            phraseCard.classList.add('speaking');
+            
+            // Speak English
+            const utterance = new SpeechSynthesisUtterance(englishText);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            
+            utterance.onend = utterance.onerror = () => {
+                phraseCard.classList.remove('speaking');
+                currentSpeech = null;
+            };
+            
+            currentSpeech = utterance;
+            speechSynthesis.speak(utterance);
+        }
+        
+        // Update phrase list when text changes
+        document.getElementById('phrasesInput').addEventListener('input', function() {
+            if (!isTranslating) {
+                updatePhraseList();
+            }
+        });
+    </script>
+</body>
+</html>
