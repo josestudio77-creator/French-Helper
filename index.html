@@ -75,6 +75,7 @@
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
         .empty-state { text-align: center; color: #7f8c8d; padding: 40px 20px; font-size: 15px; line-height: 1.5; }
         .confidence-badge { position: absolute; top: 10px; right: 10px; background: #E8F5E9; color: #2E7D32; padding: 4px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        .install-btn { background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); margin: 10px auto; display: block; }
         @media (max-width: 480px) { .buttons-row { flex-direction: column; } .french-text { font-size: 20px; } }
     </style>
 </head>
@@ -86,6 +87,12 @@
         </div>
         <div class="content-area">
             <div id="statusBar" class="status-bar"></div>
+            
+            <!-- Install button (shown only when PWA can be installed) -->
+            <button id="installButton" class="install-btn" style="display: none; padding: 12px 20px; border-radius: 10px; color: white; border: none; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px;">
+                <span>📱</span> Install as App
+            </button>
+            
             <div class="phrase-sets">
                 <h3>📚 Quick Practice Sets:</h3>
                 <div class="preset-buttons">
@@ -122,26 +129,519 @@ J'ai six ans."></textarea>
             </div>
         </div>
     </div>
+    
     <script>
-const inp=document.getElementById('phrasesInput'),lst=document.getElementById('phrasesList'),sb=document.getElementById('statusBar');
-const sets={greetings:["Bonjour","Bonjour, comment ça va ?","Ça va bien, merci","Et toi ?","Merci beaucoup","De rien","S'il te plaît","Excusez-moi","Au revoir","À bientôt","À demain","Bonne journée"],classroom:["Je vais à l'école","J'aime l'école","Mon professeur","Mon ami","Mon amie","La récréation","La cantine","La salle de classe","Où sont les toilettes ?","La bibliothèque","Un crayon","Un livre","Un cahier"],numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix","Onze","Douze","Treize","Quatorze","Quinze","Seize","Dix-sept","Dix-huit","Dix-neuf","Vingt"],colors:["Rouge","Bleu","Vert","Jaune","Noir","Blanc","Rose","Violet","Orange","Marron","Gris"],days:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche","Aujourd'hui","Demain","Hier"],months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"],alphabet:["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],family:["Maman","Papa","Mon frère","Ma sœur","Grand-mère","Grand-père","Ma famille","J'aime ma famille"],food:["Une pomme","Une banane","Du pain","Du fromage","Du lait","De l'eau","Un croissant","Une pizza","Des frites","Un gâteau","Une glace"],animals:["Un chat","Un chien","Un oiseau","Un poisson","Un cheval","Une vache","Un mouton","Un lapin","Un lion"],weather:["Il fait beau","Il pleut","Il neige","Il fait chaud","Il fait froid","Il y a du vent","Il y a du soleil"],feelings:["Je suis content","Je suis contente","Je suis triste","Je suis fatigué","Je suis fatiguée","Je suis malade","J'ai faim","J'ai soif"]};
-const dict={"bonjour":"Hello","bonjour, comment ça va ?":"Hello, how are you?","bonjour, comment ca va ?":"Hello, how are you?","ça va bien, merci":"I'm fine, thank you","ca va bien, merci":"I'm fine, thank you","et toi ?":"And you?","et toi":"And you","merci beaucoup":"Thank you very much","merci":"Thank you","de rien":"You're welcome","s'il te plaît":"Please","s'il te plait":"Please","excusez-moi":"Excuse me","au revoir":"Goodbye","à bientôt":"See you soon","a bientot":"See you soon","à demain":"See you tomorrow","a demain":"See you tomorrow","bonne journée":"Have a good day","bonne journee":"Have a good day","je vais à l'école":"I go to school","je vais a l'ecole":"I go to school","j'aime l'école":"I like school","j'aime l'ecole":"I like school","mon professeur":"My teacher","mon ami":"My friend (boy)","mon amie":"My friend (girl)","la récréation":"Recess","la recreation":"Recess","la cantine":"Cafeteria","la salle de classe":"Classroom","où sont les toilettes ?":"Where is the bathroom?","ou sont les toilettes ?":"Where is the bathroom?","la bibliothèque":"Library","la bibliotheque":"Library","un crayon":"A pencil","un livre":"A book","un cahier":"A notebook","un":"one","deux":"two","trois":"three","quatre":"four","cinq":"five","six":"six","sept":"seven","huit":"eight","neuf":"nine","dix":"ten","onze":"eleven","douze":"twelve","treize":"thirteen","quatorze":"fourteen","quinze":"fifteen","seize":"sixteen","dix-sept":"seventeen","dix-huit":"eighteen","dix-neuf":"nineteen","vingt":"twenty","rouge":"red","bleu":"blue","vert":"green","jaune":"yellow","noir":"black","blanc":"white","rose":"pink","violet":"purple","orange":"orange","marron":"brown","gris":"gray","lundi":"Monday","mardi":"Tuesday","mercredi":"Wednesday","jeudi":"Thursday","vendredi":"Friday","samedi":"Saturday","dimanche":"Sunday","aujourd'hui":"today","aujourd hui":"today","demain":"tomorrow","hier":"yesterday","janvier":"January","février":"February","fevrier":"February","mars":"March","avril":"April","mai":"May","juin":"June","juillet":"July","août":"August","aout":"August","septembre":"September","octobre":"October","novembre":"November","décembre":"December","decembre":"December","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J","k":"K","l":"L","m":"M","n":"N","o":"O","p":"P","q":"Q","r":"R","s":"S","t":"T","u":"U","v":"V","w":"W","x":"X","y":"Y","z":"Z","maman":"mom","papa":"dad","mon frère":"my brother","mon frere":"my brother","ma sœur":"my sister","ma soeur":"my sister","grand-mère":"grandmother","grand-mere":"grandmother","grand-père":"grandfather","grand-pere":"grandfather","ma famille":"my family","j'aime ma famille":"I love my family","une pomme":"an apple","une banane":"a banana","du pain":"bread","du fromage":"cheese","du lait":"milk","de l'eau":"water","un croissant":"a croissant","une pizza":"a pizza","des frites":"fries","un gâteau":"a cake","un gateau":"a cake","une glace":"ice cream","un chat":"a cat","un chien":"a dog","un oiseau":"a bird","un poisson":"a fish","un cheval":"a horse","une vache":"a cow","un mouton":"a sheep","un lapin":"a rabbit","un lion":"a lion","il fait beau":"The weather is nice","il pleut":"It's raining","il neige":"It's snowing","il fait chaud":"It's hot","il fait froid":"It's cold","il y a du vent":"It's windy","il y a du soleil":"It's sunny","je suis content":"I am happy (boy)","je suis contente":"I am happy (girl)","je suis triste":"I am sad","je suis fatigué":"I am tired (boy)","je suis fatigue":"I am tired (boy)","je suis fatiguée":"I am tired (girl)","je suis fatiguee":"I am tired (girl)","je suis malade":"I am sick","j'ai faim":"I'm hungry","j'ai soif":"I'm thirsty"};
-let cache={},cur=null,sp=null;
-function norm(t){return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
-function getTr(t){const n=norm(t);return dict[n]||cache[n]||null;}
-function saveTr(f,e){cache[norm(f)]=e;localStorage.setItem('phraseTranslations',JSON.stringify(cache));updSt();}
-async function fetchTr(t){if(!navigator.onLine)return null;try{const r=await fetch('https://libretranslate.com/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:'fr',target:'en',format:'text'})});if(r.ok){const d=await r.json();return d.translatedText;}}catch(e){}try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);const d=await r.json();if(d.responseData?.translatedText)return d.responseData.translatedText;}catch(e){}return null;}
-document.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('phraseTranslations');if(s)try{cache=JSON.parse(s);}catch(e){}const p=localStorage.getItem('frenchPhrases');if(p){inp.value=p;updList();}updSt();});
-function updSt(){const c=Object.keys(cache).length,d=Object.keys(dict).length,t=c+d;sb.className=navigator.onLine?'status-bar':'status-bar offline';sb.textContent=navigator.onLine?`✓ Online • ${t} phrases available offline`:`📴 Offline • ${t} cached phrases available`;}
-window.addEventListener('online',updSt);window.addEventListener('offline',updSt);
-function loadPreset(e,n){cur=n;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');disp(sets[n]);}
-function savePhrases(){const t=inp.value.trim();if(!t){alert('Please enter some phrases first!');return;}localStorage.setItem('frenchPhrases',t);cur=null;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));updList();alert('Assignment saved!');}
-function clearPhrases(){if(confirm('Clear current phrases?')){inp.value='';cur=null;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));updList();}}
-function updList(){const t=inp.value,p=t.split('\n').map(l=>l.trim()).filter(l=>l.length>0);disp(p);}
-function disp(ps){lst.innerHTML='';if(ps.length===0){lst.innerHTML='<div class="empty-state"><p>👆 Choose a practice set above</p><p>or enter phrases from your teacher!</p></div>';return;}ps.forEach((p,i)=>{const tr=getTr(p),c=document.createElement('div');c.className='phrase-card';c.dataset.index=i;c.dataset.french=p;if(tr)c.classList.add('has-translation');const b=document.createElement('div');b.className='confidence-badge';b.textContent=tr?'✓ Ready':'';const f=document.createElement('div');f.className='french-text';f.textContent=p;const e=document.createElement('div');e.className='english-text';e.textContent=tr||'Tap orange button for translation';const bs=document.createElement('div');bs.className='buttons-row';const sb=document.createElement('button');sb.className='speak-btn';sb.innerHTML='<span>🔊</span> French';sb.onclick=()=>spkFr(i);const tb=document.createElement('button');tb.className='translate-btn';tb.innerHTML='<span>🇬🇧</span> English';tb.onclick=()=>trSpk(i);const ind=document.createElement('div');ind.className='speaking-indicator';ind.innerHTML='<div class="pulse-dot"></div><span>Speaking...</span>';bs.appendChild(sb);bs.appendChild(tb);c.appendChild(b);c.appendChild(f);c.appendChild(e);c.appendChild(bs);c.appendChild(ind);lst.appendChild(c);});}
-function spkFr(i){if(speechSynthesis.speaking)return;const c=document.querySelector(`.phrase-card[data-index="${i}"]`);if(!c)return;const t=c.querySelector('.french-text').textContent;if(sp)speechSynthesis.cancel();document.querySelectorAll('.phrase-card').forEach(x=>x.classList.remove('speaking'));c.classList.add('speaking');const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=0.85;u.onend=u.onerror=()=>{c.classList.remove('speaking');sp=null;};sp=u;speechSynthesis.speak(u);}
-async function trSpk(i){const c=document.querySelector(`.phrase-card[data-index="${i}"]`);if(!c)return;const f=c.dataset.french,el=c.querySelector('.english-text'),btn=c.querySelector('.translate-btn');let tr=getTr(f);if(!tr){btn.classList.add('translating');btn.innerHTML='<span>⏳</span> Translating...';tr=await fetchTr(f);if(tr){saveTr(f,tr);el.textContent=tr;c.classList.add('has-translation');c.querySelector('.confidence-badge').textContent='✓ Ready';}else{el.textContent='Translation failed';}btn.classList.remove('translating');btn.innerHTML='<span>🇬🇧</span> English';}if(tr)spkEn(c,tr);}
-function spkEn(c,t){if(speechSynthesis.speaking)return;if(sp)speechSynthesis.cancel();document.querySelectorAll('.phrase-card').forEach(x=>x.classList.remove('speaking'));c.classList.add('speaking');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;u.onend=u.onerror=()=>{c.classList.remove('speaking');sp=null;};sp=u;speechSynthesis.speak(u);}
+// DOM Elements
+const inp = document.getElementById('phrasesInput'),
+      lst = document.getElementById('phrasesList'),
+      sb = document.getElementById('statusBar'),
+      installButton = document.getElementById('installButton');
+
+// Data
+const sets = {
+    greetings: ["Bonjour", "Bonjour, comment ça va ?", "Ça va bien, merci", "Et toi ?", "Merci beaucoup", "De rien", "S'il te plaît", "Excusez-moi", "Au revoir", "À bientôt", "À demain", "Bonne journée"],
+    classroom: ["Je vais à l'école", "J'aime l'école", "Mon professeur", "Mon ami", "Mon amie", "La récréation", "La cantine", "La salle de classe", "Où sont les toilettes ?", "La bibliothèque", "Un crayon", "Un livre", "Un cahier"],
+    numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix", "Onze", "Douze", "Treize", "Quatorze", "Quinze", "Seize", "Dix-sept", "Dix-huit", "Dix-neuf", "Vingt"],
+    colors: ["Rouge", "Bleu", "Vert", "Jaune", "Noir", "Blanc", "Rose", "Violet", "Orange", "Marron", "Gris"],
+    days: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche", "Aujourd'hui", "Demain", "Hier"],
+    months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+    alphabet: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+    family: ["Maman", "Papa", "Mon frère", "Ma sœur", "Grand-mère", "Grand-père", "Ma famille", "J'aime ma famille"],
+    food: ["Une pomme", "Une banane", "Du pain", "Du fromage", "Du lait", "De l'eau", "Un croissant", "Une pizza", "Des frites", "Un gâteau", "Une glace"],
+    animals: ["Un chat", "Un chien", "Un oiseau", "Un poisson", "Un cheval", "Une vache", "Un mouton", "Un lapin", "Un lion"],
+    weather: ["Il fait beau", "Il pleut", "Il neige", "Il fait chaud", "Il fait froid", "Il y a du vent", "Il y a du soleil"],
+    feelings: ["Je suis content", "Je suis contente", "Je suis triste", "Je suis fatigué", "Je suis fatiguée", "Je suis malade", "J'ai faim", "J'ai soif"]
+};
+
+const dict = {
+    "bonjour": "Hello",
+    "bonjour, comment ça va ?": "Hello, how are you?",
+    "bonjour, comment ca va ?": "Hello, how are you?",
+    "ça va bien, merci": "I'm fine, thank you",
+    "ca va bien, merci": "I'm fine, thank you",
+    "et toi ?": "And you?",
+    "et toi": "And you",
+    "merci beaucoup": "Thank you very much",
+    "merci": "Thank you",
+    "de rien": "You're welcome",
+    "s'il te plaît": "Please",
+    "s'il te plait": "Please",
+    "excusez-moi": "Excuse me",
+    "au revoir": "Goodbye",
+    "à bientôt": "See you soon",
+    "a bientot": "See you soon",
+    "à demain": "See you tomorrow",
+    "a demain": "See you tomorrow",
+    "bonne journée": "Have a good day",
+    "bonne journee": "Have a good day",
+    "je vais à l'école": "I go to school",
+    "je vais a l'ecole": "I go to school",
+    "j'aime l'école": "I like school",
+    "j'aime l'ecole": "I like school",
+    "mon professeur": "My teacher",
+    "mon ami": "My friend (boy)",
+    "mon amie": "My friend (girl)",
+    "la récréation": "Recess",
+    "la recreation": "Recess",
+    "la cantine": "Cafeteria",
+    "la salle de classe": "Classroom",
+    "où sont les toilettes ?": "Where is the bathroom?",
+    "ou sont les toilettes ?": "Where is the bathroom?",
+    "la bibliothèque": "Library",
+    "la bibliotheque": "Library",
+    "un crayon": "A pencil",
+    "un livre": "A book",
+    "un cahier": "A notebook",
+    "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
+    "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
+    "onze": "eleven", "douze": "twelve", "treize": "thirteen", "quatorze": "fourteen",
+    "quinze": "fifteen", "seize": "sixteen", "dix-sept": "seventeen", "dix-huit": "eighteen",
+    "dix-neuf": "nineteen", "vingt": "twenty",
+    "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow", "noir": "black",
+    "blanc": "white", "rose": "pink", "violet": "purple", "orange": "orange", "marron": "brown",
+    "gris": "gray",
+    "lundi": "Monday", "mardi": "Tuesday", "mercredi": "Wednesday", "jeudi": "Thursday",
+    "vendredi": "Friday", "samedi": "Saturday", "dimanche": "Sunday",
+    "aujourd'hui": "today", "aujourd hui": "today", "demain": "tomorrow", "hier": "yesterday",
+    "janvier": "January", "février": "February", "fevrier": "February", "mars": "March",
+    "avril": "April", "mai": "May", "juin": "June", "juillet": "July",
+    "août": "August", "aout": "August", "septembre": "September", "octobre": "October",
+    "novembre": "November", "décembre": "December", "decembre": "December",
+    "a": "A", "b": "B", "c": "C", "d": "D", "e": "E", "f": "F", "g": "G", "h": "H",
+    "i": "I", "j": "J", "k": "K", "l": "L", "m": "M", "n": "N", "o": "O", "p": "P",
+    "q": "Q", "r": "R", "s": "S", "t": "T", "u": "U", "v": "V", "w": "W", "x": "X",
+    "y": "Y", "z": "Z",
+    "maman": "mom", "papa": "dad", "mon frère": "my brother", "mon frere": "my brother",
+    "ma sœur": "my sister", "ma soeur": "my sister", "grand-mère": "grandmother",
+    "grand-mere": "grandmother", "grand-père": "grandfather", "grand-pere": "grandfather",
+    "ma famille": "my family", "j'aime ma famille": "I love my family",
+    "une pomme": "an apple", "une banane": "a banana", "du pain": "bread",
+    "du fromage": "cheese", "du lait": "milk", "de l'eau": "water",
+    "un croissant": "a croissant", "une pizza": "a pizza", "des frites": "fries",
+    "un gâteau": "a cake", "un gateau": "a cake", "une glace": "ice cream",
+    "un chat": "a cat", "un chien": "a dog", "un oiseau": "a bird",
+    "un poisson": "a fish", "un cheval": "a horse", "une vache": "a cow",
+    "un mouton": "a sheep", "un lapin": "a rabbit", "un lion": "a lion",
+    "il fait beau": "The weather is nice", "il pleut": "It's raining",
+    "il neige": "It's snowing", "il fait chaud": "It's hot",
+    "il fait froid": "It's cold", "il y a du vent": "It's windy",
+    "il y a du soleil": "It's sunny", "je suis content": "I am happy (boy)",
+    "je suis contente": "I am happy (girl)", "je suis triste": "I am sad",
+    "je suis fatigué": "I am tired (boy)", "je suis fatigue": "I am tired (boy)",
+    "je suis fatiguée": "I am tired (girl)", "je suis fatiguee": "I am tired (girl)",
+    "je suis malade": "I am sick", "j'ai faim": "I'm hungry", "j'ai soif": "I'm thirsty"
+};
+
+let cache = {}, cur = null, sp = null;
+let deferredPrompt = null; // For PWA install
+
+// ========== SERVICE WORKER FOR OFFLINE ==========
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // Create inline service worker script
+        const swScript = `
+            const CACHE_NAME = 'french-helper-v2';
+            
+            self.addEventListener('install', event => {
+                console.log('Service Worker installing');
+                self.skipWaiting();
+            });
+            
+            self.addEventListener('activate', event => {
+                console.log('Service Worker activated');
+                event.waitUntil(clients.claim());
+            });
+            
+            self.addEventListener('fetch', event => {
+                // Cache-first strategy
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(response => {
+                            // Return cached if found
+                            if (response) {
+                                return response;
+                            }
+                            // Otherwise fetch from network
+                            return fetch(event.request)
+                                .then(response => {
+                                    // Don't cache API calls or non-GET requests
+                                    if (!event.request.url.includes('libretranslate') && 
+                                        !event.request.url.includes('mymemory') &&
+                                        event.request.method === 'GET') {
+                                        const responseClone = response.clone();
+                                        caches.open(CACHE_NAME)
+                                            .then(cache => cache.put(event.request, responseClone));
+                                    }
+                                    return response;
+                                })
+                                .catch(() => {
+                                    // If offline and not in cache, return a simple offline page
+                                    if (event.request.mode === 'navigate') {
+                                        return caches.match('/');
+                                    }
+                                    return new Response('Offline', { status: 503 });
+                                });
+                        })
+                );
+            });
+        `;
+        
+        // Create a blob URL for the service worker
+        const blob = new Blob([swScript], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl)
+            .then(registration => {
+                console.log('Service Worker registered:', registration);
+                
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    console.log('Service Worker update found');
+                });
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
+    });
+}
+
+// ========== PWA INSTALL PROMPT ==========
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Show the install button
+    installButton.style.display = 'flex';
+    
+    installButton.onclick = () => {
+        // Hide the install button
+        installButton.style.display = 'none';
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            deferredPrompt = null;
+        });
+    };
+});
+
+// Hide install button if app is already installed
+window.addEventListener('appinstalled', () => {
+    console.log('App was installed');
+    installButton.style.display = 'none';
+    deferredPrompt = null;
+});
+
+// ========== CORE FUNCTIONS ==========
+function norm(t) {
+    return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function getTr(t) {
+    const n = norm(t);
+    return dict[n] || cache[n] || null;
+}
+
+function saveTr(f, e) {
+    cache[norm(f)] = e;
+    try {
+        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+    } catch (err) {
+        console.warn('Failed to save translation:', err);
+    }
+    updSt();
+}
+
+async function fetchTr(t) {
+    // Immediately return if offline
+    if (!navigator.onLine) {
+        console.log('Offline - skipping translation');
+        return null;
+    }
+    
+    // Check cache first
+    const cached = getTr(t);
+    if (cached) return cached;
+    
+    // Try LibreTranslate
+    try {
+        const r = await fetch('https://libretranslate.com/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q: t, source: 'fr', target: 'en', format: 'text' })
+        });
+        if (r.ok) {
+            const d = await r.json();
+            return d.translatedText;
+        }
+    } catch (e) {
+        console.log('LibreTranslate failed:', e);
+    }
+    
+    // Try MyMemory as fallback
+    try {
+        const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);
+        const d = await r.json();
+        if (d.responseData?.translatedText) return d.responseData.translatedText;
+    } catch (e) {
+        console.log('MyMemory failed:', e);
+    }
+    
+    return null;
+}
+
+// ========== UI FUNCTIONS ==========
+document.addEventListener('DOMContentLoaded', () => {
+    // Load cached translations
+    const s = localStorage.getItem('phraseTranslations');
+    if (s) {
+        try {
+            cache = JSON.parse(s);
+        } catch (e) {
+            console.warn('Failed to parse cached translations:', e);
+        }
+    }
+    
+    // Load saved phrases
+    const p = localStorage.getItem('frenchPhrases');
+    if (p) {
+        inp.value = p;
+        updList();
+    }
+    
+    updSt();
+    
+    // Add input listener for real-time updates
+    inp.addEventListener('input', updList);
+});
+
+function updSt() {
+    const c = Object.keys(cache).length;
+    const d = Object.keys(dict).length;
+    const t = c + d;
+    
+    const isOnline = navigator.onLine;
+    sb.className = isOnline ? 'status-bar' : 'status-bar offline';
+    
+    if (isOnline) {
+        sb.textContent = `✓ Online • ${t} phrases available offline`;
+        // Enable all translate buttons
+        document.querySelectorAll('.translate-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.title = "";
+        });
+    } else {
+        sb.textContent = `📴 Offline • ${t} cached phrases available`;
+        // Disable translate buttons when offline
+        document.querySelectorAll('.translate-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.title = "Translation requires internet connection";
+        });
+    }
+}
+
+window.addEventListener('online', updSt);
+window.addEventListener('offline', updSt);
+
+function loadPreset(e, n) {
+    cur = n;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    disp(sets[n]);
+}
+
+function savePhrases() {
+    const t = inp.value.trim();
+    if (!t) {
+        alert('Please enter some phrases first!');
+        return;
+    }
+    try {
+        localStorage.setItem('frenchPhrases', t);
+        cur = null;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        updList();
+        alert('Assignment saved!');
+    } catch (err) {
+        alert('Failed to save. Storage might be full.');
+    }
+}
+
+function clearPhrases() {
+    if (confirm('Clear current phrases?')) {
+        inp.value = '';
+        cur = null;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        updList();
+    }
+}
+
+function updList() {
+    const t = inp.value;
+    const p = t.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    disp(p);
+}
+
+function disp(ps) {
+    lst.innerHTML = '';
+    if (ps.length === 0) {
+        lst.innerHTML = '<div class="empty-state"><p>👆 Choose a practice set above</p><p>or enter phrases from your teacher!</p></div>';
+        return;
+    }
+    
+    ps.forEach((p, i) => {
+        const tr = getTr(p);
+        const c = document.createElement('div');
+        c.className = 'phrase-card';
+        c.dataset.index = i;
+        c.dataset.french = p;
+        if (tr) c.classList.add('has-translation');
+        
+        const b = document.createElement('div');
+        b.className = 'confidence-badge';
+        b.textContent = tr ? '✓ Ready' : '';
+        
+        const f = document.createElement('div');
+        f.className = 'french-text';
+        f.textContent = p;
+        
+        const e = document.createElement('div');
+        e.className = 'english-text';
+        e.textContent = tr || (navigator.onLine ? 'Tap orange button for translation' : 'Offline - no translation available');
+        
+        const bs = document.createElement('div');
+        bs.className = 'buttons-row';
+        
+        const sb = document.createElement('button');
+        sb.className = 'speak-btn';
+        sb.innerHTML = '<span>🔊</span> French';
+        sb.onclick = () => spkFr(i);
+        sb.disabled = !('speechSynthesis' in window);
+        
+        const tb = document.createElement('button');
+        tb.className = 'translate-btn';
+        tb.innerHTML = '<span>🇬🇧</span> English';
+        tb.onclick = () => trSpk(i);
+        tb.disabled = !navigator.onLine;
+        if (!navigator.onLine) {
+            tb.title = "Translation requires internet connection";
+        }
+        
+        const ind = document.createElement('div');
+        ind.className = 'speaking-indicator';
+        ind.innerHTML = '<div class="pulse-dot"></div><span>Speaking...</span>';
+        
+        bs.appendChild(sb);
+        bs.appendChild(tb);
+        c.appendChild(b);
+        c.appendChild(f);
+        c.appendChild(e);
+        c.appendChild(bs);
+        c.appendChild(ind);
+        lst.appendChild(c);
+    });
+}
+
+function spkFr(i) {
+    if (!('speechSynthesis' in window)) {
+        alert('Text-to-speech is not supported in your browser');
+        return;
+    }
+    
+    if (speechSynthesis.speaking) return;
+    
+    const c = document.querySelector(`.phrase-card[data-index="${i}"]`);
+    if (!c) return;
+    
+    const t = c.querySelector('.french-text').textContent;
+    if (sp) speechSynthesis.cancel();
+    
+    document.querySelectorAll('.phrase-card').forEach(x => x.classList.remove('speaking'));
+    c.classList.add('speaking');
+    
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'fr-FR';
+    u.rate = 0.85;
+    u.onend = u.onerror = () => {
+        c.classList.remove('speaking');
+        sp = null;
+    };
+    sp = u;
+    speechSynthesis.speak(u);
+}
+
+async function trSpk(i) {
+    const c = document.querySelector(`.phrase-card[data-index="${i}"]`);
+    if (!c) return;
+    
+    const f = c.dataset.french;
+    const el = c.querySelector('.english-text');
+    const btn = c.querySelector('.translate-btn');
+    let tr = getTr(f);
+    
+    if (!tr) {
+        if (!navigator.onLine) {
+            el.textContent = 'Offline - no translation available';
+            return;
+        }
+        
+        btn.classList.add('translating');
+        btn.innerHTML = '<span>⏳</span> Translating...';
+        btn.disabled = true;
+        
+        tr = await fetchTr(f);
+        if (tr) {
+            saveTr(f, tr);
+            el.textContent = tr;
+            c.classList.add('has-translation');
+            c.querySelector('.confidence-badge').textContent = '✓ Ready';
+        } else {
+            el.textContent = 'Translation failed';
+        }
+        
+        btn.classList.remove('translating');
+        btn.innerHTML = '<span>🇬🇧</span> English';
+        btn.disabled = false;
+    }
+    
+    if (tr) spkEn(c, tr);
+}
+
+function spkEn(c, t) {
+    if (!('speechSynthesis' in window)) {
+        alert('Text-to-speech is not supported in your browser');
+        return;
+    }
+    
+    if (speechSynthesis.speaking) return;
+    if (sp) speechSynthesis.cancel();
+    
+    document.querySelectorAll('.phrase-card').forEach(x => x.classList.remove('speaking'));
+    c.classList.add('speaking');
+    
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'en-US';
+    u.rate = 0.9;
+    u.onend = u.onerror = () => {
+        c.classList.remove('speaking');
+        sp = null;
+    };
+    sp = u;
+    speechSynthesis.speak(u);
+}
+
+// Clean up speech synthesis on page unload
+window.addEventListener('beforeunload', () => {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+});
     </script>
 </body>
 </html>
