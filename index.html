@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French Phrases Helper</title>
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" href="icon.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #4A6FA5 0%, #2E5987 100%); color: white; padding: 22px 18px; text-align: center; }
+        h1 { font-size: 24px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+        .content-area { padding: 20px; }
+        h2 { font-size: 19px; color: #2C3E50; margin-bottom: 16px; font-weight: 600; }
+        h3 { font-size: 16px; color: #4A6FA5; margin-bottom: 12px; font-weight: 600; }
+        .phrase-sets { margin-bottom: 25px; padding: 18px; background: #f8f9ff; border-radius: 14px; border: 2px solid #E0E7FF; }
+        .preset-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 600px) { .preset-buttons { grid-template-columns: repeat(3, 1fr); } }
+        .preset-btn { padding: 14px 10px; background: white; border: 2px solid #E0E7FF; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; color: #4A6FA5; transition: all 0.2s; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; }
+        .preset-btn:active { transform: scale(0.98); }
+        .preset-btn.active { background: #4A6FA5; color: white; border-color: #4A6FA5; }
+        textarea { width: 100%; height: 140px; padding: 18px; font-size: 16px; border: 2px solid #E0E7FF; border-radius: 12px; margin: 18px 0; font-family: inherit; resize: vertical; background: #fdfdfe; }
+        .button-row { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+        .button-row button { flex: 1; min-width: calc(50% - 6px); padding: 16px; background: #4A6FA5; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+        .button-row button:active { transform: scale(0.98); }
+        .clear-btn { background: #F44336; }
+        .button-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .section-divider { border-top: 2px solid #E0E7FF; margin: 28px 0; padding-top: 20px; }
+        .phrases-container { margin-top: 25px; }
+        .status-bar { background: #E3F2FD; padding: 12px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; color: #4A6FA5; font-weight: 500; }
+        .status-bar.offline { background: #FFF3E0; color: #F57C00; }
+        .phrase-card { background: white; border: 2px solid #E0E7FF; border-radius: 14px; padding: 22px; margin-bottom: 18px; transition: all 0.3s; position: relative; }
+        .phrase-card.speaking { background: #E8F5E9; border-color: #4CAF50; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .french-text { font-size: 22px; color: #2C3E50; text-align: center; margin-bottom: 10px; font-weight: 600; line-height: 1.3; }
+        .phrase-card.speaking .french-text { color: #2E7D32; }
+        .english-text { font-size: 16px; color: #7f8c8d; text-align: center; font-style: italic; min-height: 22px; transition: all 0.3s; line-height: 1.4; }
+        .phrase-card.has-translation .english-text { color: #4A6FA5; font-weight: 500; }
+        .buttons-row { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+        .speak-btn, .translate-btn { padding: 14px 20px; border-radius: 10px; color: white; border: none; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; transition: all 0.2s; min-height: 50px; }
+        .speak-btn { background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); }
+        .translate-btn { background: linear-gradient(135deg, #FF9800 0%, #EF6C00 100%); }
+        .translate-btn.translating { background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%); }
+        .speak-btn:active, .translate-btn:active { transform: scale(0.98); }
+        .speak-btn:disabled, .translate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .speaking-indicator { display: none; justify-content: center; align-items: center; margin-top: 15px; color: #4CAF50; font-weight: 500; gap: 8px; font-size: 14px; }
+        .phrase-card.speaking .speaking-indicator { display: flex; }
+        .pulse-dot { width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .empty-state { text-align: center; color: #7f8c8d; padding: 40px 20px; font-size: 15px; line-height: 1.5; }
+        .confidence-badge { position: absolute; top: 10px; right: 10px; background: #E8F5E9; color: #2E7D32; padding: 4px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        @media (max-width: 480px) { .buttons-row { flex-direction: column; } .french-text { font-size: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span>🇫🇷</span>French Phrases Helper<span>🇬🇧</span></h1>
+            <p>Tap green for French • Tap orange for English</p>
+        </div>
+        <div class="content-area">
+            <div id="statusBar" class="status-bar"></div>
+            <div class="phrase-sets">
+                <h3>📚 Quick Practice Sets:</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="loadPreset(event, 'greetings')">👋 Greetings</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'classroom')">🏫 Classroom</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'numbers')">🔢 Numbers</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'colors')">🎨 Colors</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'days')">📅 Days</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'months')">🗓️ Months</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'alphabet')">🔤 Alphabet</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'family')">👨‍👩‍👧 Family</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'food')">🍎 Food</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'animals')">🐶 Animals</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'weather')">☀️ Weather</button>
+                    <button class="preset-btn" onclick="loadPreset(event, 'feelings')">😊 Feelings</button>
+                </div>
+            </div>
+            <div class="section-divider">
+                <h2>📝 This Week's Assignment:</h2>
+                <textarea id="phrasesInput" placeholder="Enter phrases from your teacher here (one per line)...
+
+Example:
+Bonjour, comment ça va ?
+Je m'appelle Marie.
+J'ai six ans."></textarea>
+                <div class="button-row">
+                    <button id="saveBtn" onclick="savePhrases()"><span>💾</span>Save Assignment</button>
+                    <button class="clear-btn" onclick="clearPhrases()"><span>🗑️</span>Clear</button>
+                </div>
+            </div>
+            <div class="phrases-container">
+                <h2>Practice:</h2>
+                <div id="phrasesList"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+const inp=document.getElementById('phrasesInput'),lst=document.getElementById('phrasesList'),sb=document.getElementById('statusBar');
+const sets={greetings:["Bonjour","Bonjour, comment ça va ?","Ça va bien, merci","Et toi ?","Merci beaucoup","De rien","S'il te plaît","Excusez-moi","Au revoir","À bientôt","À demain","Bonne journée"],classroom:["Je vais à l'école","J'aime l'école","Mon professeur","Mon ami","Mon amie","La récréation","La cantine","La salle de classe","Où sont les toilettes ?","La bibliothèque","Un crayon","Un livre","Un cahier"],numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix","Onze","Douze","Treize","Quatorze","Quinze","Seize","Dix-sept","Dix-huit","Dix-neuf","Vingt"],colors:["Rouge","Bleu","Vert","Jaune","Noir","Blanc","Rose","Violet","Orange","Marron","Gris"],days:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche","Aujourd'hui","Demain","Hier"],months:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"],alphabet:["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],family:["Maman","Papa","Mon frère","Ma sœur","Grand-mère","Grand-père","Ma famille","J'aime ma famille"],food:["Une pomme","Une banane","Du pain","Du fromage","Du lait","De l'eau","Un croissant","Une pizza","Des frites","Un gâteau","Une glace"],animals:["Un chat","Un chien","Un oiseau","Un poisson","Un cheval","Une vache","Un mouton","Un lapin","Un lion"],weather:["Il fait beau","Il pleut","Il neige","Il fait chaud","Il fait froid","Il y a du vent","Il y a du soleil"],feelings:["Je suis content","Je suis contente","Je suis triste","Je suis fatigué","Je suis fatiguée","Je suis malade","J'ai faim","J'ai soif"]};
+const dict={"bonjour":"Hello","bonjour, comment ça va ?":"Hello, how are you?","bonjour, comment ca va ?":"Hello, how are you?","ça va bien, merci":"I'm fine, thank you","ca va bien, merci":"I'm fine, thank you","et toi ?":"And you?","et toi":"And you","merci beaucoup":"Thank you very much","merci":"Thank you","de rien":"You're welcome","s'il te plaît":"Please","s'il te plait":"Please","excusez-moi":"Excuse me","au revoir":"Goodbye","à bientôt":"See you soon","a bientot":"See you soon","à demain":"See you tomorrow","a demain":"See you tomorrow","bonne journée":"Have a good day","bonne journee":"Have a good day","je vais à l'école":"I go to school","je vais a l'ecole":"I go to school","j'aime l'école":"I like school","j'aime l'ecole":"I like school","mon professeur":"My teacher","mon ami":"My friend (boy)","mon amie":"My friend (girl)","la récréation":"Recess","la recreation":"Recess","la cantine":"Cafeteria","la salle de classe":"Classroom","où sont les toilettes ?":"Where is the bathroom?","ou sont les toilettes ?":"Where is the bathroom?","la bibliothèque":"Library","la bibliotheque":"Library","un crayon":"A pencil","un livre":"A book","un cahier":"A notebook","un":"one","deux":"two","trois":"three","quatre":"four","cinq":"five","six":"six","sept":"seven","huit":"eight","neuf":"nine","dix":"ten","onze":"eleven","douze":"twelve","treize":"thirteen","quatorze":"fourteen","quinze":"fifteen","seize":"sixteen","dix-sept":"seventeen","dix-huit":"eighteen","dix-neuf":"nineteen","vingt":"twenty","rouge":"red","bleu":"blue","vert":"green","jaune":"yellow","noir":"black","blanc":"white","rose":"pink","violet":"purple","orange":"orange","marron":"brown","gris":"gray","lundi":"Monday","mardi":"Tuesday","mercredi":"Wednesday","jeudi":"Thursday","vendredi":"Friday","samedi":"Saturday","dimanche":"Sunday","aujourd'hui":"today","aujourd hui":"today","demain":"tomorrow","hier":"yesterday","janvier":"January","février":"February","fevrier":"February","mars":"March","avril":"April","mai":"May","juin":"June","juillet":"July","août":"August","aout":"August","septembre":"September","octobre":"October","novembre":"November","décembre":"December","decembre":"December","a":"A","b":"B","c":"C","d":"D","e":"E","f":"F","g":"G","h":"H","i":"I","j":"J","k":"K","l":"L","m":"M","n":"N","o":"O","p":"P","q":"Q","r":"R","s":"S","t":"T","u":"U","v":"V","w":"W","x":"X","y":"Y","z":"Z","maman":"mom","papa":"dad","mon frère":"my brother","mon frere":"my brother","ma sœur":"my sister","ma soeur":"my sister","grand-mère":"grandmother","grand-mere":"grandmother","grand-père":"grandfather","grand-pere":"grandfather","ma famille":"my family","j'aime ma famille":"I love my family","une pomme":"an apple","une banane":"a banana","du pain":"bread","du fromage":"cheese","du lait":"milk","de l'eau":"water","un croissant":"a croissant","une pizza":"a pizza","des frites":"fries","un gâteau":"a cake","un gateau":"a cake","une glace":"ice cream","un chat":"a cat","un chien":"a dog","un oiseau":"a bird","un poisson":"a fish","un cheval":"a horse","une vache":"a cow","un mouton":"a sheep","un lapin":"a rabbit","un lion":"a lion","il fait beau":"The weather is nice","il pleut":"It's raining","il neige":"It's snowing","il fait chaud":"It's hot","il fait froid":"It's cold","il y a du vent":"It's windy","il y a du soleil":"It's sunny","je suis content":"I am happy (boy)","je suis contente":"I am happy (girl)","je suis triste":"I am sad","je suis fatigué":"I am tired (boy)","je suis fatigue":"I am tired (boy)","je suis fatiguée":"I am tired (girl)","je suis fatiguee":"I am tired (girl)","je suis malade":"I am sick","j'ai faim":"I'm hungry","j'ai soif":"I'm thirsty"};
+let cache={},cur=null,sp=null;
+function norm(t){return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function getTr(t){const n=norm(t);return dict[n]||cache[n]||null;}
+function saveTr(f,e){cache[norm(f)]=e;localStorage.setItem('phraseTranslations',JSON.stringify(cache));updSt();}
+async function fetchTr(t){if(!navigator.onLine)return null;try{const r=await fetch('https://libretranslate.com/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:'fr',target:'en',format:'text'})});if(r.ok){const d=await r.json();return d.translatedText;}}catch(e){}try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);const d=await r.json();if(d.responseData?.translatedText)return d.responseData.translatedText;}catch(e){}return null;}
+document.addEventListener('DOMContentLoaded',()=>{const s=localStorage.getItem('phraseTranslations');if(s)try{cache=JSON.parse(s);}catch(e){}const p=localStorage.getItem('frenchPhrases');if(p){inp.value=p;updList();}updSt();});
+function updSt(){const c=Object.keys(cache).length,d=Object.keys(dict).length,t=c+d;sb.className=navigator.onLine?'status-bar':'status-bar offline';sb.textContent=navigator.onLine?`✓ Online • ${t} phrases available offline`:`📴 Offline • ${t} cached phrases available`;}
+window.addEventListener('online',updSt);window.addEventListener('offline',updSt);
+function loadPreset(e,n){cur=n;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));e.currentTarget.classList.add('active');disp(sets[n]);}
+function savePhrases(){const t=inp.value.trim();if(!t){alert('Please enter some phrases first!');return;}localStorage.setItem('frenchPhrases',t);cur=null;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));updList();alert('Assignment saved!');}
+function clearPhrases(){if(confirm('Clear current phrases?')){inp.value='';cur=null;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));updList();}}
+function updList(){const t=inp.value,p=t.split('\n').map(l=>l.trim()).filter(l=>l.length>0);disp(p);}
+function disp(ps){lst.innerHTML='';if(ps.length===0){lst.innerHTML='<div class="empty-state"><p>👆 Choose a practice set above</p><p>or enter phrases from your teacher!</p></div>';return;}ps.forEach((p,i)=>{const tr=getTr(p),c=document.createElement('div');c.className='phrase-card';c.dataset.index=i;c.dataset.french=p;if(tr)c.classList.add('has-translation');const b=document.createElement('div');b.className='confidence-badge';b.textContent=tr?'✓ Ready':'';const f=document.createElement('div');f.className='french-text';f.textContent=p;const e=document.createElement('div');e.className='english-text';e.textContent=tr||'Tap orange button for translation';const bs=document.createElement('div');bs.className='buttons-row';const sb=document.createElement('button');sb.className='speak-btn';sb.innerHTML='<span>🔊</span> French';sb.onclick=()=>spkFr(i);const tb=document.createElement('button');tb.className='translate-btn';tb.innerHTML='<span>🇬🇧</span> English';tb.onclick=()=>trSpk(i);const ind=document.createElement('div');ind.className='speaking-indicator';ind.innerHTML='<div class="pulse-dot"></div><span>Speaking...</span>';bs.appendChild(sb);bs.appendChild(tb);c.appendChild(b);c.appendChild(f);c.appendChild(e);c.appendChild(bs);c.appendChild(ind);lst.appendChild(c);});}
+function spkFr(i){if(speechSynthesis.speaking)return;const c=document.querySelector(`.phrase-card[data-index="${i}"]`);if(!c)return;const t=c.querySelector('.french-text').textContent;if(sp)speechSynthesis.cancel();document.querySelectorAll('.phrase-card').forEach(x=>x.classList.remove('speaking'));c.classList.add('speaking');const u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=0.85;u.onend=u.onerror=()=>{c.classList.remove('speaking');sp=null;};sp=u;speechSynthesis.speak(u);}
+async function trSpk(i){const c=document.querySelector(`.phrase-card[data-index="${i}"]`);if(!c)return;const f=c.dataset.french,el=c.querySelector('.english-text'),btn=c.querySelector('.translate-btn');let tr=getTr(f);if(!tr){btn.classList.add('translating');btn.innerHTML='<span>⏳</span> Translating...';tr=await fetchTr(f);if(tr){saveTr(f,tr);el.textContent=tr;c.classList.add('has-translation');c.querySelector('.confidence-badge').textContent='✓ Ready';}else{el.textContent='Translation failed';}btn.classList.remove('translating');btn.innerHTML='<span>🇬🇧</span> English';}if(tr)spkEn(c,tr);}
+function spkEn(c,t){if(speechSynthesis.speaking)return;if(sp)speechSynthesis.cancel();document.querySelectorAll('.phrase-card').forEach(x=>x.classList.remove('speaking'));c.classList.add('speaking');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.9;u.onend=u.onerror=()=>{c.classList.remove('speaking');sp=null;};sp=u;speechSynthesis.speak(u);}
+    </script>
+</body>
+</html>
