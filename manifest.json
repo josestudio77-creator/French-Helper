@@ -3,17 +3,15 @@
   "short_name": "French Helper",
   "description": "Practice French phrases with translation and pronunciation",
   "start_url": ".",
-  "scope": ".",
   "display": "standalone",
-  "background_color": "#4A6FA5",
+  "background_color": "#ffffff",
   "theme_color": "#4A6FA5",
   "orientation": "portrait",
   "icons": [
     {
       "src": "icon.png",
-      "sizes": "192x192 512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "sizes": "144x144 192x192 512x512",
+      "type": "image/png"
     }
   ]
 }
