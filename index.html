@@ -76,6 +76,10 @@
         .empty-state { text-align: center; color: #7f8c8d; padding: 40px 20px; font-size: 15px; line-height: 1.5; }
         .confidence-badge { position: absolute; top: 10px; right: 10px; background: #E8F5E9; color: #2E7D32; padding: 4px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
         .install-btn { background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%); margin: 10px auto; display: block; }
+        .bulk-save-btn { background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%); }
+        .progress-bar { width: 100%; height: 8px; background: #E0E7FF; border-radius: 4px; margin: 10px 0; overflow: hidden; display: none; }
+        .progress-fill { height: 100%; background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%); width: 0%; transition: width 0.3s; }
+        .progress-text { text-align: center; font-size: 14px; color: #4A6FA5; margin-bottom: 10px; display: none; }
         @media (max-width: 480px) { .buttons-row { flex-direction: column; } .french-text { font-size: 20px; } }
     </style>
 </head>
@@ -92,6 +96,12 @@
             <button id="installButton" class="install-btn" style="display: none; padding: 12px 20px; border-radius: 10px; color: white; border: none; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-bottom: 20px;">
                 <span>📱</span> Install as App
             </button>
+            
+            <!-- Progress indicator for bulk translation -->
+            <div id="progressText" class="progress-text"></div>
+            <div id="progressBar" class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
             
             <div class="phrase-sets">
                 <h3>📚 Quick Practice Sets:</h3>
@@ -121,6 +131,9 @@ J'ai six ans."></textarea>
                 <div class="button-row">
                     <button id="saveBtn" onclick="savePhrases()"><span>💾</span>Save Assignment</button>
                     <button class="clear-btn" onclick="clearPhrases()"><span>🗑️</span>Clear</button>
+                    <button class="bulk-save-btn" onclick="translateAllPhrases()" id="translateAllBtn">
+                        <span>🌐</span>Translate & Save All
+                    </button>
                 </div>
             </div>
             <div class="phrases-container">
@@ -135,7 +148,11 @@ J'ai six ans."></textarea>
 const inp = document.getElementById('phrasesInput'),
       lst = document.getElementById('phrasesList'),
       sb = document.getElementById('statusBar'),
-      installButton = document.getElementById('installButton');
+      installButton = document.getElementById('installButton'),
+      translateAllBtn = document.getElementById('translateAllBtn'),
+      progressText = document.getElementById('progressText'),
+      progressBar = document.getElementById('progressBar'),
+      progressFill = document.getElementById('progressFill');
 
 // Data
 const sets = {
@@ -234,71 +251,34 @@ const dict = {
 
 let cache = {}, cur = null, sp = null;
 let deferredPrompt = null; // For PWA install
+let isTranslatingAll = false;
 
 // ========== SERVICE WORKER FOR OFFLINE ==========
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Create inline service worker script
         const swScript = `
             const CACHE_NAME = 'french-helper-v2';
             
             self.addEventListener('install', event => {
-                console.log('Service Worker installing');
                 self.skipWaiting();
             });
             
             self.addEventListener('activate', event => {
-                console.log('Service Worker activated');
                 event.waitUntil(clients.claim());
             });
             
             self.addEventListener('fetch', event => {
-                // Cache-first strategy
                 event.respondWith(
                     caches.match(event.request)
-                        .then(response => {
-                            // Return cached if found
-                            if (response) {
-                                return response;
-                            }
-                            // Otherwise fetch from network
-                            return fetch(event.request)
-                                .then(response => {
-                                    // Don't cache API calls or non-GET requests
-                                    if (!event.request.url.includes('libretranslate') && 
-                                        !event.request.url.includes('mymemory') &&
-                                        event.request.method === 'GET') {
-                                        const responseClone = response.clone();
-                                        caches.open(CACHE_NAME)
-                                            .then(cache => cache.put(event.request, responseClone));
-                                    }
-                                    return response;
-                                })
-                                .catch(() => {
-                                    // If offline and not in cache, return a simple offline page
-                                    if (event.request.mode === 'navigate') {
-                                        return caches.match('/');
-                                    }
-                                    return new Response('Offline', { status: 503 });
-                                });
-                        })
+                        .then(response => response || fetch(event.request))
                 );
             });
         `;
         
-        // Create a blob URL for the service worker
         const blob = new Blob([swScript], { type: 'application/javascript' });
         const swUrl = URL.createObjectURL(blob);
         
         navigator.serviceWorker.register(swUrl)
-            .then(registration => {
-                console.log('Service Worker registered:', registration);
-                
-                // Check for updates
-                registration.addEventListener('updatefound', () => {
-                    console.log('Service Worker update found');
-                });
-            })
             .catch(error => {
                 console.log('Service Worker registration failed:', error);
             });
@@ -307,33 +287,20 @@ if ('serviceWorker' in navigator) {
 
 // ========== PWA INSTALL PROMPT ==========
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
     e.preventDefault();
-    // Stash the event so it can be triggered later
     deferredPrompt = e;
-    // Show the install button
     installButton.style.display = 'flex';
     
     installButton.onclick = () => {
-        // Hide the install button
         installButton.style.display = 'none';
-        // Show the install prompt
         deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            } else {
-                console.log('User dismissed the install prompt');
-            }
             deferredPrompt = null;
         });
     };
 });
 
-// Hide install button if app is already installed
 window.addEventListener('appinstalled', () => {
-    console.log('App was installed');
     installButton.style.display = 'none';
     deferredPrompt = null;
 });
@@ -359,15 +326,7 @@ function saveTr(f, e) {
 }
 
 async function fetchTr(t) {
-    // Immediately return if offline
-    if (!navigator.onLine) {
-        console.log('Offline - skipping translation');
-        return null;
-    }
-    
-    // Check cache first
-    const cached = getTr(t);
-    if (cached) return cached;
+    if (!navigator.onLine) return null;
     
     // Try LibreTranslate
     try {
@@ -394,6 +353,130 @@ async function fetchTr(t) {
     }
     
     return null;
+}
+
+// ========== BULK TRANSLATION FUNCTION ==========
+async function translateAllPhrases() {
+    if (!navigator.onLine) {
+        alert('You need to be online to translate all phrases.');
+        return;
+    }
+    
+    if (isTranslatingAll) return;
+    
+    const cards = document.querySelectorAll('.phrase-card');
+    if (cards.length === 0) {
+        alert('No phrases to translate. Add some phrases first.');
+        return;
+    }
+    
+    // Count phrases that need translation
+    let phrasesToTranslate = [];
+    cards.forEach(card => {
+        const french = card.dataset.french;
+        if (!getTr(french)) {
+            phrasesToTranslate.push({
+                card: card,
+                french: french,
+                englishText: card.querySelector('.english-text'),
+                badge: card.querySelector('.confidence-badge')
+            });
+        }
+    });
+    
+    if (phrasesToTranslate.length === 0) {
+        alert('All phrases already have translations!');
+        return;
+    }
+    
+    // Ask for confirmation
+    if (!confirm(`Translate ${phrasesToTranslate.length} phrase(s)? This may take a moment.`)) {
+        return;
+    }
+    
+    isTranslatingAll = true;
+    translateAllBtn.disabled = true;
+    translateAllBtn.innerHTML = '<span>⏳</span> Translating...';
+    
+    // Show progress bar
+    progressBar.style.display = 'block';
+    progressText.style.display = 'block';
+    progressFill.style.width = '0%';
+    
+    let translatedCount = 0;
+    let savedCount = 0;
+    
+    // Process each phrase with delay to avoid API rate limiting
+    for (let i = 0; i < phrasesToTranslate.length; i++) {
+        const item = phrasesToTranslate[i];
+        
+        // Update progress
+        const progress = Math.round(((i + 1) / phrasesToTranslate.length) * 100);
+        progressFill.style.width = `${progress}%`;
+        progressText.textContent = `Translating... ${i + 1} of ${phrasesToTranslate.length} (${progress}%)`;
+        
+        // Show which phrase is being translated
+        item.card.style.boxShadow = '0 0 0 2px #2196F3';
+        item.englishText.textContent = 'Translating...';
+        item.englishText.style.color = '#2196F3';
+        
+        try {
+            const translation = await fetchTr(item.french);
+            
+            if (translation) {
+                // Save translation
+                saveTr(item.french, translation);
+                translatedCount++;
+                savedCount++;
+                
+                // Update UI
+                item.englishText.textContent = translation;
+                item.englishText.style.color = '#4A6FA5';
+                item.card.classList.add('has-translation');
+                item.badge.textContent = '✓ Saved';
+                item.badge.style.background = '#E1BEE7';
+                item.badge.style.color = '#7B1FA2';
+                
+                // Flash effect for saved badge
+                setTimeout(() => {
+                    item.badge.style.background = '#E8F5E9';
+                    item.badge.style.color = '#2E7D32';
+                    item.badge.textContent = '✓ Ready';
+                    item.card.style.boxShadow = '';
+                }, 500);
+            } else {
+                item.englishText.textContent = 'Translation failed';
+                item.englishText.style.color = '#F44336';
+                translatedCount++;
+            }
+        } catch (error) {
+            item.englishText.textContent = 'Error';
+            item.englishText.style.color = '#F44336';
+            console.error('Translation error:', error);
+        }
+        
+        // Small delay between requests to avoid rate limiting
+        if (i < phrasesToTranslate.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+    }
+    
+    // Hide progress bar
+    setTimeout(() => {
+        progressBar.style.display = 'none';
+        progressText.style.display = 'none';
+    }, 1000);
+    
+    // Update button
+    translateAllBtn.disabled = false;
+    translateAllBtn.innerHTML = '<span>🌐</span>Translate & Save All';
+    isTranslatingAll = false;
+    
+    // Show results
+    alert(`✅ Translation complete!\n\n• Successfully translated: ${savedCount} phrase(s)\n• Failed: ${translatedCount - savedCount} phrase(s)\n\nAll translations have been saved for offline use.`);
+    
+    // Update status
+    updSt();
 }
 
 // ========== UI FUNCTIONS ==========
@@ -431,18 +514,17 @@ function updSt() {
     
     if (isOnline) {
         sb.textContent = `✓ Online • ${t} phrases available offline`;
-        // Enable all translate buttons
         document.querySelectorAll('.translate-btn').forEach(btn => {
             btn.disabled = false;
             btn.title = "";
         });
     } else {
         sb.textContent = `📴 Offline • ${t} cached phrases available`;
-        // Disable translate buttons when offline
         document.querySelectorAll('.translate-btn').forEach(btn => {
             btn.disabled = true;
             btn.title = "Translation requires internet connection";
         });
+        translateAllBtn.disabled = true;
     }
 }
 
@@ -600,7 +682,16 @@ async function trSpk(i) {
             saveTr(f, tr);
             el.textContent = tr;
             c.classList.add('has-translation');
-            c.querySelector('.confidence-badge').textContent = '✓ Ready';
+            const badge = c.querySelector('.confidence-badge');
+            badge.textContent = '✓ Saved';
+            badge.style.background = '#E1BEE7';
+            badge.style.color = '#7B1FA2';
+            
+            setTimeout(() => {
+                badge.textContent = '✓ Ready';
+                badge.style.background = '#E8F5E9';
+                badge.style.color = '#2E7D32';
+            }, 1000);
         } else {
             el.textContent = 'Translation failed';
         }
