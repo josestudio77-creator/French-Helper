@@ -93,6 +93,24 @@
         .share-url { background: #f5f7fa; padding: 15px; border-radius: 10px; margin: 20px 0; font-size: 14px; word-break: break-all; }
         .close-share { margin-top: 20px; padding: 12px 30px; background: #4A6FA5; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; }
         .qr-code { margin: 20px auto; max-width: 200px; }
+
+	/* Add this to your existing CSS */
+	.speech-prompt {
+	    background: #FFF3E0 !important;
+	    color: #F57C00 !important;
+	    cursor: pointer;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    gap: 10px;
+	    margin-top: 10px;
+	    transition: all 0.3s;
+	}
+
+	.speech-prompt:hover {
+	    background: #FFECB3 !important;
+	    transform: translateY(-1px);
+	}
         
         @media (max-width: 480px) { 
             .buttons-row { flex-direction: column; } 
@@ -329,6 +347,99 @@ const dict = {
 let cache = {}, cur = null, sp = null;
 let deferredPrompt = null;
 let isTranslatingAll = false;
+
+// ========== SPEECH SYNTHESIS SMART INITIALIZATION ==========
+let speechInitialized = false;
+
+function initializeSpeechSynthesis() {
+    if (!('speechSynthesis' in window) || speechInitialized) return;
+    
+    try {
+        const voices = speechSynthesis.getVoices();
+        
+        // Create minimal utterance
+        const utterance = new SpeechSynthesisUtterance('.');
+        utterance.volume = 0.05; // Almost silent
+        utterance.rate = 1.0;
+        
+        // Use French voice if available
+        const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
+        if (frenchVoice) {
+            utterance.voice = frenchVoice;
+            utterance.lang = 'fr-FR';
+        }
+        
+        // Speak and cancel quickly
+        speechSynthesis.speak(utterance);
+        setTimeout(() => {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+        }, 20);
+        
+        speechInitialized = true;
+        console.log('Speech synthesis initialized');
+        
+        // Update UI if needed
+        const prompt = document.getElementById('speechInitPrompt');
+        if (prompt) prompt.style.display = 'none';
+        
+    } catch (e) {
+        console.log('Speech initialization failed:', e);
+    }
+}
+
+// Setup initialization triggers
+function setupSpeechInitialization() {
+    // Method 1: Initialize on first click anywhere
+    document.addEventListener('click', function initOnFirstClick() {
+        if (!speechInitialized) {
+            initializeSpeechSynthesis();
+        }
+        document.removeEventListener('click', initOnFirstClick);
+    }, { once: true });
+    
+    // Method 2: Initialize on hover over speak buttons
+    setTimeout(() => {
+        const speakButtons = document.querySelectorAll('.speak-btn, .translate-btn');
+        speakButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                if (!speechInitialized) {
+                    initializeSpeechSynthesis();
+                }
+            }, { once: true });
+            
+            btn.addEventListener('touchstart', () => {
+                if (!speechInitialized) {
+                    initializeSpeechSynthesis();
+                }
+            }, { once: true, passive: true });
+        });
+    }, 500);
+    
+    // Method 3: Show prompt after 3 seconds if not initialized
+    setTimeout(() => {
+        if (!speechInitialized) {
+            const statusBar = document.getElementById('statusBar');
+            if (statusBar && !document.getElementById('speechInitPrompt')) {
+                const prompt = document.createElement('div');
+                prompt.id = 'speechInitPrompt';
+                prompt.className = 'status-bar';
+                prompt.style.cssText = 'background: #FFF3E0; color: #F57C00; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;';
+                prompt.innerHTML = '<span>🎤</span><span>Tap here to optimize speech response time</span>';
+                prompt.onclick = initializeSpeechSynthesis;
+                statusBar.insertAdjacentElement('afterend', prompt);
+                
+                // Auto-hide after 15 seconds
+                setTimeout(() => {
+                    if (prompt.parentNode && !speechInitialized) {
+                        prompt.style.display = 'none';
+                    }
+                }, 15000);
+            }
+        }
+    }, 3000);
+}
 
 // ========== SERVICE WORKER ==========
 if ('serviceWorker' in navigator) {
@@ -700,6 +811,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     updSt();
+
+    setupSpeechInitialization();
     
     // Add input listener for real-time updates
     inp.addEventListener('input', updList);
@@ -851,6 +964,14 @@ function spkFr(i) {
     const u = new SpeechSynthesisUtterance(t);
     u.lang = 'fr-FR';
     u.rate = 0.85;
+    
+    // Optional: Try to use French voice if available
+    const voices = speechSynthesis.getVoices();
+    const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frenchVoice) {
+        u.voice = frenchVoice;
+    }
+    
     u.onend = u.onerror = () => {
         c.classList.remove('speaking');
         sp = null;
