@@ -4,183 +4,218 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🇫🇷 French Fun Helper 🎉</title>
-    
-    <!-- PWA Config -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; min-height: 100vh; text-align: center; }
+    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 80px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
 
     /* Header */
     .header { background: white; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
     h1 { color: #ff6b8b; font-size: 1.5rem; }
 
-    /* Status & Magic Bar */
-    .status-bar { 
-        background: white; padding: 5px 10px; border-radius: 50px; margin-bottom: 15px; 
-        display: flex; justify-content: space-between; align-items: center; 
-        border: 3px solid #118AB2; box-shadow: 0 4px 0 rgba(17, 138, 178, 0.2);
-    }
-    .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; display: flex; align-items: center; gap: 5px; }
-    .status-bar.offline { border-color: #ef4444; }
+    /* STATUS BAR */
+    .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; }
+    .status-info { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
     
-    .magic-mini-btn {
-        background: #118AB2; color: white; border: none; padding: 8px 15px; 
-        border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; 
-        display: flex; align-items: center; gap: 5px;
-    }
-    .magic-mini-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+    .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* Inputs */
-    textarea { width: 100%; min-height: 100px; font-size: 1.1rem; padding: 12px; border-radius: 15px; border: 3px solid #ff9e6d; background: #fff9e6; margin-bottom: 10px; outline: none; }
+    /* PRESET BUTTONS */
+    .section-title { font-weight: 900; color: #5a67d8; margin: 15px 0 5px; text-align: left; font-size: 1.1rem; }
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .preset-card-btn { background: white; border: 3px solid #ff9e6d; border-radius: 15px; padding: 20px 10px; font-size: 1rem; font-weight: 900; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #ff9e6d; }
+    .preset-card-btn:active { transform: translateY(4px); box-shadow: 0 0 0; }
+
+    /* PRACTICE LIST */
+    .phrase-card { background: white; border-radius: 18px; padding: 20px; margin: 15px 0; border: 4px solid #a3e4d7; text-align: left; }
+    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
+    .english-text { font-size: 1.2rem; color: #4a5568; font-weight: 700; margin-bottom: 15px; min-height: 1.5rem; }
     
-    /* Main Buttons */
-    .button-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-    .main-btn { border: none; border-radius: 12px; font-weight: 900; cursor: pointer; padding: 12px 5px; font-size: 0.8rem; color: white; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .save-btn { background: #4cd964; }
-    .backpack-btn { background: #9d4edd; }
-    .clear-btn { background: #ff4d4d; }
-    .export-btn { background: #60a5fa; grid-column: span 3; font-size: 0.75rem; padding: 6px; opacity: 0.8; }
-
-    .game-button { padding: 12px; border-radius: 50px; border: 3px solid #5a67d8; background: white; font-size: 1rem; font-weight: 900; color: #5a67d8; width: 100%; margin-bottom: 10px; cursor: pointer; }
-    .game-button.active { background: #5a67d8; color: white; }
-
-    /* Cards */
-    .phrase-card { background: white; border-radius: 18px; padding: 15px; margin: 12px 0; border: 3px solid #a3e4d7; text-align: left; }
-    .french-text { font-size: 1.5rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
-    .english-text { font-size: 1.1rem; color: #4a5568; font-weight: 700; margin-bottom: 12px; display: block; min-height: 1.2rem; }
-
-    /* Mystery Mode */
-    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border-radius: 8px; padding: 4px; position: relative; }
-    .mystery-active .english-text::after { content: "❓ Tap to Reveal"; position: absolute; left: 8px; color: #5a67d8; font-size: 0.9rem; }
+    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border-radius: 8px; position: relative; }
+    .mystery-active .english-text::after { content: "❓ Tap to Reveal"; position: absolute; left: 10px; color: #5a67d8; font-size: 1rem; }
     .revealed .english-text { background: transparent !important; color: #06D6A0 !important; }
     .revealed .english-text::after { display: none !important; }
 
-    .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .card-btn { border: none; border-radius: 12px; padding: 12px; font-weight: 800; cursor: pointer; color: white; font-size: 0.85rem; }
+    .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card-btn { border: none; border-radius: 12px; padding: 15px; font-weight: 800; color: white; cursor: pointer; font-size: 1rem; }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    /* Modal */
-    #backpackModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 15px; }
-    .modal-content { background: white; border-radius: 20px; padding: 20px; max-height: 80vh; overflow-y: auto; }
-    .history-item { padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-    .load-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 8px 15px; border-radius: 10px; font-weight: bold; }
-    .del-btn { background: #fff1f2; color: #be123c; border: 2px solid #be123c; padding: 8px 10px; border-radius: 10px; font-weight: bold; margin-left: 20px; }
+    /* BOTTOM SHEETS / DRAWERS */
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
+    .bar-item { flex: 1; padding: 15px; font-weight: 900; cursor: pointer; border-right: 1px solid #eee; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .bar-item:last-child { border-right: none; }
+    .bar-homework { color: #9d4edd; }
+    .bar-game { color: #ff6b8b; }
 
-    .preset-buttons { display: flex; overflow-x: auto; gap: 8px; margin: 10px 0; padding-bottom: 5px; }
-    .preset-btn { white-space: nowrap; background: white; border: 2px solid #ff9e6d; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
-</style>
+    /* HOMEWORK DRAWER */
+    #homeworkDrawer { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; padding: 20px; }
+    .drawer-content { background: white; border-radius: 25px; padding: 20px; height: 90vh; overflow-y: auto; text-align: center; }
+    textarea { width: 100%; height: 250px; font-size: 1.2rem; padding: 15px; border-radius: 15px; border: 3px solid #9d4edd; background: #fdf2ff; margin: 10px 0; outline: none; }
+    
+    .hw-btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .hw-btn { padding: 12px; border: none; border-radius: 12px; font-weight: 900; color: white; cursor: pointer; }
+
+    /* HANGMAN GAME */
+    #gameDrawer { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; padding: 20px; }
+    .hangman-area { font-size: 2rem; letter-spacing: 10px; margin: 20px 0; font-weight: 900; color: #2d3748; }
+    .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+    .key { width: 35px; height: 40px; background: #eee; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border: 1px solid #ccc; }
+    .key.used { opacity: 0.3; pointer-events: none; }
+    .hangman-msg { font-weight: 900; margin: 10px 0; font-size: 1.2rem; }
+
+    /* Backpack Modal */
+    #backpackModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; padding: 20px; }
+    .history-item { padding: 15px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+   </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun 🎉</h1></div>
+        <div class="header">
+            <h1>🇫🇷 French Fun 🎉</h1>
+        </div>
 
         <div id="statusBar" class="status-bar">
             <div class="status-info">
                 <span id="statusIcon">🌐</span>
                 <span id="stCountText">Ready!</span>
             </div>
-            <button class="magic-mini-btn" id="magicBtn" onclick="translateAllPhrases()">
-                <span>✨</span> <span id="magicBtnText">Magic</span>
-            </button>
-        </div>
-
-        <div class="preset-buttons">
-            <button class="preset-btn" onclick="loadPreset('greetings')">👋 Hello</button>
-            <button class="preset-btn" onclick="loadPreset('numbers')">🔢 1-10</button>
-            <button class="preset-btn" onclick="loadPreset('colors')">🎨 Colors</button>
-            <button class="preset-btn" onclick="loadPreset('animals')">🐶 Pets</button>
-        </div>
-
-        <textarea id="phrasesInput" placeholder="Type phrases here..."></textarea>
-        
-        <div class="button-row">
-            <button class="main-btn save-btn" onclick="savePhrases()"><span>💾</span>Save</button>
-            <button class="main-btn backpack-btn" onclick="toggleBackpack()"><span>🎒</span>Backpack</button>
-            <button class="main-btn clear-btn" onclick="clearPhrases()"><span>🧹</span>Clear</button>
-            <button class="main-btn export-btn" onclick="exportToFile()">📥 Download App Data Backup</button>
+            <button class="magic-mini-btn" id="magicBtn" onclick="translateAllPhrases()">✨ Magic</button>
         </div>
 
         <button id="mysteryToggle" class="game-button" onclick="toggleMysteryMode()">🕵️‍♀️ Start Mystery Game</button>
 
-        <div id="phrasesList"></div>
+        <div class="section-title">🎈 Pick a Fun Set:</div>
+        <div class="preset-grid">
+            <button class="preset-card-btn" onclick="loadPreset('greetings')">👋 Greetings</button>
+            <button class="preset-card-btn" onclick="loadPreset('numbers')">🔢 Numbers</button>
+            <button class="preset-card-btn" onclick="loadPreset('colors')">🎨 Colors</button>
+            <button class="preset-btn-card preset-card-btn" onclick="loadPreset('animals')">🐶 Animals</button>
+            <button class="preset-card-btn" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
+            <button class="preset-card-btn" onclick="loadPreset('body')">👃 Body Parts</button>
+            <button class="preset-card-btn" onclick="loadPreset('hobbies')">⚽ Hobbies</button>
+            <button class="preset-card-btn" onclick="loadPreset('weather')">☀️ Weather</button>
+        </div>
 
-        <div style="margin-top:20px; display: flex; gap:10px;">
-            <button id="installBtn" class="main-btn" style="background:#ff6b8b; flex:1; display:none;">📱 Install</button>
-            <button class="main-btn" style="background:#5a67d8; flex:1;" onclick="shareApp()">🎁 Share</button>
+        <div id="phrasesList"></div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+        <div class="bar-item bar-homework" onclick="toggleHomework()">
+            <span>📝</span> School Homework
+        </div>
+        <div class="bar-item bar-game" onclick="toggleGame()">
+            <span>🎮</span> Play Hangman
         </div>
     </div>
 
+    <!-- HOMEWORK DRAWER -->
+    <div id="homeworkDrawer">
+        <div class="drawer-content">
+            <h2 style="color:#9d4edd">✏️ My School Words</h2>
+            <p>Type your assignment phrases here:</p>
+            <textarea id="homeworkInput" placeholder="Bonjour&#10;Merci&#10;..."></textarea>
+            
+            <div class="hw-btn-row">
+                <button class="hw-btn" style="background:#4cd964" onclick="saveHomework()">💾 Save</button>
+                <button class="hw-btn" style="background:#9d4edd" onclick="toggleBackpack()">🎒 Backpack</button>
+                <button class="hw-btn" style="background:#ff4d4d" onclick="clearHomework()">🧹 Clear</button>
+            </div>
+            
+            <button onclick="toggleHomework()" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:15px; border:none; font-weight:900">Close homework</button>
+        </div>
+    </div>
+
+    <!-- HANGMAN DRAWER -->
+    <div id="gameDrawer">
+        <div class="drawer-content">
+            <h2 style="color:#ff6b8b">🥨 Le Pendu (Hangman)</h2>
+            <p id="clueText" style="color:#666; font-style:italic; margin-top:5px;">Clue: ???</p>
+            <div id="hangmanDisplay" class="hangman-area">_ _ _ _</div>
+            <div id="gameMessage" class="hangman-msg">Guess a letter!</div>
+            <div id="keyboard" class="keyboard"></div>
+            <button onclick="startHangman()" style="margin-top:20px; background:#4cd964; color:white; padding:12px; width:100%; border-radius:15px; border:none; font-weight:900">New Game</button>
+            <button onclick="toggleGame()" style="margin-top:10px; background:#2d3748; color:white; padding:12px; width:100%; border-radius:15px; border:none; font-weight:900">Exit Game</button>
+        </div>
+    </div>
+
+    <!-- BACKPACK MODAL (Nested logic) -->
     <div id="backpackModal">
         <div class="modal-content">
-            <h2 style="color:#9d4edd; margin-bottom:15px;">🎒 Past Weeks</h2>
+            <h2 style="color:#9d4edd">🎒 Past Weeks</h2>
             <div id="historyList"></div>
-            <button onclick="toggleBackpack()" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:15px; border:none; font-weight:bold; cursor:pointer;">Close</button>
+            <button onclick="toggleBackpack()" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:15px; border:none; font-weight:bold">Back</button>
         </div>
     </div>
 
     <script>
-        // PWA REGISTRATION
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-        if ('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('./sw.js').catch(err => console.log("SW error", err)); 
-        }
-        window.addEventListener('beforeinstallprompt', (e) => { 
-            e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; 
-        });
-        installBtn.addEventListener('click', async () => { 
-            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; installBtn.style.display = 'none'; } 
-        });
-
-        // APP STATE
-        const inp = document.getElementById('phrasesInput');
-        const lst = document.getElementById('phrasesList');
-        const mBtnText = document.getElementById('magicBtnText');
-        const stCountText = document.getElementById('stCountText');
-        const magicBtn = document.getElementById('magicBtn');
-
+        // DATA & STATE
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
+        let currentHomework = localStorage.getItem('homeworkPhrases') || '';
+        let currentPracticeList = [];
         let isMysteryMode = false;
         let speech = window.speechSynthesis;
-        let saveTimeout;
 
-        // DICTIONARY (Keys normalized)
-        const dict = { "bonjour": "Hello", "comment ca va ?": "How are you?", "ca va bien": "I'm fine", "merci": "Thank you", "au revoir": "Goodbye" };
+        const presets = {
+            greetings: ["Bonjour", "Salut", "Comment ça va ?", "Ça va bien", "Merci", "De rien", "Au revoir"],
+            numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
+            colors: ["Rouge", "Bleu", "Vert", "Jaune", "Orange", "Rose", "Violet", "Noir", "Blanc"],
+            animals: ["Un chien", "Un chat", "Un lapin", "Un oiseau", "Un poisson", "Un cheval"],
+            family: ["Ma maman", "Mon papa", "Ma sœur", "Mon frère", "Ma grand-mère", "Mon grand-père"],
+            body: ["La tête", "Le nez", "La bouche", "Les yeux", "Les oreilles", "Les mains"],
+            hobbies: ["Le foot", "La danse", "Le dessin", "La musique", "La lecture"],
+            weather: ["Il fait beau", "Il pleut", "Il neige", "Il fait chaud", "Il fait froid"]
+        };
 
+        const secretWords = [
+            {w: "POMME", c: "An apple"}, {w: "CHAT", c: "Meow!"}, {w: "BICYCLETTE", c: "Two wheels"},
+            {w: "SOLEIL", c: "Yellow and hot"}, {w: "ECOLE", c: "Where we learn"}, {w: "AMI", c: "A friend"}
+        ];
+
+        // INITIALIZE
+        window.onload = () => {
+            document.getElementById('homeworkInput').value = currentHomework;
+            // Default show greetings
+            loadPracticeList(presets.greetings);
+            speech.getVoices();
+        };
+
+        // UI HELPERS
         function norm(t) { return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
-        function getTr(t) { const n = norm(t); return dict[n] || cache[n] || null; }
+        function getTr(t) { return cache[norm(t)] || null; }
 
-        // AUTO-SAVE DEBOUNCE
-        inp.addEventListener('input', () => {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(updList, 500); 
-        });
-
-        function updList() {
-            const val = inp.value.trim();
-            const ps = val ? val.split('\n').filter(l => l.trim().length > 0) : [];
-            lst.innerHTML = '';
-            stCountText.textContent = ps.length === 0 ? "Ready!" : `${ps.length} phrases`;
-
-            if (ps.length === 0) {
-                const empty = document.createElement('div'); empty.className = 'empty-state';
-                empty.textContent = '📝 Type phrases or pick a set!'; lst.appendChild(empty);
-                return;
+        function toggleHomework() {
+            const d = document.getElementById('homeworkDrawer');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            if (d.style.display === 'block') {
+                loadPracticeList(document.getElementById('homeworkInput').value.split('\n').filter(l => l.trim()));
             }
+        }
 
-            ps.forEach((p, i) => {
+        function loadPreset(key) {
+            loadPracticeList(presets[key]);
+        }
+
+        function loadPracticeList(list) {
+            currentPracticeList = list.filter(l => l.trim().length > 0);
+            renderList();
+        }
+
+        function renderList() {
+            const lst = document.getElementById('phrasesList');
+            lst.innerHTML = '';
+            document.getElementById('stCountText').textContent = `${currentPracticeList.length} phrases`;
+
+            currentPracticeList.forEach((p, i) => {
                 const tr = getTr(p);
                 const card = document.createElement('div');
                 card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
@@ -193,48 +228,71 @@
                 sBtn.onclick = () => spk(p, 'fr-FR');
                 
                 const tBtn = document.createElement('button'); tBtn.className = 'card-btn spk-en'; 
-                tBtn.textContent = isMysteryMode ? '🎯 Reveal' : (tr ? '🎯 English' : '🌐 Translate');
+                tBtn.textContent = isMysteryMode ? '🎯 Reveal' : (tr ? '🎯 English' : '🌐 Get Translation');
                 
                 tBtn.onclick = async () => {
                     card.classList.add('revealed');
                     let trans = getTr(p);
                     if (!trans && navigator.onLine) {
-                        eText.textContent = '⏳ Thinking...';
-                        trans = await fetchTr(p);
-                        if (trans) { cache[norm(p)] = trans; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); eText.textContent = trans; tBtn.textContent = '🎯 English'; }
+                        eText.textContent = '⏳...';
+                        trans = await translateSingle(p);
+                        if (trans) { eText.textContent = trans; tBtn.textContent = '🎯 English'; }
                     }
                     if (trans) spk(trans, 'en-US');
                 };
 
                 card.append(fText, eText, bDiv); bDiv.append(sBtn, tBtn); lst.appendChild(card);
             });
-            localStorage.setItem('frenchPhrases', val);
         }
 
-        async function translateAllPhrases() {
-            if (!navigator.onLine) return alert("Connect to Wi-Fi! 🌐");
-            const ps = inp.value.split('\n').filter(l => l.trim().length > 0);
-            magicBtn.disabled = true;
-            for (let i = 0; i < ps.length; i++) {
-                mBtnText.textContent = `${i+1}/${ps.length}`;
-                if (!getTr(ps[i])) {
-                    const tr = await fetchTr(ps[i]);
-                    if (tr) cache[norm(ps[i])] = tr;
-                }
+        // HOMEWORK LOGIC
+        function saveHomework() {
+            const val = document.getElementById('homeworkInput').value;
+            localStorage.setItem('homeworkPhrases', val);
+            const name = prompt("Name this Week:", "Week " + (Object.keys(history).length + 1));
+            if (name) {
+                history[name] = val;
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                alert("Homework Saved to Backpack! 🎒");
             }
-            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-            mBtnText.textContent = "Magic"; magicBtn.disabled = false; updList();
+            loadPracticeList(val.split('\n'));
         }
 
-        async function fetchTr(t) {
+        function clearHomework() {
+            if (confirm("Clear your school list?")) {
+                document.getElementById('homeworkInput').value = '';
+                localStorage.setItem('homeworkPhrases', '');
+                loadPracticeList([]);
+            }
+        }
+
+        // TRANSLATION
+        async function translateSingle(p) {
             try {
-                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);
-                const d = await r.json(); return d.responseData.translatedText;
+                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`);
+                const d = await r.json();
+                const tr = d.responseData.translatedText;
+                cache[norm(p)] = tr;
+                localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                return tr;
             } catch (e) { return null; }
         }
 
+        async function translateAllPhrases() {
+            const magicBtn = document.getElementById('magicBtn');
+            magicBtn.disabled = true;
+            for (let i = 0; i < currentPracticeList.length; i++) {
+                magicBtn.textContent = `${i+1}/${currentPracticeList.length}`;
+                if (!getTr(currentPracticeList[i])) {
+                    await translateSingle(currentPracticeList[i]);
+                }
+            }
+            magicBtn.textContent = "✨ Magic";
+            magicBtn.disabled = false;
+            renderList();
+        }
+
         function spk(t, lang) {
-            if (!speech) return;
             speech.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8;
             if (lang === 'fr-FR') {
                 const fv = speech.getVoices().find(v => v.lang.startsWith('fr'));
@@ -243,56 +301,109 @@
             speech.speak(u);
         }
 
-        function savePhrases() {
-            const t = inp.value.trim(); if (!t) return;
-            const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1));
-            if (name) { history[name] = t; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
+        // HANGMAN LOGIC
+        let hw, targetWord, targetClue, guessed, mistakes;
+        function toggleGame() {
+            const d = document.getElementById('gameDrawer');
+            d.style.display = d.style.display === 'block' ? 'none' : 'block';
+            if (d.style.display === 'block') startHangman();
         }
 
+        function startHangman() {
+            // Pick from homework if possible
+            const hwWords = document.getElementById('homeworkInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
+            if (hwWords.length > 0) {
+                const pick = hwWords[Math.floor(Math.random() * hwWords.length)].toUpperCase();
+                targetWord = pick;
+                targetClue = getTr(pick) || "From your homework!";
+            } else {
+                const pick = secretWords[Math.floor(Math.random() * secretWords.length)];
+                targetWord = pick.w;
+                targetClue = pick.c;
+            }
+            
+            guessed = [];
+            mistakes = 0;
+            document.getElementById('clueText').textContent = "Clue: " + targetClue;
+            document.getElementById('gameMessage').textContent = "Can you guess the French word?";
+            document.getElementById('gameMessage').style.color = "#2d3748";
+            renderHangman();
+            renderKeyboard();
+        }
+
+        function renderHangman() {
+            let display = "";
+            for (let char of targetWord) {
+                if (guessed.includes(char)) display += char + " ";
+                else display += "_ ";
+            }
+            document.getElementById('hangmanDisplay').textContent = display;
+            
+            if (!display.includes("_")) {
+                document.getElementById('gameMessage').textContent = "FELICITATIONS! 🏆 You won!";
+                document.getElementById('gameMessage').style.color = "#4cd964";
+            }
+            if (mistakes >= 6) {
+                document.getElementById('gameMessage').textContent = "Game Over! It was: " + targetWord;
+                document.getElementById('gameMessage').style.color = "#ff4d4d";
+            }
+        }
+
+        function renderKeyboard() {
+            const kb = document.getElementById('keyboard');
+            kb.innerHTML = '';
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(letter => {
+                const key = document.createElement('div');
+                key.className = 'key';
+                key.textContent = letter;
+                key.onclick = () => {
+                    if (guessed.includes(letter) || mistakes >= 6) return;
+                    guessed.push(letter);
+                    if (!targetWord.includes(letter)) mistakes++;
+                    key.classList.add('used');
+                    renderHangman();
+                };
+                kb.appendChild(key);
+            });
+        }
+
+        // BACKPACK
         function toggleBackpack() {
             const modal = document.getElementById('backpackModal');
             const hList = document.getElementById('historyList'); hList.innerHTML = '';
-            
             Object.keys(history).reverse().forEach(name => {
-                const item = document.createElement('div'); item.className = 'history-item';
-                const nSpan = document.createElement('span'); nSpan.style.fontWeight = 'bold'; nSpan.textContent = name;
-                
-                const bCont = document.createElement('div');
-                const lBtn = document.createElement('button'); lBtn.className = 'load-btn'; lBtn.textContent = '📖 Load';
-                lBtn.onclick = () => { if (confirm(`Load ${name}?`)) { inp.value = history[name]; toggleBackpack(); updList(); } };
-                
-                const dBtn = document.createElement('button'); dBtn.className = 'del-btn'; dBtn.textContent = '🗑️';
-                dBtn.onclick = () => { if (confirm(`Delete ${name}?`)) { delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); toggleBackpack(); } };
-                
-                bCont.append(lBtn, dBtn); item.append(nSpan, bCont); hList.appendChild(item);
+                const div = document.createElement('div'); div.className = 'history-item';
+                div.innerHTML = `<span><b>${name}</b></span> <div>
+                    <button style="padding:10px; border-radius:10px; border:2px solid #0369a1; background:white; font-weight:bold" onclick="loadHist('${name}')">📖 Load</button>
+                    <button style="padding:10px; border-radius:10px; border:2px solid #be123c; background:white; margin-left:10px;" onclick="delHist('${name}')">🗑️</button>
+                </div>`;
+                hList.appendChild(div);
             });
             modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
 
-        function toggleMysteryMode() { 
-            isMysteryMode = !isMysteryMode; 
-            document.body.classList.toggle('mystery-active', isMysteryMode); 
-            document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); 
-            document.getElementById('mysteryToggle').textContent = isMysteryMode ? "🕵️‍♂️ Mystery Game: ON" : "🕵️‍♀️ Start Mystery Game";
-            updList(); 
+        function loadHist(n) {
+            document.getElementById('homeworkInput').value = history[n];
+            loadPracticeList(history[n].split('\n'));
+            toggleBackpack();
         }
 
-        function loadPreset(k) { 
-            const s = { greetings:["Bonjour","Comment ça va ?","Ça va bien"], numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"], colors:["Rouge","Bleu","Vert","Jaune"], animals:["Un chat","Un chien","Un lapin"] }; 
-            inp.value = s[k].join('\n'); updList(); 
+        function delHist(n) {
+            if (confirm("Delete this week?")) {
+                delete history[n];
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                toggleBackpack();
+            }
         }
 
-        function clearPhrases() { if (confirm("Clear list?")) { inp.value = ''; updList(); } }
-        function exportToFile() { const blob = new Blob([JSON.stringify({history, cache, current: inp.value}, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'French_Backup.json'; a.click(); }
+        function toggleMysteryMode() {
+            isMysteryMode = !isMysteryMode;
+            document.body.classList.toggle('mystery-active', isMysteryMode);
+            document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode);
+            renderList();
+        }
+
         function shareApp() { navigator.share ? navigator.share({ title: 'French Fun', url: window.location.href }) : alert(window.location.href); }
-
-        window.onload = () => {
-            const saved = localStorage.getItem('frenchPhrases'); if (saved) inp.value = saved;
-            updList();
-            window.addEventListener('online', () => { document.getElementById('statusBar').classList.remove('offline'); document.getElementById('statusIcon').textContent = '🌐'; });
-            window.addEventListener('offline', () => { document.getElementById('statusBar').classList.add('offline'); document.getElementById('statusIcon').textContent = '📴'; });
-            speech.getVoices();
-        };
     </script>
 </body>
 </html>
