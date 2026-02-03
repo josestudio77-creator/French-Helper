@@ -12,29 +12,26 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
     body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; min-height: 100vh; text-align: center; }
     .container { max-width: 600px; margin: 0 auto; padding: 5px; }
 
-    /* Header */
     .header { background: white; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 5px solid #ff9e6d; }
     h1 { color: #ff6b8b; font-size: 1.8rem; margin-bottom: 5px; }
 
-    /* Status Bar */
-    .status-bar { background: white; padding: 8px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: center; gap: 10px; }
-    .status-bar.offline { background: #fee2e2; color: #ef4444; }
+    .status-bar { background: white; padding: 10px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: center; gap: 10px; border: 2px solid rgba(0,0,0,0.05); }
+    .status-bar.offline { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
 
-    /* Inputs */
-    textarea { width: 100%; min-height: 120px; font-size: 1.1rem; padding: 15px; border-radius: 15px; border: 3px solid #ff9e6d; background: #fff9e6; margin-bottom: 10px; }
+    textarea { width: 100%; min-height: 120px; font-size: 1.1rem; padding: 15px; border-radius: 15px; border: 3px solid #ff9e6d; background: #fff9e6; margin-bottom: 10px; outline: none; transition: border-color 0.3s; }
+    textarea:focus { border-color: #ff6b8b; }
     
-    /* Buttons Grid */
     .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
     button { border: none; border-radius: 15px; font-weight: 900; cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 5px; }
     button:active { transform: scale(0.95); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .save-btn { background: #4cd964; color: white; padding: 15px; }
     .backpack-btn { background: #9d4edd; color: white; padding: 15px; }
@@ -43,38 +40,35 @@
     
     .bulk-save-btn { grid-column: span 2; background: linear-gradient(135deg, #118AB2 0%, #0A6F8C 100%); color: white; padding: 18px; font-size: 1.3rem; border: 4px solid #0A6F8C; }
 
-    /* Game Mode */
-    .game-button { padding: 15px 25px; border-radius: 50px; border: 4px solid #5a67d8; background: white; font-size: 1.1rem; box-shadow: 0 4px 0 #5a67d8; margin: 15px 0; }
+    .game-button { padding: 15px 25px; border-radius: 50px; border: 4px solid #5a67d8; background: white; font-size: 1.1rem; box-shadow: 0 4px 0 #5a67d8; margin: 15px 0; width: 100%; }
     .game-button.active { background: #5a67d8; color: white; transform: translateY(3px); box-shadow: 0 1px 0 #5a67d8; }
 
-    /* Cards */
     #phrasesList { min-height: 300px; }
-    .phrase-card { background: white; border-radius: 20px; padding: 20px 15px; margin: 15px 0; border: 4px solid #a3e4d7; box-shadow: 0 4px 8px rgba(0,0,0,0.05); position: relative; }
-    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; margin-bottom: 10px; }
-    .english-text { font-size: 1.2rem; color: #4a5568; font-weight: 700; margin-bottom: 15px; }
+    .phrase-card { background: white; border-radius: 20px; padding: 20px 15px; margin: 15px 0; border: 4px solid #a3e4d7; box-shadow: 0 4px 8px rgba(0,0,0,0.05); text-align: left; }
+    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; margin-bottom: 10px; display: block; }
+    .english-text { font-size: 1.2rem; color: #4a5568; font-weight: 700; margin-bottom: 15px; display: block; min-height: 1.5rem; }
 
-    /* Mystery Reveal Logic */
-    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border-radius: 10px; padding: 10px; }
-    .mystery-active .english-text::after { content: "❓ Tap Orange to Reveal"; position: absolute; left: 0; right: 0; color: #5a67d8; font-size: 1rem; }
+    /* Mystery Reveal Logic - SECURE VERSION */
+    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border-radius: 10px; padding: 5px; position: relative; }
+    .mystery-active .english-text::after { content: "❓ Tap Orange to Reveal"; position: absolute; left: 10px; color: #5a67d8; font-size: 1rem; }
     .revealed .english-text { background: transparent !important; color: #06D6A0 !important; }
     .revealed .english-text::after { display: none !important; }
 
     .speak-btn { width: 100%; padding: 15px; background: #4cd964; color: white; margin-bottom: 8px; font-size: 1.2rem; }
     .translate-btn { width: 100%; padding: 15px; background: #ff9e6d; color: white; font-size: 1.2rem; }
 
-    /* Backpack Modal */
     #backpackModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; padding: 20px; }
-    .modal-content { background: white; border-radius: 25px; padding: 20px; max-height: 80vh; overflow-y: auto; }
+    .modal-content { background: white; border-radius: 25px; padding: 20px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
 
-    /* Presets */
     .preset-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 10px 0; background: white; padding: 10px; border-radius: 15px; }
     .preset-btn { font-size: 0.7rem; padding: 8px 4px; background: #f0f0f0; border-radius: 8px; }
 
-    /* Bottom Actions */
     .bottom-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
     .bottom-btn { padding: 15px; background: #5a67d8; color: white; border-radius: 15px; font-weight: bold; border:none; width:100%; cursor:pointer; }
     #installButton { background: #ff6b8b; }
+    
+    .empty-state { padding: 40px; color: #718096; font-size: 1.1rem; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -82,7 +76,7 @@
     <div class="container">
         <div class="header">
             <h1>🇫🇷 French Fun Helper 🎉</h1>
-            <p>Type your phrases of the week below!</p>
+            <p>Practice your phrases of the week!</p>
         </div>
 
         <div id="statusBar" class="status-bar">
@@ -98,10 +92,10 @@
             <button class="preset-btn" onclick="loadPreset('weather')">☀️ Sky</button>
         </div>
 
-        <textarea id="phrasesInput" placeholder="Enter phrases here (one per line)..."></textarea>
+        <textarea id="phrasesInput" placeholder="Enter phrases here (one per line)..." oninput="updList()"></textarea>
         
         <div class="button-row">
-            <button class="save-btn" onclick="savePhrases()">💾 Save Now</button>
+            <button class="save-btn" onclick="savePhrases()">💾 Save Week</button>
             <button class="backpack-btn" onclick="toggleBackpack()">🎒 Backpack</button>
             <button class="clear-btn" onclick="clearPhrases()">🧹 Clear</button>
             <button class="export-btn" onclick="exportToFile()">📥 Backup</button>
@@ -111,7 +105,7 @@
         </div>
 
         <button id="mysteryToggle" class="game-button" onclick="toggleMysteryMode()">
-            🕵️‍♀️ Mystery Mode: OFF
+            🕵️‍♀️ Start Mystery Game
         </button>
 
         <div id="phrasesList"></div>
@@ -125,26 +119,25 @@
     <!-- Backpack Modal -->
     <div id="backpackModal">
         <div class="modal-content">
-            <h2>🎒 Past Weeks</h2>
+            <h2 style="color:#9d4edd">🎒 My Past Weeks</h2>
             <div id="historyList"></div>
-            <button onclick="toggleBackpack()" style="margin-top:20px; background:#ff4d4d; color:white; padding:15px; width:100%; border-radius:15px; border:none;">Close</button>
+            <button onclick="toggleBackpack()" style="margin-top:20px; background:#ff4d4d; color:white; padding:15px; width:100%; border-radius:15px; border:none; font-weight:bold">Close Backpack</button>
         </div>
     </div>
 
     <script>
-        // PWA REGISTRATION
+        // PWA SETUP
         let deferredPrompt;
         const installBtn = document.getElementById('installButton');
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(() => console.log("Service Worker Active"));
+            navigator.serviceWorker.register('./sw.js').catch(console.error);
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'block'; // Show button when browser is ready
+            installBtn.style.display = 'block';
         });
 
         installBtn.addEventListener('click', async () => {
@@ -156,87 +149,151 @@
             }
         });
 
-        // APP LOGIC
+        // CORE LOGIC
         const inp = document.getElementById('phrasesInput');
         const lst = document.getElementById('phrasesList');
         const sb = document.getElementById('statusBar');
-        const statusText = document.getElementById('statusText');
+        const stText = document.getElementById('statusText');
 
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let isMysteryMode = false;
-        let sp = null;
+        let speech = window.speechSynthesis;
 
+        // DICTIONARY - ALL KEYS NORMALIZED (No accents, lowercase)
         const dict = {
-            "bonjour": "Hello", "bonjour, comment ca va ?": "Hello, how are you?", "ca va bien, merci": "I'm fine, thank you",
-            "merci": "Thank you", "au revoir": "Goodbye", "un": "one", "deux": "two", "trois": "three",
-            "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow"
+            "bonjour": "Hello",
+            "bonjour, comment ca va ?": "Hello, how are you?",
+            "ca va bien, merci": "I'm fine, thank you",
+            "merci beaucoup": "Thank you very much",
+            "de rien": "You're welcome",
+            "au revoir": "Goodbye",
+            "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
+            "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
+            "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow", "rose": "pink",
+            "un chat": "a cat", "un chien": "a dog", "un oiseau": "a bird",
+            "il fait beau": "The weather is nice", "il pleut": "It's raining"
         };
 
         const sets = {
-            greetings: ["Bonjour", "Comment ça va ?", "Ça va bien", "Au revoir"],
+            greetings: ["Bonjour", "Bonjour, comment ça va ?", "Ça va bien, merci", "Au revoir"],
             numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
-            colors: ["Rouge", "Bleu", "Vert", "Jaune", "Noir", "Blanc"],
-            animals: ["Un chat", "Un chien", "Un oiseau", "Un lapin"],
-            food: ["Une pomme", "Une banane", "Du pain", "Du fromage"],
-            weather: ["Il fait beau", "Il pleut", "Il neige"]
+            colors: ["Rouge", "Bleu", "Vert", "Jaune", "Noir", "Blanc", "Rose"],
+            animals: ["Un chat", "Un chien", "Un oiseau", "Un poisson"],
+            food: ["Une pomme", "Une banane", "Du fromage", "Un croissant"],
+            weather: ["Il fait beau", "Il pleut", "Il neige", "Il fait chaud"]
         };
 
-        function norm(t) { return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+        function norm(t) { 
+            return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/œ/g, 'oe'); 
+        }
 
         function getTr(t) {
             const n = norm(t);
-            if (dict[n]) return dict[n];
-            return cache[n] || null;
+            return dict[n] || cache[n] || null;
         }
 
         function savePhrases() {
             const t = inp.value.trim();
-            if (!t) return alert("Write something! ✍️");
-            const name = prompt("Name this week:", "Week " + (Object.keys(history).length + 1));
+            if (!t) return alert("Type some phrases first! ✍️");
+            const name = prompt("Name this set (e.g., Week 1):", "Week " + (Object.keys(history).length + 1));
             if (name) {
                 history[name] = t;
                 localStorage.setItem('frenchHistory', JSON.stringify(history));
                 localStorage.setItem('frenchPhrases', t);
-                updList();
-                alert("Saved! 🎒");
+                alert("Saved to your backpack! 🎒");
             }
         }
 
-        function toggleBackpack() {
-            const modal = document.getElementById('backpackModal');
-            const hList = document.getElementById('historyList');
-            hList.innerHTML = '';
-            Object.keys(history).reverse().forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                div.innerHTML = `<span><b>${name}</b></span><div><button style="background:#b5e6ff; padding:8px; border-radius:8px; border:none; margin-right:5px;" onclick="loadHistory('${name}')">📖</button><button style="background:#ff4d4d; color:white; padding:8px; border-radius:8px; border:none;" onclick="deleteHistory('${name}')">🗑️</button></div>`;
-                hList.appendChild(div);
+        function updList() {
+            const val = inp.value.trim();
+            const ps = val ? val.split('\n').filter(l => l.trim().length > 0) : [];
+            lst.innerHTML = '';
+            
+            // Word count display
+            const count = ps.length;
+            stText.innerText = `${count} phrase${count !== 1 ? 's' : ''} ready!`;
+
+            if (ps.length === 0) {
+                lst.innerHTML = `
+                    <div class="empty-state">
+                        <p>📝 Type your phrases of the week!</p>
+                        <p>👆 Or tap a Quick Set above</p>
+                        <p style="margin-top:20px; font-size:0.9rem">Everything you type saves automatically.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            ps.forEach((p, i) => {
+                const tr = getTr(p);
+                const card = document.createElement('div');
+                card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
+                
+                // SECURE ELEMENT CREATION
+                const fText = document.createElement('span');
+                fText.className = 'french-text';
+                fText.textContent = p;
+
+                const eText = document.createElement('span');
+                eText.className = 'english-text';
+                eText.textContent = tr || '...';
+
+                const sBtn = document.createElement('button');
+                sBtn.className = 'speak-btn';
+                sBtn.innerHTML = '<span>🎤</span> Hear French';
+                sBtn.onclick = () => spkFr(p);
+
+                const tBtn = document.createElement('button');
+                tBtn.className = 'translate-btn';
+                tBtn.innerHTML = isMysteryMode ? '<span>🎯</span> Reveal & Hear English' : '<span>🎯</span> Hear English';
+                tBtn.onclick = () => revealAndSpeakEn(card, p, eText);
+
+                card.appendChild(fText);
+                card.appendChild(eText);
+                card.appendChild(sBtn);
+                card.appendChild(tBtn);
+                lst.appendChild(card);
             });
-            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+            
+            localStorage.setItem('frenchPhrases', val);
         }
 
-        function loadHistory(name) {
-            inp.value = history[name];
-            toggleBackpack();
-            updList();
+        function spkFr(t) {
+            if (!speech) return alert("Voice not supported on this browser.");
+            speech.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'fr-FR';
+            u.rate = 0.8;
+            // Find French voice
+            const voices = speech.getVoices();
+            const fv = voices.find(v => v.lang.startsWith('fr'));
+            if (fv) u.voice = fv;
+            speech.speak(u);
         }
 
-        function deleteHistory(name) {
-            if (confirm("Delete " + name + "?")) {
-                delete history[name];
-                localStorage.setItem('frenchHistory', JSON.stringify(history));
-                toggleBackpack();
+        async function revealAndSpeakEn(card, fText, eDisplay) {
+            card.classList.add('revealed');
+            let tr = getTr(fText);
+            
+            if (!tr && navigator.onLine) {
+                eDisplay.textContent = '⏳ Thinking...';
+                tr = await fetchTr(fText);
+                if (tr) {
+                    cache[norm(fText)] = tr;
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    eDisplay.textContent = tr;
+                } else {
+                    eDisplay.textContent = 'Try again later';
+                }
             }
-        }
-
-        function exportToFile() {
-            const data = { history, cache };
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'French_Fun_Backup.json';
-            a.click();
+            
+            if (tr) {
+                speech.cancel();
+                const u = new SpeechSynthesisUtterance(tr);
+                u.lang = 'en-US';
+                speech.speak(u);
+            }
         }
 
         async function fetchTr(t) {
@@ -248,86 +305,110 @@
         }
 
         async function translateAllPhrases() {
-            if (!navigator.onLine) return alert("Offline! 🌐");
-            const phrases = inp.value.split('\n').filter(l => l.trim().length > 0);
+            if (!navigator.onLine) return alert("Please connect to the internet first! 🌐");
+            const ps = inp.value.split('\n').filter(l => l.trim().length > 0);
             const btn = document.getElementById('translateAllBtn');
-            btn.innerHTML = "⏳ Thinking...";
-            for (let p of phrases) {
+            const originalText = btn.innerHTML;
+            
+            btn.disabled = true;
+
+            for (let i = 0; i < ps.length; i++) {
+                const p = ps[i];
+                btn.innerHTML = `⏳ Magic in progress... (${i+1}/${ps.length})`;
                 if (!getTr(p)) {
                     const tr = await fetchTr(p);
                     if (tr) {
                         cache[norm(p)] = tr;
-                        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
                     }
                 }
             }
-            btn.innerHTML = "🌐✨ MAGIC TRANSLATE!";
+            
+            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+            btn.innerHTML = originalText;
+            btn.disabled = false;
             updList();
         }
 
-        function updList() {
-            const ps = inp.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            lst.innerHTML = '';
-            ps.forEach((p, i) => {
-                const tr = getTr(p);
-                const card = document.createElement('div');
-                card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
-                card.innerHTML = `
-                    <div class="french-text">${p}</div>
-                    <div class="english-text">${tr || '...'}</div>
-                    <button class="speak-btn" onclick="spkFr('${p.replace(/'/g, "\\'")}')">🎤 French</button>
-                    <button class="translate-btn" onclick="revealAndSpeakEn(this, '${p.replace(/'/g, "\\'")}')">🎯 English</button>
-                `;
-                lst.appendChild(card);
+        function toggleBackpack() {
+            const modal = document.getElementById('backpackModal');
+            const hList = document.getElementById('historyList');
+            hList.innerHTML = '';
+            Object.keys(history).reverse().forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <span><b>${name}</b></span>
+                    <div>
+                        <button style="background:#b5e6ff; padding:8px; border-radius:8px; border:none; margin-right:5px; cursor:pointer" onclick="loadHistory('${name}')">📖 Load</button>
+                        <button style="background:#ff4d4d; color:white; padding:8px; border-radius:8px; border:none; cursor:pointer" onclick="deleteHistory('${name}')">🗑️</button>
+                    </div>`;
+                hList.appendChild(div);
             });
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
 
-        function spkFr(t) {
-            if (sp) window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(t);
-            u.lang = 'fr-FR';
-            u.rate = 0.8;
-            window.speechSynthesis.speak(u);
-        }
-
-        async function revealAndSpeakEn(btn, fText) {
-            const card = btn.parentNode;
-            card.classList.add('revealed');
-            let tr = getTr(fText);
-            if (!tr && navigator.onLine) {
-                tr = await fetchTr(fText);
-                if (tr) {
-                    cache[norm(fText)] = tr;
-                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                    card.querySelector('.english-text').innerText = tr;
-                }
+        function loadHistory(name) {
+            if (confirm(`Load ${name}? (Current list will be replaced)`)) {
+                inp.value = history[name];
+                toggleBackpack();
+                updList();
             }
-            if (tr) {
-                if (sp) window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(tr);
-                u.lang = 'en-US';
-                window.speechSynthesis.speak(u);
+        }
+
+        function deleteHistory(name) {
+            if (confirm(`Delete ${name} forever?`)) {
+                delete history[name];
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                toggleBackpack();
             }
         }
 
         function toggleMysteryMode() {
             isMysteryMode = !isMysteryMode;
             document.body.classList.toggle('mystery-active', isMysteryMode);
-            document.getElementById('mysteryToggle').innerText = isMysteryMode ? "🕵️‍♂️ Mystery Mode: ON" : "🕵️‍♀️ Mystery Mode: OFF";
-            document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode);
+            const btn = document.getElementById('mysteryToggle');
+            btn.innerText = isMysteryMode ? "🕵️‍♂️ Mystery Game: ON" : "🕵️‍♀️ Start Mystery Game";
+            btn.classList.toggle('active', isMysteryMode);
             updList();
         }
 
-        function loadPreset(key) { inp.value = sets[key].join('\n'); updList(); }
-        function clearPhrases() { if (confirm("Clear list?")) { inp.value = ''; updList(); } }
-        function shareApp() { navigator.share ? navigator.share({ title: 'French Fun', url: window.location.href }) : alert(window.location.href); }
+        function loadPreset(key) {
+            inp.value = sets[key].join('\n');
+            updList();
+        }
+
+        function clearPhrases() {
+            if (confirm("Clear this list? (Backpack is safe)")) {
+                inp.value = '';
+                updList();
+            }
+        }
+
+        function exportToFile() {
+            const data = { history, cache, current: inp.value };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'French_Backup_' + new Date().toLocaleDateString() + '.json';
+            a.click();
+        }
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({ title: 'French Fun Helper', url: window.location.href });
+            } else {
+                alert("Copy this link: " + window.location.href);
+            }
+        }
 
         window.onload = () => {
             const saved = localStorage.getItem('frenchPhrases');
             if (saved) inp.value = saved;
             updList();
-            window.addEventListener('online', () => { sb.classList.remove('offline'); statusText.innerText = "Online"; });
-            window.addEventListener('offline', () => { sb.classList.add('offline'); statusText.innerText = "Offline Mode"; });
+            window.addEventListener('online', () => { sb.classList.remove('offline'); stText.innerText = "Online"; });
+            window.addEventListener('offline', () => { sb.classList.add('offline'); stText.innerText = "Offline Mode"; });
+            // Load voices
+            speech.getVoices();
         };
     </script>
 </body>
