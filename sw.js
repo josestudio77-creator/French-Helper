@@ -1,5 +1,5 @@
-// sw.js - Service Worker for offline PWA
-const CACHE_NAME = 'french-helper-v6';
+// sw.js - Service Worker V10 (Network-First Strategy)
+const CACHE_NAME = 'french-helper-v10'; // Incremented version
 const urlsToCache = [
   './',
   './index.html',
@@ -7,67 +7,55 @@ const urlsToCache = [
   './manifest.json'
 ];
 
-// Install event - cache all essential files
+// Install event - cache essential files
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force the new service worker to become active immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caching app shell');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// Fetch event - serve from cache if available
+// Fetch event - Network First Strategy
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // Return cached version if found
-        if (response) {
-          return response;
-        }
-        
-        // Otherwise fetch from network
-        return fetch(event.request).then(response => {
-          // Don't cache API requests or non-successful responses
-          if (!response || response.status !== 200 || 
-              event.request.url.includes('translate') ||
-              event.request.url.includes('mymemory')) {
-            return response;
-          }
-          
-          // Cache the new response
+        // If network works, save to cache and return
+        if (response && response.status === 200 && event.request.method === 'GET') {
           const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
+          caches.open(CACHE_NAME).then(cache => {
+            // Only cache our local files, not the translation API
+            if (!event.request.url.includes('mymemory')) {
               cache.put(event.request, responseToCache);
-            });
-          
-          return response;
-        });
+            }
+          });
+        }
+        return response;
       })
       .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.url.includes('.html')) {
-          return caches.match('./index.html');
-        }
+        // If network fails (offline), use cache
+        return caches.match(event.request);
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - Delete ALL old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      self.clients.claim(), // Take control of all open tabs immediately
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
   );
 });
