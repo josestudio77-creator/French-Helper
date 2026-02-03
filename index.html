@@ -33,8 +33,8 @@
     <!-- Fonts for kids -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
-    <style>
-    /* ===== KID-FRIENDLY MOBILE FIRST DESIGN ===== */
+   <style>
+    /* ===== ULTRA-SIMPLE KID-FRIENDLY MOBILE DESIGN ===== */
     * {
         box-sizing: border-box;
         margin: 0;
@@ -77,13 +77,28 @@
         font-weight: bold;
     }
 
-    /* --- ACTION BUTTONS --- */
+    /* --- TOP ACTION BUTTONS (2 columns on ALL devices) --- */
+    .top-buttons-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* ALWAYS 2 columns */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
     #installButton, #shareButton {
-        padding: 18px 15px !important;
-        font-size: 1.2rem !important;
-        margin: 8px 0 !important;
-        width: 100% !important;
-        border-radius: 20px !important;
+        padding: 16px 10px !important;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        border-radius: 15px !important;
+        min-height: 60px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    /* --- HIDE the "Speaking..." indicator --- */
+    .speaking-indicator {
+        display: none !important;
     }
 
     /* --- PHRASE CARD --- */
@@ -95,11 +110,7 @@
         border: 6px solid #a3e4d7;
         box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         width: 100%;
-        position: relative;
     }
-
-    /* --- REMOVED: "Ready" Badge Styles --- */
-    /* (All .confidence-badge, .status-badge styles are gone) */
 
     /* --- PHRASE TEXT --- */
     .french-text {
@@ -141,23 +152,24 @@
         background-color: #5a67d8; /* Blue */
     }
 
-    /* --- WORD SETS --- */
+    /* --- FUN PRACTICE SETS (2 columns on ALL devices) --- */
     .preset-buttons {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* ALWAYS 2 columns */
         gap: 12px;
         margin-top: 15px;
     }
     .preset-btn {
-        padding: 20px 10px !important;
-        font-size: 1.2rem !important;
-        border-radius: 18px !important;
+        padding: 18px 8px !important;
+        font-size: 1.1rem !important;
+        border-radius: 15px !important;
         min-height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
         word-break: break-word;
+        line-height: 1.2;
     }
 
     /* --- TEXTAREA & CONTROLS --- */
@@ -168,30 +180,60 @@
         padding: 15px !important;
         margin: 15px 0 !important;
     }
+    .button-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
     .button-row button {
-        padding: 18px 15px !important;
-        font-size: 1.2rem !important;
-        margin: 8px 0 !important;
-        width: 100% !important;
+        padding: 16px 10px !important;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* --- HIDE DISTRACTIONS ON MOBILE --- */
-    .fun-corner, .section-divider h2 {
+    /* --- REMOVE THE ENTIRE SHARE MODAL --- */
+    .share-modal {
         display: none !important;
     }
-    .phrases-container h2 {
-        font-size: 1.8rem !important;
-        margin: 20px 0 15px !important;
-        padding: 0 10px !important;
+
+    /* --- HIDE VARIOUS DISTRACTIONS --- */
+    .fun-corner,
+    .section-divider h2,
+    #progressText,
+    #progressBar {
+        display: none !important;
     }
 
-    /* --- SMALL PHONE TWEAKS --- */
+    /* --- TITLES --- */
+    .phrases-container h2,
+    .phrase-sets h3 {
+        font-size: 1.6rem !important;
+        margin: 20px 0 10px !important;
+        padding: 0 10px !important;
+        background: rgba(255,255,255,0.9);
+        border-radius: 15px;
+        padding: 12px !important;
+    }
+
+    /* --- SMALL PHONE ADJUSTMENTS --- */
     @media (max-width: 400px) {
         h1 { font-size: 1.6rem; }
         .header p { font-size: 1rem; }
         .french-text { font-size: 1.9rem !important; }
         .speak-btn, .translate-btn { font-size: 1.4rem; padding: 20px 12px; }
-        .preset-buttons { grid-template-columns: 1fr; }
+        /* Keep 2 columns but adjust gap */
+        .preset-buttons, .top-buttons-container, .button-row {
+            gap: 8px;
+        }
+        .preset-btn, #installButton, #shareButton, .button-row button {
+            font-size: 1rem !important;
+            padding: 14px 6px !important;
+        }
     }
 </style>
 </head>
@@ -338,6 +380,11 @@ const inp = document.getElementById('phrasesInput'),
       shareUrlDisplay = document.getElementById('shareUrlDisplay'),
       qrCodeDisplay = document.getElementById('qrCodeDisplay'),
       currentUrlElement = document.getElementById('currentUrl');
+
+// Remove the entire share modal since we only need the top share button
+if (shareModal && shareModal.parentNode) {
+    shareModal.parentNode.removeChild(shareModal);
+}
 
 // Data
 const sets = {
@@ -1208,5 +1255,6 @@ window.addEventListener('beforeunload', () => {
 </body>
 
 </html>
+
 
 
