@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V2.8 🎉</title>
+    <title>🇫🇷 French Fun V2.9 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -65,7 +65,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V2.8 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V2.9 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -93,7 +93,6 @@
         <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Game</div>
     </div>
 
-    <!-- Homework Drawer -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
             <h2 style="color:#9d4edd">✏️ My Homework</h2>
@@ -107,7 +106,6 @@
         </div>
     </div>
 
-    <!-- Game Drawer -->
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
             <div id="clueEmoji" class="clue-emoji">💡</div>
@@ -122,40 +120,29 @@
 
     <div id="bpModal" class="overlay" style="z-index:3000">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Saved Weeks</h2>
+            <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
             <div id="bpList"></div>
-            <button onclick="closeOverlay('bpModal')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
+            <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:20px; font-weight:900">⚠️ APP STUCK? RESET EVERYTHING</button>
+            <button onclick="closeOverlay('bpModal')" style="margin-top:10px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
         </div>
     </div>
 
     <script>
-        // HARDCODED DICTIONARY
-        const dict = {
-            "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
-            "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
-            "pomme": "apple", "chat": "cat", "chien": "dog", "soleil": "sun", "ecole": "school", 
-            "maison": "house", "livre": "book", "rouge": "red", "bleu": "blue", "vert": "green", 
-            "jaune": "yellow", "bonjour": "hello", "merci": "thank you", "papa": "father", "maman": "mother"
+        // HARDCODED EMOJI MAP (FRENCH KEYS FIRST FOR RELIABILITY)
+        const emojiMap = {
+            "pomme": "🍎", "chat": "🐱", "chien": "🐶", "soleil": "☀️", "maison": "🏠", "ecole": "🏫",
+            "garcon": "👦", "fille": "👧", "livre": "📖", "voiture": "🚗", "rouge": "🔴", "bleu": "🔵",
+            "vert": "🟢", "jaune": "🟡", "un": "1️⃣", "deux": "2️⃣", "trois": "3️⃣", "bonjour": "👋",
+            "pain": "🥖", "eau": "💧", "lait": "🥛", "poisson": "🐟", "oiseau": "🐦", "vache": "🐮",
+            "maman": "👩", "papa": "👨", "soeur": "👧", "frere": "👦", "tete": "🙆", "main": "✋",
+            "pied": "🦶", "yeux": "👀", "nez": "👃", "bouche": "👄", "oreille": "👂", "crayon": "✏️",
+            "apple": "🍎", "cat": "🐱", "dog": "🐶", "sun": "☀️", "house": "🏠", "school": "🏫"
         };
 
-        const emojiMap = {
-            "apple": "🍎", "pomme": "🍎", "banana": "🍌", "banane": "🍌", "cat": "🐱", "chat": "🐱", "dog": "🐶", "chien": "🐶", 
-            "sun": "☀️", "soleil": "☀️", "house": "🏠", "maison": "🏠", "school": "🏫", "ecole": "🏫",
-            "boy": "👦", "garcon": "👦", "girl": "👧", "fille": "👧", "book": "📖", "livre": "📖", "car": "🚗", "voiture": "🚗",
-            "red": "🔴", "rouge": "🔴", "blue": "🔵", "bleu": "🔵", "green": "🟢", "vert": "🟢", "yellow": "🟡", "jaune": "🟡",
-            "one": "1️⃣", "un": "1️⃣", "two": "2️⃣", "deux": "2️⃣", "three": "3️⃣", "trois": "3️⃣", "hello": "👋", "bonjour": "👋", 
-            "bread": "🥖", "pain": "🥖", "water": "💧", "eau": "💧", "milk": "🥛", "lait": "🥛", "fish": "🐟", "poisson": "🐟",
-            "bird": "🐦", "oiseau": "🐦", "horse": "🐎", "cheval": "🐎", "cow": "🐮", "vache": "🐮",
-            "pizza": "🍕", "cake": "🍰", "gateau": "🍰", "ice": "🍦", "glace": "🍦", "rain": "🌧️", "pluie": "🌧️", 
-            "snow": "❄️", "neige": "❄️", "hot": "🔥", "chaud": "🔥", "cold": "🧊", "froid": "🧊", "family": "👨‍👩‍👧", "famille": "👨‍👩‍👧",
-            "mother": "👩", "maman": "👩", "father": "👨", "papa": "👨", "sister": "👧", "soeur": "👧", "brother": "👦", "frere": "👦",
-            "head": "🙆", "tete": "🙆", "hand": "✋", "main": "✋", "foot": "🦶", "pied": "🦶", "eye": "👁️", "oeil": "👁️", "eyes": "👀", "yeux": "👀",
-            "nose": "👃", "nez": "👃", "mouth": "👄", "bouche": "👄", "ear": "👂", "oreille": "👂", "pencil": "✏️", "crayon": "✏️",
-            "desk": "🪑", "bureau": "🪑", "bag": "🎒", "sac": "🎒"
-        };
+        const dict = { "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five", "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten" };
 
         const presets = {
-            greetings: ["Bonjour", "Salut", "Merci", "S'il vous plaît", "Au revoir"],
+            greetings: ["Bonjour", "Salut", "Merci", "De rien", "Au revoir"],
             numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
             colors: ["Rouge", "Bleu", "Vert", "Jaune", "Orange", "Rose", "Violet", "Marron"],
             family: ["Maman", "Papa", "Ma sœur", "Mon frère", "Ma grand-mère", "Mon grand-père"],
@@ -172,37 +159,23 @@
         let currentScreenList = [];
 
         window.onload = () => {
-            cleanOldData();
-            const rawHw = localStorage.getItem('homeworkPhrases');
-            if (rawHw && rawHw.trim().length > 0) {
-                loadList(rawHw.split('\n'));
-            } else {
-                loadPreset('greetings');
-            }
+            const raw = localStorage.getItem('homeworkPhrases');
+            if (raw && (raw.startsWith('[') || raw === "undefined")) { localStorage.removeItem('homeworkPhrases'); location.reload(); }
+            document.getElementById('hwInput').value = raw || "";
+            loadList(raw ? raw.split('\n') : presets.greetings);
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
-        function cleanOldData() {
-            let data = localStorage.getItem('homeworkPhrases');
-            // If data is JSON, wipe it or convert it to avoid the "garbled text" bug
-            if (data && (data.startsWith('[') || data.startsWith('{'))) {
-                localStorage.removeItem('homeworkPhrases');
-                data = "";
-            }
-            document.getElementById('hwInput').value = data || "";
-        }
-
+        function nukeStorage() { if(confirm("This will erase everything and fix bugs. Continue?")) { localStorage.clear(); location.reload(); } }
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
-
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') startHangman(); }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
         function loadPreset(k) { loadList(presets[k]); }
 
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
-            const mode = confirm("✨ Magic Sync!\n\nOK: Sync EVERYTHING (All sets + Homework) for offline.\nCancel: Just this screen.");
+            const mode = confirm("✨ Magic Sync!\n\nOK: Everything\nCancel: Only Screen");
             let list = mode ? [...new Set([...document.getElementById('hwInput').value.split('\n'), ...Object.values(presets).flat()])] : currentScreenList;
-            if (list.length === 0) return;
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
                 btn.textContent = `${i+1}/${list.length}`;
@@ -221,73 +194,38 @@
                 const tr = dict[norm(p)] || cache[norm(p)] || null;
                 const card = document.createElement('div');
                 card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
-                
-                const fSpan = document.createElement('span'); fSpan.className = 'french-text'; fSpan.textContent = p;
-                const eSpan = document.createElement('span'); eSpan.className = 'english-text'; eSpan.textContent = tr || '...';
-                
-                const btns = document.createElement('div'); btns.className = 'card-btns';
-                const sBtn = document.createElement('button'); sBtn.className = 'card-btn spk-fr'; sBtn.textContent = '🎤 French';
-                sBtn.onclick = () => spk(p, 'fr-FR');
-                const tBtn = document.createElement('button'); tBtn.className = 'card-btn spk-en';
-                tBtn.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
-                tBtn.onclick = () => handleReveal(card, p, eSpan);
-
-                btns.append(sBtn, tBtn);
-                card.append(fSpan, eSpan, btns);
-                container.appendChild(card);
+                const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
+                const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = tr || '...';
+                const bD = document.createElement('div'); bD.className = 'card-btns';
+                const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
+                sB.onclick = () => spk(p, 'fr-FR');
+                const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
+                tB.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
+                tB.onclick = () => handleReveal(card, p, eS);
+                bD.append(sB, tB); card.append(fS, eS, bD); container.appendChild(card);
             });
         }
 
-        async function handleReveal(card, french, display) {
-            card.classList.add('revealed');
-            let tr = dict[norm(french)] || cache[norm(french)];
-            if (!tr && navigator.onLine) {
-                display.textContent = '⏳...';
-                tr = await translateOne(french);
-                if (tr) display.textContent = tr;
-            }
-            if (tr) spk(tr, 'en-US');
-        }
-
-        async function translateOne(p) {
-            const normalized = norm(p);
-            if (dict[normalized]) return dict[normalized];
-            try {
-                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`);
-                const d = await r.json(); const tr = d.responseData.translatedText;
-                cache[normalized] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                return tr;
-            } catch (e) { return null; }
-        }
-
+        async function handleReveal(c, f, d) { c.classList.add('revealed'); let tr = dict[norm(f)] || cache[norm(f)]; if (!tr && navigator.onLine) { d.textContent = '⏳...'; tr = await translateOne(f); if (tr) d.textContent = tr; } if (tr) spk(tr, 'en-US'); }
+        async function translateOne(p) { const n = norm(p); if (dict[n]) return dict[n]; try { const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`); const d = await r.json(); const tr = d.responseData.translatedText; cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr; } catch (e) { return null; } }
         function spk(t, lang) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8; window.speechSynthesis.speak(u); }
 
+        // --- HANGMAN ---
+        let targetWord, guessed, mistakes;
         function startHangman() {
             const raw = document.getElementById('hwInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
-            const hwWords = raw.length > 0 ? raw : ["POMME", "CHAT", "CHIEN", "ECOLE", "MAISON", "LIVRE", "ROUGE", "VERT", "BLEU"];
-            
-            let pick; 
-            // Anti-stuck logic: ensure we actually try to pick a new word
-            if (hwWords.length > 1) {
-                do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord);
-            } else {
-                pick = hwWords[0];
-            }
-            
+            const hwWords = raw.length > 0 ? raw : ["POMME", "CHAT", "CHIEN", "ECOLE", "MAISON", "LIVRE", "ROUGE", "VERT", "BLEU", "SOLEIL"];
+            let pick;
+            if (hwWords.length > 1) { do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord); } else { pick = hwWords[0]; }
             lastWord = pick; targetWord = pick.toUpperCase();
             
             const frNorm = norm(pick);
-            const english = (dict[frNorm] || cache[frNorm] || "").toLowerCase();
-            let emoji = "💡";
+            const en = (dict[frNorm] || cache[frNorm] || "").toLowerCase();
+            let em = "💡";
+            if (emojiMap[frNorm]) em = emojiMap[frNorm];
+            else { for (let k in emojiMap) { if (en.includes(k)) { em = emojiMap[k]; break; } } }
             
-            if (emojiMap[frNorm]) emoji = emojiMap[frNorm];
-            else {
-                for (let key in emojiMap) {
-                    if (english.includes(key)) { emoji = emojiMap[key]; break; }
-                }
-            }
-            
-            document.getElementById('clueEmoji').textContent = emoji;
+            document.getElementById('clueEmoji').textContent = em;
             guessed = [targetWord[0]]; mistakes = 0;
             drawHangman(0); updateHangmanUI();
         }
@@ -310,48 +248,36 @@
             });
         }
 
-        function drawHangman(step) {
-            const canvas = document.getElementById('hangmanCanvas'); const ctx = canvas.getContext('2d');
+        function drawHangman(s) {
+            const c = document.getElementById('hangmanCanvas'); const ctx = c.getContext('2d');
             ctx.clearRect(0, 0, 200, 180); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
-            if (step >= 1) { ctx.beginPath(); ctx.moveTo(20, 160); ctx.lineTo(180, 160); ctx.stroke(); }
-            if (step >= 2) { ctx.beginPath(); ctx.moveTo(40, 160); ctx.lineTo(40, 20); ctx.stroke(); }
-            if (step >= 3) { ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(120, 20); ctx.stroke(); }
-            if (step >= 4) { ctx.beginPath(); ctx.moveTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); }
-            if (step >= 5) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); }
-            if (step >= 6) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); }
-            if (step >= 7) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); }
-            if (step >= 8) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); }
-            if (step >= 9) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); }
-            if (step >= 10) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); }
+            if (s >= 1) { ctx.beginPath(); ctx.moveTo(20, 160); ctx.lineTo(180, 160); ctx.stroke(); }
+            if (s >= 2) { ctx.beginPath(); ctx.moveTo(40, 160); ctx.lineTo(40, 20); ctx.stroke(); }
+            if (s >= 3) { ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(120, 20); ctx.stroke(); }
+            if (s >= 4) { ctx.beginPath(); ctx.moveTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); }
+            if (s >= 5) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); }
+            if (s >= 6) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); }
+            if (s >= 7) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); }
+            if (s >= 8) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); }
+            if (s >= 9) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); }
+            if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); }
         }
 
-        function saveHW() {
-            const val = document.getElementById('hwInput').value;
-            localStorage.setItem('homeworkPhrases', val);
-            const name = prompt("Name this week:", "Week " + (Object.keys(history).length + 1));
-            if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
-            loadList(val.split('\n'));
-        }
-
+        function saveHW() { const val = document.getElementById('hwInput').value; localStorage.setItem('homeworkPhrases', val); const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); } loadList(val.split('\n')); }
         function openBP() {
             const list = document.getElementById('bpList'); list.innerHTML = '';
             Object.keys(history).reverse().forEach(name => {
                 const div = document.createElement('div'); div.className = 'history-item';
-                const nSpan = document.createElement('span'); nSpan.textContent = name;
-                const btns = document.createElement('div');
-                const loadBtn = document.createElement('button'); loadBtn.className = 'load-btn'; loadBtn.textContent = 'Load';
-                loadBtn.onclick = () => loadHist(name);
-                const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.textContent = '🗑️';
-                delBtn.onclick = () => delHist(name);
-                btns.append(loadBtn, delBtn);
-                div.append(nSpan, btns);
-                list.appendChild(div);
+                const nS = document.createElement('span'); nS.textContent = name;
+                const bC = document.createElement('div');
+                const lB = document.createElement('button'); lB.className = 'load-btn'; lB.textContent = 'Load'; lB.onclick = () => loadHist(name);
+                const dB = document.createElement('button'); dB.className = 'del-btn'; dB.textContent = '🗑️'; dB.onclick = () => delHist(name);
+                bC.append(lB, dB); div.append(nS, bC); list.appendChild(div);
             });
             openOverlay('bpModal');
         }
-
-        function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
-        function delHist(n) { if (confirm("Delete " + n + "?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
+        function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); }
+        function delHist(n) { if (confirm("Delete?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
         function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; renderListUI(); }
         function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
     </script>
