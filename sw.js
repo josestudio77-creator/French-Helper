@@ -1,5 +1,5 @@
-// sw.js - Service Worker V14
-const CACHE_NAME = 'french-helper-v14';
+// sw.js - Service Worker V16
+const CACHE_NAME = 'french-helper-v16';
 const urlsToCache = ['./', './index.html', './icon.png', './manifest.json'];
 self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache))); });
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => { if(k !== CACHE_NAME) return caches.delete(k); })))));
