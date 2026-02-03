@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
-    /* ===== ULTRA-SIMPLE KID-FRIENDLY MOBILE DESIGN ===== */
+    /* ===== SIMPLIFIED KID-FRIENDLY MOBILE DESIGN ===== */
     * {
         box-sizing: border-box;
         margin: 0;
@@ -75,30 +75,6 @@
         color: #5a67d8;
         font-size: 1.1rem;
         font-weight: bold;
-    }
-
-    /* --- TOP ACTION BUTTONS (2 columns on ALL devices) --- */
-    .top-buttons-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* ALWAYS 2 columns */
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    #installButton, #shareButton {
-        padding: 16px 10px !important;
-        font-size: 1.1rem !important;
-        margin: 0 !important;
-        border-radius: 15px !important;
-        min-height: 60px;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        white-space: nowrap;
-    }
-
-    /* --- HIDE the "Speaking..." indicator --- */
-    .speaking-indicator {
-        display: none !important;
     }
 
     /* --- PHRASE CARD --- */
@@ -152,13 +128,50 @@
         background-color: #5a67d8; /* Blue */
     }
 
-    /* --- FUN PRACTICE SETS (2 columns on ALL devices) --- */
+    /* --- COLLAPSIBLE PRACTICE SETS --- */
+    .phrase-sets {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 15px;
+        margin: 20px 0;
+        border: 4px solid #ffd166;
+        cursor: pointer;
+    }
+    .phrase-sets h3 {
+        font-size: 1.6rem !important;
+        margin: 0 0 0 !important;
+        color: #2d3748;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    .phrase-sets h3::after {
+        content: "▼";
+        font-size: 1.2rem;
+        transition: transform 0.3s;
+    }
+    .phrase-sets.collapsed h3::after {
+        transform: rotate(-90deg);
+    }
     .preset-buttons {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* ALWAYS 2 columns */
+        grid-template-columns: repeat(2, 1fr);
         gap: 12px;
         margin-top: 15px;
+        max-height: 500px;
+        overflow: hidden;
+        transition: max-height 0.5s ease, opacity 0.3s ease;
+        opacity: 1;
     }
+    .phrase-sets.collapsed .preset-buttons {
+        max-height: 0;
+        margin-top: 0;
+        opacity: 0;
+        overflow: hidden;
+    }
+
+    /* --- PRACTICE SET BUTTONS --- */
     .preset-btn {
         padding: 18px 8px !important;
         font-size: 1.1rem !important;
@@ -170,6 +183,12 @@
         text-align: center;
         word-break: break-word;
         line-height: 1.2;
+        background: white !important;
+        border: 4px solid #a3e4d7 !important;
+        color: #2d3748 !important;
+    }
+    .preset-btn:hover {
+        background: #f0f9ff !important;
     }
 
     /* --- TEXTAREA & CONTROLS --- */
@@ -196,22 +215,51 @@
         justify-content: center;
     }
 
-    /* --- REMOVE THE ENTIRE SHARE MODAL --- */
-    .share-modal {
-        display: none !important;
+    /* --- BOTTOM ACTION BUTTONS (2 columns, better colors) --- */
+    .bottom-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 25px 0 15px;
+        width: 100%;
+    }
+    .bottom-btn {
+        padding: 18px 12px !important;
+        font-size: 1.2rem !important;
+        border-radius: 18px !important;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 65px;
+        text-decoration: none;
+        color: white !important;
+        width: 100%;
+    }
+    #installButton.bottom-btn {
+        background: linear-gradient(135deg, #FF9E6D 0%, #FF8E53 100%) !important;
+        border: 4px solid #FF8E53 !important;
+    }
+    #shareButton.bottom-btn {
+        background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%) !important;
+        border: 4px solid #4c51bf !important;
     }
 
     /* --- HIDE VARIOUS DISTRACTIONS --- */
     .fun-corner,
     .section-divider h2,
     #progressText,
-    #progressBar {
+    #progressBar,
+    .speaking-indicator,
+    .top-buttons-container {
         display: none !important;
     }
 
     /* --- TITLES --- */
-    .phrases-container h2,
-    .phrase-sets h3 {
+    .phrases-container h2 {
         font-size: 1.6rem !important;
         margin: 20px 0 10px !important;
         padding: 0 10px !important;
@@ -226,11 +274,10 @@
         .header p { font-size: 1rem; }
         .french-text { font-size: 1.9rem !important; }
         .speak-btn, .translate-btn { font-size: 1.4rem; padding: 20px 12px; }
-        /* Keep 2 columns but adjust gap */
-        .preset-buttons, .top-buttons-container, .button-row {
+        .preset-buttons, .bottom-buttons, .button-row {
             gap: 8px;
         }
-        .preset-btn, #installButton, #shareButton, .button-row button {
+        .preset-btn, .bottom-btn, .button-row button {
             font-size: 1rem !important;
             padding: 14px 6px !important;
         }
@@ -255,13 +302,12 @@
                 <span id="statusText">Ready to learn!</span>
             </div>
             
-            <!-- Top action buttons -->
-            <div style="display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap;">
-                <button id="installButton" class="install-btn" style="display: none; padding: 16px 22px; border-radius: 15px; color: white; border: none; cursor: pointer; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10px; flex: 1; min-width: 160px;">
+            <!-- Top action buttons (will be moved to bottom by JavaScript) -->
+            <div class="top-buttons-container">
+                <button id="installButton" class="bottom-btn">
                     <span>📱</span> Install App
                 </button>
-                
-                <button id="shareButton" class="share-btn" onclick="openShareModal()" style="padding: 16px 22px; border-radius: 15px; color: white; border: none; cursor: pointer; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10px; flex: 1; min-width: 160px;">
+                <button id="shareButton" class="bottom-btn">
                     <span>🎁</span> Share with Friends
                 </button>
             </div>
@@ -311,56 +357,6 @@ J'ai six ans.
                 <h2>🎮 Practice Time:</h2>
                 <div id="phrasesList"></div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Share Modal -->
-    <div id="shareModal" class="share-modal">
-        <div class="share-content">
-            <h2 style="color: #FF6B8B; margin-bottom: 20px; font-family: 'Comic Neue', cursive;">🎁 Share French Fun Helper!</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 18px; font-weight: 600;">Share this fun app with friends and classmates! 🎉</p>
-            
-            <div class="share-options">
-                <div class="share-option" onclick="shareViaURL()">
-                    <span style="font-size: 36px;">🔗</span>
-                    <span>Copy Link</span>
-                </div>
-                
-                <div class="share-option" onclick="shareViaQR()">
-                    <span style="font-size: 36px;">📱</span>
-                    <span>QR Code</span>
-                </div>
-                
-                <div class="share-option" onclick="shareViaWhatsApp()">
-                    <span style="font-size: 36px;">💬</span>
-                    <span>WhatsApp</span>
-                </div>
-                
-                <div class="share-option" onclick="shareViaEmail()">
-                    <span style="font-size: 36px;">📧</span>
-                    <span>Email</span>
-                </div>
-            </div>
-            
-            <div id="shareUrlDisplay" class="share-url" style="display: none;">
-                <div style="font-weight: 900; margin-bottom: 10px; color: #118AB2; font-family: 'Comic Neue', cursive;">Copy this fun link:</div>
-                <div id="currentUrl"></div>
-                <button onclick="copyURL()" style="margin-top: 15px; padding: 12px 20px; background: linear-gradient(135deg, #06D6A0 0%, #0CB48A 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 16px; font-family: 'Comic Neue', cursive;">
-                    📋 Copy to Clipboard
-                </button>
-            </div>
-            
-            <div id="qrCodeDisplay" class="qr-code" style="display: none;"></div>
-            
-            <div style="margin-top: 25px; font-size: 16px; color: #666; text-align: left; background: #F0F9FF; padding: 20px; border-radius: 15px; border: 3px solid #CBF3F0;">
-                <p style="font-weight: 900; color: #118AB2; margin-bottom: 10px; font-family: 'Comic Neue', cursive;">🎯 Sharing Tips for Kids:</p>
-                <p>• 📚 Share with classmates for group practice</p>
-                <p>• 👨‍🏫 Ask your teacher to show it in class</p>
-                <p>• 💻 Bookmark on school computers</p>
-                <p>• 🏠 Show your family at home</p>
-            </div>
-            
-            <button class="close-share" onclick="closeShareModal()">🎪 Back to Fun!</button>
         </div>
     </div>
     
@@ -485,6 +481,56 @@ let cache = {}, cur = null, sp = null;
 let deferredPrompt = null;
 let isTranslatingAll = false;
 
+// ========== SHARE FUNCTIONALITY ==========
+function openShareModal() {
+    // Use browser's native share if available
+    if (navigator.share) {
+        navigator.share({
+            title: '🎉 French Fun Helper',
+            text: 'A super fun way to learn French! Perfect for kids!',
+            url: window.location.href,
+        }).catch(err => console.log('Share cancelled'));
+    } else {
+        // Fallback: copy URL to clipboard
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('🎉 Link copied! Share: ' + url);
+        }).catch(() => {
+            // Old browser fallback
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('🎉 Link copied!');
+        });
+    }
+}
+
+// Use Web Share API if available (mobile devices)
+function checkWebShareAPI() {
+    if (navigator.share) {
+        const shareButton = document.getElementById('shareButton');
+        shareButton.onclick = async () => {
+            try {
+                await navigator.share({
+                    title: '🎉 French Fun Helper',
+                    text: 'A super fun way to learn French! Perfect for kids with games, sounds, and colorful buttons!',
+                    url: window.location.href,
+                });
+                console.log('🎉 Shared successfully');
+            } catch (err) {
+                // User cancelled or error, fallback to simple copy
+                openShareModal();
+            }
+        };
+    }
+}
+
+// Check for Web Share API on load
+document.addEventListener('DOMContentLoaded', checkWebShareAPI);
+
 // ========== SPEECH SYNTHESIS SMART INITIALIZATION ==========
 let speechInitialized = false;
 
@@ -604,155 +650,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(swUrl).catch(console.error);
     });
 }
-
-// ========== SHARE FUNCTIONALITY ==========
-function openShareModal() {
-    shareModal.style.display = 'flex';
-    // Reset displays
-    shareUrlDisplay.style.display = 'none';
-    qrCodeDisplay.style.display = 'none';
-}
-
-function closeShareModal() {
-    shareModal.style.display = 'none';
-}
-
-// Get current URL (for sharing)
-function getAppURL() {
-    return window.location.href;
-}
-
-// Copy URL to clipboard
-function shareViaURL() {
-    const url = getAppURL();
-    currentUrlElement.textContent = url;
-    shareUrlDisplay.style.display = 'block';
-    qrCodeDisplay.style.display = 'none';
-}
-
-function copyURL() {
-    const url = getAppURL();
-    navigator.clipboard.writeText(url).then(() => {
-        alert('🎉✅ Link copied! Share this fun app with friends:\n\n' + url);
-    }).catch(err => {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert('🎉✅ Link copied!');
-    });
-}
-
-// Generate QR Code
-function shareViaQR() {
-    const url = getAppURL();
-    shareUrlDisplay.style.display = 'none';
-    qrCodeDisplay.style.display = 'block';
-    
-    // Clear previous QR code
-    qrCodeDisplay.innerHTML = '';
-    
-    // Generate QR code using Google Charts API
-    const qrSize = 200;
-    const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${qrSize}x${qrSize}&chl=${encodeURIComponent(url)}&choe=UTF-8`;
-    
-    const qrImg = document.createElement('img');
-    qrImg.src = qrUrl;
-    qrImg.alt = 'QR Code for French Fun Helper';
-    qrImg.style.width = '100%';
-    qrImg.style.height = 'auto';
-    qrImg.style.borderRadius = '15px';
-    qrImg.style.border = '5px solid #FFD166';
-    qrCodeDisplay.appendChild(qrImg);
-    
-    // Add download button
-    const downloadBtn = document.createElement('button');
-    downloadBtn.innerHTML = '📥 Download QR Code';
-    downloadBtn.style.marginTop = '15px';
-    downloadBtn.style.padding = '12px 20px';
-    downloadBtn.style.background = 'linear-gradient(135deg, #06D6A0 0%, #0CB48A 100%)';
-    downloadBtn.style.color = 'white';
-    downloadBtn.style.border = 'none';
-    downloadBtn.style.borderRadius = '12px';
-    downloadBtn.style.cursor = 'pointer';
-    downloadBtn.style.fontWeight = '900';
-    downloadBtn.style.fontFamily = "'Comic Neue', cursive";
-    downloadBtn.onclick = () => downloadQRCode(qrUrl);
-    qrCodeDisplay.appendChild(downloadBtn);
-}
-
-function downloadQRCode(qrUrl) {
-    const link = document.createElement('a');
-    link.href = qrUrl;
-    link.download = 'french-fun-helper-qr.png';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    alert('🎉 QR Code downloaded! Share it with friends!');
-}
-
-// Share via WhatsApp
-function shareViaWhatsApp() {
-    const url = getAppURL();
-    const text = `🎉 Check out French Fun Helper! A super fun way to learn French with games and sounds! Perfect for kids! ${url}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(whatsappUrl, '_blank');
-}
-
-// Share via Email
-function shareViaEmail() {
-    const url = getAppURL();
-    const subject = '🎉 French Fun Helper - Super Fun French Learning for Kids!';
-    const body = `Hi there! 👋
-
-I found this AMAZING French learning app that kids LOVE:
-
-🌈 French Fun Helper
-${url}
-
-🎯 What makes it awesome:
-• 🎮 Fun games and colorful buttons
-• 🎤 French and English pronunciation
-• 📚 Works even without internet
-• 📱 Can be installed like an app
-• 🎉 Perfect for school and home practice
-
-Kids can practice French phrases, colors, numbers, animals, and more!
-
-Perfect for students learning French - they'll have so much fun they won't even realize they're learning! 😊
-
-Best wishes,
-A happy user`;
-    
-    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-}
-
-// Use Web Share API if available (mobile devices)
-function checkWebShareAPI() {
-    if (navigator.share) {
-        const shareButton = document.getElementById('shareButton');
-        shareButton.onclick = async () => {
-            try {
-                await navigator.share({
-                    title: '🎉 French Fun Helper',
-                    text: 'A super fun way to learn French! Perfect for kids with games, sounds, and colorful buttons!',
-                    url: window.location.href,
-                });
-                console.log('🎉 Shared successfully');
-            } catch (err) {
-                // User cancelled or error, fallback to modal
-                openShareModal();
-            }
-        };
-    }
-}
-
-// Check for Web Share API on load
-document.addEventListener('DOMContentLoaded', checkWebShareAPI);
 
 // ========== PWA INSTALL PROMPT ==========
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -1251,10 +1148,46 @@ window.addEventListener('beforeunload', () => {
         speechSynthesis.cancel();
     }
 });
+
+// ========== MOBILE ENHANCEMENTS ==========
+// Make practice sets collapsible and move buttons to bottom
+document.addEventListener('DOMContentLoaded', function() {
+    // Make practice sets collapsible
+    const practiceSets = document.querySelector('.phrase-sets');
+    if (practiceSets) {
+        practiceSets.addEventListener('click', function(e) {
+            // Only toggle if clicking on the header itself, not the buttons inside
+            if (e.target.closest('.preset-btn')) return;
+            this.classList.toggle('collapsed');
+        });
+        
+        // Start collapsed on mobile
+        if (window.innerWidth <= 768) {
+            practiceSets.classList.add('collapsed');
+        }
+    }
+    
+    // Move Install/Share buttons to bottom
+    const topButtons = document.querySelector('.top-buttons-container');
+    const bottomContainer = document.createElement('div');
+    bottomContainer.className = 'bottom-buttons';
+    
+    if (topButtons && topButtons.children.length > 0) {
+        // Move buttons to new container
+        while (topButtons.firstChild) {
+            bottomContainer.appendChild(topButtons.firstChild);
+        }
+        
+        // Add new container to end of content
+        const contentArea = document.querySelector('.content-area');
+        if (contentArea) {
+            contentArea.appendChild(bottomContainer);
+        }
+        
+        // Remove old container (already hidden by CSS but clean up)
+        topButtons.remove();
+    }
+});
     </script>
 </body>
-
 </html>
-
-
-
