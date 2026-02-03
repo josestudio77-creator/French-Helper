@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V3.2 🎉</title>
+    <title>🇫🇷 French Fun V3.4 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -16,7 +16,6 @@
     body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
 
-    /* Header */
     .header { background: white; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
     h1 { color: #ff6b8b; font-size: 1.5rem; }
 
@@ -24,15 +23,13 @@
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* VISUAL PRACTICE CARDS */
-    .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
-    .card-icon { font-size: 4rem; display: block; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+    .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+    .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     
-    /* Mystery Reveal Overlay */
     .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border: 2px dashed #cbd5e0; position: relative; }
-    .mystery-active .english-text::after { content: "❓ TAP ORANGE"; display: block; color: #5a67d8; font-size: 0.8rem; font-weight: 900; }
+    .mystery-active .english-text::after { content: "❓ TAP ORANGE"; display: block; color: #5a67d8; font-size: 0.8rem; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; }
     .revealed .english-text { background: transparent !important; color: #06D6A0 !important; border-color: transparent !important; }
     .revealed .english-text::after { display: none !important; }
 
@@ -41,13 +38,11 @@
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    /* Nav Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
-    /* Drawers */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 90vh; overflow-y: auto; text-align: center; }
     textarea { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
@@ -67,7 +62,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V3.2 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V3.4 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -131,21 +126,40 @@
     </div>
 
     <script>
-        // MASTER EMOJI DATABASE
+        // --- HARD-MATCHED DATABASE (Exact phrases) ---
         const emojiMap = {
-            "un":"1️⃣","deux":"2️⃣","trois":"3️⃣","quatre":"4️⃣","cinq":"5️⃣","six":"6️⃣","sept":"7️⃣","huit":"8️⃣","neuf":"9️⃣","dix":"🔟",
-            "rouge":"🔴","bleu":"🔵","vert":"🟢","jaune":"🟡","orange":"🟠","rose":"🌸","noir":"⚫","blanc":"⚪","violet":"🟣","marron":"🟤",
-            "chat":"🐱","chien":"🐶","lapin":"🐰","oiseau":"🐦","poisson":"🐟","vache":"🐮","cheval":"🐎","lion":"🦁","elephant":"🐘",
-            "maman":"👩","papa":"👨","soeur":"👧","frere":"👦","bebe":"👶","grand-mere":"👵","grand-père":"👴",
-            "pomme":"🍎","pain":"🥖","lait":"🥛","pizza":"🍕","glace":"🍦","gateau":"🍰","eau":"💧","banane":"🍌","fromage":"🧀",
-            "tete":"🙆","nez":"👃","bouche":"👄","yeux":"👀","main":"✋","pied":"🦶","oreille":"👂","bras":"💪",
-            "bonjour":"👋","salut":"👋","merci":"🙏","au revoir":"👋",
-            "livre":"📖","crayon":"✏️","sac":"🎒","ecole":"🏫","bureau":"🪑","professeur":"🧑‍🏫",
-            "soleil":"☀️","pluie":"🌧️","neige":"❄️","chaud":"🔥","froid":"🧊","coeur":"❤️","cupidon":"💘"
+            // Numbers (Exact Match)
+            "Un":"1️⃣","Deux":"2️⃣","Trois":"3️⃣","Quatre":"4️⃣","Cinq":"5️⃣","Six":"6️⃣","Sept":"7️⃣","Huit":"8️⃣","Neuf":"9️⃣","Dix":"🔟",
+            // Animals (Exact Match)
+            "Un chat":"🐱","Un chien":"🐶","Un lapin":"🐰","Un oiseau":"🐦","Un poisson":"🐟","Une vache":"🐮","Un cheval":"🐎",
+            // Food (Exact Match)
+            "Une pomme":"🍎","Du pain":"🥖","Du lait":"🥛","Une pizza":"🍕","Une banane":"🍌","Du fromage":"🧀","Un gâteau":"🍰",
+            // Colors
+            "Rouge":"🔴","Bleu":"🔵","Vert":"🟢","Jaune":"🟡","Orange":"🟠","Rose":"🌸","Noir":"⚫","Blanc":"⚪","Violet":"🟣","Marron":"🟤",
+            // Family
+            "Maman":"👩","Papa":"👨","Ma sœur":"👧","Mon frère":"👦","Grand-mère":"👵","Grand-père":"👴",
+            // School
+            "Un livre":"📖","Un crayon":"✏️","Un sac":"🎒","L'école":"🏫","Le bureau":"🪑","Le professeur":"🧑‍🏫",
+            // Body
+            "La tête":"🙆","Le nez":"👃","La bouche":"👄","Les yeux":"👀","Les mains":"✋","Les pieds":"🦶",
+            // Words for partial matching (Backups)
+            "pomme":"🍎","chat":"🐱","chien":"🐶","soleil":"☀️","maison":"🏠","pain":"🥖","crayon":"✏️","livre":"📖",
+            "bonjour":"👋","salut":"👋","merci":"🙏","au revoir":"👋","coeur":"❤️","cupidon":"💘"
         };
 
         const dict = { "un":"one","deux":"two","trois":"three","quatre":"four","cinq":"five","six":"six","sept":"seven","huit":"eight","neuf":"nine","dix":"ten" };
         
+        const presets = {
+            greetings:["Bonjour","Salut","Merci","Au revoir"],
+            numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"],
+            colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Violet"],
+            family:["Maman","Papa","Ma sœur","Mon frère","Grand-mère","Grand-père"],
+            body:["La tête","Le nez","La bouche","Les yeux","Les mains","Les pieds"],
+            animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache"],
+            food:["Une pomme","Du pain","Du lait","Une pizza","Une banane","Du fromage"],
+            school:["Un livre","Un crayon","Un sac","L'école","Le bureau"]
+        };
+
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let isMysteryMode = false;
@@ -160,33 +174,27 @@
         };
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
-        function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') startHangman(); }
-        function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
         
-        function loadPreset(k) {
-            const p = { 
-                greetings:["Bonjour","Salut","Merci","Au revoir"],
-                numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"],
-                colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Violet"],
-                family:["Maman","Papa","Ma soeur","Mon frere","Grand-mere","Grand-pere"],
-                body:["La tete","Le nez","La bouche","Les yeux","Les mains","Les pieds"],
-                animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache"],
-                food:["Une pomme","Du pain","Du lait","Une pizza","Une banane","Du fromage"],
-                school:["Un livre","Un crayon","Un sac","L'ecole","Le bureau"]
-            };
-            loadList(p[k]);
+        // --- SMART EMOJI FIX: Matches exact phrase first ---
+        function getEmoji(text) {
+            // 1. Try exact match (e.g. "Un chat")
+            if (emojiMap[text]) return emojiMap[text];
+            
+            // 2. Try normalized exact match (e.g. "un chat")
+            const n = norm(text);
+            if (emojiMap[n]) return emojiMap[n];
+
+            // 3. Try to find any noun in the phrase
+            const words = n.split(' ');
+            const articles = ['un', 'une', 'le', 'la', 'l', 'du', 'des', 'de'];
+            for (let word of words) {
+                if (!articles.includes(word) && emojiMap[word]) return emojiMap[word];
+            }
+            
+            return "✨"; 
         }
 
-        function getEmoji(word) {
-            const n = norm(word);
-            // Check direct match
-            if (emojiMap[n]) return emojiMap[n];
-            // Check if word is contained in key (e.g. "Un chat" contains "chat")
-            for (let key in emojiMap) {
-                if (n.includes(key)) return emojiMap[key];
-            }
-            return "✨"; // Default icon if nothing found
-        }
+        function loadPreset(k) { loadList(presets[k]); }
 
         function loadList(list) {
             currentScreenList = list.filter(l => l.trim().length > 0);
@@ -240,7 +248,7 @@
 
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
-            const mode = confirm("✨ Magic Sync!\n\nOK: Sync EVERYTHING\nCancel: Only Screen");
+            const mode = confirm("✨ Magic Sync!\n\nOK: Sync EVERYTHING for offline.\nCancel: Just this screen.");
             let list = mode ? [...new Set([...document.getElementById('hwInput').value.split('\n'), ...Object.values(presets).flat()])] : currentScreenList;
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
@@ -282,7 +290,7 @@
             document.getElementById('hangmanDisplay').textContent = d;
             if (!d.includes("_")) { document.getElementById('gameMsg').textContent = "🏆 BRAVO!"; spk("Bravo!", 'en-US'); }
             else if (mistakes >= 10) { document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Game over!", 'en-US'); }
-            else { document.getElementById('gameMsg').textContent = "Guess a letter!"; }
+            else { document.getElementById('gameMsg').textContent = "Guess!"; }
             renderKeyboard();
         }
 
@@ -328,6 +336,8 @@
         function delHist(n) { if (confirm("Delete?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
         function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; renderListUI(); }
         function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
+        function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') startHangman(); }
+        function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
     </script>
 </body>
 </html>
