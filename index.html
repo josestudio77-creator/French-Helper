@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V2.1 🎉</title>
+    <title>🇫🇷 French Fun V2.2 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -20,115 +20,110 @@
     h1 { color: #ff6b8b; font-size: 1.5rem; }
 
     .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; }
-    .status-info { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; color: #2d3748; }
+    .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* Centered Practice Cards */
-    .phrase-card { background: white; border-radius: 20px; padding: 25px 20px; margin: 15px 0; border: 4px solid #a3e4d7; text-align: center; position: relative; }
-    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 8px; }
-    .english-text { font-size: 1.3rem; color: #4a5568; font-weight: 700; display: block; min-height: 1.6rem; margin-bottom: 20px; border-radius: 10px; padding: 5px; transition: 0.3s; }
+    /* Centered Cards */
+    .phrase-card { background: white; border-radius: 20px; padding: 25px 20px; margin: 15px 0; border: 4px solid #a3e4d7; text-align: center; }
+    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 10px; }
+    .english-text { font-size: 1.3rem; color: #4a5568; font-weight: 700; display: block; min-height: 1.6rem; border-radius: 12px; padding: 8px; margin-bottom: 15px; }
     
-    /* Mystery Reveal Overlay - Fixed position */
-    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border: 2px dashed #cbd5e0; }
-    .mystery-active .english-text::after { content: "❓ Tap Orange Button"; display: block; color: #5a67d8; font-size: 0.9rem; font-weight: 900; }
+    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border: 2px dashed #cbd5e0; position: relative; }
+    .mystery-active .english-text::after { content: "❓ TAP ORANGE"; display: block; color: #5a67d8; font-size: 0.9rem; font-weight: 900; }
     .revealed .english-text { background: transparent !important; color: #06D6A0 !important; border-color: transparent !important; }
     .revealed .english-text::after { display: none !important; }
 
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card-btn { border: none; border-radius: 15px; padding: 15px; font-weight: 800; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+    .card-btn { border: none; border-radius: 15px; padding: 15px; font-weight: 800; color: white; cursor: pointer; font-size: 1rem; }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .preset-card-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 20px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #ff9e6d; color: #2d3748; }
-
-    /* Bottom Bar */
+    /* Navigation */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 75px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
-    /* Drawers */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
-    .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 90vh; overflow-y: auto; position: relative; }
+    .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 90vh; overflow-y: auto; }
     
-    #homeworkInput { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
+    textarea { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
     
-    /* Hangman Visuals */
+    /* Game Visuals */
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 10px auto; display: block; border: 2px solid #e2e8f0; }
-    .clue-image { width: 80px; height: 80px; margin: 5px auto; display: block; object-fit: contain; }
+    .clue-emoji { font-size: 4rem; display: block; margin: 10px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; }
-    .key { width: 35px; height: 40px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; }
-    .key.used { opacity: 0.3; }
+    .key { width: 35px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; }
+    .key.used { opacity: 0.2; }
 
-    /* Backpack Visibility Fix */
-    #backpackModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; padding: 20px; }
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #1a202c !important; font-weight: 900; font-size: 1.1rem; }
     
-    .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 10px; }
+    .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 15px; }
     .mystery-btn.active { background: #5a67d8; color: white; }
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V2.2 🎉</h1></div>
 
-        <div id="statusBar" class="status-bar">
+        <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
             <button class="magic-mini-btn" id="magicBtn" onclick="translateAllPhrases()">✨ Magic</button>
         </div>
 
-        <button id="mysteryToggle" class="mystery-btn" onclick="toggleMysteryMode()">🕵️‍♀️ Start Mystery Game</button>
+        <button id="mysteryToggle" class="mystery-btn" onclick="toggleMysteryMode()">🕵️‍♀️ Mystery Mode: OFF</button>
 
         <div class="preset-grid">
-            <button class="preset-card-btn" onclick="loadPreset('greetings')">👋 Greetings</button>
-            <button class="preset-card-btn" onclick="loadPreset('numbers')">🔢 1-10</button>
-            <button class="preset-card-btn" onclick="loadPreset('colors')">🎨 Colors</button>
-            <button class="preset-card-btn" onclick="loadPreset('animals')">🐶 Animals</button>
+            <button class="preset-btn" onclick="loadPreset('greetings')">👋 Greetings</button>
+            <button class="preset-btn" onclick="loadPreset('numbers')">🔢 1-10</button>
+            <button class="preset-btn" onclick="loadPreset('colors')">🎨 Colors</button>
+            <button class="preset-btn" onclick="loadPreset('animals')">🐶 Animals</button>
         </div>
 
         <div id="phrasesList"></div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item nav-homework" onclick="openOverlay('homeworkDrawer')"><span>📝</span> Homework</div>
+        <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span> Homework</div>
         <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Game</div>
     </div>
 
     <!-- Homework Drawer -->
-    <div id="homeworkDrawer" class="overlay">
+    <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd">✏️ School Homework</h2>
-            <textarea id="homeworkInput" placeholder="Enter words here..."></textarea>
+            <h2 style="color:#9d4edd">✏️ My Homework</h2>
+            <textarea id="hwInput" placeholder="Enter words here..."></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
-                <button onclick="saveHomework()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:10px">Save</button>
-                <button onclick="openBackpack()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:10px">Backpack</button>
-                <button onclick="clearHomework()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:10px">Clear</button>
+                <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Save</button>
+                <button onclick="openBP()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Pack</button>
+                <button onclick="clearHW()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Clear</button>
             </div>
-            <button onclick="closeOverlay('homeworkDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+            <button onclick="closeOverlay('hwDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
     <!-- Game Drawer -->
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
-            <img id="clueImg" class="clue-image" src="" alt="">
+            <div id="clueEmoji" class="clue-emoji">💡</div>
             <canvas id="hangmanCanvas" width="200" height="180"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
-            <div id="gameMessage" style="font-weight:900; margin-bottom:10px;">Guess a letter!</div>
+            <div id="gameMsg" style="font-weight:900; margin-bottom:10px;">Guess a letter!</div>
             <div id="keyboard" style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px"></div>
-            <button onclick="startHangman()" style="margin-top:20px; background:#4cd964; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">New Word</button>
+            <button onclick="startHangman()" style="margin-top:20px; background:#4cd964; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Next Word</button>
             <button onclick="closeOverlay('gameDrawer')" style="margin-top:10px; background:#2d3748; color:white; padding:12px; width:100%; border-radius:20px; border:none; font-weight:900">Exit</button>
         </div>
     </div>
 
-    <div id="backpackModal">
+    <div id="bpModal" class="overlay" style="z-index:3000">
         <div class="overlay-content">
             <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Saved Weeks</h2>
-            <div id="historyList"></div>
-            <button onclick="closeBackpack()" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
+            <div id="bpList"></div>
+            <button onclick="closeOverlay('bpModal')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
         </div>
     </div>
 
@@ -138,13 +133,33 @@
         let isMysteryMode = false;
         let lastWord = "";
 
-        // Fix Homework Input on load
+        const emojiMap = {
+            "apple": "🍎", "cat": "🐱", "dog": "🐶", "sun": "☀️", "house": "🏠", "school": "🏫", "boy": "👦", "girl": "👧", 
+            "book": "📖", "car": "🚗", "red": "🔴", "blue": "🔵", "green": "🟢", "yellow": "🟡", "one": "1️⃣", "two": "2️⃣",
+            "three": "3️⃣", "hello": "👋", "goodbye": "👋", "bread": "🥖", "water": "💧", "milk": "🥛", "fish": "🐟"
+        };
+
+        const fallbacks = ["POMME", "CHAT", "CHIEN", "SOLEIL", "ECOLE", "MAISON", "LIVRE", "ROUGE", "BLEU", "VERT"];
+
         window.onload = () => {
-            const rawHw = localStorage.getItem('homeworkPhrases');
-            document.getElementById('homeworkInput').value = (rawHw && rawHw !== "undefined") ? rawHw : "";
-            loadList(document.getElementById('homeworkInput').value.split('\n'));
+            cleanOldData();
+            loadList(document.getElementById('hwInput').value.split('\n'));
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
+
+        function cleanOldData() {
+            let data = localStorage.getItem('homeworkPhrases');
+            if (data && (data.includes('[') || data.includes('{'))) {
+                try {
+                    let parsed = JSON.parse(data);
+                    if (Array.isArray(parsed)) {
+                        data = parsed.map(item => item.fr || item).join('\n');
+                    }
+                } catch(e) { data = ""; }
+            }
+            document.getElementById('hwInput').value = data || "";
+            localStorage.setItem('homeworkPhrases', document.getElementById('hwInput').value);
+        }
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
 
@@ -197,7 +212,7 @@
 
         async function translateAllPhrases() {
             const btn = document.getElementById('magicBtn'); btn.disabled = true;
-            const ps = document.getElementById('homeworkInput').value.split('\n').filter(l => l.trim().length > 0);
+            const ps = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
             for (let i = 0; i < ps.length; i++) {
                 btn.textContent = `${i+1}/${ps.length}`;
                 if (!cache[norm(ps[i])]) await translateOne(ps[i]);
@@ -211,30 +226,27 @@
             window.speechSynthesis.speak(u);
         }
 
-        // HANGMAN LOGIC
+        // HANGMAN
         let targetWord, guessed, mistakes;
         function startHangman() {
-            const hwWords = document.getElementById('homeworkInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
+            const raw = document.getElementById('hwInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
+            const hwWords = raw.length > 0 ? raw : fallbacks;
             let pick;
-            do {
-                pick = hwWords.length > 0 ? hwWords[Math.floor(Math.random() * hwWords.length)] : "POMME";
-            } while (pick === lastWord && hwWords.length > 1);
+            do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord && hwWords.length > 1);
             
-            lastWord = pick;
-            targetWord = pick.toUpperCase();
-            const english = cache[norm(targetWord)] || "???";
-            document.getElementById('clueImg').src = `https://img.icons8.com/color/96/null/${norm(english)}.png`;
+            lastWord = pick; targetWord = pick.toUpperCase();
+            const english = norm(cache[norm(targetWord)] || "");
+            document.getElementById('clueEmoji').textContent = emojiMap[english] || "💡";
             guessed = []; mistakes = 0;
-            drawHangman(0);
-            updateHangmanUI();
+            drawHangman(0); updateHangmanUI();
         }
 
         function updateHangmanUI() {
             let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
-            if (!d.includes("_")) document.getElementById('gameMessage').textContent = "🏆 BRAVO!";
-            else if (mistakes >= 6) document.getElementById('gameMessage').textContent = "❌ It was: " + targetWord;
-            else document.getElementById('gameMessage').textContent = "Guess a letter!";
+            if (!d.includes("_")) document.getElementById('gameMsg').textContent = "🏆 BRAVO!";
+            else if (mistakes >= 6) document.getElementById('gameMsg').textContent = "❌ It was: " + targetWord;
+            else document.getElementById('gameMsg').textContent = "Guess a letter!";
             renderKeyboard();
         }
 
@@ -253,46 +265,40 @@
         }
 
         function drawHangman(step) {
-            const canvas = document.getElementById('hangmanCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, 200, 180);
-            ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
-            
-            // Base Gallows
+            const canvas = document.getElementById('hangmanCanvas'); const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 200, 180); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
             ctx.beginPath(); ctx.moveTo(20, 160); ctx.lineTo(180, 160); ctx.stroke();
             ctx.moveTo(40, 160); ctx.lineTo(40, 20); ctx.lineTo(120, 20); ctx.lineTo(120, 40); ctx.stroke();
-
-            if (step >= 1) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); } // Head
-            if (step >= 2) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); } // Body
-            if (step >= 3) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); } // L Arm
-            if (step >= 4) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); } // R Arm
-            if (step >= 5) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); } // L Leg
-            if (step >= 6) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); } // R Leg
+            if (step >= 1) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); }
+            if (step >= 2) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); }
+            if (step >= 3) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); }
+            if (step >= 4) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); }
+            if (step >= 5) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); }
+            if (step >= 6) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); }
         }
 
-        function saveHomework() {
-            const val = document.getElementById('homeworkInput').value;
+        function saveHW() {
+            const val = document.getElementById('hwInput').value;
             localStorage.setItem('homeworkPhrases', val);
             const name = prompt("Name this week:", "Week " + (Object.keys(history).length + 1));
             if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
             loadList(val.split('\n'));
         }
 
-        function openBackpack() {
-            const list = document.getElementById('historyList'); list.innerHTML = '';
+        function openBP() {
+            const list = document.getElementById('bpList'); list.innerHTML = '';
             Object.keys(history).reverse().forEach(name => {
                 const div = document.createElement('div'); div.className = 'history-item';
                 div.innerHTML = `<span>${name}</span><div><button onclick="loadHist('${name}')" style="background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px">Load</button><button onclick="delHist('${name}')" style="background:#fee2e2; border:none; padding:10px; border-radius:10px">🗑️</button></div>`;
                 list.appendChild(div);
             });
-            document.getElementById('backpackModal').style.display = 'block';
+            openOverlay('bpModal');
         }
 
-        function loadHist(n) { document.getElementById('homeworkInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeBackpack(); }
-        function delHist(n) { if (confirm("Delete " + n + "?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBackpack(); } }
-        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); loadList(document.getElementById('homeworkInput').value.split('\n')); }
-        function closeBackpack() { document.getElementById('backpackModal').style.display = 'none'; }
-        function clearHomework() { document.getElementById('homeworkInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
+        function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
+        function delHist(n) { if (confirm("Delete " + n + "?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
+        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); loadList(document.getElementById('hwInput').value.split('\n')); }
+        function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
     </script>
 </body>
 </html>
