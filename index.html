@@ -632,6 +632,47 @@
             h1 { font-size: 24px; }
             .header p { font-size: 16px; }
         }
+        /* ===== MOBILE RESPONSIVE FIXES ===== */
+@media only screen and (max-width: 768px) {
+  
+  /* 1. FIX THE MAIN CONTAINER & REDUCE SCROLLING */
+  body, .container {
+    padding: 10px 5px !important;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 2. SHRINK THE "READY" TAGS ON CARDS */
+  /* This is the fix for the badge covering half the text */
+  .status-badge, [class*="badge"], .chip {
+    transform: scale(0.65) !important;
+    top: 8px !important;
+    right: 8px !important;
+    position: absolute;
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+
+  /* 3. PROTECT THE TEXT FROM BEING COVERED */
+  .card-content, .text-container, p, h3 {
+    padding-right: 60px !important; /* Makes space for the badge */
+    word-wrap: break-word;
+  }
+
+  /* 4. MAKE CARDS & BUTTONS KID-FRIENDLY ON MOBILE */
+  .card, .practice-card {
+    margin: 12px auto !important;
+    padding: 20px 15px !important;
+    width: 95% !important;
+  }
+  
+  /* 5. ENSURE SPEECH BUTTONS ARE LARGE ENOUGH TO TAP */
+  .speech-btn, button {
+    min-height: 56px !important;
+    font-size: 1.2em !important;
+    margin: 10px auto;
+  }
+}
     </style>
 </head>
 <body>
@@ -1645,4 +1686,5 @@ window.addEventListener('beforeunload', () => {
 });
     </script>
 </body>
+
 </html>
