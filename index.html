@@ -5,41 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🇫🇷 French Fun Helper 🎉</title>
     
-    <!-- Apple Touch Icons (iOS) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="icon.png">
-    
-    <!-- For older iOS -->
-    <link rel="apple-touch-icon-precomposed" href="icon.png">
-    
-    <!-- Favicon for browsers -->
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Theme colors -->
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#FF6B8B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="French Fun Helper">
+    <meta name="apple-mobile-web-app-title" content="French Fun">
     
-    <!-- For Microsoft -->
-    <meta name="msapplication-TileColor" content="#FF6B8B">
-    <meta name="msapplication-TileImage" content="icon.png">
-    
-    <!-- Fonts for kids -->
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
-    /* ===== SIMPLIFIED KID-FRIENDLY MOBILE DESIGN ===== */
     * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
-        font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+        font-family: 'Nunito', 'Comic Sans MS', sans-serif;
     }
 
     body {
@@ -49,9 +29,8 @@
         text-align: center;
     }
 
-    /* --- Main Container --- */
     .container {
-        max-width: 100%;
+        max-width: 600px;
         margin: 0 auto;
         padding: 5px;
     }
@@ -69,1125 +48,459 @@
         color: #ff6b8b;
         font-size: 1.8rem;
         margin-bottom: 5px;
-        line-height: 1.2;
-    }
-    .header p {
-        color: #5a67d8;
-        font-size: 1.1rem;
-        font-weight: bold;
     }
 
-    /* --- PHRASE CARD --- */
-    .phrase-card {
+    /* --- Status Bar --- */
+    .status-bar {
         background: white;
-        border-radius: 25px;
-        padding: 25px 15px;
-        margin: 15px auto;
-        border: 6px solid #a3e4d7;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        width: 100%;
-    }
-
-    /* --- PHRASE TEXT --- */
-    .french-text {
-        font-size: 2.2rem !important;
+        padding: 8px;
+        border-radius: 12px;
+        margin-bottom: 15px;
         font-weight: bold;
-        color: #2d3748;
-        margin: 15px 0;
-        line-height: 1.3;
-        word-wrap: break-word;
-    }
-
-    /* --- SPEECH BUTTONS --- */
-    .buttons-row {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 20px;
-    }
-    .speak-btn, .translate-btn {
-        display: block;
-        width: 100%;
-        padding: 22px 15px;
-        border: none;
-        border-radius: 20px;
-        font-size: 1.6rem;
-        font-weight: bold;
-        cursor: pointer;
-        color: white;
-        box-shadow: 0 5px 0 rgba(0,0,0,0.2);
-    }
-    .speak-btn:active, .translate-btn:active {
-        transform: translateY(5px);
-        box-shadow: 0 0px 0 rgba(0,0,0,0.2);
-    }
-    .speak-btn {
-        background-color: #4cd964; /* Green */
-    }
-    .translate-btn {
-        background-color: #5a67d8; /* Blue */
-    }
-
-    /* --- COLLAPSIBLE PRACTICE SETS --- */
-    .phrase-sets {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 20px;
-        padding: 15px;
-        margin: 20px 0;
-        border: 4px solid #ffd166;
-        cursor: pointer;
-    }
-    .phrase-sets h3 {
-        font-size: 1.6rem !important;
-        margin: 0 0 0 !important;
-        color: #2d3748;
+        font-size: 0.9rem;
         display: flex;
         justify-content: center;
-        align-items: center;
         gap: 10px;
     }
-    .phrase-sets h3::after {
-        content: "▼";
-        font-size: 1.2rem;
-        transition: transform 0.3s;
+    .status-bar.offline { background: #fee2e2; color: #ef4444; }
+
+    /* --- INPUT AREA --- */
+    textarea {
+        width: 100%;
+        min-height: 120px;
+        font-size: 1.1rem;
+        padding: 15px;
+        border-radius: 15px;
+        border: 3px solid #ff9e6d;
+        background: #fff9e6;
+        margin-bottom: 10px;
     }
-    .phrase-sets.collapsed h3::after {
-        transform: rotate(-90deg);
+
+    /* --- BUTTONS --- */
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    button {
+        border: none;
+        border-radius: 15px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: transform 0.1s, filter 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    button:active { transform: scale(0.95); }
+
+    .save-btn { background: #4cd964; color: white; padding: 15px; }
+    .backpack-btn { background: #9d4edd; color: white; padding: 15px; }
+    .clear-btn { background: #ff4d4d; color: white; padding: 10px; font-size: 0.8rem; }
+    .export-btn { background: #60a5fa; color: white; padding: 10px; font-size: 0.8rem; }
+    
+    .bulk-save-btn {
+        grid-column: span 2;
+        background: linear-gradient(135deg, #118AB2 0%, #0A6F8C 100%);
+        color: white;
+        padding: 18px;
+        font-size: 1.3rem;
+        border: 4px solid #0A6F8C;
+    }
+
+    /* --- MYSTERY MODE --- */
+    .mode-toggle-container {
+        margin: 20px 0;
+    }
+    .game-button {
+        padding: 15px 25px;
+        border-radius: 50px;
+        border: 4px solid #5a67d8;
+        background: white;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 0 #5a67d8;
+    }
+    .game-button.active {
+        background: #5a67d8;
+        color: white;
+        transform: translateY(3px);
+        box-shadow: 0 1px 0 #5a67d8;
+    }
+
+    /* --- PHRASE CARDS --- */
+    #phrasesList { min-height: 300px; }
+    .phrase-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px 15px;
+        margin: 15px 0;
+        border: 4px solid #a3e4d7;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        position: relative;
+    }
+    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; margin-bottom: 10px; }
+    .english-text { font-size: 1.2rem; color: #4a5568; font-weight: 700; margin-bottom: 15px; }
+
+    .mystery-active .english-text {
+        background: #edf2f7; color: #edf2f7 !important; border-radius: 10px;
+    }
+    .mystery-active .english-text::after {
+        content: "❓ Tap Orange to Reveal";
+        position: absolute; left: 0; right: 0; color: #5a67d8; font-size: 1rem;
+    }
+    .mystery-active .revealed .english-text { background: transparent; color: #06D6A0 !important; }
+    .mystery-active .revealed .english-text::after { display: none; }
+
+    .speak-btn { width: 100%; padding: 15px; background: #4cd964; color: white; margin-bottom: 8px; font-size: 1.2rem; }
+    .translate-btn { width: 100%; padding: 15px; background: #ff9e6d; color: white; font-size: 1.2rem; }
+
+    /* --- BACKPACK MODAL --- */
+    #backpackModal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        padding: 20px;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 25px;
+        padding: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .history-item {
+        padding: 15px;
+        border-bottom: 2px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+    }
+    .load-history-btn { background: #b5e6ff; padding: 10px; border-radius: 10px; }
+
+    /* --- PRESETS --- */
+    .phrase-sets {
+        background: white;
+        border-radius: 20px;
+        padding: 10px;
+        margin-bottom: 15px;
     }
     .preset-buttons {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-top: 15px;
-        max-height: 500px;
-        overflow: hidden;
-        transition: max-height 0.5s ease, opacity 0.3s ease;
-        opacity: 1;
-    }
-    .phrase-sets.collapsed .preset-buttons {
-        max-height: 0;
-        margin-top: 0;
-        opacity: 0;
-        overflow: hidden;
-    }
-
-    /* --- PRACTICE SET BUTTONS --- */
-    .preset-btn {
-        padding: 18px 8px !important;
-        font-size: 1.1rem !important;
-        border-radius: 15px !important;
-        min-height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        word-break: break-word;
-        line-height: 1.2;
-        background: white !important;
-        border: 4px solid #a3e4d7 !important;
-        color: #2d3748 !important;
-    }
-    .preset-btn:hover {
-        background: #f0f9ff !important;
-    }
-
-    /* --- TEXTAREA & CONTROLS --- */
-    textarea {
-        width: 100% !important;
-        min-height: 150px !important;
-        font-size: 1.2rem !important;
-        padding: 15px !important;
-        margin: 15px 0 !important;
-    }
-    .button-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
         margin-top: 10px;
     }
-    .button-row button {
-        padding: 16px 10px !important;
-        font-size: 1.1rem !important;
-        margin: 0 !important;
-        min-height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .preset-btn { font-size: 0.7rem; padding: 10px 5px; background: #f0f0f0; }
 
-    /* --- BOTTOM ACTION BUTTONS (2 columns, better colors) --- */
+    .voice-warning { font-size: 0.8rem; color: #856404; background: #fff3cd; padding: 5px; border-radius: 8px; margin-top: 5px; }
+
     .bottom-buttons {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin: 25px 0 15px;
-        width: 100%;
-    }
-    .bottom-btn {
-        padding: 18px 12px !important;
-        font-size: 1.2rem !important;
-        border-radius: 18px !important;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
         gap: 10px;
-        min-height: 65px;
-        text-decoration: none;
-        color: white !important;
-        width: 100%;
+        margin-top: 20px;
     }
-    #installButton.bottom-btn {
-        background: linear-gradient(135deg, #FF9E6D 0%, #FF8E53 100%) !important;
-        border: 4px solid #FF8E53 !important;
-    }
-    #shareButton.bottom-btn {
-        background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%) !important;
-        border: 4px solid #4c51bf !important;
-    }
-
-    /* --- HIDE VARIOUS DISTRACTIONS --- */
-    .fun-corner,
-    .section-divider h2,
-    #progressText,
-    #progressBar,
-    .speaking-indicator,
-    .top-buttons-container {
-        display: none !important;
-    }
-
-    /* --- TITLES --- */
-    .phrases-container h2 {
-        font-size: 1.6rem !important;
-        margin: 20px 0 10px !important;
-        padding: 0 10px !important;
-        background: rgba(255,255,255,0.9);
-        border-radius: 15px;
-        padding: 12px !important;
-    }
-
-    /* --- SMALL PHONE ADJUSTMENTS --- */
-    @media (max-width: 400px) {
-        h1 { font-size: 1.6rem; }
-        .header p { font-size: 1rem; }
-        .french-text { font-size: 1.9rem !important; }
-        .speak-btn, .translate-btn { font-size: 1.4rem; padding: 20px 12px; }
-        .preset-buttons, .bottom-buttons, .button-row {
-            gap: 8px;
-        }
-        .preset-btn, .bottom-btn, .button-row button {
-            font-size: 1rem !important;
-            padding: 14px 6px !important;
-        }
-    }
+    .bottom-btn { padding: 15px; background: #5a67d8; color: white; text-decoration: none; border-radius: 15px; font-weight: bold; }
 </style>
 </head>
 <body>
-    <!-- Fun corner decorations -->
-    <div class="fun-corner corner-1">🎨</div>
-    <div class="fun-corner corner-2">📚</div>
-    <div class="fun-corner corner-3">🎈</div>
-    <div class="fun-corner corner-4">✨</div>
-    
+
     <div class="container">
         <div class="header">
-            <h1><span>🇫🇷🌈</span>French Fun Helper<span>🌈🇬🇧</span></h1>
-            <p>🎤 Tap GREEN for French • 🎯 Tap ORANGE for English</p>
+            <h1>🇫🇷🌈 French Fun Helper 🎉</h1>
+            <p>Type your phrases of the week below!</p>
         </div>
-        <div class="content-area">
-            <div id="statusBar" class="status-bar">
-                <span id="statusIcon">🌐</span>
-                <span id="statusText">Ready to learn!</span>
-            </div>
-            
-            <!-- Top action buttons (will be moved to bottom by JavaScript) -->
-            <div class="top-buttons-container">
-                <button id="installButton" class="bottom-btn">
-                    <span>📱</span> Install App
-                </button>
-                <button id="shareButton" class="bottom-btn">
-                    <span>🎁</span> Share with Friends
-                </button>
-            </div>
-            
-            <!-- Progress indicator for bulk translation -->
-            <div id="progressText" class="progress-text"></div>
-            <div id="progressBar" class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
-            </div>
-            
-            <div class="phrase-sets">
-                <h3>📚✨ Fun Practice Sets:</h3>
-                <div class="preset-buttons">
-                    <button class="preset-btn" onclick="loadPreset(event, 'greetings')">👋🎭 Greetings</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'classroom')">🏫✏️ Classroom</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'numbers')">🔢🎯 Numbers</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'colors')">🎨🌈 Colors</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'days')">📅🌞 Days</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'months')">🗓️🌸 Months</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'alphabet')">🔤🎵 Alphabet</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'family')">👨‍👩‍👧‍👦❤️ Family</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'food')">🍎🍕 Food</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'animals')">🐶🦁 Animals</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'weather')">☀️⛈️ Weather</button>
-                    <button class="preset-btn" onclick="loadPreset(event, 'feelings')">😊🎭 Feelings</button>
-                </div>
-            </div>
-            <div class="section-divider">
-                <h2>📝🎒 This Week's Assignment:</h2>
-                <textarea id="phrasesInput" placeholder="✏️ Enter phrases from your teacher here (one per line)...
 
-Example:
-Bonjour, comment ça va ?
-Je m'appelle Marie.
-J'ai six ans.
+        <div id="statusBar" class="status-bar">
+            <span id="statusIcon">🌐</span> <span id="statusText">Ready!</span>
+        </div>
 
-🌟 Tip: Ask your teacher for this week's words!"></textarea>
-                <div class="button-row">
-                    <button id="saveBtn" class="save-btn" onclick="savePhrases()"><span>💾</span>Save My Work</button>
-                    <button class="clear-btn" onclick="clearPhrases()"><span>🧹</span>Clear All</button>
-                    <button class="bulk-save-btn" onclick="translateAllPhrases()" id="translateAllBtn">
-                        <span>🌐✨</span>Translate Everything!
-                    </button>
-                </div>
+        <div class="phrase-sets">
+            <p>✨ Quick Fun Sets:</p>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="loadPreset('greetings')">👋 Hello</button>
+                <button class="preset-btn" onclick="loadPreset('numbers')">🔢 1-10</button>
+                <button class="preset-btn" onclick="loadPreset('colors')">🎨 Colors</button>
+                <button class="preset-btn" onclick="loadPreset('animals')">🐶 Pets</button>
+                <button class="preset-btn" onclick="loadPreset('food')">🍎 Food</button>
+                <button class="preset-btn" onclick="loadPreset('weather')">☀️ Sky</button>
             </div>
-            <div class="phrases-container">
-                <h2>🎮 Practice Time:</h2>
-                <div id="phrasesList"></div>
-            </div>
+        </div>
+
+        <textarea id="phrasesInput" placeholder="Enter phrases here (one per line)..."></textarea>
+        
+        <div class="button-row">
+            <button class="save-btn" onclick="savePhrases()">💾 Save Now</button>
+            <button class="backpack-btn" onclick="toggleBackpack()">🎒 Backpack</button>
+            <button class="clear-btn" onclick="clearPhrases()">🧹 Clear</button>
+            <button class="export-btn" onclick="exportToFile()">📥 Download Backup</button>
+            <button class="bulk-save-btn" onclick="translateAllPhrases()" id="translateAllBtn">
+                🌐✨ MAGIC TRANSLATE!
+            </button>
+        </div>
+
+        <div class="mode-toggle-container">
+            <button id="mysteryToggle" class="game-button" onclick="toggleMysteryMode()">
+                🕵️‍♀️ Mystery Mode: OFF
+            </button>
+        </div>
+
+        <div id="phrasesList"></div>
+
+        <div class="bottom-buttons">
+            <button id="installButton" class="bottom-btn" style="display:none">📱 Install App</button>
+            <button id="shareButton" class="bottom-btn" onclick="shareApp()">🎁 Share App</button>
         </div>
     </div>
-    
+
+    <!-- Backpack Modal -->
+    <div id="backpackModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:15px">🎒 My Past Weeks</h2>
+            <div id="historyList"></div>
+            <button onclick="toggleBackpack()" style="margin-top:20px; background:#ff4d4d; color:white; padding:15px; width:100%">Close</button>
+        </div>
+    </div>
+
     <script>
-// DOM Elements
-const inp = document.getElementById('phrasesInput'),
-      lst = document.getElementById('phrasesList'),
-      sb = document.getElementById('statusBar'),
-      statusIcon = document.getElementById('statusIcon'),
-      statusText = document.getElementById('statusText'),
-      installButton = document.getElementById('installButton'),
-      translateAllBtn = document.getElementById('translateAllBtn'),
-      progressText = document.getElementById('progressText'),
-      progressBar = document.getElementById('progressBar'),
-      progressFill = document.getElementById('progressFill'),
-      shareModal = document.getElementById('shareModal'),
-      shareUrlDisplay = document.getElementById('shareUrlDisplay'),
-      qrCodeDisplay = document.getElementById('qrCodeDisplay'),
-      currentUrlElement = document.getElementById('currentUrl');
+        const inp = document.getElementById('phrasesInput');
+        const lst = document.getElementById('phrasesList');
+        const sb = document.getElementById('statusBar');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
 
-// Remove the entire share modal since we only need the top share button
-if (shareModal && shareModal.parentNode) {
-    shareModal.parentNode.removeChild(shareModal);
-}
+        let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
+        let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
+        let isMysteryMode = false;
+        let sp = null;
 
-// Data
-const sets = {
-    greetings: ["Bonjour", "Bonjour, comment ça va ?", "Ça va bien, merci", "Et toi ?", "Merci beaucoup", "De rien", "S'il te plaît", "Excusez-moi", "Au revoir", "À bientôt", "À demain", "Bonne journée"],
-    classroom: ["Je vais à l'école", "J'aime l'école", "Mon professeur", "Mon ami", "Mon amie", "La récréation", "La cantine", "La salle de classe", "Où sont les toilettes ?", "La bibliothèque", "Un crayon", "Un livre", "Un cahier"],
-    numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix", "Onze", "Douze", "Treize", "Quatorze", "Quinze", "Seize", "Dix-sept", "Dix-huit", "Dix-neuf", "Vingt"],
-    colors: ["Rouge", "Bleu", "Vert", "Jaune", "Noir", "Blanc", "Rose", "Violet", "Orange", "Marron", "Gris"],
-    days: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche", "Aujourd'hui", "Demain", "Hier"],
-    months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-    alphabet: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
-    family: ["Maman", "Papa", "Mon frère", "Ma sœur", "Grand-mère", "Grand-père", "Ma famille", "J'aime ma famille"],
-    food: ["Une pomme", "Une banane", "Du pain", "Du fromage", "Du lait", "De l'eau", "Un croissant", "Une pizza", "Des frites", "Un gâteau", "Une glace"],
-    animals: ["Un chat", "Un chien", "Un oiseau", "Un poisson", "Un cheval", "Une vache", "Un mouton", "Un lapin", "Un lion"],
-    weather: ["Il fait beau", "Il pleut", "Il neige", "Il fait chaud", "Il fait froid", "Il y a du vent", "Il y a du soleil"],
-    feelings: ["Je suis content", "Je suis contente", "Je suis triste", "Je suis fatigué", "Je suis fatiguée", "Je suis malade", "J'ai faim", "J'ai soif"]
-};
-
-const dict = {
-    "bonjour": "Hello",
-    "bonjour, comment ça va ?": "Hello, how are you?",
-    "bonjour, comment ca va ?": "Hello, how are you?",
-    "ça va bien, merci": "I'm fine, thank you",
-    "ca va bien, merci": "I'm fine, thank you",
-    "et toi ?": "And you?",
-    "et toi": "And you",
-    "merci beaucoup": "Thank you very much",
-    "merci": "Thank you",
-    "de rien": "You're welcome",
-    "s'il te plaît": "Please",
-    "s'il te plait": "Please",
-    "excusez-moi": "Excuse me",
-    "au revoir": "Goodbye",
-    "à bientôt": "See you soon",
-    "a bientot": "See you soon",
-    "à demain": "See you tomorrow",
-    "a demain": "See you tomorrow",
-    "bonne journée": "Have a good day",
-    "bonne journee": "Have a good day",
-    "je vais à l'école": "I go to school",
-    "je vais a l'ecole": "I go to school",
-    "j'aime l'école": "I like school",
-    "j'aime l'ecole": "I like school",
-    "mon professeur": "My teacher",
-    "mon ami": "My friend (boy)",
-    "mon amie": "My friend (girl)",
-    "la récréation": "Recess",
-    "la recreation": "Recess",
-    "la cantine": "Cafeteria",
-    "la salle de classe": "Classroom",
-    "où sont les toilettes ?": "Where is the bathroom?",
-    "ou sont les toilettes ?": "Where is the bathroom?",
-    "la bibliothèque": "Library",
-    "la bibliotheque": "Library",
-    "un crayon": "A pencil",
-    "un livre": "A book",
-    "un cahier": "A notebook",
-    "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
-    "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
-    "onze": "eleven", "douze": "twelve", "treize": "thirteen", "quatorze": "fourteen",
-    "quinze": "fifteen", "seize": "sixteen", "dix-sept": "seventeen", "dix-huit": "eighteen",
-    "dix-neuf": "nineteen", "vingt": "twenty",
-    "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow", "noir": "black",
-    "blanc": "white", "rose": "pink", "violet": "purple", "orange": "orange", "marron": "brown",
-    "gris": "gray",
-    "lundi": "Monday", "mardi": "Tuesday", "mercredi": "Wednesday", "jeudi": "Thursday",
-    "vendredi": "Friday", "samedi": "Saturday", "dimanche": "Sunday",
-    "aujourd'hui": "today", "aujourd hui": "today", "demain": "tomorrow", "hier": "yesterday",
-    "janvier": "January", "février": "February", "fevrier": "February", "mars": "March",
-    "avril": "April", "mai": "May", "juin": "June", "juillet": "July",
-    "août": "August", "aout": "August", "septembre": "September", "octobre": "October",
-    "novembre": "November", "décembre": "December", "decembre": "December",
-    "a": "A", "b": "B", "c": "C", "d": "D", "e": "E", "f": "F", "g": "G", "h": "H",
-    "i": "I", "j": "J", "k": "K", "l": "L", "m": "M", "n": "N", "o": "O", "p": "P",
-    "q": "Q", "r": "R", "s": "S", "t": "T", "u": "U", "v": "V", "w": "W", "x": "X",
-    "y": "Y", "z": "Z",
-    "maman": "mom", "papa": "dad", "mon frère": "my brother", "mon frere": "my brother",
-    "ma sœur": "my sister", "ma soeur": "my sister", "grand-mère": "grandmother",
-    "grand-mere": "grandmother", "grand-père": "grandfather", "grand-pere": "grandfather",
-    "ma famille": "my family", "j'aime ma famille": "I love my family",
-    "une pomme": "an apple", "une banane": "a banana", "du pain": "bread",
-    "du fromage": "cheese", "du lait": "milk", "de l'eau": "water",
-    "un croissant": "a croissant", "une pizza": "a pizza", "des frites": "fries",
-    "un gâteau": "a cake", "un gateau": "a cake", "une glace": "ice cream",
-    "un chat": "a cat", "un chien": "a dog", "un oiseau": "a bird",
-    "un poisson": "a fish", "un cheval": "a horse", "une vache": "a cow",
-    "un mouton": "a sheep", "un lapin": "a rabbit", "un lion": "a lion",
-    "il fait beau": "The weather is nice", "il pleut": "It's raining",
-    "il neige": "It's snowing", "il fait chaud": "It's hot",
-    "il fait froid": "It's cold", "il y a du vent": "It's windy",
-    "il y a du soleil": "It's sunny", "je suis content": "I am happy (boy)",
-    "je suis contente": "I am happy (girl)", "je suis triste": "I am sad",
-    "je suis fatigué": "I am tired (boy)", "je suis fatigue": "I am tired (boy)",
-    "je suis fatiguée": "I am tired (girl)", "je suis fatiguee": "I am tired (girl)",
-    "je suis malade": "I am sick", "j'ai faim": "I'm hungry", "j'ai soif": "I'm thirsty"
-};
-
-let cache = {}, cur = null, sp = null;
-let deferredPrompt = null;
-let isTranslatingAll = false;
-
-// ========== SHARE FUNCTIONALITY ==========
-function openShareModal() {
-    // Use browser's native share if available
-    if (navigator.share) {
-        navigator.share({
-            title: '🎉 French Fun Helper',
-            text: 'A super fun way to learn French! Perfect for kids!',
-            url: window.location.href,
-        }).catch(err => console.log('Share cancelled'));
-    } else {
-        // Fallback: copy URL to clipboard
-        const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            alert('🎉 Link copied! Share: ' + url);
-        }).catch(() => {
-            // Old browser fallback
-            const textArea = document.createElement('textarea');
-            textArea.value = url;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert('🎉 Link copied!');
-        });
-    }
-}
-
-// Use Web Share API if available (mobile devices)
-function checkWebShareAPI() {
-    if (navigator.share) {
-        const shareButton = document.getElementById('shareButton');
-        shareButton.onclick = async () => {
-            try {
-                await navigator.share({
-                    title: '🎉 French Fun Helper',
-                    text: 'A super fun way to learn French! Perfect for kids with games, sounds, and colorful buttons!',
-                    url: window.location.href,
-                });
-                console.log('🎉 Shared successfully');
-            } catch (err) {
-                // User cancelled or error, fallback to simple copy
-                openShareModal();
-            }
+        const dict = {
+            "bonjour": "Hello", "bonjour, comment ca va ?": "Hello, how are you?", "ca va bien, merci": "I'm fine, thank you",
+            "merci": "Thank you", "au revoir": "Goodbye", "un": "one", "deux": "two", "trois": "three",
+            "rouge": "red", "bleu": "blue", "vert": "green", "jaune": "yellow", "chat": "cat", "chien": "dog"
+            // More can be added here
         };
-    }
-}
 
-// Check for Web Share API on load
-document.addEventListener('DOMContentLoaded', checkWebShareAPI);
+        const sets = {
+            greetings: ["Bonjour", "Comment ça va ?", "Ça va bien", "Au revoir", "Merci"],
+            numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
+            colors: ["Rouge", "Bleu", "Vert", "Jaune", "Noir", "Blanc", "Rose"],
+            animals: ["Un chat", "Un chien", "Un oiseau", "Un lapin", "Un lion"],
+            food: ["Une pomme", "Une banane", "Du pain", "Du fromage", "Une pizza"],
+            weather: ["Il fait beau", "Il pleut", "Il neige", "Il fait froid"]
+        };
 
-// ========== SPEECH SYNTHESIS SMART INITIALIZATION ==========
-let speechInitialized = false;
-
-function initializeSpeechSynthesis() {
-    if (!('speechSynthesis' in window) || speechInitialized) return;
-    
-    try {
-        const voices = speechSynthesis.getVoices();
-        
-        // Create minimal utterance
-        const utterance = new SpeechSynthesisUtterance('.');
-        utterance.volume = 0.05;
-        utterance.rate = 1.0;
-        
-        // Use French voice if available
-        const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
-        if (frenchVoice) {
-            utterance.voice = frenchVoice;
-            utterance.lang = 'fr-FR';
+        function norm(t) {
+            return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
-        
-        // Speak and cancel quickly
-        speechSynthesis.speak(utterance);
-        setTimeout(() => {
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-        }, 20);
-        
-        speechInitialized = true;
-        console.log('🎤 Speech synthesis initialized');
-        
-        // Update UI if needed
-        const prompt = document.getElementById('speechInitPrompt');
-        if (prompt) {
-            prompt.style.display = 'none';
-            // Show success message
-            const successMsg = document.createElement('div');
-            successMsg.className = 'status-bar';
-            successMsg.style.cssText = 'background: #E8F5E9; color: #06D6A0; margin-top: 10px;';
-            successMsg.innerHTML = '🎉 Voice ready! Try speaking now!';
-            prompt.parentNode.insertBefore(successMsg, prompt.nextSibling);
-            setTimeout(() => successMsg.style.display = 'none', 2000);
-        }
-        
-    } catch (e) {
-        console.log('Speech initialization failed:', e);
-    }
-}
 
-// Setup initialization triggers
-function setupSpeechInitialization() {
-    // Method 1: Initialize on first click anywhere
-    document.addEventListener('click', function initOnFirstClick() {
-        if (!speechInitialized) {
-            initializeSpeechSynthesis();
+        function getTr(t) {
+            const n = norm(t);
+            if (dict[n]) return dict[n];
+            return cache[n] || null;
         }
-        document.removeEventListener('click', initOnFirstClick);
-    }, { once: true });
-    
-    // Method 2: Initialize on hover over speak buttons
-    setTimeout(() => {
-        const speakButtons = document.querySelectorAll('.speak-btn, .translate-btn');
-        speakButtons.forEach(btn => {
-            btn.addEventListener('mouseenter', () => {
-                if (!speechInitialized) {
-                    initializeSpeechSynthesis();
-                }
-            }, { once: true });
+
+        function savePhrases() {
+            const t = inp.value.trim();
+            if (!t) return alert("Write something first! ✍️");
             
-            btn.addEventListener('touchstart', () => {
-                if (!speechInitialized) {
-                    initializeSpeechSynthesis();
-                }
-            }, { once: true, passive: true });
-        });
-    }, 500);
-    
-    // Method 3: Show fun prompt after 3 seconds if not initialized
-    setTimeout(() => {
-        if (!speechInitialized) {
-            const statusBar = document.getElementById('statusBar');
-            if (statusBar && !document.getElementById('speechInitPrompt')) {
-                const prompt = document.createElement('div');
-                prompt.id = 'speechInitPrompt';
-                prompt.className = 'status-bar speech-prompt';
-                prompt.innerHTML = '<span>🎤✨</span><span>Tap here to make voices super fast!</span>';
-                prompt.onclick = initializeSpeechSynthesis;
-                statusBar.insertAdjacentElement('afterend', prompt);
-                
-                // Auto-hide after 20 seconds
-                setTimeout(() => {
-                    if (prompt.parentNode && !speechInitialized) {
-                        prompt.style.opacity = '0';
-                        prompt.style.transform = 'translateY(-10px)';
-                        setTimeout(() => {
-                            if (prompt.parentNode) prompt.style.display = 'none';
-                        }, 300);
-                    }
-                }, 20000);
+            const name = prompt("Name this week (e.g. Week 1, Animals, etc):", "Week " + (Object.keys(history).length + 1));
+            if (name) {
+                history[name] = t;
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                localStorage.setItem('frenchPhrases', t);
+                updList();
+                alert("Saved to Backpack! 🎒🏆");
             }
         }
-    }, 3000);
-}
 
-// ========== SERVICE WORKER ==========
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        const swScript = `
-            const CACHE_NAME = 'french-fun-helper-v1';
-            self.addEventListener('install', event => self.skipWaiting());
-            self.addEventListener('activate', event => event.waitUntil(clients.claim()));
-            self.addEventListener('fetch', event => event.respondWith(caches.match(event.request).then(response => response || fetch(event.request))));
-        `;
-        const blob = new Blob([swScript], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(console.error);
-    });
-}
-
-// ========== PWA INSTALL PROMPT ==========
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installButton.style.display = 'flex';
-    
-    installButton.onclick = () => {
-        installButton.style.display = 'none';
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            deferredPrompt = null;
-        });
-    };
-});
-
-window.addEventListener('appinstalled', () => {
-    installButton.style.display = 'none';
-    deferredPrompt = null;
-    // Show celebration
-    const celebration = document.createElement('div');
-    celebration.className = 'status-bar';
-    celebration.style.cssText = 'background: linear-gradient(135deg, #FFD166 0%, #FFB347 100%); color: white; margin-top: 10px; animation: bounce 0.5s infinite alternate;';
-    celebration.innerHTML = '🎉 App installed! Fun times ahead! 🎈';
-    sb.insertAdjacentElement('afterend', celebration);
-    setTimeout(() => celebration.style.display = 'none', 3000);
-});
-
-// ========== CORE FUNCTIONS ==========
-function norm(t) {
-    return t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-
-function getTr(t) {
-    const n = norm(t);
-    return dict[n] || cache[n] || null;
-}
-
-function saveTr(f, e) {
-    cache[norm(f)] = e;
-    try {
-        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-    } catch (err) {
-        console.warn('Failed to save translation:', err);
-    }
-    updSt();
-}
-
-async function fetchTr(t) {
-    if (!navigator.onLine) return null;
-    
-    // Try LibreTranslate
-    try {
-        const r = await fetch('https://libretranslate.com/translate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ q: t, source: 'fr', target: 'en', format: 'text' })
-        });
-        if (r.ok) {
-            const d = await r.json();
-            return d.translatedText;
+        function toggleBackpack() {
+            const modal = document.getElementById('backpackModal');
+            const hList = document.getElementById('historyList');
+            hList.innerHTML = '';
+            
+            Object.keys(history).reverse().forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <span><b>${name}</b></span>
+                    <div>
+                        <button class="load-history-btn" onclick="loadHistory('${name}')">📖 Load</button>
+                        <button style="background:#ff4d4d; color:white; padding:5px;" onclick="deleteHistory('${name}')">🗑️</button>
+                    </div>
+                `;
+                hList.appendChild(div);
+            });
+            
+            if (Object.keys(history).length === 0) hList.innerHTML = "<p>Your backpack is empty!</p>";
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
         }
-    } catch (e) {
-        console.log('LibreTranslate failed:', e);
-    }
-    
-    // Try MyMemory as fallback
-    try {
-        const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);
-        const d = await r.json();
-        if (d.responseData?.translatedText) return d.responseData.translatedText;
-    } catch (e) {
-        console.log('MyMemory failed:', e);
-    }
-    
-    return null;
-}
 
-// ========== BULK TRANSLATION FUNCTION ==========
-async function translateAllPhrases() {
-    if (!navigator.onLine) {
-        alert('📡 Oops! You need to be online to translate phrases. Connect to the internet and try again!');
-        return;
-    }
-    
-    if (isTranslatingAll) return;
-    
-    const cards = document.querySelectorAll('.phrase-card');
-    if (cards.length === 0) {
-        alert('📝 Add some phrases first! Type them in or choose a fun set above!');
-        return;
-    }
-    
-    // Count phrases that need translation
-    let phrasesToTranslate = [];
-    cards.forEach(card => {
-        const french = card.dataset.french;
-        if (!getTr(french)) {
-            phrasesToTranslate.push({
-                card: card,
-                french: french,
-                englishText: card.querySelector('.english-text'),
-                badge: card.querySelector('.confidence-badge')
+        function loadHistory(name) {
+            if (confirm("Replace current list with " + name + "?")) {
+                inp.value = history[name];
+                toggleBackpack();
+                updList();
+            }
+        }
+
+        function deleteHistory(name) {
+            if (confirm("Delete " + name + " forever?")) {
+                delete history[name];
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                toggleBackpack();
+            }
+        }
+
+        function exportToFile() {
+            const data = {
+                current: inp.value,
+                history: history,
+                translations: cache
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'French_Fun_Backup.json';
+            a.click();
+        }
+
+        async function fetchTr(t) {
+            try {
+                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t)}&langpair=fr|en`);
+                const d = await r.json();
+                return d.responseData.translatedText;
+            } catch (e) { return null; }
+        }
+
+        async function translateAllPhrases() {
+            if (!navigator.onLine) return alert("Connect to the internet first! 🌐");
+            const phrases = inp.value.split('\n').filter(l => l.trim().length > 0);
+            const btn = document.getElementById('translateAllBtn');
+            btn.innerHTML = "⏳ Thinking...";
+            btn.disabled = true;
+
+            for (let p of phrases) {
+                if (!getTr(p)) {
+                    const tr = await fetchTr(p);
+                    if (tr) {
+                        cache[norm(p)] = tr;
+                        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    }
+                }
+            }
+            btn.innerHTML = "🌐✨ MAGIC TRANSLATE!";
+            btn.disabled = false;
+            updList();
+        }
+
+        function updList() {
+            const ps = inp.value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            lst.innerHTML = '';
+            
+            ps.forEach((p, i) => {
+                const tr = getTr(p);
+                const card = document.createElement('div');
+                card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
+                card.innerHTML = `
+                    <div class="french-text">${p}</div>
+                    <div class="english-text">${tr || 'Tap Orange to translate'}</div>
+                    <button class="speak-btn" onclick="spkFr(this, '${p.replace(/'/g, "\\'")}')">🎤 Speak French</button>
+                    <button class="translate-btn" onclick="revealAndSpeakEn(this, '${p.replace(/'/g, "\\'")}')">🎯 Reveal & English</button>
+                `;
+                lst.appendChild(card);
             });
         }
-    });
-    
-    if (phrasesToTranslate.length === 0) {
-        alert('🎉 Awesome! All phrases already have translations! You\'re ready to practice!');
-        return;
-    }
-    
-    // Ask for confirmation with fun emoji
-    if (!confirm(`🎯 Translate ${phrasesToTranslate.length} phrase(s)? This will be super fun! ✨`)) {
-        return;
-    }
-    
-    isTranslatingAll = true;
-    translateAllBtn.disabled = true;
-    translateAllBtn.innerHTML = '<span>⏳✨</span> Magic translating...';
-    
-    // Show progress bar
-    progressBar.style.display = 'block';
-    progressText.style.display = 'block';
-    progressFill.style.width = '0%';
-    progressText.textContent = '✨ Getting ready...';
-    
-    let translatedCount = 0;
-    let savedCount = 0;
-    
-    // Process each phrase with delay to avoid API rate limiting
-    for (let i = 0; i < phrasesToTranslate.length; i++) {
-        const item = phrasesToTranslate[i];
-        
-        // Update progress
-        const progress = Math.round(((i + 1) / phrasesToTranslate.length) * 100);
-        progressFill.style.width = `${progress}%`;
-        progressText.textContent = `🎯 Translating... ${i + 1} of ${phrasesToTranslate.length} (${progress}%)`;
-        
-        // Show which phrase is being translated
-        item.card.style.boxShadow = '0 0 0 3px #118AB2';
-        item.englishText.textContent = '✨ Translating...';
-        item.englishText.style.color = '#118AB2';
-        item.englishText.style.fontWeight = '900';
-        
-        try {
-            const translation = await fetchTr(item.french);
-            
-            if (translation) {
-                // Save translation
-                saveTr(item.french, translation);
-                translatedCount++;
-                savedCount++;
-                
-                // Update UI with fun effects
-                item.englishText.textContent = translation;
-                item.englishText.style.color = '#06D6A0';
-                item.card.classList.add('has-translation');
-                item.badge.textContent = '✅ Ready!';
-                item.badge.style.background = 'linear-gradient(135deg, #E8F5E9 0%, #D4EDDA 100%)';
-                item.badge.style.color = '#06D6A0';
-                item.badge.style.borderColor = '#06D6A0';
-                item.badge.style.transform = 'scale(1.2)';
-                
-                // Flash effect for saved badge
-                setTimeout(() => {
-                    item.badge.style.transform = 'scale(1)';
-                    item.badge.textContent = '🎉 Ready!';
-                    item.card.style.boxShadow = '';
-                }, 500);
-            } else {
-                item.englishText.textContent = '🤔 Try again!';
-                item.englishText.style.color = '#EF476F';
-                translatedCount++;
+
+        function spkFr(btn, t) {
+            if (sp) window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'fr-FR';
+            const voices = window.speechSynthesis.getVoices();
+            const fv = voices.find(v => v.lang.startsWith('fr'));
+            if (fv) u.voice = fv;
+            else if (!btn.parentNode.querySelector('.voice-warning')) {
+                const w = document.createElement('div');
+                w.className = 'voice-warning';
+                w.innerText = "💡 Tip: Install French voice in settings!";
+                btn.parentNode.appendChild(w);
             }
-        } catch (error) {
-            item.englishText.textContent = '😅 Oops!';
-            item.englishText.style.color = '#EF476F';
-            console.error('Translation error:', error);
+            window.speechSynthesis.speak(u);
         }
-        
-        // Small delay between requests to avoid rate limiting
-        if (i < phrasesToTranslate.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-        }
-    }
-    
-    // Hide progress bar
-    setTimeout(() => {
-        progressBar.style.display = 'none';
-        progressText.style.display = 'none';
-    }, 1000);
-    
-    // Update button
-    translateAllBtn.disabled = false;
-    translateAllBtn.innerHTML = '<span>🌐✨</span>Translate Everything!';
-    isTranslatingAll = false;
-    
-    // Show fun results
-    alert(`🎉 Hooray! Translation complete!\n\n✅ Successfully translated: ${savedCount} phrase(s)\n🎯 Ready for practice: ${savedCount} phrase(s)\n\nAll translations saved for offline fun! 🏆`);
-    
-    // Update status
-    updSt();
-}
 
-// ========== UI FUNCTIONS ==========
-document.addEventListener('DOMContentLoaded', () => {
-    // Load cached translations
-    const s = localStorage.getItem('phraseTranslations');
-    if (s) {
-        try {
-            cache = JSON.parse(s);
-        } catch (e) {
-            console.warn('Failed to parse cached translations:', e);
-        }
-    }
-    
-    // Load saved phrases
-    const p = localStorage.getItem('frenchPhrases');
-    if (p) {
-        inp.value = p;
-        updList();
-    }
-    
-    updSt();
-    setupSpeechInitialization();
-    
-    // Add input listener for real-time updates
-    inp.addEventListener('input', updList);
-    
-    // Add fun typing sound effect placeholder
-    inp.addEventListener('focus', () => {
-        inp.style.background = '#FFF9C4';
-    });
-    inp.addEventListener('blur', () => {
-        inp.style.background = '#FFF9E6';
-    });
-});
-
-function updSt() {
-    const c = Object.keys(cache).length;
-    const d = Object.keys(dict).length;
-    const t = c + d;
-    
-    const isOnline = navigator.onLine;
-    if (isOnline) {
-        sb.className = 'status-bar';
-        statusIcon.textContent = '🌐';
-        statusText.textContent = `🎉 Online • ${t} fun phrases ready!`;
-        document.querySelectorAll('.translate-btn').forEach(btn => {
-            btn.disabled = false;
-            btn.title = "";
-        });
-    } else {
-        sb.className = 'status-bar offline';
-        statusIcon.textContent = '📴';
-        statusText.textContent = `🏠 Offline • ${t} phrases for practice!`;
-        document.querySelectorAll('.translate-btn').forEach(btn => {
-            btn.disabled = true;
-            btn.title = "Need internet for new translations";
-        });
-        translateAllBtn.disabled = true;
-    }
-}
-
-window.addEventListener('online', updSt);
-window.addEventListener('offline', updSt);
-
-function loadPreset(e, n) {
-    cur = n;
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    // Add fun click effect
-    e.currentTarget.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-        e.currentTarget.style.transform = '';
-    }, 200);
-    disp(sets[n]);
-}
-
-function savePhrases() {
-    const t = inp.value.trim();
-    if (!t) {
-        alert('📝 Add some fun phrases first! Ask your teacher or choose a set above!');
-        return;
-    }
-    try {
-        localStorage.setItem('frenchPhrases', t);
-        cur = null;
-        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        updList();
-        alert('🎉 Your work is saved! Great job! 🏆');
-    } catch (err) {
-        alert('😅 Oops! Storage is full. Try clearing some space.');
-    }
-}
-
-function clearPhrases() {
-    if (confirm('🧹 Clear all phrases? Don\'t worry, your saved work is safe!')) {
-        inp.value = '';
-        cur = null;
-        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        updList();
-    }
-}
-
-function updList() {
-    const t = inp.value;
-    const p = t.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    disp(p);
-}
-
-function disp(ps) {
-    lst.innerHTML = '';
-    if (ps.length === 0) {
-        lst.innerHTML = `
-            <div class="empty-state">
-                <p style="font-size: 24px; margin-bottom: 20px;">🎮 Let's Play French!</p>
-                <p>👆 Choose a fun set above</p>
-                <p>📝 Or type phrases from your teacher!</p>
-                <p style="margin-top: 20px; color: #FF6B8B; font-weight: 900;">🎯 Ready to learn? Let's go! 🚀</p>
-            </div>
-        `;
-        return;
-    }
-    
-    ps.forEach((p, i) => {
-        const tr = getTr(p);
-        const c = document.createElement('div');
-        c.className = 'phrase-card';
-        c.dataset.index = i;
-        c.dataset.french = p;
-        if (tr) c.classList.add('has-translation');
-        
-        const b = document.createElement('div');
-        b.className = 'confidence-badge';
-        b.textContent = tr ? '🎉 Ready!' : '';
-        
-        const f = document.createElement('div');
-        f.className = 'french-text';
-        f.textContent = p;
-        
-        const e = document.createElement('div');
-        e.className = 'english-text';
-        e.textContent = tr || (navigator.onLine ? '🎯 Tap orange for translation!' : '🏠 Offline - saved phrases only');
-        
-        const bs = document.createElement('div');
-        bs.className = 'buttons-row';
-        
-        const sb = document.createElement('button');
-        sb.className = 'speak-btn';
-        sb.innerHTML = '<span>🎤</span> French Voice';
-        sb.onclick = () => spkFr(i);
-        sb.disabled = !('speechSynthesis' in window);
-        if (!('speechSynthesis' in window)) {
-            sb.title = "Voice not supported in this browser";
-        }
-        
-        const tb = document.createElement('button');
-        tb.className = 'translate-btn';
-        tb.innerHTML = '<span>🎯</span> English Voice';
-        tb.onclick = () => trSpk(i);
-        tb.disabled = !navigator.onLine;
-        if (!navigator.onLine) {
-            tb.title = "Need internet for translation";
-        }
-        
-        const ind = document.createElement('div');
-        ind.className = 'speaking-indicator';
-        ind.innerHTML = '<div class="pulse-dot"></div><span>🎤 Speaking...</span>';
-        
-        bs.appendChild(sb);
-        bs.appendChild(tb);
-        c.appendChild(b);
-        c.appendChild(f);
-        c.appendChild(e);
-        c.appendChild(bs);
-        c.appendChild(ind);
-        lst.appendChild(c);
-    });
-}
-
-function spkFr(i) {
-    if (!('speechSynthesis' in window)) {
-        alert('🎤 Oops! Voice not supported in your browser. Try Chrome or Safari!');
-        return;
-    }
-    
-    if (speechSynthesis.speaking) return;
-    
-    const c = document.querySelector(`.phrase-card[data-index="${i}"]`);
-    if (!c) return;
-    
-    const t = c.querySelector('.french-text').textContent;
-    if (sp) speechSynthesis.cancel();
-    
-    document.querySelectorAll('.phrase-card').forEach(x => x.classList.remove('speaking'));
-    c.classList.add('speaking');
-    
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'fr-FR';
-    u.rate = 0.85;
-    
-    // Try to find French voice for better pronunciation
-    const voices = speechSynthesis.getVoices();
-    const frenchVoice = voices.find(v => v.lang.startsWith('fr'));
-    if (frenchVoice) {
-        u.voice = frenchVoice;
-    }
-    
-    u.onend = u.onerror = () => {
-        c.classList.remove('speaking');
-        sp = null;
-    };
-    sp = u;
-    speechSynthesis.speak(u);
-}
-
-async function trSpk(i) {
-    const c = document.querySelector(`.phrase-card[data-index="${i}"]`);
-    if (!c) return;
-    
-    const f = c.dataset.french;
-    const el = c.querySelector('.english-text');
-    const btn = c.querySelector('.translate-btn');
-    let tr = getTr(f);
-    
-    if (!tr) {
-        if (!navigator.onLine) {
-            el.textContent = '🏠 Offline - try when connected!';
-            el.style.color = '#FF8E53';
-            return;
-        }
-        
-        btn.classList.add('translating');
-        btn.innerHTML = '<span>⏳✨</span> Magic translating...';
-        btn.disabled = true;
-        
-        tr = await fetchTr(f);
-        if (tr) {
-            saveTr(f, tr);
-            el.textContent = tr;
-            el.style.color = '#06D6A0';
-            c.classList.add('has-translation');
-            const badge = c.querySelector('.confidence-badge');
-            badge.textContent = '✅ Saved!';
-            badge.style.background = 'linear-gradient(135deg, #E1BEE7 0%, #D1C4E9 100%)';
-            badge.style.color = '#9D4EDD';
-            badge.style.borderColor = '#9D4EDD';
+        async function revealAndSpeakEn(btn, fText) {
+            const card = btn.parentNode;
+            card.classList.add('revealed');
+            let tr = getTr(fText);
             
-            setTimeout(() => {
-                badge.textContent = '🎉 Ready!';
-                badge.style.background = 'linear-gradient(135deg, #E8F5E9 0%, #D4EDDA 100%)';
-                badge.style.color = '#06D6A0';
-                badge.style.borderColor = '#06D6A0';
-            }, 1000);
-        } else {
-            el.textContent = '🤔 Try again!';
-            el.style.color = '#EF476F';
-        }
-        
-        btn.classList.remove('translating');
-        btn.innerHTML = '<span>🎯</span> English Voice';
-        btn.disabled = false;
-    }
-    
-    if (tr) spkEn(c, tr);
-}
+            if (!tr && navigator.onLine) {
+                btn.innerText = "⏳...";
+                tr = await fetchTr(fText);
+                if (tr) {
+                    cache[norm(fText)] = tr;
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    card.querySelector('.english-text').innerText = tr;
+                }
+                btn.innerText = "🎯 Reveal & English";
+            }
 
-function spkEn(c, t) {
-    if (!('speechSynthesis' in window)) {
-        alert('🎤 Oops! Voice not supported in your browser. Try Chrome or Safari!');
-        return;
-    }
-    
-    if (speechSynthesis.speaking) return;
-    if (sp) speechSynthesis.cancel();
-    
-    document.querySelectorAll('.phrase-card').forEach(x => x.classList.remove('speaking'));
-    c.classList.add('speaking');
-    
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'en-US';
-    u.rate = 0.9;
-    u.onend = u.onerror = () => {
-        c.classList.remove('speaking');
-        sp = null;
-    };
-    sp = u;
-    speechSynthesis.speak(u);
-}
+            if (tr) {
+                if (sp) window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(tr);
+                u.lang = 'en-US';
+                window.speechSynthesis.speak(u);
+            }
+        }
 
-// Clean up speech synthesis on page unload
-window.addEventListener('beforeunload', () => {
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-    }
-});
+        function toggleMysteryMode() {
+            isMysteryMode = !isMysteryMode;
+            document.body.classList.toggle('mystery-active', isMysteryMode);
+            const btn = document.getElementById('mysteryToggle');
+            btn.innerText = isMysteryMode ? "🕵️‍♂️ Mystery Mode: ON!" : "🕵️‍♀️ Mystery Mode: OFF";
+            btn.classList.toggle('active', isMysteryMode);
+            updList();
+        }
 
-// ========== MOBILE ENHANCEMENTS ==========
-// Make practice sets collapsible and move buttons to bottom
-document.addEventListener('DOMContentLoaded', function() {
-    // Make practice sets collapsible
-    const practiceSets = document.querySelector('.phrase-sets');
-    if (practiceSets) {
-        practiceSets.addEventListener('click', function(e) {
-            // Only toggle if clicking on the header itself, not the buttons inside
-            if (e.target.closest('.preset-btn')) return;
-            this.classList.toggle('collapsed');
-        });
-        
-        // Start collapsed on mobile
-        if (window.innerWidth <= 768) {
-            practiceSets.classList.add('collapsed');
+        function loadPreset(key) {
+            inp.value = sets[key].join('\n');
+            updList();
         }
-    }
-    
-    // Move Install/Share buttons to bottom
-    const topButtons = document.querySelector('.top-buttons-container');
-    const bottomContainer = document.createElement('div');
-    bottomContainer.className = 'bottom-buttons';
-    
-    if (topButtons && topButtons.children.length > 0) {
-        // Move buttons to new container
-        while (topButtons.firstChild) {
-            bottomContainer.appendChild(topButtons.firstChild);
+
+        function clearPhrases() {
+            if (confirm("Clear current list? (Your Backpack is safe!)")) {
+                inp.value = '';
+                updList();
+            }
         }
-        
-        // Add new container to end of content
-        const contentArea = document.querySelector('.content-area');
-        if (contentArea) {
-            contentArea.appendChild(bottomContainer);
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({ title: 'French Fun Helper', url: window.location.href });
+            } else {
+                alert("Copy this link: " + window.location.href);
+            }
         }
-        
-        // Remove old container (already hidden by CSS but clean up)
-        topButtons.remove();
-    }
-});
+
+        // Initialize
+        window.onload = () => {
+            const saved = localStorage.getItem('frenchPhrases');
+            if (saved) inp.value = saved;
+            updList();
+            
+            window.addEventListener('online', () => {
+                sb.classList.remove('offline');
+                statusText.innerText = "Online!";
+            });
+            window.addEventListener('offline', () => {
+                sb.classList.add('offline');
+                statusText.innerText = "Offline Mode";
+            });
+        };
     </script>
 </body>
 </html>
