@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V3.1 🎉</title>
+    <title>🇫🇷 French Fun V3.2 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -13,9 +13,10 @@
     
    <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 90px; min-height: 100vh; text-align: center; }
+    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
 
+    /* Header */
     .header { background: white; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
     h1 { color: #ff6b8b; font-size: 1.5rem; }
 
@@ -23,49 +24,50 @@
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    .phrase-card { background: white; border-radius: 20px; padding: 25px 20px; margin: 15px 0; border: 4px solid #a3e4d7; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 10px; }
-    .english-text { font-size: 1.3rem; color: #4a5568; font-weight: 700; display: block; min-height: 1.6rem; border-radius: 12px; padding: 8px; margin-bottom: 15px; }
+    /* VISUAL PRACTICE CARDS */
+    .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
+    .card-icon { font-size: 4rem; display: block; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
+    .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     
+    /* Mystery Reveal Overlay */
     .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border: 2px dashed #cbd5e0; position: relative; }
     .mystery-active .english-text::after { content: "❓ TAP ORANGE"; display: block; color: #5a67d8; font-size: 0.8rem; font-weight: 900; }
     .revealed .english-text { background: transparent !important; color: #06D6A0 !important; border-color: transparent !important; }
     .revealed .english-text::after { display: none !important; }
 
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card-btn { border: none; border-radius: 15px; padding: 15px; font-weight: 800; color: white; cursor: pointer; font-size: 1rem; }
+    .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 75px; }
+    /* Nav Bar */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
+    /* Drawers */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 90vh; overflow-y: auto; text-align: center; }
-    
     textarea { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
     
-    #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 10px auto; display: block; border: 2px solid #e2e8f0; }
+    #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; }
-    .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; }
-    .key.used { opacity: 0.2; }
-
-    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
-    .history-item span { color: #1a202c !important; font-weight: 900; font-size: 1.1rem; }
+    
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; }
     
     .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 15px; }
     .mystery-btn.active { background: #5a67d8; color: white; }
-    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; }
+    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V3.1 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V3.2 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -108,7 +110,7 @@
 
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
-            <h3 id="missionTitle" style="color:#5a67d8; margin-bottom:5px;">Mission: ???</h3>
+            <h3 id="missionTitle" style="color:#5a67d8; margin-bottom:5px;">Mission!</h3>
             <div id="clueEmoji" class="clue-emoji">💡</div>
             <canvas id="hangmanCanvas" width="200" height="180"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
@@ -129,15 +131,18 @@
     </div>
 
     <script>
-        // LEARNING MISSIONS (GUARANTEED ICONS)
-        const missions = [
-            { name: "Numbers 🔢", words: { "un":"1️⃣", "deux":"2️⃣", "trois":"3️⃣", "quatre":"4️⃣", "cinq":"5️⃣", "six":"6️⃣", "sept":"7️⃣", "huit":"8️⃣", "neuf":"9️⃣", "dix":"🔟" } },
-            { name: "Colors 🎨", words: { "rouge":"🔴", "bleu":"🔵", "vert":"🟢", "jaune":"🟡", "orange":"🟠", "rose":"🌸", "noir":"⚫", "blanc":"⚪" } },
-            { name: "Animals 🐶", words: { "chat":"🐱", "chien":"🐶", "lapin":"🐰", "oiseau":"🐦", "poisson":"🐟", "vache":"🐮", "cheval":"🐎", "lion":"🦁" } },
-            { name: "Family 👨‍👩‍👧", words: { "maman":"👩", "papa":"👨", "soeur":"👧", "frere":"👦", "bebe":"👶" } },
-            { name: "Food 🍎", words: { "pomme":"🍎", "pain":"🥖", "lait":"🥛", "pizza":"🍕", "glace":"🍦", "gateau":"🍰" } },
-            { name: "Body 👃", words: { "tete":"🙆", "nez":"👃", "bouche":"👄", "yeux":"👀", "main":"✋", "pied":"🦶" } }
-        ];
+        // MASTER EMOJI DATABASE
+        const emojiMap = {
+            "un":"1️⃣","deux":"2️⃣","trois":"3️⃣","quatre":"4️⃣","cinq":"5️⃣","six":"6️⃣","sept":"7️⃣","huit":"8️⃣","neuf":"9️⃣","dix":"🔟",
+            "rouge":"🔴","bleu":"🔵","vert":"🟢","jaune":"🟡","orange":"🟠","rose":"🌸","noir":"⚫","blanc":"⚪","violet":"🟣","marron":"🟤",
+            "chat":"🐱","chien":"🐶","lapin":"🐰","oiseau":"🐦","poisson":"🐟","vache":"🐮","cheval":"🐎","lion":"🦁","elephant":"🐘",
+            "maman":"👩","papa":"👨","soeur":"👧","frere":"👦","bebe":"👶","grand-mere":"👵","grand-père":"👴",
+            "pomme":"🍎","pain":"🥖","lait":"🥛","pizza":"🍕","glace":"🍦","gateau":"🍰","eau":"💧","banane":"🍌","fromage":"🧀",
+            "tete":"🙆","nez":"👃","bouche":"👄","yeux":"👀","main":"✋","pied":"🦶","oreille":"👂","bras":"💪",
+            "bonjour":"👋","salut":"👋","merci":"🙏","au revoir":"👋",
+            "livre":"📖","crayon":"✏️","sac":"🎒","ecole":"🏫","bureau":"🪑","professeur":"🧑‍🏫",
+            "soleil":"☀️","pluie":"🌧️","neige":"❄️","chaud":"🔥","froid":"🧊","coeur":"❤️","cupidon":"💘"
+        };
 
         const dict = { "un":"one","deux":"two","trois":"three","quatre":"four","cinq":"five","six":"six","sept":"seven","huit":"eight","neuf":"nine","dix":"ten" };
         
@@ -146,12 +151,11 @@
         let isMysteryMode = false;
         let lastWord = "";
         let currentScreenList = [];
-        let currentMissionIndex = 0;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            loadList(raw ? raw.split('\n') : missions[0].words);
+            loadList(raw ? raw.split('\n') : ["Bonjour", "Merci", "Au revoir"]);
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
@@ -163,20 +167,81 @@
             const p = { 
                 greetings:["Bonjour","Salut","Merci","Au revoir"],
                 numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"],
-                colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir"],
-                family:["Maman","Papa","Ma soeur","Mon frere"],
-                body:["La tete","Le nez","La bouche","Les yeux"],
-                animals:["Un chat","Un chien","Un lapin","Un oiseau"],
-                food:["Une pomme","Du pain","Du lait","Une pizza"],
-                school:["Un livre","Un crayon","Un sac"]
+                colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Violet"],
+                family:["Maman","Papa","Ma soeur","Mon frere","Grand-mere","Grand-pere"],
+                body:["La tete","Le nez","La bouche","Les yeux","Les mains","Les pieds"],
+                animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache"],
+                food:["Une pomme","Du pain","Du lait","Une pizza","Une banane","Du fromage"],
+                school:["Un livre","Un crayon","Un sac","L'ecole","Le bureau"]
             };
             loadList(p[k]);
         }
 
+        function getEmoji(word) {
+            const n = norm(word);
+            // Check direct match
+            if (emojiMap[n]) return emojiMap[n];
+            // Check if word is contained in key (e.g. "Un chat" contains "chat")
+            for (let key in emojiMap) {
+                if (n.includes(key)) return emojiMap[key];
+            }
+            return "✨"; // Default icon if nothing found
+        }
+
+        function loadList(list) {
+            currentScreenList = list.filter(l => l.trim().length > 0);
+            renderListUI();
+        }
+
+        function renderListUI() {
+            const container = document.getElementById('phrasesList');
+            container.innerHTML = '';
+            document.getElementById('stCountText').textContent = `${currentScreenList.length} phrases`;
+
+            currentScreenList.forEach(p => {
+                const tr = dict[norm(p)] || cache[norm(p)] || null;
+                const card = document.createElement('div');
+                card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
+                
+                const icon = document.createElement('span');
+                icon.className = 'card-icon';
+                icon.textContent = getEmoji(p);
+
+                const fText = document.createElement('span');
+                fText.className = 'french-text';
+                fText.textContent = p;
+
+                const eText = document.createElement('span');
+                eText.className = 'english-text';
+                eText.textContent = tr || '...';
+
+                const btnRow = document.createElement('div');
+                btnRow.className = 'card-btns';
+
+                const sBtn = document.createElement('button');
+                sBtn.className = 'card-btn spk-fr';
+                sBtn.textContent = '🎤 French';
+                sBtn.onclick = () => spk(p, 'fr-FR');
+
+                const tBtn = document.createElement('button');
+                tBtn.className = 'card-btn spk-en';
+                tBtn.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
+                tBtn.onclick = () => handleReveal(card, p, eText);
+
+                btnRow.append(sBtn, tBtn);
+                card.append(icon, fText, eText, btnRow);
+                container.appendChild(card);
+            });
+        }
+
+        async function handleReveal(c, f, d) { c.classList.add('revealed'); let tr = dict[norm(f)] || cache[norm(f)]; if (!tr && navigator.onLine) { d.textContent = '⏳...'; tr = await translateOne(f); if (tr) d.textContent = tr; } if (tr) spk(tr, 'en-US'); }
+        async function translateOne(p) { const n = norm(p); if (dict[n]) return dict[n]; try { const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`); const d = await r.json(); const tr = d.responseData.translatedText; cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr; } catch (e) { return null; } }
+        function spk(t, lang) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8; window.speechSynthesis.speak(u); }
+
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
-            const mode = confirm("✨ Magic Sync!\n\nOK: Sync EVERYTHING for offline.\nCancel: Just this screen.");
-            let list = mode ? [...new Set([...document.getElementById('hwInput').value.split('\n'), ...missions.map(m => Object.keys(m.words)).flat()])] : currentScreenList;
+            const mode = confirm("✨ Magic Sync!\n\nOK: Sync EVERYTHING\nCancel: Only Screen");
+            let list = mode ? [...new Set([...document.getElementById('hwInput').value.split('\n'), ...Object.values(presets).flat()])] : currentScreenList;
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
                 btn.textContent = `${i+1}/${list.length}`;
@@ -185,76 +250,30 @@
             btn.textContent = "✨ Magic"; btn.disabled = false; renderListUI();
         }
 
-        function loadList(list) {
-            // Handle if list is the mission object words
-            let items = Array.isArray(list) ? list : Object.keys(list);
-            currentScreenList = items.filter(l => l.trim().length > 0);
-            renderListUI();
-        }
-
-        function renderListUI() {
-            const container = document.getElementById('phrasesList');
-            container.innerHTML = '';
-            document.getElementById('stCountText').textContent = `${currentScreenList.length} phrases`;
-            currentScreenList.forEach(p => {
-                const tr = dict[norm(p)] || cache[norm(p)] || null;
-                const card = document.createElement('div');
-                card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
-                const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
-                const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = tr || '...';
-                const bD = document.createElement('div'); bD.className = 'card-btns';
-                const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
-                sB.onclick = () => spk(p, 'fr-FR');
-                const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
-                tB.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
-                tB.onclick = () => handleReveal(card, p, eS);
-                bD.append(sB, tB); card.append(fS, eS, bD); container.appendChild(card);
-            });
-        }
-
-        async function handleReveal(c, f, d) { c.classList.add('revealed'); let tr = dict[norm(f)] || cache[norm(f)]; if (!tr && navigator.onLine) { d.textContent = '⏳...'; tr = await translateOne(f); if (tr) d.textContent = tr; } if (tr) spk(tr, 'en-US'); }
-        async function translateOne(p) { const n = norm(p); if (dict[n]) return dict[n]; try { const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`); const d = await r.json(); const tr = d.responseData.translatedText; cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr; } catch (e) { return null; } }
-        function spk(t, lang) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8; window.speechSynthesis.speak(u); }
-
-        // --- HANGMAN 3.1: LEARNING MISSIONS ---
+        // --- HANGMAN ---
         let targetWord, guessed, mistakes;
+        const missions = [
+            { name: "Numbers 🔢", words: ["un","deux","trois","quatre","cinq","six","sept","huit","neuf","dix"] },
+            { name: "Colors 🎨", words: ["rouge","bleu","vert","jaune","orange","noir","blanc"] },
+            { name: "Animals 🐶", words: ["chat","chien","lapin","oiseau","poisson","vache","cheval"] }
+        ];
+        let currentMissionIdx = 0;
+
         function startHangman() {
-            // Check Homework first for single words with emoji matches
-            const hwWords = document.getElementById('hwInput').value.split('\n')
-                .map(w => w.trim().toLowerCase())
-                .filter(w => w.length > 1 && !w.includes(' '));
-
-            let pool = [];
-            let currentMission = missions[currentCategoryIndex % missions.length];
-            
-            // Priority: Find homework words that exist in our emoji list
-            let hwMatches = hwWords.filter(w => {
-                for (let m of missions) { if (m.words[w]) return true; }
-                return false;
-            });
-
-            if (hwMatches.length > 0 && Math.random() > 0.5) {
-                // 50% chance to pick from homework if a match is found
-                let pick = hwMatches[Math.floor(Math.random() * hwMatches.length)];
-                targetWord = pick.toUpperCase();
-                // Find the emoji for this homework word
-                let emoji = "💡";
-                for (let m of missions) { if (m.words[pick]) { emoji = m.words[pick]; break; } }
-                document.getElementById('clueEmoji').textContent = emoji;
+            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim().toLowerCase()).filter(w => w.length > 1 && !w.includes(' '));
+            let pick;
+            if (hwWords.length > 0 && Math.random() > 0.5) {
+                pick = hwWords[Math.floor(Math.random() * hwWords.length)];
                 document.getElementById('missionTitle').textContent = "Homework Star! ⭐";
             } else {
-                // Otherwise, stick to the current Mission Category
-                let missionWords = Object.keys(currentMission.words);
-                let pick = missionWords[Math.floor(Math.random() * missionWords.length)];
-                targetWord = pick.toUpperCase();
-                document.getElementById('clueEmoji').textContent = currentMission.words[pick];
-                document.getElementById('missionTitle').textContent = "Mission: " + currentMission.name;
-                // Move to next category every 3 words
-                if (Math.random() > 0.7) currentCategoryIndex++;
+                const m = missions[currentMissionIdx % missions.length];
+                pick = m.words[Math.floor(Math.random() * m.words.length)];
+                document.getElementById('missionTitle').textContent = m.name;
+                if (Math.random() > 0.8) currentMissionIdx++;
             }
-
-            guessed = [targetWord[0]]; // Show first letter
-            mistakes = 0;
+            lastWord = pick; targetWord = pick.toUpperCase();
+            document.getElementById('clueEmoji').textContent = getEmoji(pick);
+            guessed = [targetWord[0]]; mistakes = 0;
             drawHangman(0); updateHangmanUI();
         }
 
@@ -291,7 +310,6 @@
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); }
         }
 
-        let currentCategoryIndex = 0;
         function saveHW() { const val = document.getElementById('hwInput').value; localStorage.setItem('homeworkPhrases', val); const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); } loadList(val.split('\n')); }
         function openBP() {
             const list = document.getElementById('bpList'); list.innerHTML = '';
