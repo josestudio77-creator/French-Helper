@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V2.4 🎉</title>
+    <title>🇫🇷 French Fun V2.6 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -23,7 +23,6 @@
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* Centered Secure Cards */
     .phrase-card { background: white; border-radius: 20px; padding: 25px 20px; margin: 15px 0; border: 4px solid #a3e4d7; text-align: center; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 10px; }
     .english-text { font-size: 1.3rem; color: #4a5568; font-weight: 700; display: block; min-height: 1.6rem; border-radius: 12px; padding: 8px; margin-bottom: 15px; transition: 0.3s; }
@@ -38,7 +37,6 @@
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    /* Navigation */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 75px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
@@ -49,7 +47,6 @@
     
     textarea { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
     
-    /* Game Visuals */
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 10px 0; font-weight: 900; }
@@ -68,11 +65,11 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V2.4 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V2.6 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
-            <button class="magic-mini-btn" id="magicBtn" onclick="translateAllPhrases()">✨ Magic</button>
+            <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic</button>
         </div>
 
         <button id="mysteryToggle" class="mystery-btn" onclick="toggleMysteryMode()">Mystery Mode: OFF</button>
@@ -132,7 +129,7 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let isMysteryMode = false;
         let lastWord = "";
-        let currentlyViewingHomework = false;
+        let currentScreenList = [];
 
         const emojiMap = {
             "apple": "🍎", "pomme": "🍎", "banana": "🍌", "banane": "🍌", "cat": "🐱", "chat": "🐱", "dog": "🐶", "chien": "🐶", 
@@ -146,13 +143,17 @@
             "snow": "❄️", "neige": "❄️", "hot": "🔥", "chaud": "🔥", "cold": "🧊", "froid": "🧊", "family": "👨‍👩‍👧", "famille": "👨‍👩‍👧"
         };
 
-        const fallbacks = ["POMME", "CHAT", "CHIEN", "SOLEIL", "ECOLE", "MAISON", "LIVRE", "ROUGE", "VERT"];
+        const presets = {
+            greetings: ["Bonjour", "Salut", "Merci"],
+            numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq"],
+            colors: ["Rouge", "Bleu", "Vert", "Jaune"],
+            animals: ["Un chat", "Un chien", "Un lapin"]
+        };
 
         window.onload = () => {
             cleanOldData();
             const rawHw = localStorage.getItem('homeworkPhrases');
             if (rawHw && rawHw.trim().length > 0) {
-                currentlyViewingHomework = true;
                 loadList(rawHw.split('\n'));
             } else {
                 loadPreset('greetings');
@@ -177,48 +178,69 @@
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
         
         function loadPreset(k) {
-            currentlyViewingHomework = false;
-            const s = { greetings:["Bonjour","Salut","Merci"], numbers:["Un","Deux","Trois","Quatre","Cinq"], colors:["Rouge","Bleu","Vert","Jaune"], animals:["Un chat","Un chien","Un lapin"] };
-            loadList(s[k]);
+            loadList(presets[k]);
+        }
+
+        // --- NEW MAGIC SYNC LOGIC ---
+        async function magicSync() {
+            const btn = document.getElementById('magicBtn');
+            const mode = confirm("✨ Magic Sync!\n\nTap OK to translate EVERYTHING in the app for offline fun.\n\nTap CANCEL to translate only the words currently on screen.");
+            
+            let listToTranslate = [];
+            
+            if (mode) {
+                // Combine everything
+                const homework = document.getElementById('hwInput').value.split('\n');
+                const allPresets = Object.values(presets).flat();
+                listToTranslate = [...new Set([...homework, ...allPresets])].filter(l => l.trim().length > 0);
+            } else {
+                listToTranslate = currentScreenList;
+            }
+
+            if (listToTranslate.length === 0) return;
+
+            btn.disabled = true;
+            for (let i = 0; i < listToTranslate.length; i++) {
+                const phrase = listToTranslate[i];
+                btn.textContent = `${i+1}/${listToTranslate.length}`;
+                if (!cache[norm(phrase)]) {
+                    await translateOne(phrase);
+                }
+            }
+            
+            btn.textContent = "✨ Magic";
+            btn.disabled = false;
+            renderListUI();
+            if(mode) alert("🏆 Full Sync Complete! All Fun Sets and Homework are now ready for offline practice!");
         }
 
         function loadList(list) {
+            currentScreenList = list.filter(l => l.trim().length > 0);
+            renderListUI();
+        }
+
+        function renderListUI() {
             const container = document.getElementById('phrasesList');
             container.innerHTML = '';
-            const active = list.filter(l => l.trim().length > 0);
-            document.getElementById('stCountText').textContent = `${active.length} phrases`;
+            document.getElementById('stCountText').textContent = `${currentScreenList.length} phrases`;
 
-            active.forEach(p => {
+            currentScreenList.forEach(p => {
                 const tr = cache[norm(p)] || null;
                 const card = document.createElement('div');
                 card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
                 
-                const fText = document.createElement('span');
-                fText.className = 'french-text';
-                fText.textContent = p;
+                const fText = document.createElement('span'); fText.className = 'french-text'; fText.textContent = p;
+                const eText = document.createElement('span'); eText.className = 'english-text'; eText.textContent = tr || '...';
 
-                const eText = document.createElement('span');
-                eText.className = 'english-text';
-                eText.textContent = tr || '...';
-
-                const btnRow = document.createElement('div');
-                btnRow.className = 'card-btns';
-
-                const sBtn = document.createElement('button');
-                sBtn.className = 'card-btn spk-fr';
-                sBtn.textContent = '🎤 French';
+                const btnRow = document.createElement('div'); btnRow.className = 'card-btns';
+                const sBtn = document.createElement('button'); sBtn.className = 'card-btn spk-fr'; sBtn.textContent = '🎤 French';
                 sBtn.onclick = () => spk(p, 'fr-FR');
-
-                const tBtn = document.createElement('button');
-                tBtn.className = 'card-btn spk-en';
+                const tBtn = document.createElement('button'); tBtn.className = 'card-btn spk-en';
                 tBtn.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
                 tBtn.onclick = () => handleReveal(card, p, eText);
 
-                btnRow.appendChild(sBtn);
-                btnRow.appendChild(tBtn);
-                card.appendChild(fText);
-                card.appendChild(eText);
-                card.appendChild(btnRow);
+                btnRow.appendChild(sBtn); btnRow.appendChild(tBtn);
+                card.appendChild(fText); card.appendChild(eText); card.appendChild(btnRow);
                 container.appendChild(card);
             });
         }
@@ -243,26 +265,6 @@
             } catch (e) { return null; }
         }
 
-        async function translateAllPhrases() {
-            const btn = document.getElementById('magicBtn'); btn.disabled = true;
-            const hwText = document.getElementById('hwInput').value;
-            const ps = hwText.split('\n').filter(l => l.trim().length > 0);
-            
-            for (let i = 0; i < ps.length; i++) {
-                btn.textContent = `${i+1}/${ps.length}`;
-                if (!cache[norm(ps[i])]) await translateOne(ps[i]);
-            }
-            
-            btn.textContent = "✨ Magic"; btn.disabled = false; 
-            
-            // Only update the screen list if the user is currently looking at homework
-            if (currentlyViewingHomework) {
-                loadList(ps);
-            } else {
-                alert("✨ Magic Done! Your Homework translations are saved!");
-            }
-        }
-
         function spk(t, lang) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8;
@@ -273,29 +275,18 @@
         let targetWord, guessed, mistakes;
         function startHangman() {
             const raw = document.getElementById('hwInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
-            const hwWords = raw.length > 0 ? raw : fallbacks;
+            const hwWords = raw.length > 0 ? raw : Object.values(presets).flat().filter(w => w.length > 2 && !w.includes(' '));
             let pick;
             do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord && hwWords.length > 1);
-            
             lastWord = pick; targetWord = pick.toUpperCase();
             
-            // Fixed Emoji Logic
             const frNorm = norm(pick);
             const english = (cache[frNorm] || "").toLowerCase();
-            
             let emoji = "💡";
-            // Check French first
-            if (emojiMap[frNorm]) {
-                emoji = emojiMap[frNorm];
-            } else {
-                // Check English mappings
+            if (emojiMap[frNorm]) emoji = emojiMap[frNorm];
+            else {
                 const engWords = english.split(' ');
-                for (let word of engWords) {
-                    if (emojiMap[word]) {
-                        emoji = emojiMap[word];
-                        break;
-                    }
-                }
+                for (let word of engWords) { if (emojiMap[word]) { emoji = emojiMap[word]; break; } }
             }
             
             document.getElementById('clueEmoji').textContent = emoji;
@@ -307,15 +298,9 @@
         function updateHangmanUI() {
             let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
-            if (!d.includes("_")) {
-                document.getElementById('gameMsg').textContent = "🏆 BRAVO! You won!";
-                spk("Bravo! You win!", 'en-US');
-            } else if (mistakes >= 10) {
-                document.getElementById('gameMsg').textContent = "❌ Out of tries! It was: " + targetWord;
-                spk("Oh no! Better luck next time!", 'en-US');
-            } else {
-                document.getElementById('gameMsg').textContent = "Guess a letter!";
-            }
+            if (!d.includes("_")) { document.getElementById('gameMsg').textContent = "🏆 BRAVO! You won!"; spk("Bravo! You win!", 'en-US'); }
+            else if (mistakes >= 10) { document.getElementById('gameMsg').textContent = "❌ It was: " + targetWord; spk("Oh no! Better luck next time!", 'en-US'); }
+            else { document.getElementById('gameMsg').textContent = "Guess a letter!"; }
             renderKeyboard();
         }
 
@@ -353,7 +338,6 @@
             localStorage.setItem('homeworkPhrases', val);
             const name = prompt("Name this week:", "Week " + (Object.keys(history).length + 1));
             if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
-            currentlyViewingHomework = true;
             loadList(val.split('\n'));
         }
 
@@ -363,16 +347,8 @@
                 const div = document.createElement('div'); div.className = 'history-item';
                 const nSpan = document.createElement('span'); nSpan.textContent = name;
                 const bCont = document.createElement('div');
-                const loadBtn = document.createElement('button');
-                loadBtn.textContent = "Load";
-                loadBtn.style.cssText = "background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px";
-                loadBtn.onclick = () => loadHist(name);
-                
-                const delBtn = document.createElement('button');
-                delBtn.textContent = "🗑️";
-                delBtn.style.cssText = "background:#fee2e2; border:none; padding:10px; border-radius:10px";
-                delBtn.onclick = () => delHist(name);
-                
+                const loadBtn = document.createElement('button'); loadBtn.textContent = "Load"; loadBtn.style.cssText = "background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px; cursor:pointer;"; loadBtn.onclick = () => loadHist(name);
+                const delBtn = document.createElement('button'); delBtn.textContent = "🗑️"; delBtn.style.cssText = "background:#fee2e2; border:none; padding:10px; border-radius:10px; cursor:pointer;"; delBtn.onclick = () => delHist(name);
                 bCont.appendChild(loadBtn); bCont.appendChild(delBtn);
                 div.appendChild(nSpan); div.appendChild(bCont);
                 list.appendChild(div);
@@ -380,25 +356,16 @@
             openOverlay('bpModal');
         }
 
-        function loadHist(n) { currentlyViewingHomework = true; document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
+        function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
         function delHist(n) { if (confirm("Delete " + n + "?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
         function toggleMysteryMode() { 
             isMysteryMode = !isMysteryMode; 
             document.body.classList.toggle('mystery-active', isMysteryMode);
             document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; 
             document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); 
-            // Refresh whatever is on screen
-            if (currentlyViewingHomework) {
-                loadList(document.getElementById('hwInput').value.split('\n'));
-            } else {
-                // If not viewing homework, we don't have an easy way to "refresh" current preset without state, 
-                // so let's just re-render phrasesList manually
-                document.querySelectorAll('.phrase-card').forEach(card => {
-                    card.classList.toggle('revealed', !isMysteryMode);
-                });
-            }
+            renderListUI();
         }
-        function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); if(currentlyViewingHomework) loadList([]); }
+        function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
     </script>
 </body>
 </html>
