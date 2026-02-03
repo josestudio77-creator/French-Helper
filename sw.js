@@ -1,6 +1,20 @@
-// sw.js - Service Worker V17
-const CACHE_NAME = 'french-helper-v17';
+// sw.js - Service Worker V18
+const CACHE_NAME = 'french-helper-v18';
 const urlsToCache = ['./', './index.html', './icon.png', './manifest.json'];
-self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache))); });
-self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => { if(k !== CACHE_NAME) return caches.delete(k); })))));
-self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+
+self.addEventListener('install', e => {
+  self.skipWaiting(); 
+  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(urlsToCache)));
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(k => { if(k !== CACHE_NAME) return caches.delete(k); })
+    )).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+});
