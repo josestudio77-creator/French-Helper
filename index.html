@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V2.7 🎉</title>
+    <title>🇫🇷 French Fun V2.8 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -65,7 +65,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V2.7 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V2.8 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -129,13 +129,13 @@
     </div>
 
     <script>
-        // HARDCODED CORRECTIONS (Stops "Un" -> "A" bug)
+        // HARDCODED DICTIONARY
         const dict = {
             "un": "one", "deux": "two", "trois": "three", "quatre": "four", "cinq": "five",
             "six": "six", "sept": "seven", "huit": "eight", "neuf": "nine", "dix": "ten",
-            "onze": "eleven", "douze": "twelve", "treize": "thirteen", "quatorze": "fourteen",
-            "quinze": "fifteen", "seize": "sixteen", "dix-sept": "seventeen", "dix-huit": "eighteen",
-            "dix-neuf": "nineteen", "vingt": "twenty"
+            "pomme": "apple", "chat": "cat", "chien": "dog", "soleil": "sun", "ecole": "school", 
+            "maison": "house", "livre": "book", "rouge": "red", "bleu": "blue", "vert": "green", 
+            "jaune": "yellow", "bonjour": "hello", "merci": "thank you", "papa": "father", "maman": "mother"
         };
 
         const emojiMap = {
@@ -184,11 +184,10 @@
 
         function cleanOldData() {
             let data = localStorage.getItem('homeworkPhrases');
-            if (data && (data.includes('[') || data.includes('{'))) {
-                try {
-                    let parsed = JSON.parse(data);
-                    if (Array.isArray(parsed)) data = parsed.map(item => item.fr || item).join('\n');
-                } catch(e) { data = ""; }
+            // If data is JSON, wipe it or convert it to avoid the "garbled text" bug
+            if (data && (data.startsWith('[') || data.startsWith('{'))) {
+                localStorage.removeItem('homeworkPhrases');
+                data = "";
             }
             document.getElementById('hwInput').value = data || "";
         }
@@ -222,15 +221,19 @@
                 const tr = dict[norm(p)] || cache[norm(p)] || null;
                 const card = document.createElement('div');
                 card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
-                card.innerHTML = `<span class="french-text"></span><span class="english-text"></span><div class="card-btns"></div>`;
-                card.querySelector('.french-text').textContent = p;
-                card.querySelector('.english-text').textContent = tr || '...';
+                
+                const fSpan = document.createElement('span'); fSpan.className = 'french-text'; fSpan.textContent = p;
+                const eSpan = document.createElement('span'); eSpan.className = 'english-text'; eSpan.textContent = tr || '...';
+                
+                const btns = document.createElement('div'); btns.className = 'card-btns';
                 const sBtn = document.createElement('button'); sBtn.className = 'card-btn spk-fr'; sBtn.textContent = '🎤 French';
                 sBtn.onclick = () => spk(p, 'fr-FR');
                 const tBtn = document.createElement('button'); tBtn.className = 'card-btn spk-en';
                 tBtn.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
-                tBtn.onclick = () => handleReveal(card, p, card.querySelector('.english-text'));
-                card.querySelector('.card-btns').append(sBtn, tBtn);
+                tBtn.onclick = () => handleReveal(card, p, eSpan);
+
+                btns.append(sBtn, tBtn);
+                card.append(fSpan, eSpan, btns);
                 container.appendChild(card);
             });
         }
@@ -247,11 +250,12 @@
         }
 
         async function translateOne(p) {
-            if (dict[norm(p)]) return dict[norm(p)];
+            const normalized = norm(p);
+            if (dict[normalized]) return dict[normalized];
             try {
                 const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`);
                 const d = await r.json(); const tr = d.responseData.translatedText;
-                cache[norm(p)] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                cache[normalized] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache));
                 return tr;
             } catch (e) { return null; }
         }
@@ -261,15 +265,21 @@
         function startHangman() {
             const raw = document.getElementById('hwInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
             const hwWords = raw.length > 0 ? raw : ["POMME", "CHAT", "CHIEN", "ECOLE", "MAISON", "LIVRE", "ROUGE", "VERT", "BLEU"];
-            let pick; do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord && hwWords.length > 1);
+            
+            let pick; 
+            // Anti-stuck logic: ensure we actually try to pick a new word
+            if (hwWords.length > 1) {
+                do { pick = hwWords[Math.floor(Math.random() * hwWords.length)]; } while (pick === lastWord);
+            } else {
+                pick = hwWords[0];
+            }
+            
             lastWord = pick; targetWord = pick.toUpperCase();
             
-            // SMART EMOJI SEARCH
-            const english = (dict[norm(pick)] || cache[norm(pick)] || "").toLowerCase();
             const frNorm = norm(pick);
+            const english = (dict[frNorm] || cache[frNorm] || "").toLowerCase();
             let emoji = "💡";
             
-            // Check French keys, then English keywords
             if (emojiMap[frNorm]) emoji = emojiMap[frNorm];
             else {
                 for (let key in emojiMap) {
@@ -327,10 +337,14 @@
             const list = document.getElementById('bpList'); list.innerHTML = '';
             Object.keys(history).reverse().forEach(name => {
                 const div = document.createElement('div'); div.className = 'history-item';
-                div.innerHTML = `<span></span><div><button class="load-btn">Load</button><button class="del-btn">🗑️</button></div>`;
-                div.querySelector('span').textContent = name;
-                div.querySelector('.load-btn').onclick = () => loadHist(name);
-                div.querySelector('.del-btn').onclick = () => delHist(name);
+                const nSpan = document.createElement('span'); nSpan.textContent = name;
+                const btns = document.createElement('div');
+                const loadBtn = document.createElement('button'); loadBtn.className = 'load-btn'; loadBtn.textContent = 'Load';
+                loadBtn.onclick = () => loadHist(name);
+                const delBtn = document.createElement('button'); delBtn.className = 'del-btn'; delBtn.textContent = '🗑️';
+                delBtn.onclick = () => delHist(name);
+                btns.append(loadBtn, delBtn);
+                div.append(nSpan, btns);
                 list.appendChild(div);
             });
             openOverlay('bpModal');
