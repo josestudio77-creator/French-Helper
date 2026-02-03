@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V2.3 🎉</title>
+    <title>🇫🇷 French Fun V2.4 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -51,7 +51,7 @@
     
     /* Game Visuals */
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; }
-    .clue-emoji { font-size: 3.5rem; display: block; margin: 5px 0; }
+    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 10px 0; font-weight: 900; }
     .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; }
     .key.used { opacity: 0.2; }
@@ -68,7 +68,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V2.4 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -132,20 +132,31 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let isMysteryMode = false;
         let lastWord = "";
+        let currentlyViewingHomework = false;
 
         const emojiMap = {
-            "apple": "🍎", "banana": "🍌", "cat": "🐱", "dog": "🐶", "sun": "☀️", "house": "🏠", "school": "🏫", 
-            "boy": "👦", "girl": "👧", "book": "📖", "car": "🚗", "red": "🔴", "blue": "🔵", "green": "🟢", 
-            "yellow": "🟡", "one": "1️⃣", "two": "2️⃣", "three": "3️⃣", "hello": "👋", "bread": "🥖", 
-            "water": "💧", "milk": "🥛", "fish": "🐟", "bird": "🐦", "horse": "🐎", "cow": "🐮",
-            "pizza": "🍕", "cake": "🍰", "ice": "🍦", "rain": "🌧️", "snow": "❄️", "hot": "🔥", "cold": "🧊"
+            "apple": "🍎", "pomme": "🍎", "banana": "🍌", "banane": "🍌", "cat": "🐱", "chat": "🐱", "dog": "🐶", "chien": "🐶", 
+            "sun": "☀️", "soleil": "☀️", "house": "🏠", "maison": "🏠", "school": "🏫", "ecole": "🏫",
+            "boy": "👦", "garcon": "👦", "girl": "👧", "fille": "👧", "book": "📖", "livre": "📖", "car": "🚗", "voiture": "🚗",
+            "red": "🔴", "rouge": "🔴", "blue": "🔵", "bleu": "🔵", "green": "🟢", "vert": "🟢", "yellow": "🟡", "jaune": "🟡",
+            "one": "1️⃣", "un": "1️⃣", "two": "2️⃣", "deux": "2️⃣", "three": "3️⃣", "trois": "3️⃣", "hello": "👋", "bonjour": "👋", 
+            "bread": "🥖", "pain": "🥖", "water": "💧", "eau": "💧", "milk": "🥛", "lait": "🥛", "fish": "🐟", "poisson": "🐟",
+            "bird": "🐦", "oiseau": "🐦", "horse": "🐎", "cheval": "🐎", "cow": "🐮", "vache": "🐮",
+            "pizza": "🍕", "cake": "🍰", "gateau": "🍰", "ice": "🍦", "glace": "🍦", "rain": "🌧️", "pluie": "🌧️", 
+            "snow": "❄️", "neige": "❄️", "hot": "🔥", "chaud": "🔥", "cold": "🧊", "froid": "🧊", "family": "👨‍👩‍👧", "famille": "👨‍👩‍👧"
         };
 
         const fallbacks = ["POMME", "CHAT", "CHIEN", "SOLEIL", "ECOLE", "MAISON", "LIVRE", "ROUGE", "VERT"];
 
         window.onload = () => {
             cleanOldData();
-            loadList(document.getElementById('hwInput').value.split('\n'));
+            const rawHw = localStorage.getItem('homeworkPhrases');
+            if (rawHw && rawHw.trim().length > 0) {
+                currentlyViewingHomework = true;
+                loadList(rawHw.split('\n'));
+            } else {
+                loadPreset('greetings');
+            }
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
@@ -166,11 +177,11 @@
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
         
         function loadPreset(k) {
+            currentlyViewingHomework = false;
             const s = { greetings:["Bonjour","Salut","Merci"], numbers:["Un","Deux","Trois","Quatre","Cinq"], colors:["Rouge","Bleu","Vert","Jaune"], animals:["Un chat","Un chien","Un lapin"] };
             loadList(s[k]);
         }
 
-        // --- SECURITY HARDENED LOADLIST ---
         function loadList(list) {
             const container = document.getElementById('phrasesList');
             container.innerHTML = '';
@@ -184,11 +195,11 @@
                 
                 const fText = document.createElement('span');
                 fText.className = 'french-text';
-                fText.textContent = p; // SECURE
+                fText.textContent = p;
 
                 const eText = document.createElement('span');
                 eText.className = 'english-text';
-                eText.textContent = tr || '...'; // SECURE
+                eText.textContent = tr || '...';
 
                 const btnRow = document.createElement('div');
                 btnRow.className = 'card-btns';
@@ -234,12 +245,22 @@
 
         async function translateAllPhrases() {
             const btn = document.getElementById('magicBtn'); btn.disabled = true;
-            const ps = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
+            const hwText = document.getElementById('hwInput').value;
+            const ps = hwText.split('\n').filter(l => l.trim().length > 0);
+            
             for (let i = 0; i < ps.length; i++) {
                 btn.textContent = `${i+1}/${ps.length}`;
                 if (!cache[norm(ps[i])]) await translateOne(ps[i]);
             }
-            btn.textContent = "✨ Magic"; btn.disabled = false; loadList(ps);
+            
+            btn.textContent = "✨ Magic"; btn.disabled = false; 
+            
+            // Only update the screen list if the user is currently looking at homework
+            if (currentlyViewingHomework) {
+                loadList(ps);
+            } else {
+                alert("✨ Magic Done! Your Homework translations are saved!");
+            }
         }
 
         function spk(t, lang) {
@@ -248,7 +269,7 @@
             window.speechSynthesis.speak(u);
         }
 
-        // --- HANGMAN WITH 10 CHANCES & CLUES ---
+        // --- HANGMAN ---
         let targetWord, guessed, mistakes;
         function startHangman() {
             const raw = document.getElementById('hwInput').value.split('\n').filter(w => w.trim().length > 2 && !w.includes(' '));
@@ -258,12 +279,27 @@
             
             lastWord = pick; targetWord = pick.toUpperCase();
             
-            // Smarter Emoji Clue
-            const english = (cache[norm(targetWord)] || "").toLowerCase();
-            const coreWord = english.split(' ').pop(); // Try the last word (e.g., "the cat" -> "cat")
-            document.getElementById('clueEmoji').textContent = emojiMap[coreWord] || emojiMap[english.split(' ')[0]] || "💡";
+            // Fixed Emoji Logic
+            const frNorm = norm(pick);
+            const english = (cache[frNorm] || "").toLowerCase();
             
-            guessed = [targetWord[0]]; // HINT: Give the first letter!
+            let emoji = "💡";
+            // Check French first
+            if (emojiMap[frNorm]) {
+                emoji = emojiMap[frNorm];
+            } else {
+                // Check English mappings
+                const engWords = english.split(' ');
+                for (let word of engWords) {
+                    if (emojiMap[word]) {
+                        emoji = emojiMap[word];
+                        break;
+                    }
+                }
+            }
+            
+            document.getElementById('clueEmoji').textContent = emoji;
+            guessed = [targetWord[0]]; 
             mistakes = 0;
             drawHangman(0); updateHangmanUI();
         }
@@ -300,18 +336,16 @@
         function drawHangman(step) {
             const canvas = document.getElementById('hangmanCanvas'); const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, 200, 180); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
-            
-            // 10 Steps Drawing Logic
-            if (step >= 1) { ctx.beginPath(); ctx.moveTo(20, 160); ctx.lineTo(180, 160); ctx.stroke(); } // Base
-            if (step >= 2) { ctx.beginPath(); ctx.moveTo(40, 160); ctx.lineTo(40, 20); ctx.stroke(); } // Post
-            if (step >= 3) { ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(120, 20); ctx.stroke(); } // Top
-            if (step >= 4) { ctx.beginPath(); ctx.moveTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); } // Rope
-            if (step >= 5) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); } // Head
-            if (step >= 6) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); } // Body
-            if (step >= 7) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); } // L Arm
-            if (step >= 8) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); } // R Arm
-            if (step >= 9) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); } // L Leg
-            if (step >= 10) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); } // R Leg
+            if (step >= 1) { ctx.beginPath(); ctx.moveTo(20, 160); ctx.lineTo(180, 160); ctx.stroke(); }
+            if (step >= 2) { ctx.beginPath(); ctx.moveTo(40, 160); ctx.lineTo(40, 20); ctx.stroke(); }
+            if (step >= 3) { ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(120, 20); ctx.stroke(); }
+            if (step >= 4) { ctx.beginPath(); ctx.moveTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); }
+            if (step >= 5) { ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI * 2); ctx.stroke(); }
+            if (step >= 6) { ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 110); ctx.stroke(); }
+            if (step >= 7) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); }
+            if (step >= 8) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); }
+            if (step >= 9) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(100, 140); ctx.stroke(); }
+            if (step >= 10) { ctx.beginPath(); ctx.moveTo(120, 110); ctx.lineTo(140, 140); ctx.stroke(); }
         }
 
         function saveHW() {
@@ -319,6 +353,7 @@
             localStorage.setItem('homeworkPhrases', val);
             const name = prompt("Name this week:", "Week " + (Object.keys(history).length + 1));
             if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
+            currentlyViewingHomework = true;
             loadList(val.split('\n'));
         }
 
@@ -328,23 +363,42 @@
                 const div = document.createElement('div'); div.className = 'history-item';
                 const nSpan = document.createElement('span'); nSpan.textContent = name;
                 const bCont = document.createElement('div');
-                bCont.innerHTML = `<button onclick="loadHist('${name}')" style="background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px">Load</button><button onclick="delHist('${name}')" style="background:#fee2e2; border:none; padding:10px; border-radius:10px">🗑️</button>`;
+                const loadBtn = document.createElement('button');
+                loadBtn.textContent = "Load";
+                loadBtn.style.cssText = "background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px";
+                loadBtn.onclick = () => loadHist(name);
+                
+                const delBtn = document.createElement('button');
+                delBtn.textContent = "🗑️";
+                delBtn.style.cssText = "background:#fee2e2; border:none; padding:10px; border-radius:10px";
+                delBtn.onclick = () => delHist(name);
+                
+                bCont.appendChild(loadBtn); bCont.appendChild(delBtn);
                 div.appendChild(nSpan); div.appendChild(bCont);
                 list.appendChild(div);
             });
             openOverlay('bpModal');
         }
 
-        function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
+        function loadHist(n) { currentlyViewingHomework = true; document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); }
         function delHist(n) { if (confirm("Delete " + n + "?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
         function toggleMysteryMode() { 
             isMysteryMode = !isMysteryMode; 
             document.body.classList.toggle('mystery-active', isMysteryMode);
             document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; 
             document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); 
-            loadList(document.getElementById('hwInput').value.split('\n')); 
+            // Refresh whatever is on screen
+            if (currentlyViewingHomework) {
+                loadList(document.getElementById('hwInput').value.split('\n'));
+            } else {
+                // If not viewing homework, we don't have an easy way to "refresh" current preset without state, 
+                // so let's just re-render phrasesList manually
+                document.querySelectorAll('.phrase-card').forEach(card => {
+                    card.classList.toggle('revealed', !isMysteryMode);
+                });
+            }
         }
-        function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
+        function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); if(currentlyViewingHomework) loadList([]); }
     </script>
 </body>
 </html>
