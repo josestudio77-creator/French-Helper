@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V4.3 🎉</title>
+    <title>🇫🇷 French Fun V4.4 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -13,12 +13,11 @@
     
    <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 100px; min-height: 100vh; text-align: center; }
+    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
 
-    /* Header */
-    .header { background: white; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
-    h1 { color: #ff6b8b; font-size: 1.5rem; }
+    .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
+    h1 { color: #ff6b8b; font-size: 1.4rem; }
 
     .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; }
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
@@ -45,24 +44,27 @@
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
-    /* Overlays */
+    /* Drawers */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
-    .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 90vh; overflow-y: auto; text-align: center; }
+    .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     
-    /* Homework Drawer Fix */
-    #homeworkInput { width: 100%; height: 300px; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
+    /* Homework Drawer Taller Fix */
+    #homeworkInput { width: 100%; height: 350px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
     
     /* HANGMAN STYLES */
-    .game-hints { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 8px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
+    .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 8px 12px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; cursor: pointer; }
+    .music-btn { background: #fef3c7; color: #92400e; border: 2px solid #f59e0b; }
+
     .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
     .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; }
     .key.used { opacity: 0.2; pointer-events: none; }
+
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
 
-    /* Backpack Nice Layout Fix */
+    /* Backpack List */
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
@@ -71,18 +73,15 @@
     .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; color: #2d3748; }
     .preset-btn.active { background: #5a67d8; color: white; border-color: #434190; }
-    
     .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 15px; }
     .mystery-btn.active { background: #5a67d8; color: white; }
-    
-    .app-actions { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 20px; }
-    .action-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: 900; color: white; cursor: pointer; }
+    .app-actions { display: flex; gap: 10px; margin-top: 25px; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V4.3 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V4.4 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -92,7 +91,7 @@
         <button id="mysteryToggle" class="mystery-btn" onclick="toggleMysteryMode()">Mystery Mode: OFF</button>
 
         <div class="preset-grid">
-            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Greetings</button>
+            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Hello</button>
             <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 1-10</button>
             <button class="preset-btn" id="btn_colors" onclick="loadPreset('colors')">🎨 Colors</button>
             <button class="preset-btn" id="btn_family" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
@@ -105,21 +104,21 @@
         <div id="phrasesList"></div>
 
         <div class="app-actions">
-            <button id="installBtn" class="action-btn" style="background:#ff6b8b; display:none;">📱 Install App</button>
-            <button id="shareBtn" class="action-btn" style="background:#5a67d8" onclick="shareApp()">🎁 Share App</button>
+            <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
+            <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share</button>
         </div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span> Homework</div>
-        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Game</div>
+        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Play Game</div>
     </div>
 
     <!-- Homework Drawer -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd">✏️ My Homework</h2>
-            <textarea id="hwInput" placeholder="Enter words here..."></textarea>
+            <h2 style="color:#9d4edd">✏️ School Homework</h2>
+            <textarea id="homeworkInput" placeholder="Enter words here..."></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
                 <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Save</button>
                 <button onclick="openBP()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Pack</button>
@@ -136,10 +135,10 @@
                 <span style="color:#4cd964">Wins: <span id="winCount">0</span></span>
                 <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
-            <h3 id="missionTitle" style="color:#5a67d8; font-size:0.9rem; margin-bottom:5px;">Mission!</h3>
             <div class="game-hints">
                 <button class="hint-btn" onclick="spk(targetWord, 'fr-FR')">📢 Listen</button>
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
+                <button id="musicToggleBtn" class="hint-btn music-btn" onclick="toggleMusic()">🎵 Music: Off</button>
             </div>
             <div id="clueEmoji" class="clue-emoji">💡</div>
             <canvas id="hangmanCanvas" width="200" height="150"></canvas>
@@ -161,20 +160,17 @@
     </div>
 
     <script>
-        // TRUTH DATABASE
         const SOURCE_OF_TRUTH = {
-            "Un":{en:"One",icon:"1️⃣"}, "Deux":{en:"Two",icon:"2️⃣"}, "Trois":{en:"Three",icon:"3️⃣"}, "Quatre":{en:"Four",icon:"4️⃣"}, "Cinq":{en:"Five",icon:"5️⃣"}, "Six":{en:"Six",icon:"6️⃣"}, "Sept":{en:"Seven",icon:"7️⃣"}, "Huit":{en:"Eight",icon:"8️⃣"}, "Neuf":{en:"Nine",icon:"9️⃣"}, "Dix":{en:"Ten",icon:"🔟"},
-            "Rouge":{en:"Red",icon:"🔴"}, "Bleu":{en:"Blue",icon:"🔵"}, "Vert":{en:"Green",icon:"🟢"}, "Jaune":{en:"Yellow",icon:"🟡"}, "Orange":{en:"Orange",icon:"🟠"}, "Rose":{en:"Pink",icon:"🌸"}, "Noir":{en:"Black",icon:"⚫"}, "Blanc":{en:"White",icon:"⚪"}, "Violet":{en:"Purple",icon:"🟣"},
-            "Bonjour":{en:"Hello",icon:"👋"}, "Salut":{en:"Hi",icon:"👋"}, "Merci":{en:"Thank you",icon:"🙏"}, "De rien":{en:"You're welcome",icon:"😇"}, "Au revoir":{en:"Goodbye",icon:"👋"},
-            "Maman":{en:"Mother",icon:"👩",g:"f"}, "Papa":{en:"Father",icon:"👨",g:"m"}, "Ma sœur":{en:"My sister",icon:"👧",g:"f"}, "Mon frère":{en:"My brother",icon:"👦",g:"m"}, "Grand-mère":{en:"Grandmother",icon:"👵",g:"f"}, "Grand-père":{en:"Grandfather",icon:"👴",g:"m"},
-            "La tête":{en:"The head",icon:"🙆",g:"f"}, "Le nez":{en:"The nose",icon:"👃",g:"m"}, "La bouche":{en:"The mouth",icon:"👄",g:"f"}, "Les yeux":{en:"The eyes",icon:"👀",g:"m"}, "Les mains":{en:"The hands",icon:"✋",g:"f"}, "Les pieds":{en:"The feet",icon:"🦶",g:"m"}, "Les oreilles":{en:"The ears",icon:"👂",g:"f"},
-            "Un chat":{en:"A cat",icon:"🐱",g:"m"}, "Un chien":{en:"A dog",icon:"🐶",g:"m"}, "Un lapin":{en:"A rabbit",icon:"🐰",g:"m"}, "Un oiseau":{en:"A bird",icon:"🐦",g:"m"}, "Un poisson":{en:"A fish",icon:"🐟",g:"m"}, "Une vache":{en:"A cow",icon:"🐮",g:"f"}, "Un cheval":{en:"A horse",icon:"🐎",g:"m"},
-            "Une pomme":{en:"An apple",icon:"🍎",g:"f"}, "Une banane":{en:"A banana",icon:"🍌",g:"f"}, "Du pain":{en:"Some bread",icon:"🥖",g:"m"}, "Du lait":{en:"Some milk",icon:"🥛",g:"m"}, "Une pizza":{en:"A pizza",icon:"🍕",g:"f"}, "Un gâteau":{en:"A cake",icon:"🍰",g:"m"}, "Du fromage":{en:"Some cheese",icon:"🧀",g:"m"},
-            "Un livre":{en:"A book",icon:"📖",g:"m"}, "Un crayon":{en:"A pencil",icon:"✏️",g:"m"}, "Un sac":{en:"A bag",icon:"🎒",g:"m"}, "L'école":{en:"The school",icon:"🏫",g:"f"}, "Le bureau":{en:"The desk",icon:"🪑",g:"m"}, "Le professeur":{en:"The teacher",icon:"🧑‍🏫",g:"m"}
+            "Un":{en:"One",icon:"1️⃣"},"Deux":{en:"Two",icon:"2️⃣"},"Trois":{en:"Three",icon:"3️⃣"},"Quatre":{en:"Four",icon:"4️⃣"},"Cinq":{en:"Five",icon:"5️⃣"},"Six":{en:"Six",icon:"6️⃣"},"Sept":{en:"Seven",icon:"7️⃣"},"Huit":{en:"Eight",icon:"8️⃣"},"Neuf":{en:"Nine",icon:"9️⃣"},"Dix":{en:"Ten",icon:"🔟"},
+            "Rouge":{en:"Red",icon:"🔴"},"Bleu":{en:"Blue",icon:"🔵"},"Vert":{en:"Green",icon:"🟢"},"Jaune":{en:"Yellow",icon:"🟡"},"Orange":{en:"Orange",icon:"🟠"},"Rose":{en:"Pink",icon:"🌸"},"Noir":{en:"Black",icon:"⚫"},"Blanc":{en:"White",icon:"⚪"},"Violet":{en:"Purple",icon:"🟣"},
+            "Bonjour":{en:"Hello",icon:"👋"},"Salut":{en:"Hi",icon:"👋"},"Merci":{en:"Thank you",icon:"🙏"},"Au revoir":{en:"Goodbye",icon:"👋"},"Maman":{en:"Mother",icon:"👩",g:"f"},"Papa":{en:"Father",icon:"👨",g:"m"},
+            "La tête":{en:"The head",icon:"🙆",g:"f"},"Le nez":{en:"The nose",icon:"👃",g:"m"},"La bouche":{en:"The mouth",icon:"👄",g:"f"},"Les yeux":{en:"The eyes",icon:"👀",g:"m"},"Les mains":{en:"The hands",icon:"✋",g:"f"},"Les pieds":{en:"The feet",icon:"🦶",g:"m"},"Les oreilles":{en:"The ears",icon:"👂",g:"f"},
+            "Un chat":{en:"A cat",icon:"🐱",g:"m"},"Un chien":{en:"A dog",icon:"🐶",g:"m"},"Un lapin":{en:"A rabbit",icon:"🐰",g:"m"},"Un oiseau":{en:"A bird",icon:"🐦",g:"m"},"Une vache":{en:"A cow",icon:"🐮",g:"f"},"Un cheval":{en:"A horse",icon:"🐎",g:"m"},
+            "Une pomme":{en:"An apple",icon:"🍎",g:"f"},"Une banane":{en:"A banana",icon:"🍌",g:"f"},"Du pain":{en:"Some bread",icon:"🥖",g:"m"},"Du lait":{en:"Some milk",icon:"🥛",g:"m"},"Une pizza":{en:"A pizza",icon:"🍕",g:"f"},"Un livre":{en:"A book",icon:"📖",g:"m"},"Un crayon":{en:"A pencil",icon:"✏️",g:"m"},"Un sac":{en:"A bag",icon:"🎒",g:"m"},"L'école":{en:"The school",icon:"🏫",g:"f"}
         };
 
         const presets = {
-            greetings: ["Bonjour", "Salut", "Merci", "De rien", "Au revoir"],
+            greetings: ["Bonjour", "Salut", "Merci", "Au revoir"],
             numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
             colors: ["Rouge", "Bleu", "Vert", "Jaune", "Orange", "Rose", "Noir", "Blanc", "Violet"],
             family: ["Maman", "Papa", "Ma sœur", "Mon frère", "Grand-mère", "Grand-père"],
@@ -188,28 +184,78 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0');
         let losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let isMysteryMode = false, lastWord = "", gameActive = false, isSpelling = false, autoVoiceTimer = null, currentSpeech = null;
+        let isMysteryMode = false, lastWord = "", gameActive = false, isSpelling = false, currentSpeech = null, musicContext = null, musicNode = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
-            document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
+            document.getElementById('homeworkInput').value = (raw && raw !== "undefined") ? raw : "";
             loadPreset('greetings'); updateScoreUI();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
 
-        function getCardData(p) {
-            if (SOURCE_OF_TRUTH[p]) return SOURCE_OF_TRUTH[p];
-            const n = norm(p);
-            for (let key in SOURCE_OF_TRUTH) { if (norm(key) === n) return SOURCE_OF_TRUTH[key]; }
-            return { en: cache[n] || "...", icon: "✨" };
+        function spk(t, lang) {
+            if (currentSpeech) window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8;
+            const voices = window.speechSynthesis.getVoices();
+            const v = voices.find(vo => vo.lang.startsWith(lang === 'fr-FR' ? 'fr' : 'en') && (vo.name.includes('Neural') || vo.name.includes('Google')));
+            if (v) u.voice = v;
+            currentSpeech = u; window.speechSynthesis.speak(u);
+        }
+
+        // --- MUSIC SYNTHESIZER ---
+        function toggleMusic() {
+            const btn = document.getElementById('musicToggleBtn');
+            if (musicNode) {
+                musicNode.stop(); musicNode = null;
+                btn.textContent = "🎵 Music: Off";
+            } else {
+                if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+                playHappyLoop();
+                btn.textContent = "🎵 Music: On";
+            }
+        }
+
+        function playHappyLoop() {
+            const osc = musicContext.createOscillator();
+            const gain = musicContext.createGain();
+            osc.type = 'triangle';
+            gain.gain.value = 0.05;
+            osc.connect(gain);
+            gain.connect(musicContext.destination);
+            
+            const notes = [261.63, 329.63, 392.00, 523.25]; // C E G C
+            let i = 0;
+            const playNote = () => {
+                if (!musicNode) return;
+                osc.frequency.setValueAtTime(notes[i % notes.length], musicContext.currentTime);
+                i++;
+                setTimeout(playNote, 500);
+            };
+            osc.start();
+            musicNode = osc;
+            playNote();
+        }
+
+        function spellWord() {
+            isSpelling = true; const letters = targetWord.split('');
+            letters.forEach((l, i) => {
+                setTimeout(() => { if(gameActive) spk(l, 'fr-FR'); if(i === letters.length - 1) isSpelling = false; }, i * 900);
+            });
         }
 
         function loadPreset(k) {
             document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn_' + k).classList.add('active');
             renderList(presets[k]);
+        }
+
+        function getCardData(p) {
+            if (SOURCE_OF_TRUTH[p]) return SOURCE_OF_TRUTH[p];
+            const n = norm(p);
+            for (let key in SOURCE_OF_TRUTH) { if (norm(key) === n) return SOURCE_OF_TRUTH[key]; }
+            return { en: cache[n] || "...", icon: "✨" };
         }
 
         function renderList(list) {
@@ -238,23 +284,6 @@
             });
         }
 
-        function spk(t, lang) {
-            if (currentSpeech) window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = 0.8;
-            const voices = window.speechSynthesis.getVoices();
-            const v = voices.find(vo => vo.lang.startsWith(lang === 'fr-FR' ? 'fr' : 'en') && (vo.name.includes('Neural') || vo.name.includes('IV') || vo.name.includes('Google')));
-            if (v) u.voice = v;
-            u.onend = () => { currentSpeech = null; };
-            currentSpeech = u; window.speechSynthesis.speak(u);
-        }
-
-        function spellWord() {
-            isSpelling = true; const letters = targetWord.split('');
-            letters.forEach((l, i) => {
-                setTimeout(() => { if(gameActive) spk(l, 'fr-FR'); if(i === letters.length - 1) isSpelling = false; }, i * 950);
-            });
-        }
-
         async function translateOne(p) {
             const n = norm(p);
             for (let key in SOURCE_OF_TRUTH) { if (norm(key) === n) return SOURCE_OF_TRUTH[key].en; }
@@ -269,7 +298,7 @@
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
             const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
-            if (list.length === 0) return alert("Enter homework first!");
+            if (list.length === 0) return alert("Type homework first!");
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
                 btn.textContent = `${i+1}/${list.length}`;
@@ -279,32 +308,34 @@
             btn.textContent = "✨ Magic Sync"; btn.disabled = false; alert("Magic Done! 🎒");
         }
 
-        // --- HANGMAN ---
+        // --- HANGMAN 4.4 ---
         let targetWord, guessed, mistakes;
         function startHangman() {
             gameActive = true; isSpelling = false;
             const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' '));
-            const pool = hwWords.length > 0 ? hwWords : Object.keys(SOURCE_OF_TRUTH).filter(w => !w.includes(' '));
+            const presetWords = Object.keys(SOURCE_OF_TRUTH).filter(w => !w.includes(' '));
+            const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
             document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
-            document.getElementById('missionTitle').textContent = hwWords.includes(pick) ? "Homework ⭐" : "Practice!";
             guessed = [targetWord[0]]; mistakes = 0;
-            if(autoVoiceTimer) clearInterval(autoVoiceTimer);
-            autoVoiceTimer = setInterval(() => { if(gameActive && !isSpelling) spk(targetWord, 'fr-FR'); }, 9000);
+            document.getElementById('gameMsg').textContent = "Guess a letter!";
             drawHangman(0); updateHangmanUI();
         }
+
+        const goodResponses = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!"];
+        const badResponses = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
         function updateHangmanUI() {
             let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
             if (!d.includes("_")) {
                 gameActive = false; wins++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "🏆 EXCELLENT!"; spk("Bravo! Tu as gagné!", 'fr-FR');
+                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Magnifique! Tu as gagné!", 'fr-FR');
             } else if (mistakes >= 10) {
                 gameActive = false; losses++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Oh non!", 'fr-FR');
-            } else { document.getElementById('gameMsg').textContent = "Guess a letter!"; }
+                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("C'est fini! Essaie encore.", 'fr-FR');
+            }
             renderKeyboard();
         }
 
@@ -312,13 +343,23 @@
             const kb = document.getElementById('keyboard'); kb.innerHTML = '';
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => {
                 const k = document.createElement('div'); k.className = 'key' + (guessed.includes(l) ? ' used' : '');
-                k.textContent = l; k.onclick = () => { if (!gameActive) return; guessed.push(l); if (targetWord.includes(l)) { spk("Oui!", 'fr-FR'); } else { mistakes++; drawHangman(mistakes); spk("Non", 'fr-FR'); } updateHangmanUI(); };
+                k.textContent = l; k.onclick = () => {
+                    if (!gameActive) return;
+                    guessed.push(l);
+                    if (targetWord.includes(l)) {
+                        spk(goodResponses[Math.floor(Math.random() * goodResponses.length)], 'fr-FR');
+                    } else {
+                        mistakes++; drawHangman(mistakes);
+                        spk(badResponses[Math.floor(Math.random() * badResponses.length)], 'fr-FR');
+                    }
+                    updateHangmanUI();
+                };
                 kb.appendChild(k);
             });
         }
 
         function updateScoreUI() { document.getElementById('winCount').textContent = wins; document.getElementById('lossCount').textContent = losses; localStorage.setItem('gameWins', wins); localStorage.setItem('gameLosses', losses); }
-        function exitGame() { gameActive = false; if(autoVoiceTimer) clearInterval(autoVoiceTimer); closeOverlay('gameDrawer'); }
+        function exitGame() { gameActive = false; if (musicNode) { musicNode.stop(); musicNode = null; document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; } closeOverlay('gameDrawer'); }
         function drawHangman(s) {
             const c = document.getElementById('hangmanCanvas'); const ctx = c.getContext('2d');
             ctx.clearRect(0, 0, 200, 150); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
@@ -339,16 +380,16 @@
             const list = document.getElementById('bpList'); list.innerHTML = '';
             Object.keys(history).reverse().forEach(name => {
                 const div = document.createElement('div'); div.className = 'history-item';
-                const nS = document.createElement('span'); nS.textContent = name;
-                const bC = document.createElement('div');
-                const lB = document.createElement('button'); lB.className = 'load-btn'; lB.textContent = 'Load'; lB.onclick = () => { document.getElementById('hwInput').value = history[name]; localStorage.setItem('homeworkPhrases', history[name]); renderList(history[name].split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); };
-                const dB = document.createElement('button'); dB.className = 'del-btn'; dB.textContent = '🗑️'; dB.onclick = () => { if(confirm("Delete?")){ delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } };
-                bC.append(lB, dB); div.append(nS, bC); list.appendChild(div);
+                div.innerHTML = `<span></span><div><button class="load-btn">Load</button><button class="del-btn">🗑️</button></div>`;
+                div.querySelector('span').textContent = name;
+                div.querySelector('.load-btn').onclick = () => { document.getElementById('hwInput').value = history[name]; localStorage.setItem('homeworkPhrases', history[name]); renderList(history[name].split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); };
+                div.querySelector('.del-btn').onclick = () => { if(confirm("Delete?")){ delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } };
+                list.appendChild(div);
             });
             openOverlay('bpModal');
         }
         function nukeStorage() { if(confirm("Reset Everything?")) { localStorage.clear(); location.reload(); } }
-        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); renderList(presets[document.querySelector('.preset-btn.active').id.replace('btn_','')]); }
+        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); loadPreset(document.querySelector('.preset-btn.active').id.replace('btn_','')); }
         function clearHW() { if(confirm("Clear homework?")) { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); renderList([]); } }
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') startHangman(); }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
