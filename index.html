@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇫🇷 French Fun V3.9 🎉</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🇫🇷 French Fun V4.1 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -12,99 +12,92 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 100px; min-height: 100vh; text-align: center; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
 
-    /* Header */
-    .header { background: white; border-radius: 20px; padding: 12px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
-    h1 { color: #ff6b8b; font-size: 1.5rem; }
+    .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
+    h1 { color: #ff6b8b; font-size: 1.4rem; }
 
     .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; }
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* Centered Secure Practice Cards */
+    /* Practice Cards */
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
-    .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; margin-bottom: 20px; }
+    .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     
-    /* Mystery Reveal Overlay */
-    .mystery-active .english-text { background: #edf2f7; color: #edf2f7 !important; border: 2px dashed #cbd5e0; position: relative; }
-    .mystery-active .english-text::after { content: "❓ TAP ORANGE"; display: block; color: #5a67d8; font-size: 0.8rem; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; }
-    .revealed .english-text { background: transparent !important; color: #06D6A0 !important; border-color: transparent !important; }
-    .revealed .english-text::after { display: none !important; }
+    .gender-tag { font-size: 0.8rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; margin-bottom: 5px; display: inline-block; }
+    .gender-f { background: #fee2e2; color: #ef4444; } /* Pink for Fem */
+    .gender-m { background: #e0f2fe; color: #0284c7; } /* Blue for Masc */
 
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    /* Nav Bar */
+    /* Bottom Nav Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
+    /* App Buttons (Install/Share) */
+    .app-actions { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 20px; }
+    .action-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    #installBtn { background: #ff6b8b; display: none; }
+    #shareBtn { background: #5a67d8; }
+
     /* Drawers */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
-    .overlay-content { background: white; border-radius: 30px; padding: 20px; height: 95vh; overflow-y: auto; text-align: center; }
-    textarea { width: 100%; height: 250px; font-size: 1.3rem; padding: 15px; border-radius: 20px; border: 4px solid #9d4edd; margin: 10px 0; outline: none; }
+    .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     
-    .scoreboard { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; font-weight: 900; font-size: 1.1rem; }
-    .score-win { color: #4cd964; }
-    .score-loss { color: #ff4d4d; }
-
+    /* HANGMAN FIXES */
     .game-hints { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 8px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
-
-    #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; max-width: 100%; }
-    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; }
-    
-    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; }
-    .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 15px; }
-    .mystery-btn.active { background: #5a67d8; color: white; }
-    
-    .app-actions { display: flex; gap: 10px; margin-top: 25px; margin-bottom: 20px; }
-    .action-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: 900; color: white; cursor: pointer; }
-    #installBtn { background: #ff6b8b; display: none; }
-    
+    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
+    .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 10px 0; width: 100%; }
     .key { width: 33px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; }
     .key.used { opacity: 0.2; pointer-events: none; }
-    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
+    #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 150px; }
+
+    .scoreboard { display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; font-weight: 900; font-size: 1.1rem; }
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; color: #2d3748; }
+    .preset-btn.active { background: #5a67d8; color: white; border-color: #434190; }
+    .mystery-btn { width: 100%; padding: 15px; border-radius: 50px; border: 3px solid #5a67d8; background: white; color: #5a67d8; font-weight: 900; margin-bottom: 15px; }
+    .mystery-btn.active { background: #5a67d8; color: white; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V3.9 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V4.1 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
-            <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic</button>
+            <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic Sync</button>
         </div>
 
         <button id="mysteryToggle" class="mystery-btn" onclick="toggleMysteryMode()">Mystery Mode: OFF</button>
 
         <div class="preset-grid">
-            <button class="preset-btn" onclick="loadPreset('greetings')">👋 Hello</button>
-            <button class="preset-btn" onclick="loadPreset('numbers')">🔢 1-10</button>
-            <button class="preset-btn" onclick="loadPreset('colors')">🎨 Colors</button>
-            <button class="preset-btn" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
-            <button class="preset-btn" onclick="loadPreset('body')">👃 Body</button>
-            <button class="preset-btn" onclick="loadPreset('animals')">🐶 Animals</button>
-            <button class="preset-btn" onclick="loadPreset('food')">🍎 Food</button>
-            <button class="preset-btn" onclick="loadPreset('school')">🏫 School</button>
+            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Hello</button>
+            <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 1-10</button>
+            <button class="preset-btn" id="btn_colors" onclick="loadPreset('colors')">🎨 Colors</button>
+            <button class="preset-btn" id="btn_family" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
+            <button class="preset-btn" id="btn_body" onclick="loadPreset('body')">👃 Body</button>
+            <button class="preset-btn" id="btn_animals" onclick="loadPreset('animals')">🐶 Animals</button>
+            <button class="preset-btn" id="btn_food" onclick="loadPreset('food')">🍎 Food</button>
+            <button class="preset-btn" id="btn_school" onclick="loadPreset('school')">🏫 School</button>
         </div>
 
         <div id="phrasesList"></div>
 
         <div class="app-actions">
             <button id="installBtn" class="action-btn">📱 Install App</button>
-            <button id="shareBtn" class="action-btn" style="background:#5a67d8" onclick="shareApp()">🎁 Share App</button>
+            <button id="shareBtn" class="action-btn" onclick="shareApp()">🎁 Share App</button>
         </div>
     </div>
 
@@ -131,8 +124,8 @@
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
             <div class="scoreboard">
-                <span class="score-win">Wins: <span id="winCount">0</span></span>
-                <span class="score-loss">Losses: <span id="lossCount">0</span></span>
+                <span style="color:#4cd964">Wins: <span id="winCount">0</span></span>
+                <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
             <h3 id="missionTitle" style="color:#5a67d8; font-size:1rem; margin-bottom:5px;">Mission!</h3>
             <div class="game-hints">
@@ -140,7 +133,7 @@
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
             </div>
             <div id="clueEmoji" class="clue-emoji">💡</div>
-            <canvas id="hangmanCanvas" width="200" height="160"></canvas>
+            <canvas id="hangmanCanvas" width="200" height="150"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
             <div id="gameMsg" style="font-weight:900; margin-bottom:10px; font-size:1.1rem;">Guess!</div>
             <div id="keyboard" class="keyboard"></div>
@@ -159,25 +152,45 @@
     </div>
 
     <script>
-        // DATA
-        const emojiMap = {
-            "un":"1️⃣","deux":"2️⃣","trois":"3️⃣","quatre":"4️⃣","cinq":"5️⃣","six":"6️⃣","sept":"7️⃣","huit":"8️⃣","neuf":"9️⃣","dix":"🔟",
-            "rouge":"🔴","bleu":"🔵","vert":"🟢","jaune":"🟡","orange":"🟠","rose":"🌸","noir":"⚫","blanc":"⚪",
-            "chat":"🐱","chien":"🐶","lapin":"🐰","oiseau":"🐦","poisson":"🐟","vache":"🐮","cheval":"🐎",
-            "maman":"👩","papa":"👨","soeur":"👧","frere":"👦","bebe":"👶",
-            "pomme":"🍎","pain":"🥖","lait":"🥛","pizza":"🍕","glace":"🍦","gateau":"🍰","banane":"🍌",
-            "tete":"🙆","nez":"👃","bouche":"👄","yeux":"👀","main":"✋","pied":"🦶","crayon":"✏️","livre":"📖","ecole":"🏫"
+        // MASTER DATA WITH GENDER (F=Pink, M=Blue)
+        const MASTER_DATA = {
+            "Bonjour": { en: "Hello", icon: "👋" },
+            "Merci": { en: "Thank you", icon: "🙏" },
+            "Un": { en: "One", icon: "1️⃣" },
+            "Deux": { en: "Two", icon: "2️⃣" },
+            "Rouge": { en: "Red", icon: "🔴" },
+            "Bleu": { en: "Blue", icon: "🔵" },
+            "Maman": { en: "Mother", icon: "👩", g: "f" },
+            "Papa": { en: "Father", icon: "👨", g: "m" },
+            "La tête": { en: "The head", icon: "🙆", g: "f" },
+            "Le nez": { en: "The nose", icon: "👃", g: "m" },
+            "La bouche": { en: "The mouth", icon: "👄", g: "f" },
+            "Les yeux": { en: "The eyes", icon: "👀", g: "m" },
+            "Les mains": { en: "The hands", icon: "✋", g: "f" },
+            "Les pieds": { en: "The feet", icon: "🦶", g: "m" },
+            "Les oreilles": { en: "The ears", icon: "👂", g: "f" },
+            "Un chat": { en: "A cat", icon: "🐱", g: "m" },
+            "Un chien": { en: "A dog", icon: "🐶", g: "m" },
+            "Un lapin": { en: "A rabbit", icon: "🐰", g: "m" },
+            "Une vache": { en: "A cow", icon: "🐮", g: "f" },
+            "Une pomme": { en: "An apple", icon: "🍎", g: "f" },
+            "Du pain": { en: "Some bread", icon: "🥖", g: "m" },
+            "Du lait": { en: "Some milk", icon: "🥛", g: "m" },
+            "Un livre": { en: "A book", icon: "📖", g: "m" },
+            "Un crayon": { en: "A pencil", icon: "✏️", g: "m" },
+            "Un sac": { en: "A bag", icon: "🎒", g: "m" },
+            "L'école": { en: "The school", icon: "🏫", g: "f" }
         };
 
         const presets = {
-            greetings:["Bonjour","Salut","Merci","Au revoir"],
-            numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"],
-            colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir"],
-            family:["Maman","Papa","Ma sœur","Mon frère"],
-            body:["La tête","Le nez","La bouche","Les yeux","Les mains","Les pieds"],
-            animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson"],
-            food:["Une pomme","Du pain","Du lait","Une pizza","Une banane"],
-            school:["Un livre","Un crayon","Un sac","L'école"]
+            greetings: ["Bonjour", "Salut", "Merci", "De rien", "Au revoir"],
+            numbers: ["Un", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept", "Huit", "Neuf", "Dix"],
+            colors: ["Rouge", "Bleu", "Vert", "Jaune", "Orange", "Rose", "Noir", "Blanc"],
+            family: ["Maman", "Papa", "Ma sœur", "Mon frère", "Grand-mère", "Grand-père"],
+            body: ["La tête", "Le nez", "La bouche", "Les yeux", "Les mains", "Les pieds", "Les oreilles"],
+            animals: ["Un chat", "Un chien", "Un lapin", "Un oiseau", "Un poisson", "Une vache"],
+            food: ["Une pomme", "Une banane", "Du pain", "Du lait", "Une pizza", "Un gâteau", "Du fromage"],
+            school: ["Un livre", "Un crayon", "Un sac", "L'école", "Le bureau", "Le professeur"]
         };
 
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
@@ -189,17 +202,19 @@
         let currentScreenList = [];
         let autoVoiceTimer = null;
         let gameActive = false;
+        let isSpelling = false;
         let currentSpeech = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            loadList(raw ? raw.split('\n') : ["Bonjour", "Merci"]);
+            loadPreset('greetings');
             updateScoreUI();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
-        // --- SPEECH FIX (Security & Performance) ---
+        function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
+
         function getBestVoice(langCode) {
             const voices = window.speechSynthesis.getVoices();
             return voices.find(v => v.lang.startsWith(langCode) && (v.name.includes('Neural') || v.name.includes('IV') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith(langCode));
@@ -216,83 +231,99 @@
         }
 
         function spellWord() {
+            isSpelling = true;
             const letters = targetWord.split('');
             letters.forEach((l, i) => {
-                setTimeout(() => { if(gameActive) spk(l, 'fr-FR'); }, i * 900);
+                setTimeout(() => { 
+                    if(gameActive) spk(l, 'fr-FR'); 
+                    if(i === letters.length - 1) isSpelling = false;
+                }, i * 950);
             });
         }
 
-        // --- LOGIC ---
-        function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
-        
-        function getEmoji(text) {
-            const n = norm(text);
-            if (emojiMap[n]) return emojiMap[n];
-            for (let word of n.split(' ')) {
-                if (!['un','une','le','la','l','du','des'].includes(word) && emojiMap[word]) return emojiMap[word];
-            }
-            return "✨"; 
+        function getCardData(p) {
+            if (MASTER_DATA[p]) return MASTER_DATA[p];
+            const n = norm(p);
+            for (let key in MASTER_DATA) { if (norm(key) === n) return MASTER_DATA[key]; }
+            return { en: cache[n] || "...", icon: "✨" };
         }
 
-        function loadPreset(k) { loadList(presets[k]); }
+        function loadPreset(k) {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn_' + k).classList.add('active');
+            loadList(presets[k]);
+        }
+
         function loadList(list) { currentScreenList = list.filter(l => l.trim().length > 0); renderListUI(); }
 
         function renderListUI() {
-            const container = document.getElementById('phrasesList');
-            container.innerHTML = '';
+            const container = document.getElementById('phrasesList'); container.innerHTML = '';
             document.getElementById('stCountText').textContent = `${currentScreenList.length} phrases`;
             currentScreenList.forEach(p => {
-                const tr = cache[norm(p)] || null;
+                const data = getCardData(p);
                 const card = document.createElement('div');
                 card.className = 'phrase-card' + (isMysteryMode ? '' : ' revealed');
                 
-                const icon = document.createElement('span'); icon.className = 'card-icon'; icon.textContent = getEmoji(p);
+                if(data.g) {
+                    const tag = document.createElement('div');
+                    tag.className = 'gender-tag ' + (data.g === 'f' ? 'gender-f' : 'gender-m');
+                    tag.textContent = data.g === 'f' ? '🌸 Elle (F)' : '💎 Il (M)';
+                    card.appendChild(tag);
+                }
+
+                const icon = document.createElement('span'); icon.className = 'card-icon'; icon.textContent = data.icon;
                 const fSpan = document.createElement('span'); fSpan.className = 'french-text'; fSpan.textContent = p;
-                const eSpan = document.createElement('span'); eSpan.className = 'english-text'; eSpan.textContent = tr || '...';
+                const eSpan = document.createElement('span'); eSpan.className = 'english-text'; eSpan.textContent = data.en;
                 
                 const btns = document.createElement('div'); btns.className = 'card-btns';
                 const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
                 sB.onclick = () => spk(p, 'fr-FR');
                 const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
                 tB.textContent = isMysteryMode ? '🎯 Reveal' : '🎯 English';
-                tB.onclick = () => handleReveal(card, p, eSpan);
+                tB.onclick = () => { card.classList.add('revealed'); spk(data.en, 'en-US'); };
                 
                 btns.append(sB, tB); card.append(icon, fSpan, eSpan, btns); container.appendChild(card);
             });
         }
 
-        async function handleReveal(c, f, d) { c.classList.add('revealed'); let tr = cache[norm(f)]; if (!tr && navigator.onLine) { d.textContent = '⏳...'; tr = await translateOne(f); if (tr) d.textContent = tr; } if (tr) spk(tr, 'en-US'); }
-        async function translateOne(p) { try { const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`); const d = await r.json(); const tr = d.responseData.translatedText; cache[norm(p)] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr; } catch (e) { return null; } }
+        async function translateOne(p) {
+            const n = norm(p);
+            try {
+                const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p)}&langpair=fr|en`);
+                const d = await r.json(); const tr = d.responseData.translatedText;
+                cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                return tr;
+            } catch (e) { return null; }
+        }
 
-        // MAGIC SYNC WITH DELAY (Throttling Fix)
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
-            const mode = confirm("✨ Sync EVERYTHING for offline play?");
-            let list = mode ? [...new Set([...document.getElementById('hwInput').value.split('\n'), ...Object.values(presets).flat()])] : currentScreenList;
+            const mode = confirm("✨ Magic Sync Homework for offline?");
+            let list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
+            if (list.length === 0) return alert("Enter homework first!");
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
                 btn.textContent = `${i+1}/${list.length}`;
                 if (!cache[norm(list[i])]) {
                     await translateOne(list[i]);
-                    // API DELAY: Wait 400ms before next request to avoid blocking
-                    await new Promise(r => setTimeout(r, 400));
+                    await new Promise(r => setTimeout(r, 450)); // Throttling fix
                 }
             }
-            btn.textContent = "✨ Magic"; btn.disabled = false; renderListUI();
+            btn.textContent = "✨ Magic Sync"; btn.disabled = false; renderListUI();
         }
 
         // --- HANGMAN ---
         function startHangman() {
-            gameActive = true;
-            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim().toLowerCase()).filter(w => w.length > 1 && !w.includes(' '));
-            const pool = hwWords.length > 0 ? hwWords : ["pomme", "chat", "chien", "ecole", "rouge", "maman"];
+            gameActive = true; isSpelling = false;
+            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' '));
+            const pool = hwWords.length > 0 ? hwWords : Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
-            document.getElementById('clueEmoji').textContent = getEmoji(pick);
-            guessed = [targetWord[0]]; mistakes = 0;
+            document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
             document.getElementById('missionTitle').textContent = hwWords.includes(pick) ? "Homework Mission! ⭐" : "Practice Mission!";
+            guessed = [targetWord[0]]; mistakes = 0;
             if(autoVoiceTimer) clearInterval(autoVoiceTimer);
-            autoVoiceTimer = setInterval(() => { if(gameActive) spk(targetWord, 'fr-FR'); }, 8000);
+            autoVoiceTimer = setInterval(() => { if(gameActive && !isSpelling) spk(targetWord, 'fr-FR'); }, 9000);
             drawHangman(0); updateHangmanUI();
         }
 
@@ -304,7 +335,7 @@
                 document.getElementById('gameMsg').textContent = "🏆 BRAVO!"; spk("Bravo! Tu as gagné!", 'fr-FR');
             } else if (mistakes >= 10) {
                 gameActive = false; losses++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Oh non! Tu as perdu.", 'fr-FR');
+                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Oh non!", 'fr-FR');
             } else { document.getElementById('gameMsg').textContent = "Guess a letter!"; }
             renderKeyboard();
         }
@@ -324,29 +355,23 @@
             });
         }
 
-        function updateScoreUI() {
-            document.getElementById('winCount').textContent = wins;
-            document.getElementById('lossCount').textContent = losses;
-            localStorage.setItem('gameWins', wins); localStorage.setItem('gameLosses', losses);
-        }
-
+        function updateScoreUI() { document.getElementById('winCount').textContent = wins; document.getElementById('lossCount').textContent = losses; localStorage.setItem('gameWins', wins); localStorage.setItem('gameLosses', losses); }
         function exitGame() { gameActive = false; if(autoVoiceTimer) clearInterval(autoVoiceTimer); closeOverlay('gameDrawer'); }
         function drawHangman(s) {
             const c = document.getElementById('hangmanCanvas'); const ctx = c.getContext('2d');
-            ctx.clearRect(0, 0, 200, 160); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
+            ctx.clearRect(0, 0, 200, 150); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
             if (s >= 1) { ctx.beginPath(); ctx.moveTo(20, 140); ctx.lineTo(180, 140); ctx.stroke(); }
-            if (s >= 2) { ctx.beginPath(); ctx.moveTo(40, 140); ctx.lineTo(40, 20); ctx.stroke(); }
-            if (s >= 3) { ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(120, 20); ctx.stroke(); }
-            if (s >= 4) { ctx.beginPath(); ctx.moveTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); }
-            if (s >= 5) { ctx.beginPath(); ctx.arc(120, 55, 12, 0, Math.PI * 2); ctx.stroke(); }
-            if (s >= 6) { ctx.beginPath(); ctx.moveTo(120, 67); ctx.lineTo(120, 100); ctx.stroke(); }
-            if (s >= 7) { ctx.beginPath(); ctx.moveTo(120, 75); ctx.lineTo(100, 90); ctx.stroke(); }
-            if (s >= 8) { ctx.beginPath(); ctx.moveTo(120, 75); ctx.lineTo(140, 90); ctx.stroke(); }
-            if (s >= 9) { ctx.beginPath(); ctx.moveTo(120, 100); ctx.lineTo(100, 125); ctx.stroke(); }
-            if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 100); ctx.lineTo(140, 125); ctx.stroke(); }
+            if (s >= 2) { ctx.beginPath(); ctx.moveTo(40, 140); ctx.lineTo(40, 10); ctx.stroke(); }
+            if (s >= 3) { ctx.beginPath(); ctx.moveTo(40, 10); ctx.lineTo(120, 10); ctx.stroke(); }
+            if (s >= 4) { ctx.beginPath(); ctx.moveTo(120, 10); ctx.lineTo(120, 30); ctx.stroke(); }
+            if (s >= 5) { ctx.beginPath(); ctx.arc(120, 42, 12, 0, Math.PI * 2); ctx.stroke(); }
+            if (s >= 6) { ctx.beginPath(); ctx.moveTo(120, 54); ctx.lineTo(120, 90); ctx.stroke(); }
+            if (s >= 7) { ctx.beginPath(); ctx.moveTo(120, 65); ctx.lineTo(100, 80); ctx.stroke(); }
+            if (s >= 8) { ctx.beginPath(); ctx.moveTo(120, 65); ctx.lineTo(140, 80); ctx.stroke(); }
+            if (s >= 9) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(100, 115); ctx.stroke(); }
+            if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        // --- BACKPACK ---
         function saveHW() { const val = document.getElementById('hwInput').value; localStorage.setItem('homeworkPhrases', val); const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); } loadList(val.split('\n')); }
         function openBP() {
             const list = document.getElementById('bpList'); list.innerHTML = '';
@@ -354,10 +379,8 @@
                 const div = document.createElement('div'); div.className = 'history-item';
                 const nS = document.createElement('span'); nS.textContent = name;
                 const bC = document.createElement('div');
-                const lB = document.createElement('button'); lB.className = 'load-btn'; lB.textContent = 'Load'; lB.style.cssText="background:#b5e6ff; border:none; padding:10px; border-radius:10px; font-weight:bold; margin-right:5px; cursor:pointer;";
-                lB.onclick = () => loadHist(name);
-                const dB = document.createElement('button'); dB.textContent = '🗑️'; dB.style.cssText="background:#fee2e2; border:none; padding:10px; border-radius:10px; cursor:pointer;";
-                dB.onclick = () => delHist(name);
+                const lB = document.createElement('button'); lB.className = 'load-btn'; lB.textContent = 'Load'; lB.onclick = () => loadHist(name);
+                const dB = document.createElement('button'); dB.className = 'del-btn'; dB.textContent = '🗑️'; dB.onclick = () => delHist(name);
                 bC.append(lB, dB); div.append(nS, bC); list.appendChild(div);
             });
             openOverlay('bpModal');
@@ -365,15 +388,13 @@
         function nukeStorage() { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } }
         function loadHist(n) { document.getElementById('hwInput').value = history[n]; localStorage.setItem('homeworkPhrases', history[n]); loadList(history[n].split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); }
         function delHist(n) { if (confirm("Delete?")) { delete history[n]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } }
-        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; renderListUI(); }
+        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); renderListUI(); }
         function clearHW() { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); loadList([]); }
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') startHangman(); }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
-        
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').style.display = 'block'; });
-        document.getElementById('installBtn').onclick = async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; } };
         function shareApp() { if (navigator.share) { navigator.share({ title: 'French Fun', url: window.location.href }); } else { alert(window.location.href); } }
+
+        window.addEventListener('beforeunload', () => { if(autoVoiceTimer) clearInterval(autoVoiceTimer); window.speechSynthesis.cancel(); });
     </script>
 </body>
 </html>
