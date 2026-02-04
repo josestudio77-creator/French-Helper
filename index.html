@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V4.7 🎉</title>
+    <title>🇫🇷 French Fun V4.8 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
-    /* ===== SEALED CSS LAYOUT ===== */
+    /* ===== SEALED CSS LAYOUT - DO NOT CHANGE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
     .container { max-width: 500px; margin: 0 auto; }
@@ -46,19 +46,20 @@
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     
+    /* Homework Drawer Taller Fix */
     #hwInput { width: 100%; height: 350px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
     
+    /* HANGMAN STYLES - Grid Wrap Fix */
     .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
     .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
-    
-    .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
-    .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; }
+    .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; }
+    .key { width: 33px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; }
     .key.used { opacity: 0.2; pointer-events: none; }
-
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
+    .hangman-word { font-size: 1.8rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
 
+    /* Backpack List Fix */
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
@@ -75,7 +76,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V4.7 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V4.8 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -154,7 +155,7 @@
     </div>
 
     <script>
-        // SEALED MASTER DATA
+        /* ===== MASTER DATADictionary - SEALED ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋"},"Salut":{en:"Hi",icon:"👋"},"Merci":{en:"Thank you",icon:"🙏"},"De rien":{en:"You're welcome",icon:"😇"},"Au revoir":{en:"Goodbye",icon:"👋"},
             "Un":{en:"One",icon:"1️⃣"},"Deux":{en:"Two",icon:"2️⃣"},"Trois":{en:"Three",icon:"3️⃣"},"Quatre":{en:"Four",icon:"4️⃣"},"Cinq":{en:"Five",icon:"5️⃣"},"Six":{en:"Six",icon:"6️⃣"},"Sept":{en:"Seven",icon:"7️⃣"},"Huit":{en:"Eight",icon:"8️⃣"},"Neuf":{en:"Nine",icon:"9️⃣"},"Dix":{en:"Ten",icon:"🔟"},
@@ -181,17 +182,14 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0');
         let losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let isMysteryMode = false, lastWord = "", gameActive = false, isSpelling = false, autoVoiceTimer = null, currentSpeech = null, musicContext = null, musicNode = null, currentScreenList = [];
-        
-        // Voice Caching for lag-free start
+        let isMysteryMode = false, lastWord = "", gameActive = false, isSpelling = false, currentSpeech = null, musicContext = null, musicNode = null, currentScreenList = [];
         let cachedFrenchVoice = null, cachedEnglishVoice = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            loadPreset('greetings'); updateScoreUI();
+            loadPreset('greetings'); updateScoreUI(); initVoices();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
-            initVoices();
         };
 
         function initVoices() {
@@ -206,16 +204,16 @@
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
 
-        // --- SAFE SPEECH BUFFER (Fixes clipping and lag) ---
-        function spk(t, lang) {
-            window.speechSynthesis.cancel();
-            // Small timeout (50ms) ensures the TTS engine has fully reset before starting
+        // --- SAFE SPEECH (NO CLIPPING) ---
+        function spk(t, lang, forceInterrupt = false) {
+            // If she is learning from a card, we don't cancel. 
+            // We only cancel if it's the game giving feedback.
+            if (forceInterrupt) window.speechSynthesis.cancel();
+            
             setTimeout(() => {
                 const u = new SpeechSynthesisUtterance(t);
                 u.lang = lang; u.rate = 0.8;
                 u.voice = (lang === 'fr-FR') ? cachedFrenchVoice : cachedEnglishVoice;
-                u.onend = () => { currentSpeech = null; };
-                currentSpeech = u;
                 window.speechSynthesis.speak(u);
             }, 50);
         }
@@ -223,7 +221,7 @@
         function spellWord() {
             isSpelling = true; const letters = targetWord.split('');
             letters.forEach((l, i) => {
-                setTimeout(() => { if(gameActive) spk(l, 'fr-FR'); if(i === letters.length - 1) isSpelling = false; }, i * 950);
+                setTimeout(() => { if(gameActive) spk(l, 'fr-FR', true); if(i === letters.length - 1) isSpelling = false; }, i * 950);
             });
         }
 
@@ -287,7 +285,7 @@
         async function magicSync() {
             const btn = document.getElementById('magicBtn');
             const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
-            if (list.length === 0) return alert("Enter homework first!");
+            if (list.length === 0) return alert("Type homework first!");
             btn.disabled = true;
             for (let i = 0; i < list.length; i++) {
                 btn.textContent = `${i+1}/${list.length}`;
@@ -310,7 +308,8 @@
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
             document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
-            guessed = [targetWord[0]]; mistakes = 0;
+            guessed = [targetWord[0]]; // REVEAL FIRST LETTER
+            mistakes = 0;
             document.getElementById('gameMsg').textContent = "Guess a letter!";
             renderKeyboard(); updateHangmanUI();
         }
@@ -320,10 +319,10 @@
             document.getElementById('hangmanDisplay').textContent = d;
             if (!d.includes("_")) {
                 gameActive = false; wins++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Magnifique! Tu as gagné!", 'fr-FR');
+                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Magnifique! Tu as gagné!", 'fr-FR', true);
             } else if (mistakes >= 10) {
                 gameActive = false; losses++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("C'est fini!", 'fr-FR');
+                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("C'est fini!", 'fr-FR', true);
             }
             renderKeyboard();
         }
@@ -332,7 +331,13 @@
             const kb = document.getElementById('keyboard'); kb.innerHTML = '';
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => {
                 const k = document.createElement('div'); k.className = 'key' + (guessed.includes(l) ? ' used' : '');
-                k.textContent = l; k.onclick = () => { if (!gameActive) return; guessed.push(l); if (targetWord.includes(l)) { spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR'); } else { mistakes++; drawHangman(mistakes); spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR'); } updateHangmanUI(); };
+                k.textContent = l; k.onclick = () => {
+                    if (!gameActive) return;
+                    guessed.push(l);
+                    if (targetWord.includes(l)) { spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); }
+                    else { mistakes++; drawHangman(mistakes); spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); }
+                    updateHangmanUI();
+                };
                 kb.appendChild(k);
             });
         }
