@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V5.0 🎉</title>
+    <title>🇫🇷 French Fun V5.2 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -12,9 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
-    /* ===== SEALED CSS LAYOUT ===== */
+    /* ===== SEALED CSS LAYOUT - DO NOT REMOVE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; }
+    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; overflow-x: hidden; }
     .container { max-width: 500px; margin: 0 auto; }
 
     .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
@@ -24,47 +24,48 @@
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
 
-    /* Visual Practice Cards */
+    /* VISUAL FEEDBACK: BUTTON POP */
+    button, .phrase-card, .key { transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    button:active, .phrase-card:active { transform: scale(1.1); }
+
+    /* Practice Cards */
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     
-    .gender-tag { font-size: 0.8rem; font-weight: 900; padding: 2px 8px; border-radius: 10px; margin-bottom: 5px; display: inline-block; }
-    .gender-f { background: #fee2e2; color: #ef4444; }
-    .gender-m { background: #e0f2fe; color: #0284c7; }
+    /* NEW PROMINENT GENDER TAGS */
+    .gender-badge { position: absolute; top: 10px; right: 10px; font-size: 1.8rem; padding: 5px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .gender-f { background: #fee2e2; border: 2px solid #ef4444; }
+    .gender-m { background: #e0f2fe; border: 2px solid #0284c7; }
 
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
-    /* Bottom Nav Bar */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
 
-    /* Overlays */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     
-    /* SEALED Homework Box Height */
     #hwInput { width: 100%; height: 350px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
     
-    .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
-    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
-    
-    /* KEYBOARD WRAP */
     .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
     .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; }
     .key.used { opacity: 0.2; pointer-events: none; }
 
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
-    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
+    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; transition: transform 0.3s; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
 
-    /* SEALED Backpack Layout */
+    /* Victory Animation */
+    @keyframes floatUp { 0% { transform: translateY(100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
@@ -73,13 +74,14 @@
     .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; color: #2d3748; }
     .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
-    .app-actions { display: flex; gap: 10px; margin-top: 25px; }
+    .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V5.0 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V5.2 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -99,7 +101,7 @@
 
         <div id="phrasesList"></div>
 
-        <div class="app-actions">
+        <div style="display:flex; gap:10px; margin-top:20px">
             <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
             <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share</button>
         </div>
@@ -107,7 +109,7 @@
 
     <div class="bottom-nav">
         <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span> Homework</div>
-        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Game</div>
+        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Play Game</div>
     </div>
 
     <!-- Homework Drawer -->
@@ -132,7 +134,7 @@
                 <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
             <div class="game-hints">
-                <button class="hint-btn" onclick="spk(targetWord, 'fr-FR')">📢 Listen</button>
+                <button class="hint-btn" onclick="spk(targetWord, 'fr-FR', true)">📢 Listen</button>
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
                 <button id="musicToggleBtn" class="hint-btn" style="background:#fef3c7; color:#92400e; border-color:#f59e0b" onclick="toggleMusic()">🎵 Music: Off</button>
             </div>
@@ -183,7 +185,7 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0');
         let losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [];
+        let lastWord = "", gameActive = false, isSpelling = false, currentSpeech = null, musicContext = null, musicNode = null, currentScreenList = [];
         let cachedFrenchVoice = null, cachedEnglishVoice = null;
 
         window.onload = () => {
@@ -205,10 +207,8 @@
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
 
-        // --- POLITE QUEUE SPEECH (No clipping) ---
         function spk(t, lang, forceInterrupt = false) {
             if (forceInterrupt) window.speechSynthesis.cancel();
-            
             setTimeout(() => {
                 const u = new SpeechSynthesisUtterance(t);
                 u.lang = lang; u.rate = 0.8;
@@ -259,10 +259,15 @@
                 const data = getCardData(p);
                 const card = document.createElement('div');
                 card.className = 'phrase-card';
+                
+                // NEW PROMINENT GENDER ICONS
                 if(data.g) {
-                    const tag = document.createElement('div'); tag.className = 'gender-tag ' + (data.g === 'f' ? 'gender-f' : 'gender-m');
-                    tag.textContent = data.g === 'f' ? '🌸 Elle (F)' : '💎 Il (M)'; card.appendChild(tag);
+                    const badge = document.createElement('div');
+                    badge.className = 'gender-badge ' + (data.g === 'f' ? 'gender-f' : 'gender-m');
+                    badge.textContent = data.g === 'f' ? '🚺' : '🚹';
+                    card.appendChild(badge);
                 }
+
                 const icon = document.createElement('span'); icon.className = 'card-icon'; icon.textContent = data.icon;
                 const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
                 const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = data.en;
@@ -291,13 +296,13 @@
                 await translateOne(list[i]);
                 await new Promise(r => setTimeout(r, 450));
             }
-            btn.textContent = "✨ Magic Sync"; btn.disabled = false; renderList(list);
+            btn.textContent = "✨ Magic Sync"; btn.disabled = false; alert("Magic Done! 🎒");
         }
 
         // --- HANGMAN ---
         let targetWord, guessed, mistakes;
-        const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!"];
-        const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
+        const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!", "Magnifique!", "Tu es un génie!", "Incroyable!", "T'as assuré!"];
+        const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!", "Pas celui-là.", "Zut!"];
 
         function startHangman() {
             gameActive = true; isSpelling = false;
@@ -307,10 +312,22 @@
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
             document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
-            guessed = [targetWord[0]]; // REVEAL FIRST LETTER
-            mistakes = 0;
+            guessed = [targetWord[0]]; mistakes = 0;
             document.getElementById('gameMsg').textContent = "Guess a letter!";
-            renderKeyboard(); updateHangmanUI();
+            drawHangman(0); renderKeyboard(); updateHangmanUI();
+        }
+
+        function celebrate() {
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'victory-item';
+                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)];
+                    el.style.left = Math.random() * 100 + "vw";
+                    document.body.appendChild(el);
+                    setTimeout(() => el.remove(), 3000);
+                }, i * 200);
+            }
         }
 
         function updateHangmanUI() {
@@ -318,10 +335,12 @@
             document.getElementById('hangmanDisplay').textContent = d;
             if (!d.includes("_")) {
                 gameActive = false; wins++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Magnifique! Tu as gagné!", 'fr-FR', true);
+                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
+                spk("Félicitations! Tu as gagné! " + goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true);
+                celebrate();
             } else if (mistakes >= 10) {
                 gameActive = false; losses++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("C'est fini!", 'fr-FR', true);
+                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Oups! Tu as perdu. C'est fini!", 'fr-FR', true);
             }
             renderKeyboard();
         }
@@ -372,6 +391,7 @@
             openOverlay('bpModal');
         }
         function nukeStorage() { if(confirm("Reset Everything?")) { localStorage.clear(); location.reload(); } }
+        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); renderList(currentScreenList); }
         function clearHW() { if(confirm("Clear homework?")) { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); renderList([]); } }
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') { renderKeyboard(); startHangman(); } }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
