@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V5.2 🎉</title>
+    <title>🇫🇷 French Fun V5.4 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -20,27 +20,23 @@
     .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; }
     h1 { color: #ff6b8b; font-size: 1.4rem; }
 
-    .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; }
-    .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
-    .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; }
+    .status-bar { background: white; padding: 8px 12px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; flex-wrap: wrap; gap: 5px; }
+    .status-info { font-weight: 800; font-size: 0.8rem; color: #2d3748; }
+    
+    .voice-selector { background: #f0f9ff; border: 2px solid #118AB2; border-radius: 10px; font-size: 0.75rem; font-weight: 900; padding: 2px 5px; outline: none; color: #118AB2; max-width: 120px; }
+    .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 12px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; cursor: pointer; }
 
-    /* VISUAL FEEDBACK: BUTTON POP */
-    button, .phrase-card, .key { transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    button:active, .phrase-card:active { transform: scale(1.1); }
+    button:active, .key:active { transform: scale(1.15); }
 
-    /* Practice Cards */
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     
-    /* NEW PROMINENT GENDER TAGS */
-    .gender-badge { position: absolute; top: 10px; right: 10px; font-size: 1.8rem; padding: 5px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .gender-f { background: #fee2e2; border: 2px solid #ef4444; }
-    .gender-m { background: #e0f2fe; border: 2px solid #0284c7; }
+    .gender-icon { position: absolute; top: 12px; right: 12px; font-size: 2rem; pointer-events: none; }
 
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
+    .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); transition: transform 0.1s; }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
 
@@ -52,6 +48,7 @@
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     
+    /* SEALED Homework Box Height */
     #hwInput { width: 100%; height: 350px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
     
     .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
@@ -59,13 +56,10 @@
     .key.used { opacity: 0.2; pointer-events: none; }
 
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
-    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; transition: transform 0.3s; }
+    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
 
-    /* Victory Animation */
-    @keyframes floatUp { 0% { transform: translateY(100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
-
+    /* SEALED Backpack Layout */
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
@@ -76,20 +70,25 @@
     .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
     .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
     .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
+    .app-actions { display: flex; gap: 10px; margin-top: 25px; }
+
+    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V5.2 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V5.4 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
+            <select id="frVoiceSelect" class="voice-selector" title="Choose Teacher Voice"></select>
             <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic Sync</button>
         </div>
 
         <div class="preset-grid">
-            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Hello</button>
+            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Greetings</button>
             <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 1-10</button>
             <button class="preset-btn" id="btn_colors" onclick="loadPreset('colors')">🎨 Colors</button>
             <button class="preset-btn" id="btn_family" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
@@ -101,7 +100,7 @@
 
         <div id="phrasesList"></div>
 
-        <div style="display:flex; gap:10px; margin-top:20px">
+        <div class="app-actions">
             <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
             <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share</button>
         </div>
@@ -112,7 +111,6 @@
         <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Play Game</div>
     </div>
 
-    <!-- Homework Drawer -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
             <h2 style="color:#9d4edd">✏️ My Homework</h2>
@@ -126,7 +124,6 @@
         </div>
     </div>
 
-    <!-- Game Drawer -->
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:900">
@@ -134,7 +131,7 @@
                 <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
             <div class="game-hints">
-                <button class="hint-btn" onclick="spk(targetWord, 'fr-FR', true)">📢 Listen</button>
+                <button class="hint-btn" onclick="spk(targetWord, 'fr-FR')">📢 Listen</button>
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
                 <button id="musicToggleBtn" class="hint-btn" style="background:#fef3c7; color:#92400e; border-color:#f59e0b" onclick="toggleMusic()">🎵 Music: Off</button>
             </div>
@@ -158,16 +155,16 @@
     </div>
 
     <script>
-        /* ===== MASTER_DATA Dictionary - SEALED ===== */
+        /* ===== SEALED MASTER_DATA Dictionary - ACCURACY AUDIT V5.4 ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋"},"Salut":{en:"Hi",icon:"👋"},"Merci":{en:"Thank you",icon:"🙏"},"De rien":{en:"You're welcome",icon:"😇"},"Au revoir":{en:"Goodbye",icon:"👋"},
             "Un":{en:"One",icon:"1️⃣"},"Deux":{en:"Two",icon:"2️⃣"},"Trois":{en:"Three",icon:"3️⃣"},"Quatre":{en:"Four",icon:"4️⃣"},"Cinq":{en:"Five",icon:"5️⃣"},"Six":{en:"Six",icon:"6️⃣"},"Sept":{en:"Seven",icon:"7️⃣"},"Huit":{en:"Eight",icon:"8️⃣"},"Neuf":{en:"Nine",icon:"9️⃣"},"Dix":{en:"Ten",icon:"🔟"},
             "Rouge":{en:"Red",icon:"🔴"},"Bleu":{en:"Blue",icon:"🔵"},"Vert":{en:"Green",icon:"🟢"},"Jaune":{en:"Yellow",icon:"🟡"},"Orange":{en:"Orange",icon:"🟠"},"Rose":{en:"Pink",icon:"🌸"},"Noir":{en:"Black",icon:"⚫"},"Blanc":{en:"White",icon:"⚪"},"Violet":{en:"Purple",icon:"🟣"},
-            "Maman":{en:"Mother",icon:"👩",g:"f"},"Papa":{en:"Father",icon:"👨",g:"m"},"Ma sœur":{en:"My sister",icon:"👧",g:"f"},"Mon frère":{en:"My brother",icon:"👦",g:"m"},"Grand-mère":{en:"Grandmother",icon:"👵",g:"f"},"Grand-père":{en:"Grandfather",icon:"👴",g:"m"},
-            "La tête":{en:"The head",icon:"🙆",g:"f"},"Le nez":{en:"The nose",icon:"👃",g:"m"},"La bouche":{en:"The mouth",icon:"👄",g:"f"},"Les yeux":{en:"The eyes",icon:"👀",g:"m"},"Les mains":{en:"The hands",icon:"✋",g:"f"},"Les pieds":{en:"The feet",icon:"🦶",g:"m"},"Les oreilles":{en:"The ears",icon:"👂",g:"f"},
-            "Un chat":{en:"A cat",icon:"🐱",g:"m"},"Un chien":{en:"A dog",icon:"🐶",g:"m"},"Un lapin":{en:"A rabbit",icon:"🐰",g:"m"},"Un oiseau":{en:"A bird",icon:"🐦",g:"m"},"Un poisson":{en:"A fish",icon:"🐟",g:"m"},"Une vache":{en:"A cow",icon:"🐮",g:"f"},"Un cheval":{en:"A horse",icon:"🐎",g:"m"},
-            "Une pomme":{en:"An apple",icon:"🍎",g:"f"},"Une banane":{en:"A banana",icon:"🍌",g:"f"},"Du pain":{en:"Some bread",icon:"🥖",g:"m"},"Du lait":{en:"Some milk",icon:"🥛",g:"m"},"Une pizza":{en:"A pizza",icon:"🍕",g:"f"},"Un gâteau":{en:"A cake",icon:"🍰",g:"m"},"Du fromage":{en:"Some cheese",icon:"🧀",g:"m"},
-            "Un livre":{en:"A book",icon:"📖",g:"m"},"Un crayon":{en:"A pencil",icon:"✏️",g:"m"},"Un sac":{en:"A bag",icon:"🎒",g:"m"},"L'école":{en:"The school",icon:"🏫",g:"f"},"Le bureau":{en:"The desk",icon:"🪑",g:"m"},"Le professeur":{en:"The teacher",icon:"🧑‍🏫",g:"m"}
+            "Maman":{en:"Mother",icon:"👩",g:"f"},"Papa":{en:"Father",icon:"👨",g:"m"},"Ma sœur":{en:"Sister",icon:"👧",g:"f"},"Mon frère":{en:"Brother",icon:"👦",g:"m"},"Grand-mère":{en:"Grandmother",icon:"👵",g:"f"},"Grand-père":{en:"Grandfather",icon:"👴",g:"m"},
+            "La tête":{en:"Head",icon:"🙆",g:"f"},"Le nez":{en:"Nose",icon:"👃",g:"m"},"La bouche":{en:"Mouth",icon:"👄",g:"f"},"Les yeux":{en:"Eyes",icon:"👀",g:"m"},"Les mains":{en:"Hands",icon:"✋",g:"f"},"Les pieds":{en:"Feet",icon:"🦶",g:"m"},"Les oreilles":{en:"Ears",icon:"👂",g:"f"},
+            "Un chat":{en:"Cat",icon:"🐱",g:"m"},"Un chien":{en:"Dog",icon:"🐶",g:"m"},"Un lapin":{en:"Rabbit",icon:"🐰",g:"m"},"Un oiseau":{en:"Bird",icon:"🐦",g:"m"},"Un poisson":{en:"Fish",icon:"🐟",g:"m"},"Une vache":{en:"Cow",icon:"🐮",g:"f"},"Un cheval":{en:"Horse",icon:"🐎",g:"m"},
+            "Une pomme":{en:"Apple",icon:"🍎",g:"f"},"Une banane":{en:"Banana",icon:"🍌",g:"f"},"Du pain":{en:"Bread",icon:"🥖",g:"m"},"Du lait":{en:"Milk",icon:"🥛",g:"m"},"Une pizza":{en:"Pizza",icon:"🍕",g:"f"},"Un gâteau":{en:"Cake",icon:"🍰",g:"m"},"Du fromage":{en:"Cheese",icon:"🧀",g:"m"},
+            "Un livre":{en:"Book",icon:"📖",g:"m"},"Un crayon":{en:"Pencil",icon:"✏️",g:"m"},"Un sac":{en:"Bag",icon:"🎒",g:"m"},"L'école":{en:"School",icon:"🏫",g:"f"},"Le bureau":{en:"Desk",icon:"🪑",g:"m"},"Le professeur":{en:"Teacher",icon:"🧑‍🏫",g:"m"}
         };
 
         const presets = {
@@ -185,8 +182,8 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0');
         let losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let lastWord = "", gameActive = false, isSpelling = false, currentSpeech = null, musicContext = null, musicNode = null, currentScreenList = [];
-        let cachedFrenchVoice = null, cachedEnglishVoice = null;
+        let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [];
+        let frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
@@ -196,13 +193,23 @@
         };
 
         function initVoices() {
+            const voiceSelect = document.getElementById('frVoiceSelect');
             const setVoices = () => {
                 const voices = window.speechSynthesis.getVoices();
-                cachedFrenchVoice = voices.find(v => v.lang.startsWith('fr') && (v.name.includes('Neural') || v.name.includes('IV') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('fr'));
-                cachedEnglishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Neural') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('en'));
+                frVoices = voices.filter(v => v.lang.startsWith('fr'));
+                voiceSelect.innerHTML = '';
+                frVoices.forEach((v, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i; opt.textContent = v.name.replace('Google français ', '').replace('French France ', '');
+                    voiceSelect.appendChild(opt);
+                });
+                const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
+                if(frVoices[savedIdx]) { voiceSelect.value = savedIdx; selectedFrVoice = frVoices[savedIdx]; }
+                cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en'));
             };
             setVoices();
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
+            voiceSelect.onchange = () => { selectedFrVoice = frVoices[voiceSelect.value]; localStorage.setItem('frVoiceIdx', voiceSelect.value); spk("Bonjour!", "fr-FR", true); };
         }
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
@@ -212,7 +219,7 @@
             setTimeout(() => {
                 const u = new SpeechSynthesisUtterance(t);
                 u.lang = lang; u.rate = 0.8;
-                u.voice = (lang === 'fr-FR') ? cachedFrenchVoice : cachedEnglishVoice;
+                u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                 window.speechSynthesis.speak(u);
             }, 50);
         }
@@ -224,18 +231,48 @@
             });
         }
 
+        // --- MUSIC SYNTHESIZER: MELODIC MUSIC BOX V5.4 ---
         function toggleMusic() {
             const btn = document.getElementById('musicToggleBtn');
             if (musicNode) { musicNode.stop(); musicNode = null; btn.textContent = "🎵 Music: Off"; }
-            else { if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)(); playHappyLoop(); btn.textContent = "🎵 Music: On"; }
+            else { 
+                if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (musicContext.state === 'suspended') musicContext.resume();
+                playHappyLoop(); btn.textContent = "🎵 Music: On"; 
+            }
         }
 
         function playHappyLoop() {
-            const osc = musicContext.createOscillator(); const gain = musicContext.createGain();
-            osc.type = 'triangle'; gain.gain.value = 0.04; osc.connect(gain); gain.connect(musicContext.destination);
-            const notes = [261.63, 329.63, 392.00, 523.25]; let i = 0;
-            const playNote = () => { if (!musicNode) return; osc.frequency.setValueAtTime(notes[i % notes.length], musicContext.currentTime); i++; setTimeout(playNote, 600); };
-            osc.start(); musicNode = osc; playNote();
+            if (!musicContext) return;
+            const playNote = (freq, startTime, duration) => {
+                if (!musicNode) return;
+                const osc = musicContext.createOscillator();
+                const gain = musicContext.createGain();
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0, startTime);
+                gain.gain.linearRampToValueAtTime(0.04, startTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.frequency.setValueAtTime(freq, startTime);
+                osc.connect(gain); gain.connect(musicContext.destination);
+                osc.start(startTime); osc.stop(startTime + duration);
+            };
+
+            const melody = [
+                261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66 
+            ]; // C4 D4 E4 F4 G4 F4 E4 D4
+            
+            let time = musicContext.currentTime;
+            musicNode = { stop: () => { musicNode = null; } }; 
+
+            const schedule = () => {
+                if (!musicNode) return;
+                melody.forEach((note) => {
+                    playNote(note, time, 0.8);
+                    time += 0.8;
+                });
+                setTimeout(schedule, 6400); // Repeat after full sequence
+            };
+            schedule();
         }
 
         function getCardData(p) {
@@ -257,17 +294,11 @@
             document.getElementById('stCountText').textContent = `${list.length} phrases`;
             list.forEach(p => {
                 const data = getCardData(p);
-                const card = document.createElement('div');
-                card.className = 'phrase-card';
-                
-                // NEW PROMINENT GENDER ICONS
+                const card = document.createElement('div'); card.className = 'phrase-card';
                 if(data.g) {
-                    const badge = document.createElement('div');
-                    badge.className = 'gender-badge ' + (data.g === 'f' ? 'gender-f' : 'gender-m');
-                    badge.textContent = data.g === 'f' ? '🚺' : '🚹';
-                    card.appendChild(badge);
+                    const badge = document.createElement('div'); badge.className = 'gender-icon';
+                    badge.textContent = data.g === 'f' ? '👧' : '👦'; card.appendChild(badge);
                 }
-
                 const icon = document.createElement('span'); icon.className = 'card-icon'; icon.textContent = data.icon;
                 const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
                 const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = data.en;
@@ -275,8 +306,7 @@
                 const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
                 sB.onclick = () => spk(p, 'fr-FR');
                 const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
-                tB.textContent = '🎯 English';
-                tB.onclick = () => spk(data.en, 'en-US');
+                tB.textContent = '🎯 English'; tB.onclick = () => spk(data.en, 'en-US');
                 bD.append(sB, tB); card.append(icon, fS, eS, bD); container.appendChild(card);
             });
         }
@@ -296,18 +326,21 @@
                 await translateOne(list[i]);
                 await new Promise(r => setTimeout(r, 450));
             }
-            btn.textContent = "✨ Magic Sync"; btn.disabled = false; alert("Magic Done! 🎒");
+            btn.textContent = "✨ Magic Sync"; btn.disabled = false; renderList(list);
         }
 
-        // --- HANGMAN ---
+        // --- HANGMAN: NO-STAR POOL V5.4 ---
         let targetWord, guessed, mistakes;
-        const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!", "Magnifique!", "Tu es un génie!", "Incroyable!", "T'as assuré!"];
-        const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!", "Pas celui-là.", "Zut!"];
+        const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!", "Magnifique!", "Tu es un génie!"];
+        const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
         function startHangman() {
             gameActive = true; isSpelling = false;
             const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' '));
+            
+            // Strictly pick preset words that have icons
             const presetWords = Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
+            
             const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
@@ -320,11 +353,9 @@
         function celebrate() {
             for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
-                    const el = document.createElement('div');
-                    el.className = 'victory-item';
+                    const el = document.createElement('div'); el.className = 'victory-item';
                     el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)];
-                    el.style.left = Math.random() * 100 + "vw";
-                    document.body.appendChild(el);
+                    el.style.left = Math.random() * 100 + "vw"; document.body.appendChild(el);
                     setTimeout(() => el.remove(), 3000);
                 }, i * 200);
             }
@@ -334,13 +365,11 @@
             let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
             if (!d.includes("_")) {
-                gameActive = false; wins++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
-                spk("Félicitations! Tu as gagné! " + goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true);
-                celebrate();
+                gameActive = false; wins++; updateScoreUI(); celebrate();
+                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Félicitations! Tu as gagné!", 'fr-FR', true);
             } else if (mistakes >= 10) {
                 gameActive = false; losses++; updateScoreUI();
-                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("Oups! Tu as perdu. C'est fini!", 'fr-FR', true);
+                document.getElementById('gameMsg').textContent = "❌ " + targetWord; spk("C'est fini!", 'fr-FR', true);
             }
             renderKeyboard();
         }
@@ -391,7 +420,6 @@
             openOverlay('bpModal');
         }
         function nukeStorage() { if(confirm("Reset Everything?")) { localStorage.clear(); location.reload(); } }
-        function toggleMysteryMode() { isMysteryMode = !isMysteryMode; document.body.classList.toggle('mystery-active', isMysteryMode); document.getElementById('mysteryToggle').textContent = isMysteryMode ? "Mystery Mode: ON" : "Mystery Mode: OFF"; document.getElementById('mysteryToggle').classList.toggle('active', isMysteryMode); renderList(currentScreenList); }
         function clearHW() { if(confirm("Clear homework?")) { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); renderList([]); } }
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') { renderKeyboard(); startHangman(); } }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
