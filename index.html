@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V5.9 🎉</title>
+    <title>🇫🇷 French Fun V6.1 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -28,6 +28,7 @@
 
     button:active, .key:active { transform: scale(1.15); }
 
+    /* Practice Cards */
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
@@ -59,10 +60,9 @@
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
 
-    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
 
-    /* SEALED Backpack Layout */
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
@@ -79,7 +79,7 @@
 <body>
 
     <div class="container">
-        <div class="header"><h1>🇫🇷 French Fun V5.9 🎉</h1></div>
+        <div class="header"><h1>🇫🇷 French Fun V6.1 🎉</h1></div>
 
         <div class="status-bar">
             <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
@@ -116,8 +116,8 @@
             <h2 style="color:#9d4edd">✏️ My Homework</h2>
             
             <div style="background:#fdf2ff; padding:12px; border-radius:15px; margin:10px 0; border:2px solid #9d4edd; text-align:left;">
-                <p style="font-size:0.75rem; font-weight:900; color:#9d4edd;">⚙️ PARENT SETTINGS</p>
-                <button onclick="forceVoiceRefresh()" style="background:#9d4edd; color:white; border:none; padding:5px 10px; border-radius:10px; font-size:0.7rem; margin:5px 0;">🔍 1. Find Hidden Google Voices</button>
+                <p style="font-size:0.75rem; font-weight:900; color:#9d4edd;">⚙️ PARENT: Select specific Voice (I, II, III, IV)</p>
+                <button onclick="forceVoiceRefresh()" style="background:#9d4edd; color:white; border:none; padding:5px 10px; border-radius:10px; font-size:0.7rem; margin:5px 0;">🔍 Find Google Voices</button>
                 <select id="frVoiceSelectHw" class="voice-selector" style="width:100%; max-width:100%;"></select>
             </div>
 
@@ -154,7 +154,7 @@
 
     <div id="bpModal" class="overlay" style="z-index:3000">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
+            <h2 style="color:#9d4edd">🎒 Backpack</h2>
             <div id="bpList"></div>
             <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:20px; font-weight:900">⚠️ RESET EVERYTHING</button>
             <button onclick="closeOverlay('bpModal')" style="margin-top:10px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
@@ -162,7 +162,7 @@
     </div>
 
     <script>
-        /* ===== SEALED MASTER_DATA - FINAL ACCURACY AUDIT ===== */
+        /* ===== SEALED MASTER_DATA Dictionary ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋"},"Salut":{en:"Hi",icon:"👋"},"Merci":{en:"Thank you",icon:"🙏"},"De rien":{en:"You're welcome",icon:"😇"},"Au revoir":{en:"Goodbye",icon:"👋"},
             "Un":{en:"One",icon:"1️⃣"},"Deux":{en:"Two",icon:"2️⃣"},"Trois":{en:"Three",icon:"3️⃣"},"Quatre":{en:"Four",icon:"4️⃣"},"Cinq":{en:"Five",icon:"5️⃣"},"Six":{en:"Six",icon:"6️⃣"},"Sept":{en:"Seven",icon:"7️⃣"},"Huit":{en:"Eight",icon:"8️⃣"},"Neuf":{en:"Nine",icon:"9️⃣"},"Dix":{en:"Ten",icon:"🔟"},
@@ -180,7 +180,7 @@
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
+        let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null, currentSpeech = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
@@ -189,38 +189,59 @@
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
-        // --- ENHANCED VOICE KICKSTART ---
         function forceVoiceRefresh() {
-            const dummy = new SpeechSynthesisUtterance('wake up');
-            dummy.volume = 0;
-            window.speechSynthesis.speak(dummy);
-            setTimeout(initVoices, 500);
+            const dummy = new SpeechSynthesisUtterance('wake up'); dummy.volume = 0; window.speechSynthesis.speak(dummy);
+            setTimeout(initVoices, 800);
         }
 
+        // --- THE VOICE FIX V6.1 ---
         function initVoices() {
             const v1 = document.getElementById('frVoiceSelect');
             const v2 = document.getElementById('frVoiceSelectHw');
-            const setVoices = () => {
+            
+            const loadVoicesList = () => {
                 const voices = window.speechSynthesis.getVoices();
                 if (voices.length === 0) return;
+
+                // Sort: Keep Google voices together
                 frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
-                [v1, v2].forEach(s => {
-                    s.innerHTML = '';
-                    frVoices.forEach((v, i) => { 
+                
+                [v1, v2].forEach(select => {
+                    select.innerHTML = '';
+                    frVoices.forEach((v, i) => {
                         const opt = document.createElement('option');
-                        opt.value = i; opt.textContent = v.name; s.appendChild(opt); 
+                        opt.value = i;
+                        // DISPLAY FULL NAME WITHOUT RENAMING (Shows Voice I, II, III, etc.)
+                        opt.textContent = v.name;
+                        select.appendChild(opt);
                     });
                 });
-                const saved = localStorage.getItem('frVoiceIdx') || 0;
-                if(frVoices[saved]) { v1.value = v2.value = saved; selectedFrVoice = frVoices[saved]; }
+
+                const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
+                if(frVoices[savedIdx]) {
+                    v1.value = v2.value = savedIdx;
+                    selectedFrVoice = frVoices[savedIdx];
+                } else if (frVoices.length > 0) {
+                    selectedFrVoice = frVoices[0];
+                }
                 cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en'));
             };
-            setVoices();
-            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
-            [v1, v2].forEach(s => s.onchange = () => {
-                selectedFrVoice = frVoices[s.value]; v1.value = v2.value = s.value;
-                localStorage.setItem('frVoiceIdx', s.value); spk("Bonjour!", "fr-FR", true);
+
+            loadVoicesList();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = loadVoicesList;
+            
+            [v1, v2].forEach(select => {
+                select.onchange = () => {
+                    selectedFrVoice = frVoices[select.value];
+                    v1.value = v2.value = select.value;
+                    localStorage.setItem('frVoiceIdx', select.value);
+                    spk("Bonjour!", "fr-FR", true);
+                };
             });
+            
+            // Multiple attempt loading for mobile
+            setTimeout(loadVoicesList, 500);
+            setTimeout(loadVoicesList, 1500);
         }
 
         function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
@@ -254,9 +275,10 @@
             const playNote = (freq, startTime, duration) => {
                 if (!musicNode) return; const osc = musicContext.createOscillator(); const gain = musicContext.createGain();
                 osc.type = 'sine'; gain.gain.setValueAtTime(0, startTime); gain.gain.linearRampToValueAtTime(0.04, startTime + 0.1); gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-                osc.frequency.setValueAtTime(freq, startTime); osc.connect(gain); gain.connect(musicContext.destination); osc.start(startTime); osc.stop(startTime + duration);
+                osc.frequency.setValueAtTime(freq, startTime); osc.connect(gain); gain.connect(musicContext.destination);
+                osc.start(startTime); osc.stop(startTime + duration);
             };
-            const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; let time = musicContext.currentTime; musicNode = { stop: () => { musicNode = null; } };
+            const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; let time = musicContext.currentTime; musicNode = { stop: () => { musicNode = null; } }; 
             const schedule = () => { if (!musicNode) return; melody.forEach((note) => { playNote(note, time, 0.8); time += 0.8; }); setTimeout(schedule, 6400); };
             schedule();
         }
@@ -284,22 +306,15 @@
                 const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
                 const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = data.en;
                 const bD = document.createElement('div'); bD.className = 'card-btns';
-                const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
-                sB.onclick = () => spk(p, 'fr-FR');
-                const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
-                tB.textContent = '🎯 English'; tB.onclick = () => spk(data.en, 'en-US');
+                const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French'; sB.onclick = () => spk(p, 'fr-FR');
+                const tB = document.createElement('button'); tB.className = 'card-btn spk-en'; tB.textContent = '🎯 English'; tB.onclick = () => spk(data.en, 'en-US');
                 bD.append(sB, tB); card.append(icon, fS, eS, bD); container.appendChild(card);
             });
         }
 
         async function translateOne(p) {
             const n = norm(p); for (let key in MASTER_DATA) { if (norm(key) === n) return MASTER_DATA[key].en; }
-            try {
-                const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=en&dt=t&q=${encodeURIComponent(p)}`);
-                const d = await r.json(); let tr = d[0][0][0];
-                if (/^a\s[aeiou]/i.test(tr)) { tr = tr.replace(/^a\s/i, "An "); }
-                cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr;
-            } catch (e) { return null; }
+            try { const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=en&dt=t&q=${encodeURIComponent(p)}`); const d = await r.json(); cache[n] = d[0][0][0]; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return cache[n]; } catch (e) { return null; }
         }
 
         async function magicSync() {
@@ -313,8 +328,9 @@
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Oui!", "Magnifique!"];
         function startHangman() {
             gameActive = true; isSpelling = false;
-            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' ') && getCardData(w).icon !== "✨");
-            const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
+            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' '));
+            const presetWords = Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
+            const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
             let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
             lastWord = pick; targetWord = pick.toUpperCase();
             document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
@@ -325,7 +341,7 @@
         function updateHangmanUI() {
             let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
-            if (!d.includes("_")) { gameActive = false; wins++; updateScoreUI(); celebrate(); document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Félicitations!", 'fr-FR', true); }
+            if (!d.includes("_")) { gameActive = false; wins++; updateScoreUI(); celebrate(); document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; spk("Magnifique!", 'fr-FR', true); }
             else if (mistakes >= 10) { gameActive = false; losses++; updateScoreUI(); document.getElementById('gameMsg').textContent = "Good try! 👍"; spk("Oups!", 'fr-FR', true); }
             renderKeyboard();
         }
@@ -346,6 +362,21 @@
             if (s >= 9) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(100, 115); ctx.stroke(); }
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
+        function saveHW() { const val = document.getElementById('hwInput').value; localStorage.setItem('homeworkPhrases', val); const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); if (name) { history[name] = val; localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); } renderList(val.split('\n')); }
+        function openBP() {
+            const list = document.getElementById('bpList'); list.innerHTML = '';
+            Object.keys(history).reverse().forEach(name => {
+                const div = document.createElement('div'); div.className = 'history-item';
+                div.innerHTML = `<span style="color:#2d3748; font-weight:900"></span><div><button class="load-btn">Load</button><button class="del-btn">🗑️</button></div>`;
+                div.querySelector('span').textContent = name;
+                div.querySelector('.load-btn').onclick = () => { document.getElementById('hwInput').value = history[name]; localStorage.setItem('homeworkPhrases', history[name]); renderList(history[name].split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); };
+                div.querySelector('.del-btn').onclick = () => { if(confirm("Delete?")){ delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } };
+                list.appendChild(div);
+            });
+            openOverlay('bpModal');
+        }
+        function nukeStorage() { if(confirm("Reset everything?")) { localStorage.clear(); location.reload(); } }
+        function clearHW() { if(confirm("Clear homework?")) { document.getElementById('hwInput').value = ""; localStorage.setItem('homeworkPhrases', ""); renderList([]); } }
         function openOverlay(id) { document.getElementById(id).style.display = 'block'; if(id==='gameDrawer') { renderKeyboard(); startHangman(); } }
         function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
         function shareApp() { if (navigator.share) { navigator.share({ title: 'French Fun', url: window.location.href }); } else { alert(window.location.href); } }
