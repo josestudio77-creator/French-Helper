@@ -770,6 +770,10 @@
         }
 
         function loadPreset(k) {
+            // Clear teacher audio when loading a preset (presets don't have recordings)
+            currentWeekAudio = null;
+            localStorage.removeItem('currentWeekAudio');
+            
             document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById('btn_' + k); 
             if(btn) btn.classList.add('active');
@@ -784,6 +788,26 @@
             
             // Check if current homework has teacher audio
             const hasTeacherAudio = currentWeekAudio !== null;
+            
+            // Hide preset buttons when teacher audio is active
+            const presetGrid = document.querySelector('.preset-grid');
+            if (hasTeacherAudio && list.length > 0) {
+                presetGrid.style.display = 'none';
+                
+                // Add a notice banner
+                const banner = document.createElement('div');
+                banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
+                banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+                container.parentElement.insertBefore(banner, container);
+            } else {
+                presetGrid.style.display = 'grid';
+                
+                // Remove banner if it exists
+                const existingBanner = container.parentElement.querySelector('div[style*="Teacher Recording Mode"]');
+                if (existingBanner && existingBanner.parentElement) {
+                    existingBanner.remove();
+                }
+            }
             
             if (hasTeacherAudio && list.length > 0) {
                 // Create single card with all words and audio player
@@ -849,9 +873,12 @@
                 practiceBtn.className = 'card-btn spk-fr';
                 practiceBtn.textContent = '📖 Practice Words';
                 practiceBtn.onclick = () => {
-                    // Switch to individual cards view
+                    // Switch to individual cards view (keeps the audio for later)
+                    const tempAudio = currentWeekAudio;
                     currentWeekAudio = null;
                     renderList(list);
+                    // Restore audio reference but don't show the single card
+                    currentWeekAudio = tempAudio;
                 };
                 
                 btnContainer.append(playBtn, practiceBtn);
