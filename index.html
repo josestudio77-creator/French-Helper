@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V7.0 🎉</title>
+    <title>🇫🇷 French Fun V7.7 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -12,112 +12,116 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
    <style>
+    /* ===== SEALED CSS LAYOUT - DO NOT REMOVE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; overflow-x: hidden; }
     .container { max-width: 500px; margin: 0 auto; }
+
     .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; position: relative; }
     h1 { color: #ff6b8b; font-size: 1.4rem; }
+
+    /* Level and Badge UI */
     .level-badge { position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 50%; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #ff9e6d; font-size: 1.2rem; font-weight: 900; color: #2d3748; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     .level-number { font-size: 0.65rem; }
+
     .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; flex-wrap: wrap; gap: 5px; }
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 0.75rem; }
+
     button:active, .key:active { transform: scale(1.15); }
+
+    /* Cards and Practice UI */
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     .phrase-card.mastered { border-color: #ffd700; background: linear-gradient(to bottom, #fffef0, white); }
-    .phrase-card.learning { border-color: #ffa500; }
     .mastery-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ffd700; padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; color: #2d3748; border: 2px solid #ff9e6d; }
+    
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
     .pronunciation-guide { font-size: 0.9rem; color: #64748b; font-style: italic; margin-bottom: 10px; }
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     .gender-icon { position: absolute; top: 12px; right: 12px; font-size: 2.2rem; pointer-events: none; }
+
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); transition: transform 0.1s; }
+    .card-btn { border: none; border-radius: 18px; padding: 15px; font-weight: 900; color: white; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
+
+    /* Navigation */
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; font-size: 0.85rem; }
-    .nav-homework { color: #9d4edd; background: #fdf2ff; }
-    .nav-game { color: #ff6b8b; background: #fff5f7; }
     .nav-practice { color: #4cd964; background: #f0fdf4; }
+    .nav-game { color: #ff6b8b; background: #fff5f7; }
+    .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-stats { color: #118AB2; background: #f0f9ff; }
+
+    /* Overlays */
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
-    #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
+    
+    /* SEALED Homework Box Height */
+    #hwInput { width: 100%; height: 350px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
+    
+    /* Parent Area */
+    .settings-area { background: #f8fafc; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 2px solid #e2e8f0; text-align: left; }
+    .voice-selector { width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #118AB2; font-weight: 700; margin: 5px 0; font-size: 0.8rem; background: white; }
+    .speed-slider { width: 100%; margin: 10px 0; cursor: pointer; accent-color: #118AB2; }
+
+    /* HANGMAN KEYBOARD WRAP */
     .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
     .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; cursor: pointer; }
     .key.used { opacity: 0.2; pointer-events: none; }
+
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
-    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
-    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 15px; color: white; }
+    .stat-number { font-size: 1.8rem; font-weight: 900; }
+    .stat-label { font-size: 0.8rem; opacity: 0.9; }
+
+    /* Backpack & Items */
     .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
     .del-btn { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
+
     .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 0.9rem; font-weight: 900; cursor: pointer; color: #2d3748; position: relative; }
-    .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
-    .preset-btn.beginner { border-color: #4cd964; }
-    .difficulty-badge { position: absolute; top: -8px; right: -8px; background: #4cd964; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid white; }
-    .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
-    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
-    .voice-selector { width: 100%; padding: 8px; border-radius: 10px; border: 2px solid #118AB2; font-weight: 700; margin-top: 5px; font-size: 0.8rem; }
-    .app-actions { display: flex; gap: 10px; margin-top: 25px; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; color: white; }
-    .stat-card.success { background: linear-gradient(135deg, #4cd964 0%, #2ea44e 100%); }
-    .stat-card.warning { background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%); }
-    .stat-card.info { background: linear-gradient(135deg, #118AB2 0%, #06d6a0 100%); }
-    .stat-number { font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; }
-    .stat-label { font-size: 0.9rem; opacity: 0.9; }
+    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 1rem; font-weight: 900; cursor: pointer; color: #2d3748; }
+    .preset-btn.active { background: #5a67d8 !important; color: white !important; }
+    
+    /* Victory Balloons */
+    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
+    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+    
+    /* Practice Mode Box */
+    .practice-box { background: white; border-radius: 25px; padding: 30px; margin: 20px 0; border: 5px solid #4cd964; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
     .progress-bar { background: #e2e8f0; height: 20px; border-radius: 10px; overflow: hidden; margin: 15px 0; }
     .progress-fill { background: linear-gradient(90deg, #4cd964, #2ea44e); height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 0.75rem; }
-    .word-mastery-list { text-align: left; max-height: 300px; overflow-y: auto; }
-    .mastery-item { padding: 10px; margin: 5px 0; border-radius: 10px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
-    .mastery-stars { color: #ffd700; }
-    .practice-card { background: white; border-radius: 25px; padding: 30px; margin: 20px 0; border: 5px solid #4cd964; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-    .practice-mode-selector { display: flex; gap: 10px; margin: 15px 0; }
-    .mode-btn { flex: 1; padding: 15px; border-radius: 15px; border: 3px solid #e2e8f0; background: white; font-weight: 900; cursor: pointer; }
-    .mode-btn.active { background: #4cd964; color: white; border-color: #2ea44e; }
-    .flashcard { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-    .flashcard.flipped .french-text { display: none; }
-    .flashcard.flipped .english-text { display: block; font-size: 2rem; }
-    .flashcard:not(.flipped) .english-text { display: none; }
-    .reward-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 30px; padding: 30px; z-index: 4000; border: 5px solid #ffd700; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s; display: none; }
-    @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 100% { transform: translate(-50%, -50%) scale(1); } }
-    .reward-icon { font-size: 5rem; margin-bottom: 15px; }
-    .reward-text { font-size: 1.5rem; font-weight: 900; color: #2d3748; margin-bottom: 10px; }
-    .reward-subtext { font-size: 1rem; color: #64748b; }
-    .error-message { background: #fee2e2; border: 2px solid #ef4444; border-radius: 15px; padding: 15px; margin: 10px 0; color: #991b1b; font-weight: 700; }
-    .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
-    .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .app-actions { display: flex; gap: 10px; margin-top: 25px; }
    </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V7.0 🎉</h1>
+            <h1>🇫🇷 French Fun V7.7 🎉</h1>
             <div class="level-badge">
                 <div id="levelIcon">⭐</div>
                 <div class="level-number">Lvl <span id="levelNum">1</span></div>
             </div>
         </div>
+
         <div class="status-bar">
-            <div class="status-info"><span>📚</span> <span id="stCountText">Ready!</span></div>
+            <div class="status-info"><span>🌐</span> <span id="stCountText">Ready!</span></div>
+            <select id="frVoiceSelect" class="voice-selector" style="max-width:120px; margin:0" title="Choose Voice"></select>
             <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic Sync</button>
         </div>
+
         <div class="preset-grid">
-            <button class="preset-btn beginner" id="btn_beginner" onclick="loadPreset('beginner')">
-                <span class="difficulty-badge">🌟</span>
-                🎈 Beginner
-            </button>
-            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Greetings</button>
-            <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 Numbers</button>
+            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Hello</button>
+            <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 1-10</button>
             <button class="preset-btn" id="btn_colors" onclick="loadPreset('colors')">🎨 Colors</button>
             <button class="preset-btn" id="btn_family" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
             <button class="preset-btn" id="btn_body" onclick="loadPreset('body')">👃 Body</button>
@@ -127,105 +131,78 @@
             <button class="preset-btn" id="btn_house" onclick="loadPreset('house')">🏠 House</button>
             <button class="preset-btn" id="btn_actions" onclick="loadPreset('actions')">🏃 Actions</button>
         </div>
+
         <div id="phrasesList"></div>
+
         <div class="app-actions">
             <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
-            <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share</button>
+            <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share App</button>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item nav-practice" onclick="openOverlay('practiceDrawer')"><span>📖</span><br>Practice</div>
-        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-        <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span><br>Homework</div>
-        <div class="nav-item nav-stats" onclick="openOverlay('statsDrawer')"><span>📊</span><br>Stats</div>
-    </div>
-
-    <!-- Practice Mode Drawer -->
-    <div id="practiceDrawer" class="overlay">
-        <div class="overlay-content">
-            <h2 style="color:#4cd964">📖 Practice Mode</h2>
-            <div class="practice-mode-selector">
-                <button class="mode-btn active" id="flashcardMode" onclick="setPracticeMode('flashcard')">🃏 Flashcards</button>
-                <button class="mode-btn" id="listeningMode" onclick="setPracticeMode('listening')">👂 Listening</button>
-            </div>
-            <div id="practiceContent" class="practice-card">
-                <div class="card-icon" id="practiceIcon">🎯</div>
-                <div class="french-text" id="practiceFrench">Tap to start!</div>
-                <div class="english-text" id="practiceEnglish"></div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button onclick="previousPracticeCard()" class="card-btn" style="background:#64748b; flex:1">◀ Previous</button>
-                    <button onclick="nextPracticeCard()" class="card-btn" style="background:#4cd964; flex:1">Next ▶</button>
-                </div>
-            </div>
-            <div style="margin-top: 15px;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="practiceProgress" style="width: 0%">0/0</div>
-                </div>
-            </div>
-            <button onclick="closeOverlay('practiceDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
-        </div>
-    </div>
-
-    <!-- Stats Dashboard -->
-    <div id="statsDrawer" class="overlay">
-        <div class="overlay-content">
-            <h2 style="color:#118AB2; margin-bottom: 20px">📊 Parent Dashboard</h2>
-            <div class="stats-grid">
-                <div class="stat-card success">
-                    <div class="stat-number" id="totalWordsLearned">0</div>
-                    <div class="stat-label">Words Learned</div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-number" id="currentStreak">0</div>
-                    <div class="stat-label">Day Streak 🔥</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="gameWinRate">0%</div>
-                    <div class="stat-label">Win Rate</div>
-                </div>
-                <div class="stat-card warning">
-                    <div class="stat-number" id="practiceCount">0</div>
-                    <div class="stat-label">Practice Sessions</div>
-                </div>
-            </div>
-            <h3 style="margin: 20px 0; color: #2d3748;">🌟 Word Mastery</h3>
-            <div class="word-mastery-list" id="wordMasteryList"></div>
-            <button onclick="closeOverlay('statsDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
-        </div>
+        <div class="nav-item nav-practice" onclick="openOverlay('practiceDrawer')"><span>📖</span> Practice</div>
+        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span> Game</div>
+        <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span> Homework</div>
+        <div class="nav-item nav-stats" onclick="openOverlay('statsDrawer')"><span>📊</span> Stats</div>
     </div>
 
     <!-- Homework Drawer -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
             <h2 style="color:#9d4edd">✏️ My Homework</h2>
-            <div style="background:#f8fafc; padding:10px; border-radius:15px; margin-bottom:10px; border:2px solid #e2e8f0; text-align:left">
-                <p style="font-size:0.75rem; font-weight:900; color:#118AB2;">⚙️ PARENT: Choose Teacher Voice</p>
+            <div class="settings-area">
+                <p style="font-size:0.75rem; font-weight:900; color:#118AB2;">⚙️ PARENT SETTINGS</p>
                 <select id="frVoiceSelectHw" class="voice-selector"></select>
-                <p style="font-size:0.75rem; font-weight:900; color:#118AB2; margin-top:10px;">🎚️ Speech Speed: <span id="speedValue">0.85</span>x</p>
-                <input type="range" id="speedSlider" min="0.3" max="1.5" step="0.05" value="0.85" style="width:100%; margin-top:5px;" oninput="updateSpeechSpeed(this.value)">
-                <p style="font-size:0.65rem; color:#64748b; margin-top:3px;">← Slower (clearer) | Faster →</p>
+                <p style="font-size:0.7rem;">🐌 Speech Speed: <span id="speedVal">0.85</span>x</p>
+                <input type="range" id="speedSlider" class="speed-slider" min="0.3" max="1.2" step="0.1" value="0.85" oninput="updateSpeechSpeed(this.value)">
+                
+                <p style="font-size:0.75rem; font-weight:900; color:#856404; margin-top:10px;">🎤 Teacher's Recording (Optional)</p>
+                <input type="file" id="teacherAudioFile" accept="audio/*" style="width:100%; margin-top:5px; font-size:0.8rem;">
             </div>
-            <div id="hwMessages"></div>
-            <textarea id="hwInput" placeholder="Enter words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
-            <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
-                <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
-                <input type="file" id="teacherAudioFile" accept="audio/*,.oga,.ogg,.mp3,.wav,.m4a" style="width:100%; margin-top:5px; font-size:0.8rem;">
-                <div id="audioPlayerContainer" style="display:none; margin-top:10px;">
-                    <p style="font-size:0.7rem; color:#856404; margin-bottom:5px;">📻 Saved Recording:</p>
-                    <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
-                    <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
-                </div>
-            </div>
+            <textarea id="hwInput" placeholder="Enter words here..."></textarea>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
-                <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">💾 Save</button>
-                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
+                <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Save</button>
+                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Share List</button>
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
-                <button onclick="openBP()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">🎒 Pack</button>
-                <button onclick="clearHW()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">🗑️ Clear</button>
+                <button onclick="openBP()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Pack</button>
+                <button onclick="clearHW()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">Clear</button>
             </div>
             <button onclick="closeOverlay('hwDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+        </div>
+    </div>
+
+    <!-- Practice Overlay -->
+    <div id="practiceDrawer" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color:#4cd964">📖 Flashcard Practice</h2>
+            <div id="practiceBox" class="practice-box">
+                <div class="card-icon" id="pIcon">🎯</div>
+                <div class="french-text" id="pFrench">Loading...</div>
+                <div class="english-text" id="pEnglish" style="display:none">Answer</div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="prevCard()" class="card-btn" style="background:#64748b; flex:1">Back</button>
+                    <button id="flipBtn" onclick="flipCard()" class="card-btn" style="background:#4cd964; flex:2">Flip Card</button>
+                    <button onclick="nextCard()" class="card-btn" style="background:#64748b; flex:1">Next</button>
+                </div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="pProgress" style="width: 0%">0/0</div></div>
+            <button onclick="closeOverlay('practiceDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+        </div>
+    </div>
+
+    <div id="statsDrawer" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color:#118AB2">📊 My Progress</h2>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number" id="totalWordsLearned">0</div><div class="stat-label">Learned</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg, #4cd964 0%, #2ea44e 100%)"><div class="stat-number" id="statXP">0</div><div class="stat-label">Total XP</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg, #ffa500 0%, #ff6b00 100%)"><div class="stat-number" id="gameWinRate">0%</div><div class="stat-label">Win Rate</div></div>
+                <div class="stat-card" style="background:linear-gradient(135deg, #118AB2 0%, #06d6a0 100%)"><div class="stat-number" id="practiceCount">0</div><div class="stat-label">Sessions</div></div>
+            </div>
+            <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:20px; font-weight:900">⚠️ RESET EVERYTHING</button>
+            <button onclick="closeOverlay('statsDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -246,37 +223,26 @@
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
             <div id="gameMsg" style="font-weight:900; margin-bottom:8px; font-size:1.1rem; height:1.2rem;">Guess!</div>
             <div id="keyboard" class="keyboard"></div>
-            <button onclick="startHangman()" style="margin-top:15px; background:#4cd964; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">🎯 Next Word</button>
+            <button onclick="startHangman()" style="margin-top:15px; background:#4cd964; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Next Word</button>
             <button onclick="exitGame()" style="margin-top:8px; background:#2d3748; color:white; padding:12px; width:100%; border-radius:20px; border:none; font-weight:900">Exit</button>
         </div>
     </div>
 
-    <!-- Backpack Modal -->
     <div id="bpModal" class="overlay" style="z-index:3000">
         <div class="overlay-content">
             <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
             <div id="bpList"></div>
-            <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">📤 Share All Weeks</button>
-            <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">📥 Export Progress</button>
-            <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">⚠️ RESET EVERYTHING</button>
+            <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:15px; width:100%; margin-top:10px; font-weight:900">📤 Share All Weeks</button>
             <button onclick="closeOverlay('bpModal')" style="margin-top:10px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
         </div>
     </div>
 
-    <!-- Reward Popup -->
-    <div id="rewardPopup" class="reward-popup">
-        <div class="reward-icon" id="rewardIcon">🏆</div>
-        <div class="reward-text" id="rewardText">Amazing!</div>
-        <div class="reward-subtext" id="rewardSubtext">You earned a reward!</div>
-        <button onclick="closeReward()" style="margin-top:20px; background:#4cd964; color:white; padding:12px 30px; border-radius:20px; border:none; font-weight:900; cursor:pointer">Continue</button>
-    </div>
-
     <script>
-        /* ===== MASTER_DATA Dictionary with Pronunciation ===== */
+        /* ===== MASTER_DATA Dictionary - ALL 90+ WORDS RESTORED ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},
             "Un":{en:"One",icon:"1️⃣",pronunciation:"uhn"},"Deux":{en:"Two",icon:"2️⃣",pronunciation:"duh"},"Trois":{en:"Three",icon:"3️⃣",pronunciation:"twah"},"Quatre":{en:"Four",icon:"4️⃣",pronunciation:"KAH-truh"},"Cinq":{en:"Five",icon:"5️⃣",pronunciation:"sank"},"Six":{en:"Six",icon:"6️⃣",pronunciation:"seess"},"Sept":{en:"Seven",icon:"7️⃣",pronunciation:"set"},"Huit":{en:"Eight",icon:"8️⃣",pronunciation:"weet"},"Neuf":{en:"Nine",icon:"9️⃣",pronunciation:"nuhf"},"Dix":{en:"Ten",icon:"🔟",pronunciation:"deess"},
-            "Rouge":{en:"Red",icon:"🔴",pronunciation:"roozh"},"Bleu":{en:"Blue",icon:"🔵",pronunciation:"bluh"},"Vert":{en:"Green",icon:"🟢",pronunciation:"vehr"},"Jaune":{en:"Yellow",icon:"🟡",pronunciation:"zhohn"},"Orange":{en:"Orange",icon:"🟠",pronunciation:"oh-RAHNZH"},"Rose":{en:"Pink",icon:"🌸",pronunciation:"rohz"},"Noir":{en:"Black",icon:"⚫",pronunciation:"nwahr"},"Blanc":{en:"White",icon:"⚪",pronunciation:"blahn"},"Violet":{en:"Purple",icon:"🟣",pronunciation:"vee-oh-LEH"},"Marron":{en:"Brown",icon:"🟤",pronunciation:"mah-ROHN"},
+            "Rouge":{en:"Red",icon:"🔴",pronunciation:"roozh"},"Bleu":{en:"Blue",icon:"🔵",pronunciation:"bluh"},"Vert":{en:"Green",icon:"vehr"},"Jaune":{en:"Yellow",icon:"zhohn"},"Orange":{en:"Orange",icon:"🟠",pronunciation:"oh-RAHNZH"},"Rose":{en:"Pink",icon:"🌸",pronunciation:"rohz"},"Noir":{en:"Black",icon:"⚫",pronunciation:"nwahr"},"Blanc":{en:"White",icon:"⚪",pronunciation:"blahn"},"Violet":{en:"Purple",icon:"🟣",pronunciation:"vee-oh-LEH"},"Marron":{en:"Brown",icon:"🟤",pronunciation:"mah-ROHN"},
             "Maman":{en:"Mother",icon:"👩",g:"f",pronunciation:"mah-MAHN"},"Papa":{en:"Father",icon:"👨",g:"m",pronunciation:"pah-PAH"},"Ma sœur":{en:"Sister",icon:"👧",g:"f",pronunciation:"mah SUHR"},"Mon frère":{en:"Brother",icon:"👦",g:"m",pronunciation:"mohn FREHR"},"Grand-mère":{en:"Grandmother",icon:"👵",g:"f",pronunciation:"grahn-MEHR"},"Grand-père":{en:"Grandfather",icon:"👴",g:"m",pronunciation:"grahn-PEHR"},
             "La tête":{en:"Head",icon:"🙆",g:"f",pronunciation:"lah tet"},"Le nez":{en:"Nose",icon:"👃",g:"m",pronunciation:"luh nay"},"La bouche":{en:"Mouth",icon:"👄",g:"f",pronunciation:"lah boosh"},"Les yeux":{en:"Eyes",icon:"👀",g:"m",pronunciation:"lay zyuh"},"Les mains":{en:"Hands",icon:"✋",g:"f",pronunciation:"lay man"},"Les pieds":{en:"Feet",icon:"🦶",g:"m",pronunciation:"lay pee-AY"},"Les oreilles":{en:"Ears",icon:"👂",g:"f",pronunciation:"lay zoh-RAY"},"Le bras":{en:"Arm",icon:"💪",g:"m",pronunciation:"luh brah"},"Le doigt":{en:"Finger",icon:"☝️",g:"m",pronunciation:"luh dwah"},
             "Un chat":{en:"Cat",icon:"🐱",g:"m",pronunciation:"uhn shah"},"Un chien":{en:"Dog",icon:"🐶",g:"m",pronunciation:"uhn shee-EN"},"Un lapin":{en:"Rabbit",icon:"🐰",g:"m",pronunciation:"uhn lah-PAN"},"Un oiseau":{en:"Bird",icon:"🐦",g:"m",pronunciation:"uhn wah-ZOH"},"Un poisson":{en:"Fish",icon:"🐟",g:"m",pronunciation:"uhn pwah-SOHN"},"Une vache":{en:"Cow",icon:"🐮",g:"f",pronunciation:"ewn vahsh"},"Un cheval":{en:"Horse",icon:"🐎",g:"m",pronunciation:"uhn shuh-VAHL"},"Un mouton":{en:"Sheep",icon:"🐑",g:"m",pronunciation:"uhn moo-TOHN"},"Un cochon":{en:"Pig",icon:"🐷",g:"m",pronunciation:"uhn koh-SHOHN"},
@@ -286,808 +252,191 @@
             "Une chaise":{en:"Chair",icon:"🪑",g:"f",pronunciation:"ewn shez"},"Une table":{en:"Table",icon:"🪵",g:"f",pronunciation:"ewn TAH-bluh"},"Un lit":{en:"Bed",icon:"🛏️",g:"m",pronunciation:"uhn lee"},"Une fenêtre":{en:"Window",icon:"🪟",g:"f",pronunciation:"ewn fuh-NEH-truh"},"Une porte":{en:"Door",icon:"🚪",g:"f",pronunciation:"ewn port"},
             "Une flèche":{en:"Arrow",icon:"🏹",g:"f",pronunciation:"ewn flesh"},"Une fleche":{en:"Arrow",icon:"🏹",g:"f",pronunciation:"ewn flesh"},"Cupidon":{en:"Cupid",icon:"💘",g:"m",pronunciation:"kew-pee-DOHN"},"Un coeur":{en:"Heart",icon:"❤️",g:"m",pronunciation:"uhn kur"},"Un cœur":{en:"Heart",icon:"❤️",g:"m",pronunciation:"uhn kur"},
             "Un cadeau":{en:"Gift",icon:"🎁",g:"m",pronunciation:"uhn kah-DOH"},"Un bouquet de fleurs":{en:"Bouquet",icon:"💐",g:"m",pronunciation:"uhn boo-KEH duh flur"},
-            "Un cercle":{en:"Circle",icon:"⭕",g:"m",pronunciation:"uhn SAIR-kluh"},"Un carré":{en:"Square",icon:"🟦",g:"m",pronunciation:"uhn kah-RAY"},"Un triangle":{en:"Triangle",icon:"🔺",g:"m",pronunciation:"uhn tree-AHN-gluh"},"Une étoile":{en:"Star",icon:"⭐",g:"f",pronunciation:"ewn ay-TWAHL"}
+            "Un cercle":{en:"Circle",icon:"⭕",g:"m",pronunciation:"uhn SAIR-kluh"},"Un carré":{en:"Square",icon:"🟦",g:"m",pronunciation:"uhn kah-RAY"},"Un triangle":{en:"Triangle",icon:"🔺",g:"m",pronunciation:"uhn tree-AHN-gluh"},"Une étoile":{en:"Star",icon:"⭐",g:"f",pronunciation:"ay-TWAHL"}
         };
 
-        const presets = { 
-            beginner:["Bonjour","Merci","Un","Deux","Trois","Rouge","Bleu","Un chat","Un chien","Une pomme"],
-            greetings:["Bonjour","Salut","Merci","Au revoir","De rien"], 
-            numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"], 
-            colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir","Blanc","Violet","Marron"], 
-            family:["Maman","Papa","Ma sœur","Mon frère","Grand-mère","Grand-père"], 
-            body:["La tête","Le nez","La bouche","Les yeux","Les mains","Les pieds","Les oreilles","Le bras","Le doigt"], 
-            animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache","Un cheval","Un mouton","Un cochon"], 
-            food:["Une pomme","Une banane","Du pain","Du lait","Une pizza","Un gâteau","Du fromage","Une orange","De l'eau"], 
-            school:["Un livre","Un crayon","Un sac","L'école","Le bureau","Le professeur","Un cahier","Une règle"],
-            house:["Une chaise","Une table","Un lit","Une fenêtre","Une porte"],
-            actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"]
-        };
-
-        // Progress tracking
-        let wordProgress = JSON.parse(localStorage.getItem('wordProgress') || '{}');
-        let dailyStreak = parseInt(localStorage.getItem('dailyStreak') || '0');
-        let lastPracticeDate = localStorage.getItem('lastPracticeDate') || '';
-        let practiceSessionCount = parseInt(localStorage.getItem('practiceSessionCount') || '0');
-        let totalXP = parseInt(localStorage.getItem('totalXP') || '0');
-        let speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.85');
-        let currentWeekAudio = null; // For teacher recordings
+        const presets = { greetings:["Bonjour","Salut","Merci","Au revoir"], numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"], colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir","Blanc","Violet","Marron"], family:["Maman","Papa","Ma sœur","Mon frère","Grand-mère","Grand-père"], body:["La tête","Le nez","La bouche","Les yeux","Les mains","Les pieds","Les oreilles","Le bras","Le doigt"], animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache","Un cheval","Un mouton","Un cochon"], food:["Une pomme","Une banane","Du pain","Du lait","Une pizza","Un gâteau","Du fromage","Une orange","De l'eau"], school:["Un livre","Un crayon","Un sac","L'école","Le bureau","Le professeur","Un cahier","Une règle"], house:["Une chaise","Une table","Un lit","Une fenêtre","Une porte"], actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"], beginner:["Bonjour","Merci","Un","Deux","Trois","Rouge","Bleu","Un chat","Un chien","Une pomme"] };
 
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
-        let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
-        let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
-
-        // Practice mode variables
-        let practiceMode = 'flashcard';
-        let practiceIndex = 0;
-        let practiceList = [];
-        let isFlipped = false;
+        let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0'), totalXP = parseInt(localStorage.getItem('totalXP') || '0');
+        let speechRate = parseFloat(localStorage.getItem('speechRate') || '0.85'), currentWeekAudio = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null, currentSpeech = null, gameActive = false, isSpelling = false, musicContext = null, musicNode = null;
 
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            loadPreset('beginner');
-            updateScoreUI();
-            updateStatsUI();
-            initVoices();
-            checkDailyStreak();
-            initSpeechSpeed();
-            initAudioUpload();
-            if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+            document.getElementById('speedSlider').value = speechRate;
+            document.getElementById('speedVal').textContent = speechRate;
+            loadPreset('greetings'); updateScoreUI(); initVoices(); initAudioUpload();
+            if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }
         };
 
-        function initAudioUpload() {
-            const fileInput = document.getElementById('teacherAudioFile');
-            fileInput.addEventListener('change', handleAudioUpload);
-            
-            // Load saved audio if exists
-            loadCurrentWeekAudio();
-        }
-
-        function handleAudioUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // Validate file is audio
-            if (!file.type.startsWith('audio/')) {
-                alert('Please select an audio file (.oga, .ogg, .mp3, .wav, .m4a)');
-                event.target.value = '';
-                return;
-            }
-            
-            // Convert to base64 for storage
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                currentWeekAudio = {
-                    data: e.target.result,
-                    type: file.type,
-                    name: file.name
-                };
-                displayAudioPlayer();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function displayAudioPlayer() {
-            if (!currentWeekAudio) {
-                document.getElementById('audioPlayerContainer').style.display = 'none';
-                return;
-            }
-            
-            const player = document.getElementById('teacherAudioPlayer');
-            player.src = currentWeekAudio.data;
-            document.getElementById('audioPlayerContainer').style.display = 'block';
-        }
-
-        function removeTeacherAudio() {
-            if (confirm('Remove teacher recording?')) {
-                currentWeekAudio = null;
-                document.getElementById('teacherAudioFile').value = '';
-                document.getElementById('audioPlayerContainer').style.display = 'none';
-            }
-        }
-
-        function loadCurrentWeekAudio() {
-            // Try to load audio from current homework if it exists
-            const currentHW = localStorage.getItem('homeworkPhrases');
-            const audioData = localStorage.getItem('currentWeekAudio');
-            if (audioData) {
-                try {
-                    currentWeekAudio = JSON.parse(audioData);
-                    displayAudioPlayer();
-                } catch (e) {
-                    currentWeekAudio = null;
-                }
-            }
-        }
-
-        function checkDailyStreak() {
-            const today = new Date().toDateString();
-            if (lastPracticeDate !== today) {
-                const yesterday = new Date(Date.now() - 86400000).toDateString();
-                if (lastPracticeDate === yesterday) {
-                    dailyStreak++;
-                } else if (lastPracticeDate !== '') {
-                    dailyStreak = 1;
-                }
-                lastPracticeDate = today;
-                localStorage.setItem('lastPracticeDate', lastPracticeDate);
-                localStorage.setItem('dailyStreak', dailyStreak);
-            }
-        }
-
-        function addXP(amount) {
-            totalXP += amount;
-            localStorage.setItem('totalXP', totalXP);
-            updateLevel();
-        }
-
-        function updateLevel() {
-            const level = Math.floor(totalXP / 100) + 1;
-            const icons = ['⭐','🌟','✨','💫','🏆','👑','🎖️','🥇'];
-            document.getElementById('levelNum').textContent = level;
-            document.getElementById('levelIcon').textContent = icons[Math.min(level - 1, icons.length - 1)];
-            
-            // Check for level up rewards
-            if (totalXP % 100 < 10 && totalXP >= 100) {
-                showReward('🎉', 'Level Up!', `You reached Level ${level}!`);
-            }
-        }
-
-        function showReward(icon, text, subtext) {
-            document.getElementById('rewardIcon').textContent = icon;
-            document.getElementById('rewardText').textContent = text;
-            document.getElementById('rewardSubtext').textContent = subtext;
-            document.getElementById('rewardPopup').style.display = 'block';
-        }
-
-        function closeReward() {
-            document.getElementById('rewardPopup').style.display = 'none';
-        }
-
-        function trackWordProgress(word, correct) {
-            const normalized = norm(word);
-            if (!wordProgress[normalized]) {
-                wordProgress[normalized] = { attempts: 0, correct: 0, lastPracticed: Date.now() };
-            }
-            wordProgress[normalized].attempts++;
-            if (correct) {
-                wordProgress[normalized].correct++;
-                addXP(10);
-            }
-            wordProgress[normalized].lastPracticed = Date.now();
-            localStorage.setItem('wordProgress', JSON.stringify(wordProgress));
-            updateStatsUI();
-        }
-
-        function getWordMastery(word) {
-            const normalized = norm(word);
-            const progress = wordProgress[normalized];
-            if (!progress || progress.attempts < 3) return 0;
-            const accuracy = progress.correct / progress.attempts;
-            if (accuracy >= 0.9 && progress.attempts >= 5) return 3; // Mastered
-            if (accuracy >= 0.7) return 2; // Learning
-            return 1; // Struggling
-        }
-
-        function updateStatsUI() {
-            const masteredWords = Object.keys(wordProgress).filter(w => getWordMastery(w) === 3).length;
-            document.getElementById('totalWordsLearned').textContent = masteredWords;
-            document.getElementById('currentStreak').textContent = dailyStreak;
-            
-            const totalGames = wins + losses;
-            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-            document.getElementById('gameWinRate').textContent = winRate + '%';
-            document.getElementById('practiceCount').textContent = practiceSessionCount;
-
-            updateLevel();
-            updateWordMasteryList();
-        }
-
-        function updateWordMasteryList() {
-            const list = document.getElementById('wordMasteryList');
-            list.innerHTML = '';
-            
-            const sortedWords = Object.entries(wordProgress)
-                .map(([word, data]) => ({ word, mastery: getWordMastery(word), ...data }))
-                .sort((a, b) => b.mastery - a.mastery)
-                .slice(0, 20);
-
-            if (sortedWords.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">Start practicing to see your progress!</p>';
-                return;
-            }
-
-            sortedWords.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'mastery-item';
-                const stars = item.mastery === 3 ? '⭐⭐⭐' : item.mastery === 2 ? '⭐⭐' : '⭐';
-                const accuracy = Math.round((item.correct / item.attempts) * 100);
-                div.innerHTML = `
-                    <span style="font-weight:900; color:#2d3748;">${item.word}</span>
-                    <span><span class="mastery-stars">${stars}</span> ${accuracy}% (${item.attempts} tries)</span>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function initSpeechSpeed() {
-            const slider = document.getElementById('speedSlider');
-            const display = document.getElementById('speedValue');
-            slider.value = speechSpeed;
-            display.textContent = speechSpeed.toFixed(2);
-        }
-
-        function updateSpeechSpeed(value) {
-            speechSpeed = parseFloat(value);
-            document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
-            localStorage.setItem('speechSpeed', speechSpeed);
-            
-            // Test the new speed
-            spk("Bonjour", "fr-FR", true);
-        }
-
         function initVoices() {
-            const v2 = document.getElementById('frVoiceSelectHw');
+            const v1 = document.getElementById('frVoiceSelect'), v2 = document.getElementById('frVoiceSelectHw');
             const setVoices = () => {
                 const voices = window.speechSynthesis.getVoices();
                 if (voices.length === 0) return;
                 frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
-                v2.innerHTML = '';
-                frVoices.forEach((v, i) => { 
-                    const opt = document.createElement('option'); 
-                    opt.value = i; 
-                    opt.textContent = v.name; 
-                    v2.appendChild(opt); 
+                [v1, v2].forEach(s => {
+                    s.innerHTML = '';
+                    frVoices.forEach((v, i) => { const opt = document.createElement('option'); opt.value = i; opt.textContent = v.name; s.appendChild(opt); });
                 });
                 const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
-                if(frVoices[savedIdx]) { v2.value = savedIdx; selectedFrVoice = frVoices[savedIdx]; }
+                if(frVoices[savedIdx]) { v1.value = v2.value = savedIdx; selectedFrVoice = frVoices[savedIdx]; }
                 cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en'));
             };
-            setVoices(); 
-            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
-            v2.onchange = () => { 
-                selectedFrVoice = frVoices[v2.value]; 
-                localStorage.setItem('frVoiceIdx', v2.value); 
-                spk("Bonjour!", "fr-FR", true); 
-            };
+            setVoices(); if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
+            [v1, v2].forEach(s => s.onchange = () => { selectedFrVoice = frVoices[s.value]; v1.value = v2.value = s.value; localStorage.setItem('frVoiceIdx', s.value); spk("Bonjour!", "fr-FR", true); });
         }
 
-        function norm(t) { 
-            return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; 
-        }
+        function norm(t) { return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; }
 
         function spk(t, lang, forceInterrupt = false) {
-            if (forceInterrupt) {
-                window.speechSynthesis.cancel();
-            }
-            
-            // Anti-clipping buffer for Pixel phones
+            if (forceInterrupt) window.speechSynthesis.cancel();
             setTimeout(() => {
-                const u = new SpeechSynthesisUtterance(t); 
-                u.lang = lang; 
-                u.rate = speechSpeed; // Use dynamic speed
+                const u = new SpeechSynthesisUtterance(t); u.lang = lang; u.rate = speechRate;
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
-                
-                // Additional buffer to prevent clipping
-                u.onstart = () => {
-                    // Ensures audio context is ready
-                };
-                
                 window.speechSynthesis.speak(u);
-            }, forceInterrupt ? 150 : 50); // Longer delay on interrupt
+            }, 150);
         }
 
         function spellWord() {
-            isSpelling = true; 
-            const letters = targetWord.split('');
-            letters.forEach((l, i) => {
-                setTimeout(() => { 
-                    if(gameActive) spk(l, 'fr-FR', true); 
-                    if(i === letters.length - 1) isSpelling = false; 
-                }, i * 1100);
-            });
+            isSpelling = true; const letters = targetWord.split('');
+            letters.forEach((l, i) => { setTimeout(() => { if(gameActive) spk(l, 'fr-FR', true); if(i === letters.length - 1) isSpelling = false; }, i * 950); });
         }
 
         function playVictorySound() {
             if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
             if (musicContext.state === 'suspended') musicContext.resume();
-            
-            // Taratatan! trumpet melody
-            const melody = [
-                {freq: 440, start: 0, duration: 0.15},      // Ta
-                {freq: 440, start: 0.15, duration: 0.15},   // ra
-                {freq: 440, start: 0.3, duration: 0.15},    // ta
-                {freq: 554.37, start: 0.5, duration: 0.4}   // TAN!
-            ];
-            
-            const now = musicContext.currentTime;
-            
-            melody.forEach(note => {
-                const osc = musicContext.createOscillator();
-                const gain = musicContext.createGain();
-                
-                osc.type = 'sawtooth'; // Trumpet-like sound
-                osc.frequency.setValueAtTime(note.freq, now + note.start);
-                
-                // Envelope for trumpet effect
-                gain.gain.setValueAtTime(0, now + note.start);
-                gain.gain.linearRampToValueAtTime(0.3, now + note.start + 0.02);
-                gain.gain.linearRampToValueAtTime(0.25, now + note.start + note.duration * 0.5);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + note.start + note.duration);
-                
-                osc.connect(gain);
-                gain.connect(musicContext.destination);
-                
-                osc.start(now + note.start);
-                osc.stop(now + note.start + note.duration);
+            const notes = [440, 440, 440, 554]; let time = musicContext.currentTime;
+            notes.forEach((f, i) => {
+                const osc = musicContext.createOscillator(); const gain = musicContext.createGain();
+                osc.type = 'sawtooth'; gain.gain.setValueAtTime(0.1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+                osc.frequency.setValueAtTime(f, time); osc.connect(gain); gain.connect(musicContext.destination);
+                osc.start(time); osc.stop(time + 0.4); time += (i === 2) ? 0.4 : 0.2;
             });
         }
 
         function toggleMusic() {
             const btn = document.getElementById('musicToggleBtn');
-            if (musicNode) { 
-                musicNode.stop(); 
-                musicNode = null; 
-                btn.textContent = "🎵 Music: Off"; 
-            }
-            else { 
-                if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (musicContext.state === 'suspended') musicContext.resume();
-                playHappyLoop(); 
-                btn.textContent = "🎵 Music: On"; 
-            }
+            if (musicNode) { musicNode.stop(); musicNode = null; btn.textContent = "🎵 Music: Off"; }
+            else { if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)(); if (musicContext.state === 'suspended') musicContext.resume(); playHappyLoop(); btn.textContent = "🎵 Music: On"; }
         }
 
         function playHappyLoop() {
             if (!musicContext) return;
-            const playNote = (f, s, d) => { 
-                if (!musicNode) return; 
-                const osc = musicContext.createOscillator(); 
-                const gain = musicContext.createGain();
-                osc.type = 'sine'; 
-                gain.gain.setValueAtTime(0, s); 
-                gain.gain.linearRampToValueAtTime(0.04, s + 0.1); 
-                gain.gain.exponentialRampToValueAtTime(0.001, s + d);
-                osc.frequency.setValueAtTime(f, s); 
-                osc.connect(gain); 
-                gain.connect(musicContext.destination); 
-                osc.start(s); 
-                osc.stop(s + d);
+            const playNote = (f, s, d) => { if (!musicNode) return; const osc = musicContext.createOscillator(); const gain = musicContext.createGain();
+                osc.type = 'sine'; gain.gain.setValueAtTime(0, s); gain.gain.linearRampToValueAtTime(0.04, s + 0.1); gain.gain.exponentialRampToValueAtTime(0.001, s + d);
+                osc.frequency.setValueAtTime(f, s); osc.connect(gain); gain.connect(musicContext.destination); osc.start(s); osc.stop(s + d);
             };
-            const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; 
-            let t = musicContext.currentTime; 
-            musicNode = { stop: () => { musicNode = null; } }; 
-            const schedule = () => { 
-                if (!musicNode) return; 
-                melody.forEach(n => { playNote(n, t, 0.8); t += 0.8; }); 
-                setTimeout(schedule, 6400); 
-            };
+            const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; let t = musicContext.currentTime; musicNode = { stop: () => { musicNode = null; } }; 
+            const schedule = () => { if (!musicNode) return; melody.forEach(n => { playNote(n, t, 0.8); t += 0.8; }); setTimeout(schedule, 6400); };
             schedule();
         }
 
         function getCardData(p) {
             if (MASTER_DATA[p]) return MASTER_DATA[p];
             const n = norm(p);
-            for (let key in MASTER_DATA) { 
-                if (norm(key) === n) return MASTER_DATA[key]; 
-            }
-            
-            // Smart icon fallback for homework words
-            const word = p.toLowerCase();
-            let smartIcon = "✨";
-            
-            // Animals
-            if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
-            // Colors
-            else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
-            // Numbers
-            else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
-            // Food
-            else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
-            // Body parts
-            else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
-            // School
-            else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
-            // Family
-            else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
-            // House
-            else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
-            // Actions
-            else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
-            // Greetings
-            else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
-            
-            return { en: cache[n] || "...", icon: smartIcon };
+            for (let key in MASTER_DATA) { if (norm(key) === n) return MASTER_DATA[key]; }
+            return { en: cache[n] || "...", icon: "✨" };
         }
 
         function loadPreset(k) {
             document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.getElementById('btn_' + k); 
-            if(btn) btn.classList.add('active');
+            const btn = document.getElementById('btn_' + k); if(btn) btn.classList.add('active');
             renderList(presets[k]);
         }
 
         function renderList(list) {
-            currentScreenList = list; 
-            const container = document.getElementById('phrasesList'); 
-            container.innerHTML = '';
-            document.getElementById('stCountText').textContent = `${list.length} phrases ready!`;
-            
+            currentScreenList = list; const container = document.getElementById('phrasesList'); container.innerHTML = '';
+            document.getElementById('stCountText').textContent = `${list.length} phrases`;
             list.forEach(p => {
-                const data = getCardData(p); 
-                const card = document.createElement('div'); 
-                const mastery = getWordMastery(p);
-                card.className = 'phrase-card';
-                
-                if (mastery === 3) {
-                    card.classList.add('mastered');
-                    const badge = document.createElement('div');
-                    badge.className = 'mastery-badge';
-                    badge.textContent = '⭐ Mastered!';
-                    card.appendChild(badge);
-                } else if (mastery === 2) {
-                    card.classList.add('learning');
-                }
-                
-                if(data.g) { 
-                    const b = document.createElement('div'); 
-                    b.className = 'gender-icon'; 
-                    b.textContent = data.g === 'f' ? '👧' : '👦'; 
-                    card.appendChild(b); 
-                }
-                
-                const icon = document.createElement('span'); 
-                icon.className = 'card-icon'; 
-                icon.textContent = data.icon;
-                
-                const fS = document.createElement('span'); 
-                fS.className = 'french-text'; 
-                fS.textContent = p;
-                
-                const pG = document.createElement('div');
-                pG.className = 'pronunciation-guide';
-                pG.textContent = data.pronunciation || '';
-                
-                const eS = document.createElement('span'); 
-                eS.className = 'english-text'; 
-                eS.textContent = data.en;
-                
-                const bD = document.createElement('div'); 
-                bD.className = 'card-btns';
-                
-                const sB = document.createElement('button'); 
-                sB.className = 'card-btn spk-fr'; 
-                sB.textContent = '🎤 French';
-                sB.onclick = () => {
-                    spk(p, 'fr-FR');
-                    trackWordProgress(p, true);
-                };
-                
-                const tB = document.createElement('button'); 
-                tB.className = 'card-btn spk-en';
-                tB.textContent = '🎯 English'; 
-                tB.onclick = () => { 
-                    spk(data.en, 'en-US'); 
-                };
-                
-                // Long press or double-tap to manually fix translation
-                let tapTimeout;
-                let lastTap = 0;
-                tB.addEventListener('touchstart', (e) => {
-                    const now = Date.now();
-                    if (now - lastTap < 300) {
-                        // Double tap detected
-                        e.preventDefault();
-                        if(confirm("Fix translation for '" + p + "'?")){ 
-                            const fix = prompt("Enter correct English:", data.en); 
-                            if(fix){ 
-                                cache[norm(p)] = fix; 
-                                localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                renderList(currentScreenList); 
-                            } 
+                const data = getCardData(p); const card = document.createElement('div'); card.className = 'phrase-card';
+                if(data.g) { const b = document.createElement('div'); b.className = 'gender-icon';
+                    b.textContent = data.g === 'f' ? '👧' : '👦'; card.appendChild(b); }
+                const icon = document.createElement('span'); icon.className = 'card-icon'; icon.textContent = data.icon;
+                const fS = document.createElement('span'); fS.className = 'french-text'; fS.textContent = p;
+                const pg = document.createElement('div'); pg.className = 'pronunciation-guide'; pg.textContent = data.pronunciation || '';
+                const eS = document.createElement('span'); eS.className = 'english-text'; eS.textContent = data.en;
+                const bD = document.createElement('div'); bD.className = 'card-btns';
+                const sB = document.createElement('button'); sB.className = 'card-btn spk-fr'; sB.textContent = '🎤 French';
+                sB.onclick = () => { spk(p, 'fr-FR'); addXP(5); trackWordProgress(p, true); };
+                const tB = document.createElement('button'); tB.className = 'card-btn spk-en';
+                tB.textContent = '🎯 English'; tB.onclick = () => { spk(data.en, 'en-US'); 
+                    if (!MASTER_DATA[p]) { 
+                        let lastTap = tB.dataset.lastTap || 0; let now = Date.now();
+                        if (now - lastTap < 500) {
+                            const fix = prompt("Fix English Translation:", data.en);
+                            if(fix) { cache[norm(p)] = fix; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); renderList(currentScreenList); }
                         }
+                        tB.dataset.lastTap = now;
                     }
-                    lastTap = now;
-                });
-                
-                // Also allow regular click-based correction for non-MASTER_DATA words
-                if (!MASTER_DATA[p]) {
-                    tB.addEventListener('click', (e) => {
-                        if (e.detail === 2) { // Double click on desktop
-                            if(confirm("Fix translation for '" + p + "'?")){ 
-                                const fix = prompt("Enter correct English:", data.en); 
-                                if(fix){ 
-                                    cache[norm(p)] = fix; 
-                                    localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                    renderList(currentScreenList); 
-                                } 
-                            }
-                        }
-                    });
-                }
-                
-                bD.append(sB, tB); 
-                card.append(icon, fS, pG, eS, bD); 
-                container.appendChild(card);
+                };
+                bD.append(sB, tB); card.append(icon, fS, pg, eS, bD); container.appendChild(card);
             });
         }
 
         async function translateOne(p) {
-            const n = norm(p); 
-            for (let key in MASTER_DATA) { 
-                if (norm(key) === n) return MASTER_DATA[key].en; 
-            }
-            try { 
+            const n = norm(p); for (let key in MASTER_DATA) { if (norm(key) === n) return MASTER_DATA[key].en; }
+            try {
                 const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=en&dt=t&q=${encodeURIComponent(p)}`);
-                if (!r.ok) throw new Error('Translation failed');
-                const d = await r.json(); 
-                let tr = d[0][0][0]; 
+                const d = await r.json(); let tr = d[0][0][0]; 
                 if (/^a\s[aeiou]/i.test(tr)) { tr = tr.replace(/^a\s/i, "An "); }
                 else if (/^an\s[^aeiou]/i.test(tr)) { tr = tr.replace(/^an\s/i, "A "); }
-                cache[n] = tr; 
-                localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                return tr;
-            } catch (e) { 
-                console.error('Translation error:', e);
-                return null; 
-            }
+                cache[n] = tr; localStorage.setItem('phraseTranslations', JSON.stringify(cache)); return tr;
+            } catch (e) { return null; }
         }
 
         async function magicSync() {
-            const btn = document.getElementById('magicBtn'); 
-            const msgDiv = document.getElementById('hwMessages');
-            const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
-            
-            if (list.length === 0) {
-                msgDiv.innerHTML = '<div class="error-message">⚠️ Please enter some words first!</div>';
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-                return;
-            }
-            
-            btn.disabled = true;
-            msgDiv.innerHTML = '<div class="loading-spinner"></div>';
-            
-            let successCount = 0;
-            let failCount = 0;
-            
-            for (let i = 0; i < list.length; i++) { 
-                btn.textContent = `${i+1}/${list.length}`; 
-                const result = await translateOne(list[i]); 
-                if (result) successCount++;
-                else failCount++;
-                await new Promise(r => setTimeout(r, 500)); 
-            }
-            
-            btn.textContent = "✨ Magic Sync"; 
-            btn.disabled = false; 
-            
-            if (failCount === 0) {
-                msgDiv.innerHTML = `<div class="success-message">✅ Successfully translated ${successCount} words!</div>`;
-            } else {
-                msgDiv.innerHTML = `<div class="error-message">⚠️ Translated ${successCount} words, ${failCount} failed. Check your internet connection.</div>`;
-            }
-            
-            setTimeout(() => msgDiv.innerHTML = '', 5000);
-            renderList(list);
+            const btn = document.getElementById('magicBtn'); const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
+            if (list.length === 0) return alert("Type homework first!"); btn.disabled = true;
+            for (let i = 0; i < list.length; i++) { btn.textContent = `${i+1}/${list.length}`; await translateOne(list[i]); await new Promise(r => setTimeout(r, 450)); }
+            btn.textContent = "✨ Magic Sync"; btn.disabled = false; renderList(list);
         }
 
-        // ===== PRACTICE MODE =====
-        function setPracticeMode(mode) {
-            practiceMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(mode + 'Mode').classList.add('active');
-            startPractice();
+        function updateScoreUI() {
+            document.getElementById('winCount').textContent = wins;
+            document.getElementById('statWins').textContent = wins;
+            document.getElementById('statXP').textContent = totalXP;
+            const level = Math.floor(totalXP / 100) + 1;
+            document.getElementById('levelNum').textContent = level;
+            const icons = ['⭐','🌟','✨','💫','🏆','👑'];
+            document.getElementById('levelIcon').textContent = icons[Math.min(level-1, 5)];
+            localStorage.setItem('gameWins', wins); localStorage.setItem('gameLosses', losses); localStorage.setItem('totalXP', totalXP);
         }
-
-        function startPractice() {
-            practiceSessionCount++;
-            localStorage.setItem('practiceSessionCount', practiceSessionCount);
-            checkDailyStreak();
-            
-            practiceList = currentScreenList.filter(w => w.length > 0);
-            if (practiceList.length === 0) {
-                practiceList = presets.beginner;
-            }
-            practiceIndex = 0;
-            showPracticeCard();
-        }
-
-        function showPracticeCard() {
-            if (practiceList.length === 0) return;
-            
-            const word = practiceList[practiceIndex];
-            const data = getCardData(word);
-            
-            document.getElementById('practiceIcon').textContent = data.icon;
-            document.getElementById('practiceFrench').textContent = word;
-            document.getElementById('practiceEnglish').textContent = data.en;
-            
-            const progress = document.getElementById('practiceProgress');
-            const percent = ((practiceIndex + 1) / practiceList.length) * 100;
-            progress.style.width = percent + '%';
-            progress.textContent = `${practiceIndex + 1}/${practiceList.length}`;
-            
-            isFlipped = false;
-            
-            if (practiceMode === 'flashcard') {
-                setupFlashcard();
-            } else if (practiceMode === 'listening') {
-                setupListening(word);
-            }
-        }
-
-        function setupFlashcard() {
-            const content = document.getElementById('practiceContent');
-            content.onclick = () => {
-                isFlipped = !isFlipped;
-                if (isFlipped) {
-                    document.getElementById('practiceEnglish').style.display = 'block';
-                    document.getElementById('practiceFrench').style.display = 'none';
-                    spk(document.getElementById('practiceEnglish').textContent, 'en-US');
-                } else {
-                    document.getElementById('practiceEnglish').style.display = 'none';
-                    document.getElementById('practiceFrench').style.display = 'block';
-                    spk(document.getElementById('practiceFrench').textContent, 'fr-FR');
-                }
-            };
-            document.getElementById('practiceEnglish').style.display = 'none';
-            document.getElementById('practiceFrench').style.display = 'block';
-            spk(document.getElementById('practiceFrench').textContent, 'fr-FR');
-        }
-
-        function setupListening(word) {
-            document.getElementById('practiceEnglish').style.display = 'none';
-            document.getElementById('practiceFrench').style.display = 'block';
-            document.getElementById('practiceFrench').textContent = 'Listen carefully... 👂';
-            
-            setTimeout(() => {
-                spk(word, 'fr-FR');
-                setTimeout(() => {
-                    if (!isFlipped) {
-                        document.getElementById('practiceFrench').textContent = word;
-                        document.getElementById('practiceEnglish').style.display = 'block';
-                    }
-                }, 2000);
-            }, 500);
-        }
-
-        function nextPracticeCard() {
-            trackWordProgress(practiceList[practiceIndex], true);
-            practiceIndex = (practiceIndex + 1) % practiceList.length;
-            showPracticeCard();
-            
-            if (practiceIndex === 0) {
-                showReward('🎉', 'Great Job!', 'You completed a practice session!');
-            }
-        }
-
-        function previousPracticeCard() {
-            practiceIndex = (practiceIndex - 1 + practiceList.length) % practiceList.length;
-            showPracticeCard();
-        }
-
-        // ===== HANGMAN GAME =====
-        let targetWord = "", guessed = [], mistakes = 0;
-        const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
-        const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
+        function addXP(amount) { totalXP += amount; updateScoreUI(); }
 
         function startHangman() {
-            gameActive = true; 
-            isSpelling = false;
-            
-            const hwWords = document.getElementById('hwInput').value.split('\n')
-                .map(w => w.trim())
-                .filter(w => w.length > 1 && !w.includes(' ') && getCardData(w).icon !== "✨");
+            gameActive = true; isSpelling = false;
+            const hwWords = document.getElementById('hwInput').value.split('\n').map(w => w.trim()).filter(w => w.length > 1 && !w.includes(' ') && getCardData(w).icon !== "✨");
             const presetWords = Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
             const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
-            
-            let pick; 
-            do { 
-                pick = pool[Math.floor(Math.random() * pool.length)]; 
-            } while (pick === lastWord && pool.length > 1);
-            
-            lastWord = pick; 
-            targetWord = pick.toUpperCase();
+            let pick; do { pick = pool[Math.floor(Math.random() * pool.length)]; } while (pick === lastWord && pool.length > 1);
+            lastWord = pick; targetWord = pick.toUpperCase();
             document.getElementById('clueEmoji').textContent = getCardData(pick).icon;
-            guessed = [targetWord[0]]; 
-            mistakes = 0; 
-            document.getElementById('gameMsg').textContent = "Guess a letter!";
-            drawHangman(0); 
-            renderKeyboard(); 
-            updateHangmanUI();
+            guessed = [targetWord[0]]; mistakes = 0; document.getElementById('gameMsg').textContent = "Guess a letter!";
+            drawHangman(0); renderKeyboard(); updateHangmanUI();
         }
-
-        function celebrate() { 
-            for (let i = 0; i < 20; i++) { 
-                setTimeout(() => { 
-                    const el = document.createElement('div'); 
-                    el.className = 'victory-item'; 
-                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)]; 
-                    el.style.left = Math.random() * 100 + "vw"; 
-                    document.body.appendChild(el); 
-                    setTimeout(() => el.remove(), 3000); 
-                }, i * 150); 
-            } 
-        }
+        function celebrate() { for (let i = 0; i < 20; i++) { setTimeout(() => { const el = document.createElement('div'); el.className = 'victory-item'; el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)]; el.style.left = Math.random() * 100 + "vw"; document.body.appendChild(el); setTimeout(() => el.remove(), 3000); }, i * 150); } }
         
         function updateHangmanUI() {
-            let d = ""; 
-            for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
+            let d = ""; for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
             document.getElementById('hangmanDisplay').textContent = d;
-            
             if (!d.includes("_")) {
-                gameActive = false; 
-                wins++; 
-                updateScoreUI(); 
-                celebrate(); 
-                playVictorySound();
-                trackWordProgress(lastWord, true);
-                addXP(20);
-                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
-                setTimeout(() => spk(targetWord, 'fr-FR'), 800);
-                
-                if (wins % 5 === 0) {
-                    showReward('🎖️', 'Amazing Streak!', `${wins} wins in a row!`);
-                }
+                gameActive = false; wins++; addXP(50); updateScoreUI(); celebrate(); playVictorySound();
+                document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; setTimeout(() => spk(targetWord, 'fr-FR'), 800);
             } else if (mistakes >= 10) {
-                gameActive = false; 
-                losses++; 
-                updateScoreUI();
-                trackWordProgress(lastWord, false);
-                document.getElementById('gameMsg').textContent = "Good try! 👍"; 
-                spk("Oups! " + targetWord, 'fr-FR', true);
+                gameActive = false; losses++; updateScoreUI();
+                document.getElementById('gameMsg').textContent = "Good try! 👍"; spk("Oups!", 'fr-FR', true);
             }
             renderKeyboard();
         }
-
-        function renderKeyboard() { 
-            const kb = document.getElementById('keyboard'); 
-            kb.innerHTML = ''; 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => { 
-                const k = document.createElement('div'); 
-                k.className = 'key' + (guessed.includes(l) ? ' used' : ''); 
-                k.textContent = l; 
-                k.onclick = () => { 
-                    if (!gameActive) return; 
-                    guessed.push(l); 
-                    if (targetWord.includes(l)) { 
-                        spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
-                    } else { 
-                        mistakes++; 
-                        drawHangman(mistakes); 
-                        spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
-                    } 
-                    updateHangmanUI(); 
-                }; 
-                kb.appendChild(k); 
-            }); 
-        }
-
-        function updateScoreUI() { 
-            document.getElementById('winCount').textContent = wins; 
-            document.getElementById('lossCount').textContent = losses; 
-            localStorage.setItem('gameWins', wins); 
-            localStorage.setItem('gameLosses', losses); 
-            updateStatsUI();
-        }
-
-        function exitGame() { 
-            gameActive = false; 
-            if (musicNode) { 
-                musicNode.stop(); 
-                musicNode = null; 
-                document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; 
-            } 
-            closeOverlay('gameDrawer'); 
-        }
-
+        function renderKeyboard() { const kb = document.getElementById('keyboard'); kb.innerHTML = ''; "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => { const k = document.createElement('div'); k.className = 'key' + (guessed.includes(l) ? ' used' : ''); k.textContent = l; k.onclick = () => { if (!gameActive) return; guessed.push(l); if (targetWord.includes(l)) { spk("Bravo!", 'fr-FR', true); } else { mistakes++; drawHangman(mistakes); spk("Non", 'fr-FR', true); } updateHangmanUI(); }; kb.appendChild(k); }); }
+        function updateScoreUI() { document.getElementById('winCount').textContent = wins; document.getElementById('lossCount').textContent = losses; localStorage.setItem('gameWins', wins); localStorage.setItem('gameLosses', losses); }
+        function exitGame() { gameActive = false; if (musicNode) { musicNode.stop(); musicNode = null; document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; } closeOverlay('gameDrawer'); }
         function drawHangman(s) {
-            const c = document.getElementById('hangmanCanvas'); 
-            const ctx = c.getContext('2d');
-            ctx.clearRect(0, 0, 200, 150); 
-            ctx.lineWidth = 4; 
-            ctx.strokeStyle = "#475569";
+            const c = document.getElementById('hangmanCanvas'); const ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, 200, 150); ctx.lineWidth = 4; ctx.strokeStyle = "#475569";
             if (s >= 1) { ctx.beginPath(); ctx.moveTo(20, 140); ctx.lineTo(180, 140); ctx.stroke(); }
             if (s >= 2) { ctx.beginPath(); ctx.moveTo(40, 140); ctx.lineTo(40, 10); ctx.stroke(); }
             if (s >= 3) { ctx.beginPath(); ctx.moveTo(40, 10); ctx.lineTo(120, 10); ctx.stroke(); }
@@ -1100,308 +449,63 @@
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        // ===== HOMEWORK & STORAGE =====
+        // --- PRACTICE MODE ---
+        function startPractice() { pList = currentScreenList; pIdx = 0; showPCard(); practiceSessionCount++; localStorage.setItem('practiceSessionCount', practiceSessionCount); }
+        function showPCard() {
+            const w = pList[pIdx], data = getCardData(w);
+            document.getElementById('pIcon').textContent = data.icon;
+            document.getElementById('pFrench').textContent = w;
+            document.getElementById('pEnglish').textContent = data.en;
+            document.getElementById('pEnglish').style.display = 'none';
+            document.getElementById('pFrench').style.display = 'block';
+            document.getElementById('pProgress').style.width = ((pIdx+1)/pList.length*100) + '%';
+            document.getElementById('pProgress').textContent = `${pIdx+1}/${pList.length}`;
+            spk(w, 'fr-FR');
+        }
+        function flipCard() {
+            const f = document.getElementById('pFrench'), e = document.getElementById('pEnglish');
+            if(f.style.display === 'none') { f.style.display='block'; e.style.display='none'; spk(f.textContent, 'fr-FR'); }
+            else { f.style.display='none'; e.style.display='block'; spk(e.textContent, 'en-US'); }
+        }
+        function nextCard() { pIdx = (pIdx + 1) % pList.length; showPCard(); }
+        function prevCard() { pIdx = (pIdx - 1 + pList.length) % pList.length; showPCard(); }
+
         function saveHW() { 
             const val = document.getElementById('hwInput').value; 
-            localStorage.setItem('homeworkPhrases', val);
-            
-            // Save current audio if exists
-            if (currentWeekAudio) {
-                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
-            }
-            
             const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); 
-            if (name) { 
-                // Create homework object with words and optional audio
-                const hwData = {
-                    words: val,
-                    audio: currentWeekAudio
-                };
-                history[name] = JSON.stringify(hwData);
-                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
-                setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
-            } 
-            renderList(val.split('\n').filter(w => w.trim()));
+            if (name) { history[name] = JSON.stringify({ words: val, audio: currentWeekAudio }); localStorage.setItem('frenchHistory', JSON.stringify(history)); alert("Saved! 🎒"); }
+            renderList(val.split('\n'));
         }
-
         function openBP() {
-            const list = document.getElementById('bpList'); 
-            list.innerHTML = ''; 
-            
-            if (Object.keys(history).length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No saved homework yet!</p>';
-                openOverlay('bpModal');
-                return;
-            }
-            
-            Object.keys(history).reverse().forEach(name => {
-                const div = document.createElement('div'); 
-                div.className = 'history-item';
-                
-                // Parse homework data (could be old string format or new object format)
-                let hwData = { words: '', audio: null };
-                try {
-                    const parsed = JSON.parse(history[name]);
-                    if (parsed.words !== undefined) {
-                        hwData = parsed;
-                    } else {
-                        // Old format - just words
-                        hwData.words = history[name];
-                    }
-                } catch (e) {
-                    // Old format - just words
-                    hwData.words = history[name];
-                }
-                
-                const hasAudio = hwData.audio ? '🎤' : '';
-                div.innerHTML = `
-                    <span style="color:#2d3748; font-weight:900">${name} ${hasAudio}</span>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                        ${hwData.audio ? '<button class="load-btn" style="background:#28a745; color:white;">▶️ Play</button>' : ''}
-                        <button class="load-btn">📂 Load</button>
-                        <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
-                        <button class="del-btn">🗑️</button>
-                    </div>
-                `;
-                
-                let buttonIndex = 0;
-                const buttons = div.querySelectorAll('.load-btn');
-                
-                // Play button (if audio exists)
-                if (hwData.audio) {
-                    buttons[buttonIndex++].onclick = () => { 
-                        playWeekAudio(hwData.audio);
-                    };
-                }
-                
-                // Load button
-                buttons[buttonIndex++].onclick = () => { 
-                    document.getElementById('hwInput').value = hwData.words; 
-                    localStorage.setItem('homeworkPhrases', hwData.words);
-                    
-                    // Load audio if exists
-                    currentWeekAudio = hwData.audio;
-                    if (currentWeekAudio) {
-                        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-                    } else {
-                        localStorage.removeItem('currentWeekAudio');
-                    }
-                    displayAudioPlayer();
-                    
-                    renderList(hwData.words.split('\n').filter(w => w.trim())); 
-                    closeOverlay('bpModal'); 
-                    closeOverlay('hwDrawer'); 
-                };
-                
-                // Share button
-                buttons[buttonIndex++].onclick = () => { 
-                    shareWeek(name, hwData.words); 
-                };
-                
-                // Delete button
-                div.querySelector('.del-btn').onclick = () => { 
-                    if(confirm("Delete " + name + "?")){ 
-                        delete history[name]; 
-                        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                        openBP(); 
-                    } 
-                };
-                
+            const list = document.getElementById('bpList'); list.innerHTML = ''; Object.keys(history).reverse().forEach(name => {
+                const data = JSON.parse(history[name]); const div = document.createElement('div'); div.className = 'history-item';
+                div.innerHTML = `<span style="color:#2d3748; font-weight:900"></span><div><button class="load-btn">Load</button><button class="del-btn">🗑️</button></div>`;
+                div.querySelector('span').textContent = name + (data.audio ? ' 🎤' : '');
+                div.querySelector('.load-btn').onclick = () => { document.getElementById('hwInput').value = data.words; currentWeekAudio = data.audio; displayAudio(); renderList(data.words.split('\n')); closeOverlay('bpModal'); closeOverlay('hwDrawer'); };
+                div.querySelector('.del-btn').onclick = () => { if(confirm("Delete?")){ delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } };
                 list.appendChild(div);
-            }); 
-            openOverlay('bpModal');
+            }); openOverlay('bpModal');
         }
-
-        function playWeekAudio(audioData) {
-            if (!audioData) return;
-            
-            const audio = new Audio(audioData.data);
-            audio.play().catch(err => {
-                alert('Could not play audio. File may be corrupted.');
-                console.error('Audio playback error:', err);
-            });
-        }
-
-        function shareCurrentHW() {
-            const words = document.getElementById('hwInput').value.trim();
-            if (!words) {
-                alert('No homework to share! Add some words first.');
-                return;
-            }
-            
-            const wordList = words.split('\n').filter(w => w.trim());
-            const weekName = "Week " + (Object.keys(history).length + 1);
-            shareWeek(weekName, words);
-        }
-
-        function shareWeek(weekName, wordsText) {
-            const wordList = wordsText.split('\n').filter(w => w.trim());
-            const wordCount = wordList.length;
-            
-            // Create shareable text
-            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.map((w, i) => `${i + 1}. ${w}`).join('\n')}\n\n📚 ${wordCount} words to practice!\n\nUse French Fun app: ${window.location.origin}`;
-            
-            // Try native share API first (mobile)
-            if (navigator.share) {
-                navigator.share({
-                    title: `French Fun - ${weekName}`,
-                    text: shareText
-                }).catch(err => {
-                    // User cancelled, that's ok
-                    console.log('Share cancelled');
-                });
-            } else {
-                // Fallback: copy to clipboard
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 Homework list copied to clipboard!\n\nYou can now paste it in a message, email, or note.');
-                    }).catch(() => {
-                        // Final fallback: show in alert to copy manually
-                        prompt('Copy this homework list:', shareText);
-                    });
-                } else {
-                    // Very old browsers: show in prompt
-                    prompt('Copy this homework list:', shareText);
-                }
-            }
-        }
-
-        function shareAllWeeks() {
-            if (Object.keys(history).length === 0) {
-                alert('No saved weeks to share yet!');
-                return;
-            }
-            
-            // Create comprehensive share text with all weeks
-            let shareText = `🇫🇷 French Fun - Complete Homework Collection\n\n`;
-            
-            Object.keys(history).forEach((weekName, index) => {
-                // Parse homework data
-                let hwData = { words: '', audio: null };
-                try {
-                    const parsed = JSON.parse(history[weekName]);
-                    if (parsed.words !== undefined) {
-                        hwData = parsed;
-                    } else {
-                        hwData.words = history[weekName];
-                    }
-                } catch (e) {
-                    hwData.words = history[weekName];
-                }
-                
-                const wordList = hwData.words.split('\n').filter(w => w.trim());
-                const audioIndicator = hwData.audio ? ' 🎤' : '';
-                shareText += `📚 ${weekName}${audioIndicator} (${wordList.length} words)\n`;
-                shareText += wordList.map((w, i) => `  ${i + 1}. ${w}`).join('\n');
-                shareText += '\n\n';
-            });
-            
-            shareText += `Total: ${Object.keys(history).length} weeks saved\n`;
-            shareText += `App: ${window.location.origin}`;
-            
-            // Try native share API first (mobile)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'French Fun - All Homework Weeks',
-                    text: shareText
-                }).catch(err => {
-                    console.log('Share cancelled');
-                });
-            } else {
-                // Fallback: copy to clipboard
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 All homework weeks copied to clipboard!\n\nYou can now paste them in a message, email, or document.');
-                    }).catch(() => {
-                        prompt('Copy all homework weeks:', shareText);
-                    });
-                } else {
-                    prompt('Copy all homework weeks:', shareText);
-                }
-            }
-        }
-
-        function exportProgress() {
-            const data = {
-                wordProgress,
-                totalXP,
-                wins,
-                losses,
-                dailyStreak,
-                practiceSessionCount,
-                history,
-                cache,
-                exportDate: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `french-fun-progress-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function nukeStorage() { 
-            if(confirm("⚠️ This will delete ALL progress, homework, and stats. Are you absolutely sure?")) { 
-                if(confirm("Last chance! This cannot be undone!")) {
-                    localStorage.clear(); 
-                    location.reload(); 
-                }
-            } 
-        }
-
-        function clearHW() { 
-            if(confirm("Clear current homework?")) { 
-                document.getElementById('hwInput').value = ""; 
-                localStorage.setItem('homeworkPhrases', ""); 
-                renderList([]); 
-            } 
-        }
-
+        function nukeStorage() { if(confirm("Reset everything?")) { localStorage.clear(); location.reload(); } }
         function openOverlay(id) { 
             document.getElementById(id).style.display = 'block'; 
-            if(id === 'gameDrawer') { 
-                startHangman(); 
-            } else if(id === 'practiceDrawer') {
-                startPractice();
-            } else if(id === 'statsDrawer') {
-                updateStatsUI();
-            }
+            if(id==='gameDrawer') { renderKeyboard(); startHangman(); }
+            if(id==='practiceDrawer') startPractice();
+        }
+        function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+        function shareApp() { if (navigator.share) { navigator.share({ title: 'French Fun', url: window.location.href }); } else { alert(window.location.href); } }
+        function shareCurrentHW() { const words = document.getElementById('hwInput').value; if(navigator.share) navigator.share({title:'Homework', text: words}); }
+        function shareAllWeeks() { let t = ""; Object.keys(history).forEach(k => t += k + ": " + JSON.parse(history[k]).words + "\n\n"); if(navigator.share) navigator.share({title:'Backpack', text: t}); }
+        function exportProgress() { const data = { totalXP, wins, losses, wordProgress, history }; const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `French_Progress.json`; a.click(); }
+        function updateSpeechSpeed(v) { speechRate = parseFloat(v); document.getElementById('speedVal').textContent = speechRate; localStorage.setItem('speechRate', speechRate); spk("Bonjour", "fr-FR", true); }
+        function trackWordProgress(word, correct) {
+            const normalized = norm(word); if (!wordProgress[normalized]) { wordProgress[normalized] = { attempts: 0, correct: 0 }; }
+            wordProgress[normalized].attempts++; if (correct) { wordProgress[normalized].correct++; addXP(10); }
+            localStorage.setItem('wordProgress', JSON.stringify(wordProgress));
         }
 
-        function closeOverlay(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
-
-        function shareApp() { 
-            if (navigator.share) { 
-                navigator.share({ 
-                    title: 'French Fun V7.0', 
-                    text: 'Check out this fun French learning app!',
-                    url: window.location.href 
-                }).catch(() => {}); 
-            } else { 
-                alert('Share this link: ' + window.location.href); 
-            } 
-        }
-
-        let deferredPrompt; 
-        window.addEventListener('beforeinstallprompt', (e) => { 
-            e.preventDefault(); 
-            deferredPrompt = e; 
-            document.getElementById('installBtn').style.display = 'block'; 
-        });
-        
-        document.getElementById('installBtn').onclick = async () => { 
-            if (deferredPrompt) { 
-                deferredPrompt.prompt(); 
-                deferredPrompt = null; 
-            } 
-        };
+        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installBtn').style.display = 'block'; });
+        document.getElementById('installBtn').onclick = async () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; } };
     </script>
 </body>
 </html>
