@@ -323,6 +323,73 @@
         let practiceList = [];
         let isFlipped = false;
 
+        function shareAudioOnly(weekName, audioData) {
+            if (!audioData) return;
+            
+            // Convert base64 to blob for sharing
+            const arr = audioData.data.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while(n--){
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            const blob = new Blob([u8arr], {type: mime});
+            const file = new File([blob], `${weekName.replace(/\s+/g, '_')}.${mime.split('/')[1]}`, {type: mime});
+            
+            if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
+                navigator.share({
+                    title: `${weekName} - Teacher Recording`,
+                    text: `🎤 Teacher's pronunciation for ${weekName}`,
+                    files: [file]
+                }).catch(err => console.log('Share cancelled'));
+            } else {
+                alert('Audio sharing not supported on this device. Audio is saved with the week when you share it normally.');
+            }
+        }
+
+        function checkForImport() {
+            // Check if URL contains import data
+            const hash = window.location.hash;
+            if (hash.startsWith('#import=')) {
+                try {
+                    const encodedData = hash.substring(8); // Remove '#import='
+                    const weekData = JSON.parse(decodeURIComponent(atob(encodedData)));
+                    
+                    if (confirm(`📥 Import "${weekData.name}"?\n\n${weekData.words.split('\n').length} words${weekData.audio ? ' with teacher recording 🎤' : ''}`)) {
+                        // Import the week
+                        history[weekData.name] = JSON.stringify(weekData);
+                        localStorage.setItem('frenchHistory', JSON.stringify(history));
+                        
+                        // Load it into current homework
+                        document.getElementById('hwInput').value = weekData.words;
+                        localStorage.setItem('homeworkPhrases', weekData.words);
+                        
+                        if (weekData.audio) {
+                            currentWeekAudio = weekData.audio;
+                            localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+                            displayAudioPlayer();
+                        }
+                        
+                        renderList(weekData.words.split('\n').filter(w => w.trim()));
+                        
+                        alert('✅ Imported successfully!');
+                        
+                        // Clean up URL
+                        window.location.hash = '';
+                    } else {
+                        // User declined, clean up URL
+                        window.location.hash = '';
+                    }
+                } catch (e) {
+                    console.error('Import error:', e);
+                    alert('❌ Could not import homework. Link may be corrupted.');
+                    window.location.hash = '';
+                }
+            }
+        }
+
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
@@ -333,6 +400,7 @@
             checkDailyStreak();
             initSpeechSpeed();
             initAudioUpload();
+            checkForImport(); // Check if importing from shared link
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
         };
 
@@ -714,87 +782,149 @@
             container.innerHTML = '';
             document.getElementById('stCountText').textContent = `${list.length} phrases ready!`;
             
-            list.forEach(p => {
-                const data = getCardData(p); 
-                const card = document.createElement('div'); 
-                const mastery = getWordMastery(p);
+            // Check if current homework has teacher audio
+            const hasTeacherAudio = currentWeekAudio !== null;
+            
+            if (hasTeacherAudio && list.length > 0) {
+                // Create single card with all words and audio player
+                const card = document.createElement('div');
                 card.className = 'phrase-card';
+                card.style.border = '5px solid #ffc107';
+                card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
                 
-                if (mastery === 3) {
-                    card.classList.add('mastered');
-                    const badge = document.createElement('div');
-                    badge.className = 'mastery-badge';
-                    badge.textContent = '⭐ Mastered!';
-                    card.appendChild(badge);
-                } else if (mastery === 2) {
-                    card.classList.add('learning');
-                }
+                const icon = document.createElement('div');
+                icon.className = 'card-icon';
+                icon.textContent = '🎤';
                 
-                if(data.g) { 
-                    const b = document.createElement('div'); 
-                    b.className = 'gender-icon'; 
-                    b.textContent = data.g === 'f' ? '👧' : '👦'; 
-                    card.appendChild(b); 
-                }
+                const title = document.createElement('div');
+                title.className = 'french-text';
+                title.style.fontSize = '1.2rem';
+                title.textContent = '📚 Teacher\'s Recording';
                 
-                const icon = document.createElement('span'); 
-                icon.className = 'card-icon'; 
-                icon.textContent = data.icon;
+                const wordsList = document.createElement('div');
+                wordsList.style.fontSize = '1.4rem';
+                wordsList.style.fontWeight = '900';
+                wordsList.style.color = '#2d3748';
+                wordsList.style.marginBottom = '15px';
+                wordsList.style.textAlign = 'left';
+                wordsList.style.padding = '15px';
+                wordsList.style.background = 'white';
+                wordsList.style.borderRadius = '12px';
+                wordsList.innerHTML = list.map(w => `• ${w}`).join('<br>');
                 
-                const fS = document.createElement('span'); 
-                fS.className = 'french-text'; 
-                fS.textContent = p;
+                const audioPlayer = document.createElement('audio');
+                audioPlayer.controls = true;
+                audioPlayer.style.width = '100%';
+                audioPlayer.style.marginBottom = '15px';
+                audioPlayer.src = currentWeekAudio.data;
                 
-                const pG = document.createElement('div');
-                pG.className = 'pronunciation-guide';
-                pG.textContent = data.pronunciation || '';
+                const instructions = document.createElement('div');
+                instructions.style.fontSize = '0.9rem';
+                instructions.style.color = '#856404';
+                instructions.style.marginBottom = '15px';
+                instructions.textContent = '👆 Play the recording and follow along with the words above';
                 
-                const eS = document.createElement('span'); 
-                eS.className = 'english-text'; 
-                eS.textContent = data.en;
+                const btnContainer = document.createElement('div');
+                btnContainer.className = 'card-btns';
                 
-                const bD = document.createElement('div'); 
-                bD.className = 'card-btns';
-                
-                const sB = document.createElement('button'); 
-                sB.className = 'card-btn spk-fr'; 
-                sB.textContent = '🎤 French';
-                sB.onclick = () => {
-                    spk(p, 'fr-FR');
-                    trackWordProgress(p, true);
-                };
-                
-                const tB = document.createElement('button'); 
-                tB.className = 'card-btn spk-en';
-                tB.textContent = '🎯 English'; 
-                tB.onclick = () => { 
-                    spk(data.en, 'en-US'); 
-                };
-                
-                // Long press or double-tap to manually fix translation
-                let tapTimeout;
-                let lastTap = 0;
-                tB.addEventListener('touchstart', (e) => {
-                    const now = Date.now();
-                    if (now - lastTap < 300) {
-                        // Double tap detected
-                        e.preventDefault();
-                        if(confirm("Fix translation for '" + p + "'?")){ 
-                            const fix = prompt("Enter correct English:", data.en); 
-                            if(fix){ 
-                                cache[norm(p)] = fix; 
-                                localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                renderList(currentScreenList); 
-                            } 
-                        }
+                const playBtn = document.createElement('button');
+                playBtn.className = 'card-btn';
+                playBtn.style.background = '#28a745';
+                playBtn.textContent = '▶️ Play Recording';
+                playBtn.onclick = () => {
+                    if (audioPlayer.paused) {
+                        audioPlayer.play();
+                        playBtn.textContent = '⏸️ Pause';
+                    } else {
+                        audioPlayer.pause();
+                        playBtn.textContent = '▶️ Play Recording';
                     }
-                    lastTap = now;
-                });
+                };
                 
-                // Also allow regular click-based correction for non-MASTER_DATA words
-                if (!MASTER_DATA[p]) {
-                    tB.addEventListener('click', (e) => {
-                        if (e.detail === 2) { // Double click on desktop
+                audioPlayer.onended = () => {
+                    playBtn.textContent = '▶️ Play Recording';
+                };
+                
+                const practiceBtn = document.createElement('button');
+                practiceBtn.className = 'card-btn spk-fr';
+                practiceBtn.textContent = '📖 Practice Words';
+                practiceBtn.onclick = () => {
+                    // Switch to individual cards view
+                    currentWeekAudio = null;
+                    renderList(list);
+                };
+                
+                btnContainer.append(playBtn, practiceBtn);
+                card.append(icon, title, wordsList, audioPlayer, instructions, btnContainer);
+                container.appendChild(card);
+                
+            } else {
+                // Normal rendering - individual cards for each word
+                list.forEach(p => {
+                    const data = getCardData(p); 
+                    const card = document.createElement('div'); 
+                    const mastery = getWordMastery(p);
+                    card.className = 'phrase-card';
+                    
+                    if (mastery === 3) {
+                        card.classList.add('mastered');
+                        const badge = document.createElement('div');
+                        badge.className = 'mastery-badge';
+                        badge.textContent = '⭐ Mastered!';
+                        card.appendChild(badge);
+                    } else if (mastery === 2) {
+                        card.classList.add('learning');
+                    }
+                    
+                    if(data.g) { 
+                        const b = document.createElement('div'); 
+                        b.className = 'gender-icon'; 
+                        b.textContent = data.g === 'f' ? '👧' : '👦'; 
+                        card.appendChild(b); 
+                    }
+                    
+                    const icon = document.createElement('span'); 
+                    icon.className = 'card-icon'; 
+                    icon.textContent = data.icon;
+                    
+                    const fS = document.createElement('span'); 
+                    fS.className = 'french-text'; 
+                    fS.textContent = p;
+                    
+                    const pG = document.createElement('div');
+                    pG.className = 'pronunciation-guide';
+                    pG.textContent = data.pronunciation || '';
+                    
+                    const eS = document.createElement('span'); 
+                    eS.className = 'english-text'; 
+                    eS.textContent = data.en;
+                    
+                    const bD = document.createElement('div'); 
+                    bD.className = 'card-btns';
+                    
+                    const sB = document.createElement('button'); 
+                    sB.className = 'card-btn spk-fr'; 
+                    sB.textContent = '🎤 French';
+                    sB.onclick = () => {
+                        spk(p, 'fr-FR');
+                        trackWordProgress(p, true);
+                    };
+                    
+                    const tB = document.createElement('button'); 
+                    tB.className = 'card-btn spk-en';
+                    tB.textContent = '🎯 English'; 
+                    tB.onclick = () => { 
+                        spk(data.en, 'en-US'); 
+                    };
+                    
+                    // Long press or double-tap to manually fix translation
+                    let tapTimeout;
+                    let lastTap = 0;
+                    tB.addEventListener('touchstart', (e) => {
+                        const now = Date.now();
+                        if (now - lastTap < 300) {
+                            // Double tap detected
+                            e.preventDefault();
                             if(confirm("Fix translation for '" + p + "'?")){ 
                                 const fix = prompt("Enter correct English:", data.en); 
                                 if(fix){ 
@@ -804,13 +934,30 @@
                                 } 
                             }
                         }
+                        lastTap = now;
                     });
-                }
-                
-                bD.append(sB, tB); 
-                card.append(icon, fS, pG, eS, bD); 
-                container.appendChild(card);
-            });
+                    
+                    // Also allow regular click-based correction for non-MASTER_DATA words
+                    if (!MASTER_DATA[p]) {
+                        tB.addEventListener('click', (e) => {
+                            if (e.detail === 2) { // Double click on desktop
+                                if(confirm("Fix translation for '" + p + "'?")){ 
+                                    const fix = prompt("Enter correct English:", data.en); 
+                                    if(fix){ 
+                                        cache[norm(p)] = fix; 
+                                        localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
+                                        renderList(currentScreenList); 
+                                    } 
+                                }
+                            }
+                        });
+                    }
+                    
+                    bD.append(sB, tB); 
+                    card.append(icon, fS, pG, eS, bD); 
+                    container.appendChild(card);
+                });
+            }
         }
 
         async function translateOne(p) {
@@ -1163,6 +1310,7 @@
                         ${hwData.audio ? '<button class="load-btn" style="background:#28a745; color:white;">▶️ Play</button>' : ''}
                         <button class="load-btn">📂 Load</button>
                         <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
+                        ${hwData.audio ? '<button class="load-btn" style="background:#ff9e6d; color:white;">🎤 Share Audio</button>' : ''}
                         <button class="del-btn">🗑️</button>
                     </div>
                 `;
@@ -1196,10 +1344,17 @@
                     closeOverlay('hwDrawer'); 
                 };
                 
-                // Share button
+                // Share button (text + audio if exists)
                 buttons[buttonIndex++].onclick = () => { 
-                    shareWeek(name, hwData.words); 
+                    shareWeek(name, hwData.words, hwData.audio); 
                 };
+                
+                // Share audio only button (if audio exists)
+                if (hwData.audio) {
+                    buttons[buttonIndex++].onclick = () => { 
+                        shareAudioOnly(name, hwData.audio);
+                    };
+                }
                 
                 // Delete button
                 div.querySelector('.del-btn').onclick = () => { 
@@ -1232,17 +1387,21 @@
                 return;
             }
             
-            const wordList = words.split('\n').filter(w => w.trim());
-            const weekName = "Week " + (Object.keys(history).length + 1);
-            shareWeek(weekName, words);
+            const weekName = "Shared Homework";
+            shareWeek(weekName, words, currentWeekAudio);
         }
 
-        function shareWeek(weekName, wordsText) {
+        function shareWeek(weekName, wordsText, audioData = null) {
             const wordList = wordsText.split('\n').filter(w => w.trim());
             const wordCount = wordList.length;
             
-            // Create shareable text
-            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.map((w, i) => `${i + 1}. ${w}`).join('\n')}\n\n📚 ${wordCount} words to practice!\n\nUse French Fun app: ${window.location.origin}`;
+            // Create import URL with encoded data for direct app import
+            const weekData = { name: weekName, words: wordsText, audio: audioData };
+            const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+            const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+            
+            // Create shareable text without line numbers
+            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words${audioData ? ' 🎤 with teacher recording' : ''}!\n\n✨ Import to app: ${importURL}`;
             
             // Try native share API first (mobile)
             if (navigator.share) {
@@ -1250,21 +1409,18 @@
                     title: `French Fun - ${weekName}`,
                     text: shareText
                 }).catch(err => {
-                    // User cancelled, that's ok
                     console.log('Share cancelled');
                 });
             } else {
                 // Fallback: copy to clipboard
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 Homework list copied to clipboard!\n\nYou can now paste it in a message, email, or note.');
+                        alert('📋 Homework copied!\n\nAnyone with the app can click the link to import it directly!');
                     }).catch(() => {
-                        // Final fallback: show in alert to copy manually
-                        prompt('Copy this homework list:', shareText);
+                        prompt('Copy this homework:', shareText);
                     });
                 } else {
-                    // Very old browsers: show in prompt
-                    prompt('Copy this homework list:', shareText);
+                    prompt('Copy this homework:', shareText);
                 }
             }
         }
@@ -1294,13 +1450,13 @@
                 
                 const wordList = hwData.words.split('\n').filter(w => w.trim());
                 const audioIndicator = hwData.audio ? ' 🎤' : '';
-                shareText += `📚 ${weekName}${audioIndicator} (${wordList.length} words)\n`;
-                shareText += wordList.map((w, i) => `  ${i + 1}. ${w}`).join('\n');
+                shareText += `📚 ${weekName}${audioIndicator}\n`;
+                shareText += wordList.join('\n');
                 shareText += '\n\n';
             });
             
-            shareText += `Total: ${Object.keys(history).length} weeks saved\n`;
-            shareText += `App: ${window.location.origin}`;
+            shareText += `Total: ${Object.keys(history).length} weeks\n`;
+            shareText += `✨ French Fun App: https://josestudio77-creator.github.io/French-Helper/`;
             
             // Try native share API first (mobile)
             if (navigator.share) {
@@ -1314,7 +1470,7 @@
                 // Fallback: copy to clipboard
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 All homework weeks copied to clipboard!\n\nYou can now paste them in a message, email, or document.');
+                        alert('📋 All homework weeks copied to clipboard!');
                     }).catch(() => {
                         prompt('Copy all homework weeks:', shareText);
                     });
