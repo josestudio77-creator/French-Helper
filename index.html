@@ -602,6 +602,19 @@
                 if (voices.length === 0) return;
                 frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
                 v2.innerHTML = '';
+                
+                // Add option to open phone settings
+                const settingsOpt = document.createElement('option');
+                settingsOpt.value = 'settings';
+                settingsOpt.textContent = '⚙️ Open Phone Voice Settings';
+                v2.appendChild(settingsOpt);
+                
+                // Add separator
+                const separator = document.createElement('option');
+                separator.disabled = true;
+                separator.textContent = '──────────';
+                v2.appendChild(separator);
+                
                 frVoices.forEach((v, i) => { 
                     const opt = document.createElement('option'); 
                     opt.value = i; 
@@ -615,6 +628,12 @@
             setVoices(); 
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
             v2.onchange = () => { 
+                if (v2.value === 'settings') {
+                    alert('📱 To change voice:\n\niPhone: Settings → Accessibility → Spoken Content → Voices\n\nAndroid: Settings → Accessibility → Text-to-speech → Preferred engine → Settings\n\nAfter changing, reload the app to see new voices.');
+                    const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
+                    v2.value = savedIdx;
+                    return;
+                }
                 selectedFrVoice = frVoices[v2.value]; 
                 localStorage.setItem('frVoiceIdx', v2.value); 
                 spk("Bonjour!", "fr-FR", true); 
@@ -791,22 +810,24 @@
             
             // Hide preset buttons when teacher audio is active
             const presetGrid = document.querySelector('.preset-grid');
+            
+            // ALWAYS remove existing banner first to prevent duplicates
+            const existingBanner = document.querySelector('.teacher-audio-banner');
+            if (existingBanner && existingBanner.parentElement) {
+                existingBanner.remove();
+            }
+            
             if (hasTeacherAudio && list.length > 0) {
                 presetGrid.style.display = 'none';
                 
                 // Add a notice banner
                 const banner = document.createElement('div');
+                banner.className = 'teacher-audio-banner'; // Add class for easy removal
                 banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
                 banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
                 container.parentElement.insertBefore(banner, container);
             } else {
                 presetGrid.style.display = 'grid';
-                
-                // Remove banner if it exists
-                const existingBanner = container.parentElement.querySelector('div[style*="Teacher Recording Mode"]');
-                if (existingBanner && existingBanner.parentElement) {
-                    existingBanner.remove();
-                }
             }
             
             if (hasTeacherAudio && list.length > 0) {
@@ -1043,6 +1064,17 @@
             }
             
             setTimeout(() => msgDiv.innerHTML = '', 5000);
+            
+            // Load the homework with audio if it exists (from localStorage)
+            const savedAudio = localStorage.getItem('currentWeekAudio');
+            if (savedAudio) {
+                try {
+                    currentWeekAudio = JSON.parse(savedAudio);
+                } catch (e) {
+                    currentWeekAudio = null;
+                }
+            }
+            
             renderList(list);
         }
 
@@ -1286,8 +1318,14 @@
                 localStorage.removeItem('currentWeekAudio');
             }
             
-            const name = prompt("Week Name:", "Week " + (Object.keys(history).length + 1)); 
+            let name = prompt("Week Name (max 20 characters):", "Week " + (Object.keys(history).length + 1)); 
             if (name) { 
+                // Limit name to 20 characters
+                if (name.length > 20) {
+                    name = name.substring(0, 20);
+                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+                }
+                
                 // Create homework object with words and optional audio
                 const hwData = {
                     words: val,
@@ -1422,13 +1460,24 @@
             const wordList = wordsText.split('\n').filter(w => w.trim());
             const wordCount = wordList.length;
             
-            // Create import URL with encoded data for direct app import
-            const weekData = { name: weekName, words: wordsText, audio: audioData };
-            const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-            const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+            // For sharing with audio, we'll use a different approach
+            // Audio files are too large for URLs, so we'll share text + note about audio
+            let shareText;
+            let importURL;
             
-            // Create shareable text without line numbers
-            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words${audioData ? ' 🎤 with teacher recording' : ''}!\n\n✨ Import to app: ${importURL}`;
+            if (audioData) {
+                // Share text without audio in URL (too large)
+                const weekData = { name: weekName, words: wordsText, audio: null };
+                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+                importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+                shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words\n🎤 Note: Teacher recording available in original week\n\n✨ Import words: ${importURL}`;
+            } else {
+                // Normal share without audio
+                const weekData = { name: weekName, words: wordsText, audio: null };
+                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+                importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+                shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words\n\n✨ Import to app: ${importURL}`;
+            }
             
             // Try native share API first (mobile)
             if (navigator.share) {
