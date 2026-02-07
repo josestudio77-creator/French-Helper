@@ -53,7 +53,7 @@
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
     @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
-    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
+    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; flex-direction: column; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
     .del-btn { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
@@ -86,11 +86,11 @@
     .flashcard.flipped .french-text { display: none; }
     .flashcard.flipped .english-text { display: block; font-size: 2rem; }
     .flashcard:not(.flipped) .english-text { display: none; }
-    .reward-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 30px; padding: 30px; z-index: 4000; border: 5px solid #ffd700; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s; display: none; }
-    @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 100% { transform: translate(-50%, -50%) scale(1); } }
-    .reward-icon { font-size: 5rem; margin-bottom: 15px; }
-    .reward-text { font-size: 1.5rem; font-weight: 900; color: #2d3748; margin-bottom: 10px; }
-    .reward-subtext { font-size: 1rem; color: #64748b; }
+    
+    
+    
+    
+    
     .error-message { background: #fee2e2; border: 2px solid #ef4444; border-radius: 15px; padding: 15px; margin: 10px 0; color: #991b1b; font-weight: 700; }
     .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
@@ -217,6 +217,7 @@
                     <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
                 </div>
             </div>
+                        <button onclick="loadCurrentHomework()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px; width:100%; margin-bottom:8px;">📖 Load for Practice</button>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
                 <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">💾 Save</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
@@ -264,11 +265,6 @@
     </div>
 
     <!-- Reward Popup -->
-    <div id="rewardPopup" class="reward-popup">
-        <div class="reward-icon" id="rewardIcon">🏆</div>
-        <div class="reward-text" id="rewardText">Amazing!</div>
-        <div class="reward-subtext" id="rewardSubtext">You earned a reward!</div>
-        <button onclick="closeReward()" style="margin-top:20px; background:#4cd964; color:white; padding:12px 30px; border-radius:20px; border:none; font-weight:900; cursor:pointer">Continue</button>
     </div>
 
     <script>
@@ -443,8 +439,22 @@
             }
             
             const player = document.getElementById('teacherAudioPlayer');
+            
+            // Stop and reset before setting new source
+            player.pause();
+            player.currentTime = 0;
+            
             player.src = currentWeekAudio.data;
             document.getElementById('audioPlayerContainer').style.display = 'block';
+            
+            // Prevent multiple overlapping plays
+            player.onplay = () => {
+                document.querySelectorAll('audio').forEach(audio => {
+                    if (audio !== player && !audio.paused) {
+                        audio.pause();
+                    }
+                });
+            };
         }
 
         function removeTeacherAudio() {
@@ -496,22 +506,12 @@
             document.getElementById('levelNum').textContent = level;
             document.getElementById('levelIcon').textContent = icons[Math.min(level - 1, icons.length - 1)];
             
-            // Check for level up rewards
-            if (totalXP % 100 < 10 && totalXP >= 100) {
-                showReward('🎉', 'Level Up!', `You reached Level ${level}!`);
-            }
+            
         }
 
-        function showReward(icon, text, subtext) {
-            document.getElementById('rewardIcon').textContent = icon;
-            document.getElementById('rewardText').textContent = text;
-            document.getElementById('rewardSubtext').textContent = subtext;
-            document.getElementById('rewardPopup').style.display = 'block';
-        }
+        
 
-        function closeReward() {
-            document.getElementById('rewardPopup').style.display = 'none';
-        }
+        
 
         function trackWordProgress(word, correct) {
             const normalized = norm(word);
@@ -629,7 +629,31 @@
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
             v2.onchange = () => { 
                 if (v2.value === 'settings') {
-                    alert('📱 To change voice:\n\niPhone: Settings → Accessibility → Spoken Content → Voices\n\nAndroid: Settings → Accessibility → Text-to-speech → Preferred engine → Settings\n\nAfter changing, reload the app to see new voices.');
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                    const isAndroid = /Android/.test(navigator.userAgent);
+                    
+                    let msg = '📱 To access more French voices:\n\n';
+                    
+                    if (isIOS) {
+                        msg += 'iPhone/iPad:\n';
+                        msg += '1. Open Settings app\n';
+                        msg += '2. Accessibility → Spoken Content\n';
+                        msg += '3. Tap Voices → French\n';
+                        msg += '4. Download voices (I, II, III, IV)\n';
+                        msg += '5. Return here and reload\n';
+                    } else if (isAndroid) {
+                        msg += 'Android:\n';
+                        msg += '1. Open Settings app\n';
+                        msg += '2. Accessibility → Text-to-speech\n';
+                        msg += '3. Tap gear icon → Language\n';
+                        msg += '4. Install French language data\n';
+                        msg += '5. Return here and reload\n';
+                    } else {
+                        msg += 'Check your device Settings\n';
+                        msg += 'for Speech or Voice options.';
+                    }
+                    
+                    alert(msg);
                     const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
                     v2.value = savedIdx;
                     return;
@@ -734,7 +758,7 @@
                 const gain = musicContext.createGain();
                 osc.type = 'sine'; 
                 gain.gain.setValueAtTime(0, s); 
-                gain.gain.linearRampToValueAtTime(0.04, s + 0.1); 
+                gain.gain.linearRampToValueAtTime(0.15, s + 0.1); 
                 gain.gain.exponentialRampToValueAtTime(0.001, s + d);
                 osc.frequency.setValueAtTime(f, s); 
                 osc.connect(gain); 
@@ -744,11 +768,16 @@
             };
             const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; 
             let t = musicContext.currentTime; 
-            musicNode = { stop: () => { musicNode = null; } }; 
+            musicNode = { 
+                stop: () => { 
+                    if (musicNode && musicNode.timer) clearTimeout(musicNode.timer);
+                    musicNode = null; 
+                } 
+            }; 
             const schedule = () => { 
                 if (!musicNode) return; 
                 melody.forEach(n => { playNote(n, t, 0.8); t += 0.8; }); 
-                setTimeout(schedule, 6400); 
+                musicNode.timer = setTimeout(schedule, 6400); 
             };
             schedule();
         }
@@ -1307,6 +1336,27 @@
         }
 
         // ===== HOMEWORK & STORAGE =====
+
+        function loadCurrentHomework() {
+            const words = document.getElementById('hwInput').value.trim();
+            if (!words) {
+                alert('No homework to load! Add some words first.');
+                return;
+            }
+            
+            const savedAudio = localStorage.getItem('currentWeekAudio');
+            if (savedAudio) {
+                try {
+                    currentWeekAudio = JSON.parse(savedAudio);
+                } catch (e) {
+                    currentWeekAudio = null;
+                }
+            }
+            
+            closeOverlay('hwDrawer');
+            renderList(words.split('\n').filter(w => w.trim()));
+        }
+
         function saveHW() { 
             const val = document.getElementById('hwInput').value; 
             localStorage.setItem('homeworkPhrases', val);
@@ -1370,8 +1420,10 @@
                 
                 const hasAudio = hwData.audio ? '🎤' : '';
                 div.innerHTML = `
-                    <span style="color:#2d3748; font-weight:900">${name} ${hasAudio}</span>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <div style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px; padding:8px; background:linear-gradient(135deg, #e0f2fe, #bae6fd); border-radius:10px;">
+                        ${name} ${hasAudio}
+                    </div>
+                    <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
                         ${hwData.audio ? '<button class="load-btn" style="background:#28a745; color:white;">▶️ Play</button>' : ''}
                         <button class="load-btn">📂 Load</button>
                         <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
@@ -1460,24 +1512,12 @@
             const wordList = wordsText.split('\n').filter(w => w.trim());
             const wordCount = wordList.length;
             
-            // For sharing with audio, we'll use a different approach
-            // Audio files are too large for URLs, so we'll share text + note about audio
-            let shareText;
-            let importURL;
+            // ALWAYS include audio if it exists - keep teacher recordings intact
+            const weekData = { name: weekName, words: wordsText, audio: audioData };
+            const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+            const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
             
-            if (audioData) {
-                // Share text without audio in URL (too large)
-                const weekData = { name: weekName, words: wordsText, audio: null };
-                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-                importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-                shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words\n🎤 Note: Teacher recording available in original week\n\n✨ Import words: ${importURL}`;
-            } else {
-                // Normal share without audio
-                const weekData = { name: weekName, words: wordsText, audio: null };
-                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-                importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-                shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words\n\n✨ Import to app: ${importURL}`;
-            }
+            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words${audioData ? ' 🎤 with teacher recording' : ''}!\n\n✨ Import to app: ${importURL}`;
             
             // Try native share API first (mobile)
             if (navigator.share) {
