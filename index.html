@@ -36,8 +36,9 @@
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; font-size: 0.85rem; }
     .nav-presets { color: #ff9e6d; background: #fff5f0; }
-    .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
+    .nav-backpack { color: #9d4edd; background: #fdf2ff; }
+    .nav-parent { color: #118AB2; background: #f0f9ff; }
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
@@ -70,6 +71,46 @@
     .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    /* Speech speed slider in main screen */
+    .speech-speed-container { 
+        background: white; 
+        padding: 12px 15px; 
+        border-radius: 50px; 
+        margin: 15px 0; 
+        border: 3px solid #4cd964;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    .speech-speed-label { 
+        font-weight: 900; 
+        font-size: 0.85rem; 
+        color: #2d3748; 
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .speech-speed-slider { 
+        width: 100%; 
+        margin-top: 5px;
+        -webkit-appearance: none;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        outline: none;
+    }
+    .speech-speed-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px;
+        height: 22px;
+        background: #4cd964;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
    </style>
 </head>
 <body>
@@ -78,9 +119,18 @@
         <div class="header">
             <h1>🇫🇷 French Fun V8.0 🎉</h1>
         </div>
-        <div class="status-bar">
-            <div class="status-info"><span>📚</span> <span id="stCountText">Ready!</span></div>
-            <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic Sync</button>
+        
+        <!-- Speech Speed Slider in Main Screen -->
+        <div class="speech-speed-container">
+            <div class="speech-speed-label">
+                <span>🎚️ Speech Speed:</span>
+                <span id="speedValue">0.85</span>x
+            </div>
+            <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechSpeed(this.value)">
+            <div style="font-size:0.65rem; color:#64748b; width:100%; display:flex; justify-content:space-between;">
+                <span>← Slower</span>
+                <span>Faster →</span>
+            </div>
         </div>
         
         <div id="finishPracticingContainer" style="display:none; text-align:center; margin:20px 0;">
@@ -90,31 +140,54 @@
         </div>
 
         <div id="phrasesList"></div>
-        <div class="app-actions">
-            <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
-            <button onclick="shareApp()" class="card-btn" style="background:#5a67d8; flex:1">🎁 Share</button>
-        </div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
         <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-        <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span><br>Homework</div>
+        <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
+        <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
     </div>
 
-    <!-- Homework Drawer -->
+    <!-- Parent Settings Drawer -->
+    <div id="parentDrawer" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color:#118AB2; margin-bottom:20px">⚙️ Parent Settings</h2>
+            
+            <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px;">
+                <button id="installBtn" onclick="installApp()" style="background:#4cd964; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; display:none; cursor:pointer;">
+                    📱 Install App
+                </button>
+                
+                <button onclick="shareApp()" style="background:#5a67d8; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    🎁 Share App
+                </button>
+                
+                <button onclick="exportProgress()" style="background:#118AB2; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    📦 Backup All Data
+                </button>
+                
+                <button onclick="showVoiceInstructions()" style="background:#ff9e6d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    🔊 French Voices Guide
+                </button>
+                
+                <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    ⚠️ Reset Everything
+                </button>
+            </div>
+            
+            <button onclick="closeOverlay('parentDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+        </div>
+    </div>
+
+    <!-- Homework Drawer (Add/Edit Homework) -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd">✏️ My Homework</h2>
-            <div style="background:#f8fafc; padding:10px; border-radius:15px; margin-bottom:10px; border:2px solid #e2e8f0; text-align:left">
-                <p style="font-size:0.75rem; font-weight:900; color:#118AB2;">⚙️ PARENT: Choose Teacher Voice</p>
-                <select id="frVoiceSelectHw" class="voice-selector"></select>
-                <p style="font-size:0.75rem; font-weight:900; color:#118AB2; margin-top:10px;">🎚️ Speech Speed: <span id="speedValue">0.85</span>x</p>
-                <input type="range" id="speedSlider" min="0.3" max="1.5" step="0.05" value="0.85" style="width:100%; margin-top:5px;" oninput="updateSpeechSpeed(this.value)">
-                <p style="font-size:0.65rem; color:#64748b; margin-top:3px;">← Slower (clearer) | Faster →</p>
-            </div>
+            <h2 style="color:#9d4edd">✏️ Add Homework</h2>
+            
             <div id="hwMessages"></div>
-            <textarea id="hwInput" placeholder="Enter words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
+            <textarea id="hwInput" placeholder="Enter French words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
+            
             <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
                 <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
                 <input type="file" id="teacherAudioFile" accept="audio/*,.oga,.ogg,.mp3,.wav,.m4a" style="width:100%; margin-top:5px; font-size:0.8rem;">
@@ -124,15 +197,16 @@
                     <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
                 </div>
             </div>
-            <button onclick="loadCurrentHomework()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px; width:100%; margin-bottom:8px;">📖 Load for Practice</button>
+            
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
+                <button onclick="magicSync()" style="background:#118AB2; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">✨ Magic Sync</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">💾 Save</button>
-                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
-                <button onclick="openBP()" style="background:#9d4edd; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">🎒 Pack</button>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
+                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">🗑️ Clear</button>
             </div>
+            
             <button onclick="closeOverlay('hwDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
@@ -164,10 +238,16 @@
         <div class="overlay-content">
             <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
             <div id="bpList"></div>
-            <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">📤 Share All Weeks</button>
-            <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">📥 Export Progress</button>
-            <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:10px; border:none; border-radius:10px; width:100%; margin-top:10px; font-weight:900">⚠️ RESET EVERYTHING</button>
-            <button onclick="closeOverlay('bpModal')" style="margin-top:10px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Back</button>
+            
+            <!-- 2-column button layout -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
+                <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
+                <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📦 Backup All</button>
+                <button onclick="openOverlay('hwDrawer')" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
+                <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
+            </div>
+            
+            <button onclick="closeOverlay('bpModal')" style="margin-top:15px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Close</button>
         </div>
     </div>
 
@@ -235,6 +315,40 @@
         let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
         let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
         let isPracticingPreset = false;
+        let currentlyPlayingAudio = null; // Track currently playing audio
+
+        // FIXED: Audio playback function
+        function playWeekAudio(audioData) {
+            if (!audioData) return;
+            
+            // Stop any currently playing audio
+            if (currentlyPlayingAudio) {
+                currentlyPlayingAudio.pause();
+                currentlyPlayingAudio.currentTime = 0;
+            }
+            
+            // Create new audio element
+            const audio = new Audio(audioData.data);
+            currentlyPlayingAudio = audio;
+            
+            // Handle playback completion
+            audio.onended = () => {
+                currentlyPlayingAudio = null;
+            };
+            
+            // Handle errors
+            audio.onerror = () => {
+                alert('Could not play audio. File may be corrupted.');
+                currentlyPlayingAudio = null;
+            };
+            
+            // Play the audio
+            audio.play().catch(err => {
+                console.error('Audio playback error:', err);
+                alert('Could not play audio. Please try again.');
+                currentlyPlayingAudio = null;
+            });
+        }
 
         function shareAudioOnly(weekName, audioData) {
             if (!audioData) return;
@@ -248,16 +362,22 @@
                 u8arr[n] = bstr.charCodeAt(n);
             }
             const blob = new Blob([u8arr], {type: mime});
-            const file = new File([blob], `${weekName.replace(/\s+/g, '_')}.${mime.split('/')[1]}`, {type: mime});
+            const file = new File([blob], `${weekName.replace(/\s+/g, '_')}_recording.${mime.split('/')[1]}`, {type: mime});
             
             if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
                 navigator.share({
                     title: `${weekName} - Teacher Recording`,
-                    text: `🎤 Teacher's pronunciation for ${weekName}`,
+                    text: `🎤 Teacher's pronunciation recording for ${weekName}`,
                     files: [file]
                 }).catch(err => console.log('Share cancelled'));
             } else {
-                alert('Audio sharing not supported on this device. Audio is saved with the week when you share it normally.');
+                // Fallback: create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${weekName.replace(/\s+/g, '_')}_recording.${mime.split('/')[1]}`;
+                a.click();
+                URL.revokeObjectURL(url);
             }
         }
 
@@ -397,70 +517,42 @@
         }
 
         function initVoices() {
-            const v2 = document.getElementById('frVoiceSelectHw');
             const setVoices = () => {
                 const voices = window.speechSynthesis.getVoices();
                 if (voices.length === 0) return;
                 frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
-                v2.innerHTML = '';
-                
-                const settingsOpt = document.createElement('option');
-                settingsOpt.value = 'settings';
-                settingsOpt.textContent = '⚙️ Open Phone Voice Settings';
-                v2.appendChild(settingsOpt);
-                
-                const separator = document.createElement('option');
-                separator.disabled = true;
-                separator.textContent = '──────────';
-                v2.appendChild(separator);
-                
-                frVoices.forEach((v, i) => { 
-                    const opt = document.createElement('option'); 
-                    opt.value = i; 
-                    opt.textContent = v.name; 
-                    v2.appendChild(opt); 
-                });
-                const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
-                if(frVoices[savedIdx]) { v2.value = savedIdx; selectedFrVoice = frVoices[savedIdx]; }
                 cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en'));
             };
             setVoices(); 
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
-            v2.onchange = () => { 
-                if (v2.value === 'settings') {
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                    const isAndroid = /Android/.test(navigator.userAgent);
-                    
-                    let msg = '📱 To access more French voices:\n\n';
-                    
-                    if (isIOS) {
-                        msg += 'iPhone/iPad:\n';
-                        msg += '1. Open Settings app\n';
-                        msg += '2. Accessibility → Spoken Content\n';
-                        msg += '3. Tap Voices → French\n';
-                        msg += '4. Download voices (I, II, III, IV)\n';
-                        msg += '5. Return here and reload\n';
-                    } else if (isAndroid) {
-                        msg += 'Android:\n';
-                        msg += '1. Open Settings app\n';
-                        msg += '2. Accessibility → Text-to-speech\n';
-                        msg += '3. Tap gear icon → Language\n';
-                        msg += '4. Install French language data\n';
-                        msg += '5. Return here and reload\n';
-                    } else {
-                        msg += 'Check your device Settings\n';
-                        msg += 'for Speech or Voice options.';
-                    }
-                    
-                    alert(msg);
-                    const savedIdx = localStorage.getItem('frVoiceIdx') || 0;
-                    v2.value = savedIdx;
-                    return;
-                }
-                selectedFrVoice = frVoices[v2.value]; 
-                localStorage.setItem('frVoiceIdx', v2.value); 
-                spk("Bonjour!", "fr-FR", true); 
-            };
+        }
+
+        function showVoiceInstructions() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            let msg = '📱 To access more French voices:\n\n';
+            
+            if (isIOS) {
+                msg += 'iPhone/iPad:\n';
+                msg += '1. Open Settings app\n';
+                msg += '2. Accessibility → Spoken Content\n';
+                msg += '3. Tap Voices → French\n';
+                msg += '4. Download voices (I, II, III, IV)\n';
+                msg += '5. Return here and reload\n';
+            } else if (isAndroid) {
+                msg += 'Android:\n';
+                msg += '1. Open Settings app\n';
+                msg += '2. Accessibility → Text-to-speech\n';
+                msg += '3. Tap gear icon → Language\n';
+                msg += '4. Install French language data\n';
+                msg += '5. Return here and reload\n';
+            } else {
+                msg += 'Check your device Settings\n';
+                msg += 'for Speech or Voice options.';
+            }
+            
+            alert(msg);
         }
 
         function norm(t) { 
@@ -596,10 +688,6 @@
             return { en: cache[n] || "...", icon: smartIcon };
         }
 
-        function openPresetsOverlay() {
-            openOverlay('presetsOverlay');
-        }
-
         function loadPresetAndClose(k) {
             isPracticingPreset = true;
             loadPreset(k);
@@ -622,7 +710,6 @@
         function loadPreset(k) {
             currentWeekAudio = null;
             localStorage.removeItem('currentWeekAudio');
-            
             renderList(presets[k]);
         }
 
@@ -676,6 +763,14 @@
                 audioPlayer.style.width = '100%';
                 audioPlayer.style.marginBottom = '15px';
                 audioPlayer.src = currentWeekAudio.data;
+                
+                audioPlayer.onplay = () => {
+                    document.querySelectorAll('audio').forEach(audio => {
+                        if (audio !== audioPlayer && !audio.paused) {
+                            audio.pause();
+                        }
+                    });
+                };
                 
                 const instructions = document.createElement('div');
                 instructions.style.fontSize = '0.9rem';
@@ -1040,8 +1135,13 @@
                 localStorage.setItem('frenchHistory', JSON.stringify(history)); 
                 document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
                 setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
+                
+                // Clear current homework after saving
+                document.getElementById('hwInput').value = "";
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
             } 
-            renderList(val.split('\n').filter(w => w.trim()));
         }
 
         function openBP() {
@@ -1049,7 +1149,7 @@
             list.innerHTML = ''; 
             
             if (Object.keys(history).length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No saved homework yet!</p>';
+                list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No saved homework yet!<br><br>Tap "Add New" to create your first week.</p>';
                 openOverlay('bpModal');
                 return;
             }
@@ -1105,9 +1205,8 @@
                     }
                     displayAudioPlayer();
                     
-                    renderList(hwData.words.split('\n').filter(w => w.trim())); 
                     closeOverlay('bpModal'); 
-                    closeOverlay('hwDrawer'); 
+                    openOverlay('hwDrawer');
                 };
                 
                 buttons[buttonIndex++].onclick = () => { 
@@ -1133,16 +1232,6 @@
             openOverlay('bpModal');
         }
 
-        function playWeekAudio(audioData) {
-            if (!audioData) return;
-            
-            const audio = new Audio(audioData.data);
-            audio.play().catch(err => {
-                alert('Could not play audio. File may be corrupted.');
-                console.error('Audio playback error:', err);
-            });
-        }
-
         function shareCurrentHW() {
             const words = document.getElementById('hwInput').value.trim();
             if (!words) {
@@ -1158,11 +1247,43 @@
             const wordList = wordsText.split('\n').filter(w => w.trim());
             const wordCount = wordList.length;
             
-            const weekData = { name: weekName, words: wordsText, audio: audioData };
+            // Share text via URL (short)
+            const weekData = { 
+                name: weekName, 
+                words: wordsText,
+                // Don't include audio in URL (too long)
+                hasAudio: !!audioData
+            };
             const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
             const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
             
-            const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words${audioData ? ' 🎤 with teacher recording' : ''}!\n\n✨ Import to app: ${importURL}`;
+            let shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words`;
+            
+            if (audioData) {
+                shareText += '\n🎤 Includes teacher recording';
+                // Offer to share audio separately
+                if (confirm('This homework includes a teacher recording. Share text first, then audio separately?')) {
+                    // Share text first
+                    if (navigator.share) {
+                        navigator.share({
+                            title: `French Fun - ${weekName}`,
+                            text: shareText + `\n\n✨ Import to app: ${importURL}`
+                        }).then(() => {
+                            // Then share audio
+                            setTimeout(() => shareAudioOnly(weekName, audioData), 500);
+                        }).catch(err => {
+                            console.log('Share cancelled');
+                        });
+                    } else {
+                        // Fallback for desktop
+                        prompt('Copy this homework (audio will be shared separately):', shareText + `\n\n✨ Import to app: ${importURL}`);
+                        setTimeout(() => shareAudioOnly(weekName, audioData), 500);
+                    }
+                    return;
+                }
+            }
+            
+            shareText += `\n\n✨ Import to app: ${importURL}`;
             
             if (navigator.share) {
                 navigator.share({
@@ -1174,7 +1295,7 @@
             } else {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 Homework copied!\n\nAnyone with the app can click the link to import it directly!');
+                        alert('📋 Homework copied!\n\nAnyone with the app can click the link to import it!');
                     }).catch(() => {
                         prompt('Copy this homework:', shareText);
                     });
@@ -1247,13 +1368,13 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `french-fun-progress-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
 
         function nukeStorage() { 
-            if(confirm("⚠️ This will delete ALL progress, homework, and stats. Are you absolutely sure?")) { 
+            if(confirm("⚠️ This will delete ALL homework, recordings, and progress. Are you absolutely sure?")) { 
                 if(confirm("Last chance! This cannot be undone!")) {
                     localStorage.clear(); 
                     location.reload(); 
@@ -1265,7 +1386,11 @@
             if(confirm("Clear current homework?")) { 
                 document.getElementById('hwInput').value = ""; 
                 localStorage.setItem('homeworkPhrases', ""); 
-                renderList([]); 
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
+                document.getElementById('phrasesList').innerHTML = '';
+                document.getElementById('stCountText').textContent = 'Ready!';
             } 
         }
 
@@ -1273,6 +1398,8 @@
             document.getElementById(id).style.display = 'block'; 
             if(id === 'gameDrawer') { 
                 startHangman(); 
+            } else if (id === 'bpModal') {
+                openBP();
             }
         }
 
@@ -1284,12 +1411,19 @@
             if (navigator.share) { 
                 navigator.share({ 
                     title: 'French Fun V8.0', 
-                    text: 'Check out this fun French learning app!',
+                    text: 'Check out this fun French learning app for kids!',
                     url: window.location.href 
                 }).catch(() => {}); 
             } else { 
                 alert('Share this link: ' + window.location.href); 
             } 
+        }
+
+        function installApp() {
+            if (deferredPrompt) { 
+                deferredPrompt.prompt(); 
+                deferredPrompt = null; 
+            }
         }
 
         let deferredPrompt; 
@@ -1298,13 +1432,6 @@
             deferredPrompt = e; 
             document.getElementById('installBtn').style.display = 'block'; 
         });
-        
-        document.getElementById('installBtn').onclick = async () => { 
-            if (deferredPrompt) { 
-                deferredPrompt.prompt(); 
-                deferredPrompt = null; 
-            } 
-        };
     </script>
 </body>
 </html>
