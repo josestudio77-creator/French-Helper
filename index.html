@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V7.0 🎉</title>
+    <title>🇫🇷 French Fun V8.0 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -17,19 +17,16 @@
     .container { max-width: 500px; margin: 0 auto; }
     .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; position: relative; }
     h1 { color: #ff6b8b; font-size: 1.4rem; }
-    .level-badge { position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 50%; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #ff9e6d; font-size: 1.2rem; font-weight: 900; color: #2d3748; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-    .level-number { font-size: 0.65rem; }
+    
     .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; flex-wrap: wrap; gap: 5px; }
     .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 0.75rem; }
     button:active, .key:active { transform: scale(1.15); }
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
-    .phrase-card.mastered { border-color: #ffd700; background: linear-gradient(to bottom, #fffef0, white); }
-    .phrase-card.learning { border-color: #ffa500; }
-    .mastery-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #ffd700; padding: 5px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; color: #2d3748; border: 2px solid #ff9e6d; }
+    
     .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
-    .pronunciation-guide { font-size: 0.9rem; color: #64748b; font-style: italic; margin-bottom: 10px; }
+    
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
     .gender-icon { position: absolute; top: 12px; right: 12px; font-size: 2.2rem; pointer-events: none; }
     .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -38,10 +35,9 @@
     .spk-en { background: #ff9e6d; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; font-size: 0.85rem; }
+    .nav-presets { color: #ff9e6d; background: #fff5f0; }
     .nav-homework { color: #9d4edd; background: #fdf2ff; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
-    .nav-practice { color: #4cd964; background: #f0fdf4; }
-    .nav-stats { color: #118AB2; background: #f0f9ff; }
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
@@ -66,30 +62,9 @@
     .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
     .voice-selector { width: 100%; padding: 8px; border-radius: 10px; border: 2px solid #118AB2; font-weight: 700; margin-top: 5px; font-size: 0.8rem; }
     .app-actions { display: flex; gap: 10px; margin-top: 25px; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; color: white; }
-    .stat-card.success { background: linear-gradient(135deg, #4cd964 0%, #2ea44e 100%); }
-    .stat-card.warning { background: linear-gradient(135deg, #ffa500 0%, #ff6b00 100%); }
-    .stat-card.info { background: linear-gradient(135deg, #118AB2 0%, #06d6a0 100%); }
-    .stat-number { font-size: 2.5rem; font-weight: 900; margin-bottom: 5px; }
-    .stat-label { font-size: 0.9rem; opacity: 0.9; }
+    
     .progress-bar { background: #e2e8f0; height: 20px; border-radius: 10px; overflow: hidden; margin: 15px 0; }
     .progress-fill { background: linear-gradient(90deg, #4cd964, #2ea44e); height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 0.75rem; }
-    .word-mastery-list { text-align: left; max-height: 300px; overflow-y: auto; }
-    .mastery-item { padding: 10px; margin: 5px 0; border-radius: 10px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; }
-    .mastery-stars { color: #ffd700; }
-    .practice-card { background: white; border-radius: 25px; padding: 30px; margin: 20px 0; border: 5px solid #4cd964; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-    .practice-mode-selector { display: flex; gap: 10px; margin: 15px 0; }
-    .mode-btn { flex: 1; padding: 15px; border-radius: 15px; border: 3px solid #e2e8f0; background: white; font-weight: 900; cursor: pointer; }
-    .mode-btn.active { background: #4cd964; color: white; border-color: #2ea44e; }
-    .flashcard { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-    .flashcard.flipped .french-text { display: none; }
-    .flashcard.flipped .english-text { display: block; font-size: 2rem; }
-    .flashcard:not(.flipped) .english-text { display: none; }
-    
-    
-    
-    
     
     .error-message { background: #fee2e2; border: 2px solid #ef4444; border-radius: 15px; padding: 15px; margin: 10px 0; color: #991b1b; font-weight: 700; }
     .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
@@ -101,32 +76,19 @@
 
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V7.0 🎉</h1>
-            <div class="level-badge">
-                <div id="levelIcon">⭐</div>
-                <div class="level-number">Lvl <span id="levelNum">1</span></div>
-            </div>
+            <h1>🇫🇷 French Fun V8.0 🎉</h1>
         </div>
         <div class="status-bar">
             <div class="status-info"><span>📚</span> <span id="stCountText">Ready!</span></div>
             <button class="magic-mini-btn" id="magicBtn" onclick="magicSync()">✨ Magic Sync</button>
         </div>
-        <div class="preset-grid">
-            <button class="preset-btn beginner" id="btn_beginner" onclick="loadPreset('beginner')">
-                <span class="difficulty-badge">🌟</span>
-                🎈 Beginner
+        
+        <div id="finishPracticingContainer" style="display:none; text-align:center; margin:20px 0;">
+            <button onclick="finishPracticing()" style="background:#ff6b8b; color:white; border:none; border-radius:20px; padding:15px 30px; font-weight:900; font-size:1.1rem; box-shadow:0 4px 12px rgba(255,107,139,0.3); cursor:pointer;">
+                ✅ Finish Practicing
             </button>
-            <button class="preset-btn" id="btn_greetings" onclick="loadPreset('greetings')">👋 Greetings</button>
-            <button class="preset-btn" id="btn_numbers" onclick="loadPreset('numbers')">🔢 Numbers</button>
-            <button class="preset-btn" id="btn_colors" onclick="loadPreset('colors')">🎨 Colors</button>
-            <button class="preset-btn" id="btn_family" onclick="loadPreset('family')">👨‍👩‍👧 Family</button>
-            <button class="preset-btn" id="btn_body" onclick="loadPreset('body')">👃 Body</button>
-            <button class="preset-btn" id="btn_animals" onclick="loadPreset('animals')">🐶 Animals</button>
-            <button class="preset-btn" id="btn_food" onclick="loadPreset('food')">🍎 Food</button>
-            <button class="preset-btn" id="btn_school" onclick="loadPreset('school')">🏫 School</button>
-            <button class="preset-btn" id="btn_house" onclick="loadPreset('house')">🏠 House</button>
-            <button class="preset-btn" id="btn_actions" onclick="loadPreset('actions')">🏃 Actions</button>
         </div>
+
         <div id="phrasesList"></div>
         <div class="app-actions">
             <button id="installBtn" class="card-btn" style="background:#ff6b8b; display:none; flex:1">📱 Install</button>
@@ -135,64 +97,9 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item nav-practice" onclick="openOverlay('practiceDrawer')"><span>📖</span><br>Practice</div>
+        <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
         <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
         <div class="nav-item nav-homework" onclick="openOverlay('hwDrawer')"><span>📝</span><br>Homework</div>
-        <div class="nav-item nav-stats" onclick="openOverlay('statsDrawer')"><span>📊</span><br>Stats</div>
-    </div>
-
-    <!-- Practice Mode Drawer -->
-    <div id="practiceDrawer" class="overlay">
-        <div class="overlay-content">
-            <h2 style="color:#4cd964">📖 Practice Mode</h2>
-            <div class="practice-mode-selector">
-                <button class="mode-btn active" id="flashcardMode" onclick="setPracticeMode('flashcard')">🃏 Flashcards</button>
-                <button class="mode-btn" id="listeningMode" onclick="setPracticeMode('listening')">👂 Listening</button>
-            </div>
-            <div id="practiceContent" class="practice-card">
-                <div class="card-icon" id="practiceIcon">🎯</div>
-                <div class="french-text" id="practiceFrench">Tap to start!</div>
-                <div class="english-text" id="practiceEnglish"></div>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button onclick="previousPracticeCard()" class="card-btn" style="background:#64748b; flex:1">◀ Previous</button>
-                    <button onclick="nextPracticeCard()" class="card-btn" style="background:#4cd964; flex:1">Next ▶</button>
-                </div>
-            </div>
-            <div style="margin-top: 15px;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="practiceProgress" style="width: 0%">0/0</div>
-                </div>
-            </div>
-            <button onclick="closeOverlay('practiceDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
-        </div>
-    </div>
-
-    <!-- Stats Dashboard -->
-    <div id="statsDrawer" class="overlay">
-        <div class="overlay-content">
-            <h2 style="color:#118AB2; margin-bottom: 20px">📊 Parent Dashboard</h2>
-            <div class="stats-grid">
-                <div class="stat-card success">
-                    <div class="stat-number" id="totalWordsLearned">0</div>
-                    <div class="stat-label">Words Learned</div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-number" id="currentStreak">0</div>
-                    <div class="stat-label">Day Streak 🔥</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="gameWinRate">0%</div>
-                    <div class="stat-label">Win Rate</div>
-                </div>
-                <div class="stat-card warning">
-                    <div class="stat-number" id="practiceCount">0</div>
-                    <div class="stat-label">Practice Sessions</div>
-                </div>
-            </div>
-            <h3 style="margin: 20px 0; color: #2d3748;">🌟 Word Mastery</h3>
-            <div class="word-mastery-list" id="wordMasteryList"></div>
-            <button onclick="closeOverlay('statsDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
-        </div>
     </div>
 
     <!-- Homework Drawer -->
@@ -217,7 +124,7 @@
                     <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
                 </div>
             </div>
-                        <button onclick="loadCurrentHomework()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px; width:100%; margin-bottom:8px;">📖 Load for Practice</button>
+            <button onclick="loadCurrentHomework()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px; width:100%; margin-bottom:8px;">📖 Load for Practice</button>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
                 <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">💾 Save</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
@@ -264,11 +171,32 @@
         </div>
     </div>
 
-    <!-- Reward Popup -->
+    <!-- Presets Overlay -->
+    <div id="presetsOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color:#ff9e6d">🎨 Practice Presets</h2>
+            <p style="color:#64748b; margin-bottom:20px;">Choose a set to practice</p>
+            
+            <div class="preset-grid">
+                <button class="preset-btn beginner" onclick="loadPresetAndClose('beginner')">⭐ Beginner<div class="difficulty-badge">10</div></button>
+                <button class="preset-btn" onclick="loadPresetAndClose('greetings')">👋 Greetings</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('numbers')">🔢 Numbers</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('colors')">🎨 Colors</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('family')">👨‍👩‍👧 Family</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('body')">👃 Body</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('animals')">🐶 Animals</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('food')">🍎 Food</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('school')">📚 School</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('house')">🏠 House</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('actions')">🎭 Actions</button>
+            </div>
+            
+            <button onclick="closeOverlay('presetsOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+        </div>
     </div>
 
     <script>
-        /* ===== MASTER_DATA Dictionary with Pronunciation ===== */
+        /* ===== MASTER_DATA Dictionary ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},
             "Un":{en:"One",icon:"1️⃣",pronunciation:"uhn"},"Deux":{en:"Two",icon:"2️⃣",pronunciation:"duh"},"Trois":{en:"Three",icon:"3️⃣",pronunciation:"twah"},"Quatre":{en:"Four",icon:"4️⃣",pronunciation:"KAH-truh"},"Cinq":{en:"Five",icon:"5️⃣",pronunciation:"sank"},"Six":{en:"Six",icon:"6️⃣",pronunciation:"seess"},"Sept":{en:"Seven",icon:"7️⃣",pronunciation:"set"},"Huit":{en:"Eight",icon:"8️⃣",pronunciation:"weet"},"Neuf":{en:"Nine",icon:"9️⃣",pronunciation:"nuhf"},"Dix":{en:"Ten",icon:"🔟",pronunciation:"deess"},
@@ -299,30 +227,18 @@
             actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"]
         };
 
-        // Progress tracking
-        let wordProgress = JSON.parse(localStorage.getItem('wordProgress') || '{}');
-        let dailyStreak = parseInt(localStorage.getItem('dailyStreak') || '0');
-        let lastPracticeDate = localStorage.getItem('lastPracticeDate') || '';
-        let practiceSessionCount = parseInt(localStorage.getItem('practiceSessionCount') || '0');
-        let totalXP = parseInt(localStorage.getItem('totalXP') || '0');
+        // App state
         let speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.85');
-        let currentWeekAudio = null; // For teacher recordings
-
+        let currentWeekAudio = null;
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
         let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
-
-        // Practice mode variables
-        let practiceMode = 'flashcard';
-        let practiceIndex = 0;
-        let practiceList = [];
-        let isFlipped = false;
+        let isPracticingPreset = false;
 
         function shareAudioOnly(weekName, audioData) {
             if (!audioData) return;
             
-            // Convert base64 to blob for sharing
             const arr = audioData.data.split(',');
             const mime = arr[0].match(/:(.*?);/)[1];
             const bstr = atob(arr[1]);
@@ -346,19 +262,16 @@
         }
 
         function checkForImport() {
-            // Check if URL contains import data
             const hash = window.location.hash;
             if (hash.startsWith('#import=')) {
                 try {
-                    const encodedData = hash.substring(8); // Remove '#import='
+                    const encodedData = hash.substring(8);
                     const weekData = JSON.parse(decodeURIComponent(atob(encodedData)));
                     
                     if (confirm(`📥 Import "${weekData.name}"?\n\n${weekData.words.split('\n').length} words${weekData.audio ? ' with teacher recording 🎤' : ''}`)) {
-                        // Import the week
                         history[weekData.name] = JSON.stringify(weekData);
                         localStorage.setItem('frenchHistory', JSON.stringify(history));
                         
-                        // Load it into current homework
                         document.getElementById('hwInput').value = weekData.words;
                         localStorage.setItem('homeworkPhrases', weekData.words);
                         
@@ -369,13 +282,9 @@
                         }
                         
                         renderList(weekData.words.split('\n').filter(w => w.trim()));
-                        
                         alert('✅ Imported successfully!');
-                        
-                        // Clean up URL
                         window.location.hash = '';
                     } else {
-                        // User declined, clean up URL
                         window.location.hash = '';
                     }
                 } catch (e) {
@@ -389,22 +298,24 @@
         window.onload = () => {
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            loadPreset('beginner');
-            updateScoreUI();
-            updateStatsUI();
+            
+            // Load last homework on startup
+            if (raw && raw.trim()) {
+                loadCurrentHomework();
+            } else {
+                document.getElementById('stCountText').textContent = 'Add homework to start!';
+            }
+            
             initVoices();
-            checkDailyStreak();
             initSpeechSpeed();
             initAudioUpload();
-            checkForImport(); // Check if importing from shared link
+            checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
         };
 
         function initAudioUpload() {
             const fileInput = document.getElementById('teacherAudioFile');
             fileInput.addEventListener('change', handleAudioUpload);
-            
-            // Load saved audio if exists
             loadCurrentWeekAudio();
         }
 
@@ -412,14 +323,12 @@
             const file = event.target.files[0];
             if (!file) return;
             
-            // Validate file is audio
             if (!file.type.startsWith('audio/')) {
                 alert('Please select an audio file (.oga, .ogg, .mp3, .wav, .m4a)');
                 event.target.value = '';
                 return;
             }
             
-            // Convert to base64 for storage
             const reader = new FileReader();
             reader.onload = (e) => {
                 currentWeekAudio = {
@@ -439,15 +348,11 @@
             }
             
             const player = document.getElementById('teacherAudioPlayer');
-            
-            // Stop and reset before setting new source
             player.pause();
             player.currentTime = 0;
-            
             player.src = currentWeekAudio.data;
             document.getElementById('audioPlayerContainer').style.display = 'block';
             
-            // Prevent multiple overlapping plays
             player.onplay = () => {
                 document.querySelectorAll('audio').forEach(audio => {
                     if (audio !== player && !audio.paused) {
@@ -466,8 +371,6 @@
         }
 
         function loadCurrentWeekAudio() {
-            // Try to load audio from current homework if it exists
-            const currentHW = localStorage.getItem('homeworkPhrases');
             const audioData = localStorage.getItem('currentWeekAudio');
             if (audioData) {
                 try {
@@ -477,106 +380,6 @@
                     currentWeekAudio = null;
                 }
             }
-        }
-
-        function checkDailyStreak() {
-            const today = new Date().toDateString();
-            if (lastPracticeDate !== today) {
-                const yesterday = new Date(Date.now() - 86400000).toDateString();
-                if (lastPracticeDate === yesterday) {
-                    dailyStreak++;
-                } else if (lastPracticeDate !== '') {
-                    dailyStreak = 1;
-                }
-                lastPracticeDate = today;
-                localStorage.setItem('lastPracticeDate', lastPracticeDate);
-                localStorage.setItem('dailyStreak', dailyStreak);
-            }
-        }
-
-        function addXP(amount) {
-            totalXP += amount;
-            localStorage.setItem('totalXP', totalXP);
-            updateLevel();
-        }
-
-        function updateLevel() {
-            const level = Math.floor(totalXP / 100) + 1;
-            const icons = ['⭐','🌟','✨','💫','🏆','👑','🎖️','🥇'];
-            document.getElementById('levelNum').textContent = level;
-            document.getElementById('levelIcon').textContent = icons[Math.min(level - 1, icons.length - 1)];
-            
-            
-        }
-
-        
-
-        
-
-        function trackWordProgress(word, correct) {
-            const normalized = norm(word);
-            if (!wordProgress[normalized]) {
-                wordProgress[normalized] = { attempts: 0, correct: 0, lastPracticed: Date.now() };
-            }
-            wordProgress[normalized].attempts++;
-            if (correct) {
-                wordProgress[normalized].correct++;
-                addXP(10);
-            }
-            wordProgress[normalized].lastPracticed = Date.now();
-            localStorage.setItem('wordProgress', JSON.stringify(wordProgress));
-            updateStatsUI();
-        }
-
-        function getWordMastery(word) {
-            const normalized = norm(word);
-            const progress = wordProgress[normalized];
-            if (!progress || progress.attempts < 3) return 0;
-            const accuracy = progress.correct / progress.attempts;
-            if (accuracy >= 0.9 && progress.attempts >= 5) return 3; // Mastered
-            if (accuracy >= 0.7) return 2; // Learning
-            return 1; // Struggling
-        }
-
-        function updateStatsUI() {
-            const masteredWords = Object.keys(wordProgress).filter(w => getWordMastery(w) === 3).length;
-            document.getElementById('totalWordsLearned').textContent = masteredWords;
-            document.getElementById('currentStreak').textContent = dailyStreak;
-            
-            const totalGames = wins + losses;
-            const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-            document.getElementById('gameWinRate').textContent = winRate + '%';
-            document.getElementById('practiceCount').textContent = practiceSessionCount;
-
-            updateLevel();
-            updateWordMasteryList();
-        }
-
-        function updateWordMasteryList() {
-            const list = document.getElementById('wordMasteryList');
-            list.innerHTML = '';
-            
-            const sortedWords = Object.entries(wordProgress)
-                .map(([word, data]) => ({ word, mastery: getWordMastery(word), ...data }))
-                .sort((a, b) => b.mastery - a.mastery)
-                .slice(0, 20);
-
-            if (sortedWords.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">Start practicing to see your progress!</p>';
-                return;
-            }
-
-            sortedWords.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'mastery-item';
-                const stars = item.mastery === 3 ? '⭐⭐⭐' : item.mastery === 2 ? '⭐⭐' : '⭐';
-                const accuracy = Math.round((item.correct / item.attempts) * 100);
-                div.innerHTML = `
-                    <span style="font-weight:900; color:#2d3748;">${item.word}</span>
-                    <span><span class="mastery-stars">${stars}</span> ${accuracy}% (${item.attempts} tries)</span>
-                `;
-                list.appendChild(div);
-            });
         }
 
         function initSpeechSpeed() {
@@ -590,8 +393,6 @@
             speechSpeed = parseFloat(value);
             document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
             localStorage.setItem('speechSpeed', speechSpeed);
-            
-            // Test the new speed
             spk("Bonjour", "fr-FR", true);
         }
 
@@ -603,13 +404,11 @@
                 frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
                 v2.innerHTML = '';
                 
-                // Add option to open phone settings
                 const settingsOpt = document.createElement('option');
                 settingsOpt.value = 'settings';
                 settingsOpt.textContent = '⚙️ Open Phone Voice Settings';
                 v2.appendChild(settingsOpt);
                 
-                // Add separator
                 const separator = document.createElement('option');
                 separator.disabled = true;
                 separator.textContent = '──────────';
@@ -673,20 +472,13 @@
                 window.speechSynthesis.cancel();
             }
             
-            // Anti-clipping buffer for Pixel phones
             setTimeout(() => {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
-                u.rate = speechSpeed; // Use dynamic speed
+                u.rate = speechSpeed;
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
-                
-                // Additional buffer to prevent clipping
-                u.onstart = () => {
-                    // Ensures audio context is ready
-                };
-                
                 window.speechSynthesis.speak(u);
-            }, forceInterrupt ? 150 : 50); // Longer delay on interrupt
+            }, forceInterrupt ? 150 : 50);
         }
 
         function spellWord() {
@@ -704,12 +496,11 @@
             if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
             if (musicContext.state === 'suspended') musicContext.resume();
             
-            // Taratatan! trumpet melody
             const melody = [
-                {freq: 440, start: 0, duration: 0.15},      // Ta
-                {freq: 440, start: 0.15, duration: 0.15},   // ra
-                {freq: 440, start: 0.3, duration: 0.15},    // ta
-                {freq: 554.37, start: 0.5, duration: 0.4}   // TAN!
+                {freq: 440, start: 0, duration: 0.15},
+                {freq: 440, start: 0.15, duration: 0.15},
+                {freq: 440, start: 0.3, duration: 0.15},
+                {freq: 554.37, start: 0.5, duration: 0.4}
             ];
             
             const now = musicContext.currentTime;
@@ -718,10 +509,9 @@
                 const osc = musicContext.createOscillator();
                 const gain = musicContext.createGain();
                 
-                osc.type = 'sawtooth'; // Trumpet-like sound
+                osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(note.freq, now + note.start);
                 
-                // Envelope for trumpet effect
                 gain.gain.setValueAtTime(0, now + note.start);
                 gain.gain.linearRampToValueAtTime(0.3, now + note.start + 0.02);
                 gain.gain.linearRampToValueAtTime(0.25, now + note.start + note.duration * 0.5);
@@ -789,42 +579,50 @@
                 if (norm(key) === n) return MASTER_DATA[key]; 
             }
             
-            // Smart icon fallback for homework words
             const word = p.toLowerCase();
             let smartIcon = "✨";
             
-            // Animals
             if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
-            // Colors
             else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
-            // Numbers
             else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
-            // Food
             else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
-            // Body parts
             else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
-            // School
             else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
-            // Family
             else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
-            // House
             else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
-            // Actions
             else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
-            // Greetings
             else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
             
             return { en: cache[n] || "...", icon: smartIcon };
         }
 
+        function openPresetsOverlay() {
+            openOverlay('presetsOverlay');
+        }
+
+        function loadPresetAndClose(k) {
+            isPracticingPreset = true;
+            loadPreset(k);
+            closeOverlay('presetsOverlay');
+            document.getElementById('finishPracticingContainer').style.display = 'block';
+        }
+
+        function finishPracticing() {
+            isPracticingPreset = false;
+            document.getElementById('finishPracticingContainer').style.display = 'none';
+            document.getElementById('phrasesList').innerHTML = '';
+            document.getElementById('stCountText').textContent = 'Ready!';
+            
+            const lastHomework = localStorage.getItem('homeworkPhrases');
+            if (lastHomework && lastHomework.trim()) {
+                loadCurrentHomework();
+            }
+        }
+
         function loadPreset(k) {
-            // Clear teacher audio when loading a preset (presets don't have recordings)
             currentWeekAudio = null;
             localStorage.removeItem('currentWeekAudio');
             
-            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-            const btn = document.getElementById('btn_' + k); 
-            if(btn) btn.classList.add('active');
             renderList(presets[k]);
         }
 
@@ -834,33 +632,20 @@
             container.innerHTML = '';
             document.getElementById('stCountText').textContent = `${list.length} phrases ready!`;
             
-            // Check if current homework has teacher audio
-            const hasTeacherAudio = currentWeekAudio !== null;
-            
-            // Hide preset buttons when teacher audio is active
-            const presetGrid = document.querySelector('.preset-grid');
-            
-            // ALWAYS remove existing banner first to prevent duplicates
             const existingBanner = document.querySelector('.teacher-audio-banner');
             if (existingBanner && existingBanner.parentElement) {
                 existingBanner.remove();
             }
             
+            const hasTeacherAudio = currentWeekAudio !== null;
+            
             if (hasTeacherAudio && list.length > 0) {
-                presetGrid.style.display = 'none';
-                
-                // Add a notice banner
                 const banner = document.createElement('div');
-                banner.className = 'teacher-audio-banner'; // Add class for easy removal
+                banner.className = 'teacher-audio-banner';
                 banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
                 banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
                 container.parentElement.insertBefore(banner, container);
-            } else {
-                presetGrid.style.display = 'grid';
-            }
-            
-            if (hasTeacherAudio && list.length > 0) {
-                // Create single card with all words and audio player
+                
                 const card = document.createElement('div');
                 card.className = 'phrase-card';
                 card.style.border = '5px solid #ffc107';
@@ -923,11 +708,9 @@
                 practiceBtn.className = 'card-btn spk-fr';
                 practiceBtn.textContent = '📖 Practice Words';
                 practiceBtn.onclick = () => {
-                    // Switch to individual cards view (keeps the audio for later)
                     const tempAudio = currentWeekAudio;
                     currentWeekAudio = null;
                     renderList(list);
-                    // Restore audio reference but don't show the single card
                     currentWeekAudio = tempAudio;
                 };
                 
@@ -936,22 +719,10 @@
                 container.appendChild(card);
                 
             } else {
-                // Normal rendering - individual cards for each word
                 list.forEach(p => {
                     const data = getCardData(p); 
                     const card = document.createElement('div'); 
-                    const mastery = getWordMastery(p);
                     card.className = 'phrase-card';
-                    
-                    if (mastery === 3) {
-                        card.classList.add('mastered');
-                        const badge = document.createElement('div');
-                        badge.className = 'mastery-badge';
-                        badge.textContent = '⭐ Mastered!';
-                        card.appendChild(badge);
-                    } else if (mastery === 2) {
-                        card.classList.add('learning');
-                    }
                     
                     if(data.g) { 
                         const b = document.createElement('div'); 
@@ -968,10 +739,6 @@
                     fS.className = 'french-text'; 
                     fS.textContent = p;
                     
-                    const pG = document.createElement('div');
-                    pG.className = 'pronunciation-guide';
-                    pG.textContent = data.pronunciation || '';
-                    
                     const eS = document.createElement('span'); 
                     eS.className = 'english-text'; 
                     eS.textContent = data.en;
@@ -984,7 +751,6 @@
                     sB.textContent = '🎤 French';
                     sB.onclick = () => {
                         spk(p, 'fr-FR');
-                        trackWordProgress(p, true);
                     };
                     
                     const tB = document.createElement('button'); 
@@ -994,13 +760,10 @@
                         spk(data.en, 'en-US'); 
                     };
                     
-                    // Long press or double-tap to manually fix translation
-                    let tapTimeout;
                     let lastTap = 0;
                     tB.addEventListener('touchstart', (e) => {
                         const now = Date.now();
                         if (now - lastTap < 300) {
-                            // Double tap detected
                             e.preventDefault();
                             if(confirm("Fix translation for '" + p + "'?")){ 
                                 const fix = prompt("Enter correct English:", data.en); 
@@ -1014,10 +777,9 @@
                         lastTap = now;
                     });
                     
-                    // Also allow regular click-based correction for non-MASTER_DATA words
                     if (!MASTER_DATA[p]) {
                         tB.addEventListener('click', (e) => {
-                            if (e.detail === 2) { // Double click on desktop
+                            if (e.detail === 2) {
                                 if(confirm("Fix translation for '" + p + "'?")){ 
                                     const fix = prompt("Enter correct English:", data.en); 
                                     if(fix){ 
@@ -1031,7 +793,7 @@
                     }
                     
                     bD.append(sB, tB); 
-                    card.append(icon, fS, pG, eS, bD); 
+                    card.append(icon, fS, eS, bD); 
                     container.appendChild(card);
                 });
             }
@@ -1094,7 +856,6 @@
             
             setTimeout(() => msgDiv.innerHTML = '', 5000);
             
-            // Load the homework with audio if it exists (from localStorage)
             const savedAudio = localStorage.getItem('currentWeekAudio');
             if (savedAudio) {
                 try {
@@ -1105,101 +866,6 @@
             }
             
             renderList(list);
-        }
-
-        // ===== PRACTICE MODE =====
-        function setPracticeMode(mode) {
-            practiceMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(mode + 'Mode').classList.add('active');
-            startPractice();
-        }
-
-        function startPractice() {
-            practiceSessionCount++;
-            localStorage.setItem('practiceSessionCount', practiceSessionCount);
-            checkDailyStreak();
-            
-            practiceList = currentScreenList.filter(w => w.length > 0);
-            if (practiceList.length === 0) {
-                practiceList = presets.beginner;
-            }
-            practiceIndex = 0;
-            showPracticeCard();
-        }
-
-        function showPracticeCard() {
-            if (practiceList.length === 0) return;
-            
-            const word = practiceList[practiceIndex];
-            const data = getCardData(word);
-            
-            document.getElementById('practiceIcon').textContent = data.icon;
-            document.getElementById('practiceFrench').textContent = word;
-            document.getElementById('practiceEnglish').textContent = data.en;
-            
-            const progress = document.getElementById('practiceProgress');
-            const percent = ((practiceIndex + 1) / practiceList.length) * 100;
-            progress.style.width = percent + '%';
-            progress.textContent = `${practiceIndex + 1}/${practiceList.length}`;
-            
-            isFlipped = false;
-            
-            if (practiceMode === 'flashcard') {
-                setupFlashcard();
-            } else if (practiceMode === 'listening') {
-                setupListening(word);
-            }
-        }
-
-        function setupFlashcard() {
-            const content = document.getElementById('practiceContent');
-            content.onclick = () => {
-                isFlipped = !isFlipped;
-                if (isFlipped) {
-                    document.getElementById('practiceEnglish').style.display = 'block';
-                    document.getElementById('practiceFrench').style.display = 'none';
-                    spk(document.getElementById('practiceEnglish').textContent, 'en-US');
-                } else {
-                    document.getElementById('practiceEnglish').style.display = 'none';
-                    document.getElementById('practiceFrench').style.display = 'block';
-                    spk(document.getElementById('practiceFrench').textContent, 'fr-FR');
-                }
-            };
-            document.getElementById('practiceEnglish').style.display = 'none';
-            document.getElementById('practiceFrench').style.display = 'block';
-            spk(document.getElementById('practiceFrench').textContent, 'fr-FR');
-        }
-
-        function setupListening(word) {
-            document.getElementById('practiceEnglish').style.display = 'none';
-            document.getElementById('practiceFrench').style.display = 'block';
-            document.getElementById('practiceFrench').textContent = 'Listen carefully... 👂';
-            
-            setTimeout(() => {
-                spk(word, 'fr-FR');
-                setTimeout(() => {
-                    if (!isFlipped) {
-                        document.getElementById('practiceFrench').textContent = word;
-                        document.getElementById('practiceEnglish').style.display = 'block';
-                    }
-                }, 2000);
-            }, 500);
-        }
-
-        function nextPracticeCard() {
-            trackWordProgress(practiceList[practiceIndex], true);
-            practiceIndex = (practiceIndex + 1) % practiceList.length;
-            showPracticeCard();
-            
-            if (practiceIndex === 0) {
-                showReward('🎉', 'Great Job!', 'You completed a practice session!');
-            }
-        }
-
-        function previousPracticeCard() {
-            practiceIndex = (practiceIndex - 1 + practiceList.length) % practiceList.length;
-            showPracticeCard();
         }
 
         // ===== HANGMAN GAME =====
@@ -1257,19 +923,12 @@
                 updateScoreUI(); 
                 celebrate(); 
                 playVictorySound();
-                trackWordProgress(lastWord, true);
-                addXP(20);
                 document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
                 setTimeout(() => spk(targetWord, 'fr-FR'), 800);
-                
-                if (wins % 5 === 0) {
-                    showReward('🎖️', 'Amazing Streak!', `${wins} wins in a row!`);
-                }
             } else if (mistakes >= 10) {
                 gameActive = false; 
                 losses++; 
                 updateScoreUI();
-                trackWordProgress(lastWord, false);
                 document.getElementById('gameMsg').textContent = "Good try! 👍"; 
                 spk("Oups! " + targetWord, 'fr-FR', true);
             }
@@ -1304,7 +963,6 @@
             document.getElementById('lossCount').textContent = losses; 
             localStorage.setItem('gameWins', wins); 
             localStorage.setItem('gameLosses', losses); 
-            updateStatsUI();
         }
 
         function exitGame() { 
@@ -1361,7 +1019,6 @@
             const val = document.getElementById('hwInput').value; 
             localStorage.setItem('homeworkPhrases', val);
             
-            // Save current audio if exists
             if (currentWeekAudio) {
                 localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
             } else {
@@ -1370,13 +1027,11 @@
             
             let name = prompt("Week Name (max 20 characters):", "Week " + (Object.keys(history).length + 1)); 
             if (name) { 
-                // Limit name to 20 characters
                 if (name.length > 20) {
                     name = name.substring(0, 20);
                     alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
                 }
                 
-                // Create homework object with words and optional audio
                 const hwData = {
                     words: val,
                     audio: currentWeekAudio
@@ -1403,24 +1058,21 @@
                 const div = document.createElement('div'); 
                 div.className = 'history-item';
                 
-                // Parse homework data (could be old string format or new object format)
                 let hwData = { words: '', audio: null };
                 try {
                     const parsed = JSON.parse(history[name]);
                     if (parsed.words !== undefined) {
                         hwData = parsed;
                     } else {
-                        // Old format - just words
                         hwData.words = history[name];
                     }
                 } catch (e) {
-                    // Old format - just words
                     hwData.words = history[name];
                 }
                 
                 const hasAudio = hwData.audio ? '🎤' : '';
                 div.innerHTML = `
-                    <div style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px; padding:8px; background:linear-gradient(135deg, #e0f2fe, #bae6fd); border-radius:10px;">
+                    <div style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px;">
                         ${name} ${hasAudio}
                     </div>
                     <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
@@ -1435,19 +1087,16 @@
                 let buttonIndex = 0;
                 const buttons = div.querySelectorAll('.load-btn');
                 
-                // Play button (if audio exists)
                 if (hwData.audio) {
                     buttons[buttonIndex++].onclick = () => { 
                         playWeekAudio(hwData.audio);
                     };
                 }
                 
-                // Load button
                 buttons[buttonIndex++].onclick = () => { 
                     document.getElementById('hwInput').value = hwData.words; 
                     localStorage.setItem('homeworkPhrases', hwData.words);
                     
-                    // Load audio if exists
                     currentWeekAudio = hwData.audio;
                     if (currentWeekAudio) {
                         localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
@@ -1461,19 +1110,16 @@
                     closeOverlay('hwDrawer'); 
                 };
                 
-                // Share button (text + audio if exists)
                 buttons[buttonIndex++].onclick = () => { 
                     shareWeek(name, hwData.words, hwData.audio); 
                 };
                 
-                // Share audio only button (if audio exists)
                 if (hwData.audio) {
                     buttons[buttonIndex++].onclick = () => { 
                         shareAudioOnly(name, hwData.audio);
                     };
                 }
                 
-                // Delete button
                 div.querySelector('.del-btn').onclick = () => { 
                     if(confirm("Delete " + name + "?")){ 
                         delete history[name]; 
@@ -1512,14 +1158,12 @@
             const wordList = wordsText.split('\n').filter(w => w.trim());
             const wordCount = wordList.length;
             
-            // ALWAYS include audio if it exists - keep teacher recordings intact
             const weekData = { name: weekName, words: wordsText, audio: audioData };
             const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
             const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
             
             const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words${audioData ? ' 🎤 with teacher recording' : ''}!\n\n✨ Import to app: ${importURL}`;
             
-            // Try native share API first (mobile)
             if (navigator.share) {
                 navigator.share({
                     title: `French Fun - ${weekName}`,
@@ -1528,7 +1172,6 @@
                     console.log('Share cancelled');
                 });
             } else {
-                // Fallback: copy to clipboard
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText).then(() => {
                         alert('📋 Homework copied!\n\nAnyone with the app can click the link to import it directly!');
@@ -1547,11 +1190,9 @@
                 return;
             }
             
-            // Create comprehensive share text with all weeks
             let shareText = `🇫🇷 French Fun - Complete Homework Collection\n\n`;
             
             Object.keys(history).forEach((weekName, index) => {
-                // Parse homework data
                 let hwData = { words: '', audio: null };
                 try {
                     const parsed = JSON.parse(history[weekName]);
@@ -1574,7 +1215,6 @@
             shareText += `Total: ${Object.keys(history).length} weeks\n`;
             shareText += `✨ French Fun App: https://josestudio77-creator.github.io/French-Helper/`;
             
-            // Try native share API first (mobile)
             if (navigator.share) {
                 navigator.share({
                     title: 'French Fun - All Homework Weeks',
@@ -1583,7 +1223,6 @@
                     console.log('Share cancelled');
                 });
             } else {
-                // Fallback: copy to clipboard
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText).then(() => {
                         alert('📋 All homework weeks copied to clipboard!');
@@ -1598,14 +1237,10 @@
 
         function exportProgress() {
             const data = {
-                wordProgress,
-                totalXP,
-                wins,
-                losses,
-                dailyStreak,
-                practiceSessionCount,
                 history,
                 cache,
+                wins,
+                losses,
                 exportDate: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1638,10 +1273,6 @@
             document.getElementById(id).style.display = 'block'; 
             if(id === 'gameDrawer') { 
                 startHangman(); 
-            } else if(id === 'practiceDrawer') {
-                startPractice();
-            } else if(id === 'statsDrawer') {
-                updateStatsUI();
             }
         }
 
@@ -1652,7 +1283,7 @@
         function shareApp() { 
             if (navigator.share) { 
                 navigator.share({ 
-                    title: 'French Fun V7.0', 
+                    title: 'French Fun V8.0', 
                     text: 'Check out this fun French learning app!',
                     url: window.location.href 
                 }).catch(() => {}); 
