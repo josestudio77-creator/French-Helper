@@ -122,6 +122,22 @@
         justify-content:space-between;
         margin-top: 1px;
     }
+    
+    /* Homework screen buttons - 3-column grid */
+    .hw-buttons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin: 15px 0;
+    }
+    .hw-btn {
+        padding: 12px 5px;
+        border-radius: 12px;
+        font-weight: 900;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
    </style>
 </head>
 <body>
@@ -129,6 +145,11 @@
     <div class="container">
         <div class="header">
             <h1>🇫🇷 French Fun V8.0 🎉</h1>
+        </div>
+        
+        <!-- Status Bar (without Add Homework button) -->
+        <div class="status-bar">
+            <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
         </div>
         
         <!-- Speech Speed Slider - COMPACT VERSION -->
@@ -178,12 +199,15 @@
                     📦 Backup All Data
                 </button>
                 
+                <button onclick="importBackup()" style="background:#9d4edd; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    📥 Import Backup
+                </button>
+                
                 <button onclick="showVoiceInstructions()" style="background:#ff9e6d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
                     🔊 French Voices Guide
                 </button>
                 
-                <!-- Debug button added -->
-                <button onclick="debugStorage()" style="background:#9d4edd; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                <button onclick="debugStorage()" style="background:#6b7280; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
                     🐛 Debug Storage
                 </button>
                 
@@ -214,13 +238,14 @@
                 </div>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
-                <button onclick="magicSync()" style="background:#118AB2; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">✨ Magic Sync</button>
-                <button onclick="saveHW()" style="background:#4cd964; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">💾 Save</button>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px">
-                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">📤 Share</button>
-                <button onclick="clearHW()" style="background:#ff4d4d; color:white; border:none; border-radius:12px; font-weight:900; padding:12px">🗑️ Clear</button>
+            <!-- 3-column button grid for Homework screen -->
+            <div class="hw-buttons-grid">
+                <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
+                <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
+                <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
+                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
+                <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
+                <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
             </div>
             
             <button onclick="closeOverlay('hwDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
@@ -259,7 +284,7 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
                 <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
                 <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📦 Backup All</button>
-                <button onclick="openOverlay('hwDrawer')" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
+                <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
             </div>
             
@@ -331,9 +356,244 @@
         let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
         let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
         let isPracticingPreset = false;
-        let currentlyPlayingAudio = null; // Track currently playing audio
+        let currentlyPlayingAudio = null;
+        let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
 
-        // FIXED: Audio playback function
+        // ===== CORE NAVIGATION FUNCTIONS =====
+
+        function openOverlay(id) { 
+            console.log('Opening overlay:', id);
+            document.getElementById(id).style.display = 'block'; 
+            if(id === 'gameDrawer') { 
+                startHangman(); 
+            } else if (id === 'bpModal') {
+                openBP();
+            } else if (id === 'presetsOverlay') {
+                console.log('Presets overlay opened');
+            } else if (id === 'parentDrawer') {
+                console.log('Parent drawer opened');
+            } else if (id === 'hwDrawer') {
+                console.log('Homework drawer opened');
+            }
+        }
+
+        function closeOverlay(id) { 
+            document.getElementById(id).style.display = 'none'; 
+        }
+
+        // ===== NEW FUNCTIONS FOR FIXES =====
+
+        function openBackpackFromHW() {
+            closeOverlay('hwDrawer');
+            setTimeout(() => openOverlay('bpModal'), 300);
+        }
+
+        function addNewHomework() {
+            closeOverlay('bpModal');
+            setTimeout(() => openOverlay('hwDrawer'), 300);
+        }
+
+        function loadHomeworkForPractice(name, words, audio) {
+            // Save to current homework
+            document.getElementById('hwInput').value = words;
+            localStorage.setItem('homeworkPhrases', words);
+            lastLoadedHomework = words;
+            
+            // Set audio if exists
+            currentWeekAudio = audio;
+            if (currentWeekAudio) {
+                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+            } else {
+                localStorage.removeItem('currentWeekAudio');
+            }
+            displayAudioPlayer();
+            
+            // Close backpack and render list on main screen
+            closeOverlay('bpModal');
+            renderList(words.split('\n').filter(w => w.trim()));
+        }
+
+        function practiceNow() {
+            const words = document.getElementById('hwInput').value.trim();
+            if (!words) {
+                alert('Please enter some homework words first!');
+                return;
+            }
+            
+            localStorage.setItem('homeworkPhrases', words);
+            lastLoadedHomework = words;
+            
+            const savedAudio = localStorage.getItem('currentWeekAudio');
+            if (savedAudio) {
+                try {
+                    currentWeekAudio = JSON.parse(savedAudio);
+                } catch (e) {
+                    currentWeekAudio = null;
+                }
+            }
+            
+            closeOverlay('hwDrawer');
+            renderList(words.split('\n').filter(w => w.trim()));
+        }
+
+        function finishPracticing() {
+            isPracticingPreset = false;
+            document.getElementById('finishPracticingContainer').style.display = 'none';
+            document.getElementById('phrasesList').innerHTML = '';
+            
+            // Try to load last homework
+            if (lastLoadedHomework && lastLoadedHomework.trim()) {
+                renderList(lastLoadedHomework.split('\n').filter(w => w.trim()));
+            } else if (Object.keys(history).length > 0) {
+                // Load the most recent homework from backpack as fallback
+                const recentKey = Object.keys(history)[Object.keys(history).length - 1];
+                try {
+                    const hwData = JSON.parse(history[recentKey]);
+                    renderList(hwData.words.split('\n').filter(w => w.trim()));
+                } catch (e) {
+                    document.getElementById('phrasesList').innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No homework loaded.<br>Go to 🎒 Backpack to load homework.</p>';
+                }
+            } else {
+                document.getElementById('phrasesList').innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No homework loaded.<br>Go to 🎒 Backpack to load homework.</p>';
+            }
+        }
+
+        function magicTranslate() {
+            const msgDiv = document.getElementById('hwMessages');
+            const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
+            
+            if (list.length === 0) {
+                msgDiv.innerHTML = '<div class="error-message">⚠️ Please enter some words first!</div>';
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
+                return;
+            }
+            
+            msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translating... Please wait</div>';
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            // Process translations with delay to avoid rate limiting
+            const processTranslation = async (index) => {
+                if (index >= list.length) {
+                    // All translations complete
+                    msgDiv.innerHTML = '';
+                    
+                    if (failCount === 0) {
+                        msgDiv.innerHTML = `<div class="success-message">✅ Successfully translated ${successCount} words!</div>`;
+                    } else {
+                        msgDiv.innerHTML = `<div class="error-message">⚠️ Translated ${successCount} words, ${failCount} failed. Check your internet connection.</div>`;
+                    }
+                    
+                    setTimeout(() => msgDiv.innerHTML = '', 5000);
+                    return;
+                }
+                
+                const word = list[index];
+                const result = await translateOne(word);
+                if (result) successCount++;
+                else failCount++;
+                
+                // Update progress
+                if (msgDiv.innerHTML.includes('Translating')) {
+                    msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translated ${index + 1}/${list.length} words...</div>`;
+                }
+                
+                // Process next word after delay
+                setTimeout(() => processTranslation(index + 1), 800);
+            };
+            
+            // Start translation process
+            processTranslation(0);
+        }
+
+        function exportProgress() {
+            const data = {
+                history,
+                cache,
+                wins,
+                losses,
+                speechSpeed,
+                lastHomework: lastLoadedHomework,
+                exportDate: new Date().toISOString(),
+                appVersion: "French Fun V8.0"
+            };
+            
+            const defaultName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
+            const userFilename = prompt("Enter filename for backup:", defaultName);
+            
+            if (userFilename === null) return; // User cancelled
+            
+            const filename = userFilename.trim() || defaultName;
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename.endsWith('.json') ? filename : filename + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert(`✅ Backup saved as: ${a.download}`);
+        }
+
+        function importBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!confirm(`Import backup: ${file.name}?\nThis will replace ALL current data.`)) {
+                    return;
+                }
+                
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    
+                    // Validate backup file
+                    if (!data.history || !data.cache) {
+                        throw new Error('Invalid backup file format');
+                    }
+                    
+                    // Import data
+                    history = data.history;
+                    cache = data.cache;
+                    wins = data.wins || 0;
+                    losses = data.losses || 0;
+                    speechSpeed = data.speechSpeed || 0.85;
+                    lastLoadedHomework = data.lastHomework || '';
+                    
+                    // Save to localStorage
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    localStorage.setItem('gameWins', wins);
+                    localStorage.setItem('gameLosses', losses);
+                    localStorage.setItem('speechSpeed', speechSpeed);
+                    localStorage.setItem('homeworkPhrases', lastLoadedHomework);
+                    
+                    // Update UI
+                    initSpeechSpeed();
+                    
+                    alert(`✅ Backup imported successfully!\n\nRestored: ${Object.keys(history).length} homework weeks\n${Object.keys(cache).length} translations`);
+                    
+                    // Reload the app
+                    location.reload();
+                    
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('❌ Failed to import backup. File may be corrupted or in wrong format.');
+                }
+            };
+            
+            input.click();
+        }
+
+        // ===== ORIGINAL APP FUNCTIONS =====
+
         function playWeekAudio(audioData) {
             if (!audioData) return;
             
@@ -435,14 +695,14 @@
             console.log('App loading...');
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
+            lastLoadedHomework = raw || '';
             
-            // Load last homework on startup
+            // Load last homework on startup if exists
             if (raw && raw.trim()) {
                 console.log('Loading last homework:', raw);
                 loadCurrentHomework();
             } else {
                 console.log('No homework found in storage');
-                document.getElementById('stCountText').textContent = 'Add homework to start!';
             }
             
             initVoices();
@@ -450,26 +710,24 @@
             initAudioUpload();
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-            
-            // Initialize status text
-            updateStatusText();
         };
 
-        function updateStatusText() {
-            const stCountText = document.getElementById('stCountText');
-            if (!stCountText) {
-                // Create status bar if it doesn't exist
-                const header = document.querySelector('.header');
-                if (header) {
-                    const statusBar = document.createElement('div');
-                    statusBar.className = 'status-bar';
-                    statusBar.innerHTML = `
-                        <div class="status-info">🇫🇷 Ready to learn!</div>
-                        <button class="magic-mini-btn" onclick="openOverlay('hwDrawer')">Add Homework</button>
-                    `;
-                    header.parentNode.insertBefore(statusBar, header.nextSibling);
+        function loadCurrentHomework() {
+            const words = document.getElementById('hwInput').value.trim();
+            if (!words) {
+                return;
+            }
+            
+            const savedAudio = localStorage.getItem('currentWeekAudio');
+            if (savedAudio) {
+                try {
+                    currentWeekAudio = JSON.parse(savedAudio);
+                } catch (e) {
+                    currentWeekAudio = null;
                 }
             }
+            
+            renderList(words.split('\n').filter(w => w.trim()));
         }
 
         function initAudioUpload() {
@@ -741,18 +999,6 @@
             document.getElementById('finishPracticingContainer').style.display = 'block';
         }
 
-        function finishPracticing() {
-            isPracticingPreset = false;
-            document.getElementById('finishPracticingContainer').style.display = 'none';
-            document.getElementById('phrasesList').innerHTML = '';
-            document.getElementById('stCountText').textContent = 'Ready!';
-            
-            const lastHomework = localStorage.getItem('homeworkPhrases');
-            if (lastHomework && lastHomework.trim()) {
-                loadCurrentHomework();
-            }
-        }
-
         function loadPreset(k) {
             console.log('Loading preset list:', presets[k]);
             currentWeekAudio = null;
@@ -767,9 +1013,9 @@
             container.innerHTML = '';
             
             // Update status text
-            const statusBar = document.querySelector('.status-bar .status-info');
-            if (statusBar) {
-                statusBar.textContent = `${list.length} phrases ready!`;
+            const statusInfo = document.querySelector('.status-info');
+            if (statusInfo) {
+                statusInfo.textContent = `${list.length} phrases ready!`;
             }
             
             const existingBanner = document.querySelector('.teacher-audio-banner');
@@ -968,54 +1214,6 @@
             }
         }
 
-        async function magicSync() {
-            const btn = document.getElementById('magicBtn'); 
-            const msgDiv = document.getElementById('hwMessages');
-            const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
-            
-            if (list.length === 0) {
-                msgDiv.innerHTML = '<div class="error-message">⚠️ Please enter some words first!</div>';
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-                return;
-            }
-            
-            btn.disabled = true;
-            msgDiv.innerHTML = '<div class="loading-spinner"></div>';
-            
-            let successCount = 0;
-            let failCount = 0;
-            
-            for (let i = 0; i < list.length; i++) { 
-                btn.textContent = `${i+1}/${list.length}`; 
-                const result = await translateOne(list[i]); 
-                if (result) successCount++;
-                else failCount++;
-                await new Promise(r => setTimeout(r, 500)); 
-            }
-            
-            btn.textContent = "✨ Magic Sync"; 
-            btn.disabled = false; 
-            
-            if (failCount === 0) {
-                msgDiv.innerHTML = `<div class="success-message">✅ Successfully translated ${successCount} words!</div>`;
-            } else {
-                msgDiv.innerHTML = `<div class="error-message">⚠️ Translated ${successCount} words, ${failCount} failed. Check your internet connection.</div>`;
-            }
-            
-            setTimeout(() => msgDiv.innerHTML = '', 5000);
-            
-            const savedAudio = localStorage.getItem('currentWeekAudio');
-            if (savedAudio) {
-                try {
-                    currentWeekAudio = JSON.parse(savedAudio);
-                } catch (e) {
-                    currentWeekAudio = null;
-                }
-            }
-            
-            renderList(list);
-        }
-
         // ===== HANGMAN GAME =====
         let targetWord = "", guessed = [], mistakes = 0;
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
@@ -1146,27 +1344,7 @@
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        // ===== HOMEWORK & STORAGE =====
-
-        function loadCurrentHomework() {
-            const words = document.getElementById('hwInput').value.trim();
-            if (!words) {
-                alert('No homework to load! Add some words first.');
-                return;
-            }
-            
-            const savedAudio = localStorage.getItem('currentWeekAudio');
-            if (savedAudio) {
-                try {
-                    currentWeekAudio = JSON.parse(savedAudio);
-                } catch (e) {
-                    currentWeekAudio = null;
-                }
-            }
-            
-            closeOverlay('hwDrawer');
-            renderList(words.split('\n').filter(w => w.trim()));
-        }
+        // ===== HOMEWORK & STORAGE FUNCTIONS =====
 
         function saveHW() { 
             const val = document.getElementById('hwInput').value.trim(); 
@@ -1251,7 +1429,7 @@
                     </div>
                     <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
                         ${hwData.audio ? '<button class="load-btn" style="background:#28a745; color:white;">▶️ Play</button>' : ''}
-                        <button class="load-btn">📂 Load</button>
+                        <button class="load-btn">🎯 Practice</button>
                         <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
                         ${hwData.audio ? '<button class="load-btn" style="background:#ff9e6d; color:white;">🎤 Share Audio</button>' : ''}
                         <button class="del-btn">🗑️</button>
@@ -1267,20 +1445,9 @@
                     };
                 }
                 
+                // FIXED: Practice button now loads directly to main screen
                 buttons[buttonIndex++].onclick = () => { 
-                    document.getElementById('hwInput').value = hwData.words; 
-                    localStorage.setItem('homeworkPhrases', hwData.words);
-                    
-                    currentWeekAudio = hwData.audio;
-                    if (currentWeekAudio) {
-                        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-                    } else {
-                        localStorage.removeItem('currentWeekAudio');
-                    }
-                    displayAudioPlayer();
-                    
-                    closeOverlay('bpModal'); 
-                    openOverlay('hwDrawer');
+                    loadHomeworkForPractice(name, hwData.words, hwData.audio);
                 };
                 
                 buttons[buttonIndex++].onclick = () => { 
@@ -1429,23 +1596,6 @@
             }
         }
 
-        function exportProgress() {
-            const data = {
-                history,
-                cache,
-                wins,
-                losses,
-                exportDate: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
         function debugStorage() {
             console.log('=== STORAGE DEBUG ===');
             console.log('homeworkPhrases:', localStorage.getItem('homeworkPhrases'));
@@ -1476,24 +1626,12 @@
                 localStorage.removeItem('currentWeekAudio');
                 displayAudioPlayer();
                 document.getElementById('phrasesList').innerHTML = '';
-                document.getElementById('stCountText').textContent = 'Ready!';
+                // Update status text
+                const statusInfo = document.querySelector('.status-info');
+                if (statusInfo) {
+                    statusInfo.textContent = '🇫🇷 Ready to learn!';
+                }
             } 
-        }
-
-        function openOverlay(id) { 
-            console.log('Opening overlay:', id);
-            document.getElementById(id).style.display = 'block'; 
-            if(id === 'gameDrawer') { 
-                startHangman(); 
-            } else if (id === 'bpModal') {
-                openBP(); // This was missing!
-            } else if (id === 'presetsOverlay') {
-                console.log('Presets overlay opened');
-            }
-        }
-
-        function closeOverlay(id) { 
-            document.getElementById(id).style.display = 'none'; 
         }
 
         function shareApp() { 
