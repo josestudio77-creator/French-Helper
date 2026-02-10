@@ -72,44 +72,55 @@
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* Speech speed slider in main screen */
+    /* Speech speed slider - COMPACT VERSION */
     .speech-speed-container { 
         background: white; 
-        padding: 12px 15px; 
+        padding: 8px 12px; 
         border-radius: 50px; 
-        margin: 15px 0; 
+        margin: 8px 0; 
         border: 3px solid #4cd964;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 5px;
+        gap: 2px;
+        min-height: auto;
+        max-height: 55px;
     }
     .speech-speed-label { 
         font-weight: 900; 
-        font-size: 0.85rem; 
+        font-size: 0.75rem; 
         color: #2d3748; 
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
+        margin-bottom: 0;
     }
     .speech-speed-slider { 
         width: 100%; 
-        margin-top: 5px;
+        margin-top: 0;
         -webkit-appearance: none;
-        height: 8px;
+        height: 6px;
         background: #e2e8f0;
-        border-radius: 4px;
+        border-radius: 3px;
         outline: none;
     }
     .speech-speed-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
         background: #4cd964;
         border-radius: 50%;
         cursor: pointer;
         border: 3px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .speech-speed-labels {
+        font-size: 0.6rem; 
+        color:#64748b; 
+        width:100%; 
+        display:flex; 
+        justify-content:space-between;
+        margin-top: 1px;
     }
    </style>
 </head>
@@ -120,14 +131,14 @@
             <h1>🇫🇷 French Fun V8.0 🎉</h1>
         </div>
         
-        <!-- Speech Speed Slider in Main Screen -->
+        <!-- Speech Speed Slider - COMPACT VERSION -->
         <div class="speech-speed-container">
             <div class="speech-speed-label">
                 <span>🎚️ Speech Speed:</span>
                 <span id="speedValue">0.85</span>x
             </div>
             <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechSpeed(this.value)">
-            <div style="font-size:0.65rem; color:#64748b; width:100%; display:flex; justify-content:space-between;">
+            <div class="speech-speed-labels">
                 <span>← Slower</span>
                 <span>Faster →</span>
             </div>
@@ -169,6 +180,11 @@
                 
                 <button onclick="showVoiceInstructions()" style="background:#ff9e6d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
                     🔊 French Voices Guide
+                </button>
+                
+                <!-- Debug button added -->
+                <button onclick="debugStorage()" style="background:#9d4edd; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    🐛 Debug Storage
                 </button>
                 
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
@@ -416,13 +432,16 @@
         }
 
         window.onload = () => {
+            console.log('App loading...');
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
             
             // Load last homework on startup
             if (raw && raw.trim()) {
+                console.log('Loading last homework:', raw);
                 loadCurrentHomework();
             } else {
+                console.log('No homework found in storage');
                 document.getElementById('stCountText').textContent = 'Add homework to start!';
             }
             
@@ -431,7 +450,27 @@
             initAudioUpload();
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+            
+            // Initialize status text
+            updateStatusText();
         };
+
+        function updateStatusText() {
+            const stCountText = document.getElementById('stCountText');
+            if (!stCountText) {
+                // Create status bar if it doesn't exist
+                const header = document.querySelector('.header');
+                if (header) {
+                    const statusBar = document.createElement('div');
+                    statusBar.className = 'status-bar';
+                    statusBar.innerHTML = `
+                        <div class="status-info">🇫🇷 Ready to learn!</div>
+                        <button class="magic-mini-btn" onclick="openOverlay('hwDrawer')">Add Homework</button>
+                    `;
+                    header.parentNode.insertBefore(statusBar, header.nextSibling);
+                }
+            }
+        }
 
         function initAudioUpload() {
             const fileInput = document.getElementById('teacherAudioFile');
@@ -497,6 +536,7 @@
                     currentWeekAudio = JSON.parse(audioData);
                     displayAudioPlayer();
                 } catch (e) {
+                    console.error('Error loading audio:', e);
                     currentWeekAudio = null;
                 }
             }
@@ -689,6 +729,12 @@
         }
 
         function loadPresetAndClose(k) {
+            console.log('Loading preset:', k, 'Available:', presets[k]);
+            if (!presets[k]) {
+                alert('Preset not found: ' + k);
+                return;
+            }
+            
             isPracticingPreset = true;
             loadPreset(k);
             closeOverlay('presetsOverlay');
@@ -708,16 +754,23 @@
         }
 
         function loadPreset(k) {
+            console.log('Loading preset list:', presets[k]);
             currentWeekAudio = null;
             localStorage.removeItem('currentWeekAudio');
             renderList(presets[k]);
         }
 
         function renderList(list) {
+            console.log('Rendering list with', list.length, 'items');
             currentScreenList = list; 
             const container = document.getElementById('phrasesList'); 
             container.innerHTML = '';
-            document.getElementById('stCountText').textContent = `${list.length} phrases ready!`;
+            
+            // Update status text
+            const statusBar = document.querySelector('.status-bar .status-info');
+            if (statusBar) {
+                statusBar.textContent = `${list.length} phrases ready!`;
+            }
             
             const existingBanner = document.querySelector('.teacher-audio-banner');
             if (existingBanner && existingBanner.parentElement) {
@@ -978,6 +1031,11 @@
             const presetWords = Object.keys(MASTER_DATA).filter(w => !w.includes(' '));
             const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
             
+            if (pool.length === 0) {
+                alert("No suitable words found! Add some single-word homework first.");
+                return;
+            }
+            
             let pick; 
             do { 
                 pick = pool[Math.floor(Math.random() * pool.length)]; 
@@ -1111,7 +1169,12 @@
         }
 
         function saveHW() { 
-            const val = document.getElementById('hwInput').value; 
+            const val = document.getElementById('hwInput').value.trim(); 
+            if (!val) {
+                alert('Please enter some homework words first!');
+                return;
+            }
+            
             localStorage.setItem('homeworkPhrases', val);
             
             if (currentWeekAudio) {
@@ -1129,10 +1192,18 @@
                 
                 const hwData = {
                     words: val,
-                    audio: currentWeekAudio
+                    audio: currentWeekAudio,
+                    date: new Date().toISOString()
                 };
+                
+                // Make sure history exists
+                if (!history) history = {};
+                
                 history[name] = JSON.stringify(hwData);
                 localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                
+                console.log('Saved homework:', name, 'History keys:', Object.keys(history));
+                
                 document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
                 setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
                 
@@ -1141,16 +1212,19 @@
                 currentWeekAudio = null;
                 localStorage.removeItem('currentWeekAudio');
                 displayAudioPlayer();
+                
+                // Reload backpack to show new item
+                openBP();
             } 
         }
 
         function openBP() {
+            console.log('Opening backpack, history:', history);
             const list = document.getElementById('bpList'); 
             list.innerHTML = ''; 
             
-            if (Object.keys(history).length === 0) {
+            if (!history || Object.keys(history).length === 0) {
                 list.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No saved homework yet!<br><br>Tap "Add New" to create your first week.</p>';
-                openOverlay('bpModal');
                 return;
             }
             
@@ -1229,7 +1303,6 @@
                 
                 list.appendChild(div);
             }); 
-            openOverlay('bpModal');
         }
 
         function shareCurrentHW() {
@@ -1306,7 +1379,7 @@
         }
 
         function shareAllWeeks() {
-            if (Object.keys(history).length === 0) {
+            if (!history || Object.keys(history).length === 0) {
                 alert('No saved weeks to share yet!');
                 return;
             }
@@ -1373,6 +1446,19 @@
             URL.revokeObjectURL(url);
         }
 
+        function debugStorage() {
+            console.log('=== STORAGE DEBUG ===');
+            console.log('homeworkPhrases:', localStorage.getItem('homeworkPhrases'));
+            console.log('frenchHistory:', JSON.parse(localStorage.getItem('frenchHistory') || '{}'));
+            console.log('currentWeekAudio:', localStorage.getItem('currentWeekAudio'));
+            console.log('phraseTranslations:', JSON.parse(localStorage.getItem('phraseTranslations') || '{}'));
+            console.log('gameWins:', localStorage.getItem('gameWins'));
+            console.log('gameLosses:', localStorage.getItem('gameLosses'));
+            console.log('speechSpeed:', localStorage.getItem('speechSpeed'));
+            console.log('=====================');
+            alert('Check console for storage debug info (F12)');
+        }
+
         function nukeStorage() { 
             if(confirm("⚠️ This will delete ALL homework, recordings, and progress. Are you absolutely sure?")) { 
                 if(confirm("Last chance! This cannot be undone!")) {
@@ -1395,11 +1481,14 @@
         }
 
         function openOverlay(id) { 
+            console.log('Opening overlay:', id);
             document.getElementById(id).style.display = 'block'; 
             if(id === 'gameDrawer') { 
                 startHangman(); 
             } else if (id === 'bpModal') {
-                openBP();
+                openBP(); // This was missing!
+            } else if (id === 'presetsOverlay') {
+                console.log('Presets overlay opened');
             }
         }
 
