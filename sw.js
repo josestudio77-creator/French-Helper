@@ -1,5 +1,5 @@
 // sw.js - Service Worker V700 (Smart Refresh Strategy)
-const CACHE_NAME = 'french-fun-v700'; // Incrementing to force update
+const CACHE_NAME = 'french-fun-v800'; // Incrementing to force update
 const urlsToCache = [
   './',
   './index.html',
@@ -60,3 +60,4 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
