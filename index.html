@@ -847,12 +847,18 @@ function practiceNow() {
             display.textContent = speechSpeed.toFixed(2);
         }
 
-        function updateSpeechSpeed(value) {
-            speechSpeed = parseFloat(value);
-            document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
-            localStorage.setItem('speechSpeed', speechSpeed);
-            spk("Bonjour", "fr-FR", true);
-        }
+function updateSpeechLabel(value) {
+    // This just updates the text number while you slide
+    document.getElementById('speedValue').textContent = parseFloat(value).toFixed(2);
+}
+
+function updateSpeechSpeed(value) {
+    // This only runs when you LET GO of the slider
+    speechSpeed = parseFloat(value);
+    document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
+    localStorage.setItem('speechSpeed', speechSpeed);
+    spk("Bonjour", "fr-FR", true);
+}
 
         function initVoices() {
             const setVoices = () => {
@@ -1734,6 +1740,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
