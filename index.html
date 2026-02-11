@@ -622,60 +622,57 @@ function practiceNow() {
             alert(`✅ Backup saved as: ${a.download}`);
         }
 
-        function importBackup() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json,application/json';
-            
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+       function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            if (!data.history) throw new Error('Invalid file format');
+
+            const incomingKeys = Object.keys(data.history);
+            let importedCount = 0;
+
+            for (const name of incomingKeys) {
+                let finalName = name;
                 
-                if (!confirm(`Import backup: ${file.name}?\nThis will replace ALL current data.`)) {
-                    return;
-                }
-                
-                try {
-                    const text = await file.text();
-                    const data = JSON.parse(text);
-                    
-                    // Validate backup file
-                    if (!data.history || !data.cache) {
-                        throw new Error('Invalid backup file format');
+                // CONFLICT CHECK: If name exists in our backpack
+                if (history[name]) {
+                    const choice = confirm(`" ${name} " already exists in your backpack.\n\nClick OK to REPLACE it.\nClick CANCEL to keep both (renames incoming to "${name} - New").`);
+                    if (!choice) {
+                        finalName = name + " - New";
                     }
-                    
-                    // Import data
-                    history = data.history;
-                    cache = data.cache;
-                    wins = data.wins || 0;
-                    losses = data.losses || 0;
-                    speechSpeed = data.speechSpeed || 0.85;
-                    lastLoadedHomework = data.lastHomework || '';
-                    
-                    // Save to localStorage
-                    localStorage.setItem('frenchHistory', JSON.stringify(history));
-                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                    localStorage.setItem('gameWins', wins);
-                    localStorage.setItem('gameLosses', losses);
-                    localStorage.setItem('speechSpeed', speechSpeed);
-                    localStorage.setItem('homeworkPhrases', lastLoadedHomework);
-                    
-                    // Update UI
-                    initSpeechSpeed();
-                    
-                    alert(`✅ Backup imported successfully!\n\nRestored: ${Object.keys(history).length} homework weeks\n${Object.keys(cache).length} translations`);
-                    
-                    // Reload the app
-                    location.reload();
-                    
-                } catch (error) {
-                    console.error('Import error:', error);
-                    alert('❌ Failed to import backup. File may be corrupted or in wrong format.');
                 }
-            };
+                
+                history[finalName] = data.history[name];
+                importedCount++;
+            }
+
+            // Merge fixed translations cache
+            if (data.cache) {
+                Object.assign(cache, data.cache);
+            }
+
+            // Save and Reload
+            localStorage.setItem('frenchHistory', JSON.stringify(history));
+            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
             
-            input.click();
+            alert(`✅ Successfully imported ${importedCount} week(s)!`);
+            location.reload(); 
+
+        } catch (error) {
+            console.error('Import error:', error);
+            alert('❌ Failed to import. Ensure it is a valid French Fun backup file.');
         }
+    };
+    input.click();
+}
 
         // ===== ORIGINAL APP FUNCTIONS (RESTORED ALL) =====
 
@@ -1618,62 +1615,44 @@ function loadPresetAndClose(k) {
             shareWeek(weekName, words, currentWeekAudio);
         }
 
-        function shareWeek(weekName, wordsText, audioData = null) {
-            const wordList = wordsText.split('\n').filter(w => w.trim());
-            const wordCount = wordList.length;
-            
-            // Share text via URL (short)
-            const weekData = { 
-                name: weekName, 
-                words: wordsText,
-                hasAudio: !!audioData
-            };
-            const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-            const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-            
-            let shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordList.join('\n')}\n\n📚 ${wordCount} words`;
-            
-            if (audioData) {
-                shareText += '\n🎤 Includes teacher recording';
-                if (confirm('This homework includes a teacher recording. Share text first, then audio separately?')) {
-                    if (navigator.share) {
-                        navigator.share({
-                            title: `French Fun - ${weekName}`,
-                            text: shareText + `\n\n✨ Import to app: ${importURL}`
-                        }).then(() => {
-                            setTimeout(() => shareAudioOnly(weekName, audioData), 500);
-                        }).catch(err => {
-                            console.log('Share cancelled');
-                        });
-                    } else {
-                        prompt('Copy this homework (audio will be shared separately):', shareText + `\n\n✨ Import to app: ${importURL}`);
-                        setTimeout(() => shareAudioOnly(weekName, audioData), 500);
-                    }
-                    return;
-                }
-            }
-            
-            shareText += `\n\n✨ Import to app: ${importURL}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: `French Fun - ${weekName}`,
-                    text: shareText
-                }).catch(err => {
-                    console.log('Share cancelled');
-                });
-            } else {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 Homework copied!\n\nAnyone with the app can click the link to import it!');
-                    }).catch(() => {
-                        prompt('Copy this homework:', shareText);
-                    });
-                } else {
-                    prompt('Copy this homework:', shareText);
-                }
-            }
+    function shareWeek(weekName, wordsText, audioData = null) {
+    // 1. If there's NO audio, use the fast URL Import Link
+    if (!audioData) {
+        const weekData = { name: weekName, words: wordsText, hasAudio: false };
+        const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+        const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+        const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
+        
+        if (navigator.share) {
+            navigator.share({ title: weekName, text: shareText }).catch(() => {});
+        } else {
+            prompt('Copy link:', importURL);
         }
+        return;
+    }
+
+    // 2. If THERE IS AUDIO, share as a "Homework File" (.json)
+    const singleWeekData = {
+        history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
+        cache: cache, 
+        appVersion: "French Fun V8.2"
+    };
+
+    const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
+    
+    if (navigator.canShare && navigator.share) {
+        const blob = new Blob([JSON.stringify(singleWeekData)], { type: 'application/json' });
+        const file = new File([blob], fileName, { type: 'application/json' });
+
+        navigator.share({
+            title: `🇫🇷 Homework: ${weekName}`,
+            text: `Here is the homework for "${weekName}" including the voice recording!`,
+            files: [file]
+        }).catch(err => { if(err.name !== 'AbortError') alert("Could not share file."); });
+    } else {
+        alert("File sharing not supported on this device. Use 'Backup All' to save the file manually.");
+    }
+}
 
 function shareAllWeeks() {
     if (!history || Object.keys(history).length === 0) {
@@ -1785,6 +1764,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
