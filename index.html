@@ -1514,8 +1514,9 @@ function loadPresetAndClose(k) {
                 
                 const hasAudio = hwData.audio ? '🎤' : '';
                 div.innerHTML = `
-                    <div style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px;">
-                        ${name} ${hasAudio}
+                    <div onclick="renameHomework('${name.replace(/'/g, "\\'")}')" 
+                         style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px; cursor:pointer; text-decoration:underline dotted #9d4edd;">
+                    ${name} ${hasAudio}
                     </div>
                     <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
                         <button class="load-btn" style="background:#4cd964; color:white;">🎯 Practice</button>
@@ -1555,6 +1556,42 @@ function loadPresetAndClose(k) {
             }); 
         }
 
+        function renameHomework(oldName) {
+            const newName = prompt("Rename this homework set:", oldName);
+            
+            // 1. Check if user cancelled or name didn't change
+            if (!newName || newName.trim() === "" || newName === oldName) return;
+        
+            // 2. Validate length
+            if (newName.length > 20) {
+                alert("⚠️ Name is too long! Max 20 characters.");
+                return;
+            }
+        
+            // 3. Check for duplicates
+            if (history[newName]) {
+                alert("⚠️ A homework set with that name already exists!");
+                return;
+            }
+        
+            // 4. Move the data
+            history[newName] = history[oldName]; // Copy to new name
+            delete history[oldName];             // Remove old name entry
+        
+            // 5. Update state if we are currently editing this specific set
+            if (editingHomeworkName === oldName) {
+                editingHomeworkName = newName;
+                document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + newName;
+            }
+        
+            // 6. Save and Refresh Backpack
+            localStorage.setItem('frenchHistory', JSON.stringify(history));
+            openBP();
+            
+            // Small success feedback
+            console.log(`Renamed "${oldName}" to "${newName}"`);
+        }
+        
         // NEW: Logic to load homework back into the editor
         function editHomework(name) {
             let hwData = { words: '', audio: null };
@@ -1732,6 +1769,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
