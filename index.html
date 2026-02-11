@@ -260,8 +260,8 @@
                     🎁 Share App
                 </button>
                 
-                <button onclick="exportProgress()" style="background:#118AB2; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
-                    📦 Backup All Data
+                <button onclick="shareAllWeeks()" style="background:#118AB2; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
+                    📦 Backup/Share All Data
                 </button>
                 
                 <button onclick="importBackup()" style="background:#9d4edd; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
@@ -352,11 +352,11 @@
             <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
             <div id="bpList"></div>
             
-            <!-- 2-column button layout -->
+           <!-- Simplified Backpack Actions -->
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
                 <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
-                <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📦 Backup All</button>
                 <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
+                <button onclick="openOverlay('parentDrawer')" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚙️ Settings</button>
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
             </div>
             
@@ -590,36 +590,6 @@ function practiceNow() {
             
             // Start translation process
             processTranslation(0);
-        }
-
-        function exportProgress() {
-            const data = {
-                history,
-                cache,
-                wins,
-                losses,
-                speechSpeed,
-                lastHomework: lastLoadedHomework,
-                exportDate: new Date().toISOString(),
-                appVersion: "French Fun V8.1"
-            };
-            
-            const defaultName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
-            const userFilename = prompt("Enter filename for backup:", defaultName);
-            
-            if (userFilename === null) return; // User cancelled
-            
-            const filename = userFilename.trim() || defaultName;
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename.endsWith('.json') ? filename : filename + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            alert(`✅ Backup saved as: ${a.download}`);
         }
 
        function importBackup() {
@@ -1615,88 +1585,79 @@ function loadPresetAndClose(k) {
             shareWeek(weekName, words, currentWeekAudio);
         }
 
-    function shareWeek(weekName, wordsText, audioData = null) {
-    // 1. If there's NO audio, use the fast URL Import Link
-    if (!audioData) {
-        const weekData = { name: weekName, words: wordsText, hasAudio: false };
-        const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-        const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-        const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
+            // 1. Updated Single Week Share (Handles links vs files automatically)
+        function shareWeek(weekName, wordsText, audioData = null) {
+            if (!audioData) {
+                const weekData = { name: weekName, words: wordsText, hasAudio: false };
+                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+                const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+                const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
+                if (navigator.share) { navigator.share({ title: weekName, text: shareText }).catch(() => {}); }
+                else { prompt('Copy link:', importURL); }
+                return;
+            }
         
-        if (navigator.share) {
-            navigator.share({ title: weekName, text: shareText }).catch(() => {});
-        } else {
-            prompt('Copy link:', importURL);
+            const singleWeekData = {
+                history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
+                cache: cache, 
+                appVersion: "French Fun V8.2"
+            };
+            const jsonString = JSON.stringify(singleWeekData);
+            const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
+            attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
         }
-        return;
-    }
-
-    // 2. If THERE IS AUDIO, share as a "Homework File" (.json)
-    const singleWeekData = {
-        history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
-        cache: cache, 
-        appVersion: "French Fun V8.2"
-    };
-
-    const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
-    
-    if (navigator.canShare && navigator.share) {
-        const blob = new Blob([JSON.stringify(singleWeekData)], { type: 'application/json' });
-        const file = new File([blob], fileName, { type: 'application/json' });
-
-        navigator.share({
-            title: `🇫🇷 Homework: ${weekName}`,
-            text: `Here is the homework for "${weekName}" including the voice recording!`,
-            files: [file]
-        }).catch(err => { if(err.name !== 'AbortError') alert("Could not share file."); });
-    } else {
-        alert("File sharing not supported on this device. Use 'Backup All' to save the file manually.");
-    }
-}
-
-function shareAllWeeks() {
-    if (!history || Object.keys(history).length === 0) {
-        alert('No saved weeks to share yet!');
-        return;
-    }
-
-    // 1. Prepare the data (same format as Backup)
-    const data = {
-        history,
-        cache,
-        wins,
-        losses,
-        speechSpeed,
-        lastHomework: lastLoadedHomework,
-        exportDate: new Date().toISOString(),
-        appVersion: "French Fun V8.2"
-    };
-
-    const fileName = `french-fun-backpack-${new Date().toISOString().split('T')[0]}.json`;
-    const jsonString = JSON.stringify(data, null, 2);
-
-    // 2. Try to share as a REAL file (Works on most modern phones/browsers)
-    if (navigator.canShare && navigator.share) {
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const file = new File([blob], fileName, { type: 'application/json' });
-
-        navigator.share({
-            title: 'French Fun Backpack Data',
-            text: 'Here is my complete French Fun backpack! Save this file and use "Import Backup" in the app to load it.',
-            files: [file]
-        }).then(() => {
-            console.log('Backpack shared successfully');
-        }).catch((err) => {
-            // Fallback if file sharing is blocked by the specific browser/OS
-            console.error('File share failed, falling back to download', err);
-            exportProgress(); 
-        });
-    } else {
-        // 3. Fallback for desktop or old browsers: Just trigger a download
-        alert('Sharing files is not supported on this browser. Downloading the backup file instead!');
-        exportProgress();
-    }
-}
+        
+        // 2. Consolidated Share All / Backup function
+        function shareAllWeeks() {
+            if (!history || Object.keys(history).length === 0) { 
+                alert('No saved weeks to share yet!'); 
+                return; 
+            }
+            const data = { 
+                history, cache, wins, losses, speechSpeed, 
+                lastHomework: lastLoadedHomework, 
+                exportDate: new Date().toISOString(), 
+                appVersion: "French Fun V8.2" 
+            };
+            const jsonString = JSON.stringify(data);
+            const fileName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
+            attemptFileShare(jsonString, fileName, '🇫🇷 French Fun Backpack/Backup');
+        }
+        
+        // 3. The Core Sharing Engine (Fixes "Could not share file" error)
+        function attemptFileShare(jsonString, fileName, title) {
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const file = new File([blob], fileName, { type: 'application/json' });
+        
+            // Check if the device is capable of sharing files
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    title: title,
+                    text: 'Save this file and use "Import Backpack/Backup" in the app to load it.',
+                    files: [file]
+                }).catch(err => {
+                    // If the user cancels, do nothing. For other errors, fallback to download.
+                    if(err.name !== 'AbortError') saveDataAsFile(jsonString, fileName);
+                });
+            } else {
+                // Fallback for browsers/devices that block native file sharing
+                saveDataAsFile(jsonString, fileName);
+            }
+        }
+        
+        // 4. The Download Engine (Used when sharing is blocked)
+        function saveDataAsFile(content, fileName) {
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            // Alert only if we are falling back from a failed share
+            alert("Share/Backup complete! The data file has been saved to your device Downloads.");
+        }
 
         function debugStorage() {
             console.log('=== STORAGE DEBUG ===');
@@ -1764,6 +1725,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
