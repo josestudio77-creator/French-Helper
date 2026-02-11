@@ -40,7 +40,6 @@
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
-    .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 10px 0; width: 100%; }
     .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; cursor: pointer; }
     .key.used { opacity: 0.2; pointer-events: none; }
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
@@ -103,11 +102,26 @@
         white-space: nowrap;
     }
 
-    /* Side-by-side bottom buttons */
+   /* Consolidated Game Layout Styles - Updated for V8.2 */
+    .keyboard { 
+        display: flex; 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        gap: 6px; 
+        margin: 10px 0; 
+        width: 100%; 
+        /* NEW: Visual Zone for Keyboard */
+        background: #f1f5f9; 
+        padding: 12px 8px; 
+        border-radius: 20px; 
+        border: 2px solid #e2e8f0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
     .game-actions {
         display: flex;
         gap: 10px;
-        margin-top: 10px;
+        margin-top: 25px; /* INCREASED: Adds nice space between keyboard and buttons */
     }
     
     .game-actions button {
@@ -117,8 +131,14 @@
         border: none;
         font-weight: 900;
         cursor: pointer;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1); /* Subtle 3D effect for the action buttons */
     }
-
+    
+    .game-actions button:active {
+        transform: translateY(2px);
+        box-shadow: none;
+    }
+       
     /* Smaller canvas and emoji to save height */
     #hangmanCanvas { 
         width: 150px; 
@@ -1772,6 +1792,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
