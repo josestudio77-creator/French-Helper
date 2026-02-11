@@ -18,8 +18,6 @@
     .header { background: white; border-radius: 20px; padding: 10px; margin-bottom: 10px; border: 4px solid #ff9e6d; position: relative; }
     h1 { color: #ff6b8b; font-size: 1.4rem; }
     
-    .status-bar { background: white; padding: 8px 15px; border-radius: 50px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 3px solid #118AB2; flex-wrap: wrap; gap: 5px; }
-    .status-info { font-weight: 800; font-size: 0.85rem; color: #2d3748; }
     .magic-mini-btn { background: #118AB2; color: white; border: none; padding: 8px 15px; border-radius: 50px; font-weight: 900; cursor: pointer; font-size: 0.75rem; }
     button:active, .key:active { transform: scale(1.15); }
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
@@ -85,55 +83,55 @@
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* Speech speed slider - COMPACT VERSION */
-    .speech-speed-container { 
-        background: white; 
-        padding: 8px 12px; 
-        border-radius: 50px; 
-        margin: 8px 0; 
-        border: 3px solid #4cd964;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        min-height: auto;
-        max-height: 55px;
+   /* Unified App Control Panel (Replaces Status Bar & Speed Slider) */
+    .app-control-panel {
+        background: white;
+        border-radius: 25px;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border: 3px solid #118AB2;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
+    
+    .status-info {
+        font-weight: 900;
+        font-size: 0.9rem;
+        color: #2d3748;
+        margin-bottom: 10px;
+        display: block;
+        border-bottom: 2px dashed #e2e8f0; /* Dashed line separates info from slider */
+        padding-bottom: 8px;
+    }
+
     .speech-speed-label { 
-        font-weight: 900; 
+        font-weight: 800; 
         font-size: 0.75rem; 
-        color: #2d3748; 
+        color: #64748b; 
         display: flex;
         align-items: center;
-        gap: 4px;
-        margin-bottom: 0;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 5px;
     }
+
     .speech-speed-slider { 
         width: 100%; 
-        margin-top: 0;
         -webkit-appearance: none;
-        height: 6px;
+        height: 8px;
         background: #e2e8f0;
-        border-radius: 3px;
+        border-radius: 4px;
         outline: none;
     }
+
     .speech-speed-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         background: #4cd964;
         border-radius: 50%;
         cursor: pointer;
         border: 3px solid white;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .speech-speed-labels {
-        font-size: 0.6rem; 
-        color:#64748b; 
-        width:100%; 
-        display:flex; 
-        justify-content:space-between;
-        margin-top: 1px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     /* Homework screen buttons - 3-column grid */
@@ -165,17 +163,15 @@
             <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
         </div>
         
-        <!-- Speech Speed Slider - COMPACT VERSION -->
-        <div class="speech-speed-container">
+       <!-- Consolidated App Control Panel -->
+        <div class="app-control-panel">
+            <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
+            
             <div class="speech-speed-label">
-                <span>🎚️ Speech Speed:</span>
+                <span>🎚️ Voice Speed:</span>
                 <span id="speedValue">0.85</span>x
             </div>
             <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechSpeed(this.value)">
-            <div class="speech-speed-labels">
-                <span>← Slower</span>
-                <span>Faster →</span>
-            </div>
         </div>
         
         <div id="finishPracticingContainer" style="display:none; text-align:center; margin:20px 0;">
@@ -1055,7 +1051,7 @@ function practiceNow() {
             renderList(presets[k]);
         }
 
-       function renderList(list) {
+    function renderList(list) {
     console.log('Rendering list with', list.length, 'items. Audio state:', !!currentWeekAudio);
     currentScreenList = list; 
     const container = document.getElementById('phrasesList'); 
@@ -1063,19 +1059,34 @@ function practiceNow() {
     // 1. CLEAR PREVIOUS UI STATE
     container.innerHTML = '';
     
-    // 2. SAFETY FIX: Remove any existing teacher audio banner before deciding to show a new one
+    // 2. SAFETY FIX: Remove any existing teacher audio banner
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) {
         existingBanner.remove();
     }
     
-    // Update status text
-    const statusInfo = document.querySelector('.status-info');
+    // 3. SMART BANNER: Audit the translations
+    const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
-        statusInfo.textContent = list.length > 0 ? `${list.length} phrases ready!` : '🇫🇷 Ready to learn!';
+        if (list.length === 0) {
+            statusInfo.textContent = '🇫🇷 Ready to learn!';
+        } else {
+            // Count how many words have translations
+            const translatedCount = list.filter(p => {
+                const n = norm(p);
+                // Presets are built-in, otherwise check the cache for real data
+                return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
+            }).length;
+
+            if (translatedCount === list.length) {
+                statusInfo.innerHTML = `✅ ${list.length} phrases ready!`;
+            } else {
+                statusInfo.innerHTML = `⚠️ ${list.length} phrases (${list.length - translatedCount} need ✨ Magic Translate)`;
+            }
+        }
     }
     
-    // 3. Check if we should show Teacher Mode
+    // 4. Check if we should show Teacher Mode
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
     if (hasTeacherAudio && list.length > 0) {
@@ -1166,7 +1177,6 @@ function practiceNow() {
         container.appendChild(card);
         
     } else {
-        // ... (The rest of the standard phrase card rendering logic remains exactly as it was)
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
@@ -1685,20 +1695,21 @@ function practiceNow() {
             } 
         }
 
-        function clearHW() { 
-            if(confirm("Clear current homework?")) { 
-                document.getElementById('hwInput').value = ""; 
-                localStorage.setItem('homeworkPhrases', ""); 
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                displayAudioPlayer();
-                document.getElementById('phrasesList').innerHTML = '';
-                const statusInfo = document.querySelector('.status-info');
-                if (statusInfo) {
-                    statusInfo.textContent = '🇫🇷 Ready to learn!';
-                }
-            } 
+function clearHW() { 
+    if(confirm("Clear current homework?")) { 
+        document.getElementById('hwInput').value = ""; 
+        localStorage.setItem('homeworkPhrases', ""); 
+        currentWeekAudio = null;
+        localStorage.removeItem('currentWeekAudio');
+        displayAudioPlayer();
+        document.getElementById('phrasesList').innerHTML = '';
+        
+        const statusInfo = document.getElementById('stCountText');
+        if (statusInfo) {
+            statusInfo.textContent = '🇫🇷 Ready to learn!';
         }
+    } 
+}
 
         function shareApp() { 
             if (navigator.share) { 
@@ -1728,5 +1739,6 @@ function practiceNow() {
     </script>
 </body>
 </html>
+
 
 
