@@ -265,7 +265,7 @@
                 </button>
                 
                 <button onclick="importBackup()" style="background:#9d4edd; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
-                    📥 Import Backup
+                    📥 Import Backpack/Backup
                 </button>
                 
                 <button onclick="showVoiceInstructions()" style="background:#ff9e6d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
@@ -354,7 +354,7 @@
             
             <!-- 2-column button layout -->
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
-                <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
+                <button onclick="()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
                 <button onclick="exportProgress()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📦 Backup All</button>
                 <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
@@ -1675,56 +1675,49 @@ function loadPresetAndClose(k) {
             }
         }
 
-        function shareAllWeeks() {
-            if (!history || Object.keys(history).length === 0) {
-                alert('No saved weeks to share yet!');
-                return;
-            }
-            
-            let shareText = `🇫🇷 French Fun - Complete Homework Collection\n\n`;
-            
-            Object.keys(history).forEach((weekName, index) => {
-                let hwData = { words: '', audio: null };
-                try {
-                    const parsed = JSON.parse(history[weekName]);
-                    if (parsed.words !== undefined) {
-                        hwData = parsed;
-                    } else {
-                        hwData.words = history[weekName];
-                    }
-                } catch (e) {
-                    hwData.words = history[weekName];
-                }
-                
-                const wordList = hwData.words.split('\n').filter(w => w.trim());
-                const audioIndicator = hwData.audio ? ' 🎤' : '';
-                shareText += `📚 ${weekName}${audioIndicator}\n`;
-                shareText += wordList.join('\n');
-                shareText += '\n\n';
-            });
-            
-            shareText += `Total: ${Object.keys(history).length} weeks\n`;
-            shareText += `✨ French Fun App: https://josestudio77-creator.github.io/French-Helper/`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'French Fun - All Homework Weeks',
-                    text: shareText
-                }).catch(err => {
-                    console.log('Share cancelled');
-                });
-            } else {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(shareText).then(() => {
-                        alert('📋 All homework weeks copied to clipboard!');
-                    }).catch(() => {
-                        prompt('Copy all homework weeks:', shareText);
-                    });
-                } else {
-                    prompt('Copy all homework weeks:', shareText);
-                }
-            }
-        }
+function shareAllWeeks() {
+    if (!history || Object.keys(history).length === 0) {
+        alert('No saved weeks to share yet!');
+        return;
+    }
+
+    // 1. Prepare the data (same format as Backup)
+    const data = {
+        history,
+        cache,
+        wins,
+        losses,
+        speechSpeed,
+        lastHomework: lastLoadedHomework,
+        exportDate: new Date().toISOString(),
+        appVersion: "French Fun V8.2"
+    };
+
+    const fileName = `french-fun-backpack-${new Date().toISOString().split('T')[0]}.json`;
+    const jsonString = JSON.stringify(data, null, 2);
+
+    // 2. Try to share as a REAL file (Works on most modern phones/browsers)
+    if (navigator.canShare && navigator.share) {
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const file = new File([blob], fileName, { type: 'application/json' });
+
+        navigator.share({
+            title: 'French Fun Backpack Data',
+            text: 'Here is my complete French Fun backpack! Save this file and use "Import Backup" in the app to load it.',
+            files: [file]
+        }).then(() => {
+            console.log('Backpack shared successfully');
+        }).catch((err) => {
+            // Fallback if file sharing is blocked by the specific browser/OS
+            console.error('File share failed, falling back to download', err);
+            exportProgress(); 
+        });
+    } else {
+        // 3. Fallback for desktop or old browsers: Just trigger a download
+        alert('Sharing files is not supported on this browser. Downloading the backup file instead!');
+        exportProgress();
+    }
+}
 
         function debugStorage() {
             console.log('=== STORAGE DEBUG ===');
@@ -1792,6 +1785,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
