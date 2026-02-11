@@ -70,8 +70,6 @@
     .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
     .preset-btn.beginner { border-color: #4cd964; }
     .difficulty-badge { position: absolute; top: -8px; right: -8px; background: #4cd964; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid white; }
-    .game-hints { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
-    .hint-btn { background: #e0f2fe; color: #0369a1; border: 2px solid #0369a1; padding: 10px 15px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; }
     .voice-selector { width: 100%; padding: 8px; border-radius: 10px; border: 2px solid #118AB2; font-weight: 700; margin-top: 5px; font-size: 0.8rem; }
     .app-actions { display: flex; gap: 10px; margin-top: 25px; }
     
@@ -82,7 +80,54 @@
     .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Consolidated Game Layout Styles */
+    .game-hints { 
+        display: flex; 
+        gap: 6px; 
+        justify-content: center; 
+        margin-bottom: 5px; 
+    }
     
+    /* Smaller control buttons to fit 3 in a row */
+    .hint-btn { 
+        flex: 1;
+        background: #e0f2fe; 
+        color: #0369a1; 
+        border: 2px solid #0369a1;
+        padding: 10px 2px !important; 
+        font-size: 0.75rem !important; 
+        border-radius: 12px;
+        font-weight: 900;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    /* Side-by-side bottom buttons */
+    .game-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .game-actions button {
+        flex: 1;
+        padding: 15px !important;
+        border-radius: 20px;
+        border: none;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    /* Smaller canvas and emoji to save height */
+    #hangmanCanvas { 
+        width: 150px; 
+        height: 110px; 
+        margin: 2px auto; 
+    }
+    .clue-emoji { font-size: 3rem; margin: 2px 0; }
+    .hangman-word { font-size: 1.6rem; margin: 10px 0; }
+       
    /* Unified App Control Panel (Replaces Status Bar & Speed Slider) */
     .app-control-panel {
         background: white;
@@ -252,25 +297,32 @@
         </div>
     </div>
 
-    <!-- Game Drawer -->
+    <!-- Updated Compact Game Drawer -->
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:900">
                 <span style="color:#4cd964">Wins: <span id="winCount">0</span></span>
                 <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
+            
+            <!-- Row 1: The 3 Controls (Listen, Spell, Music) -->
             <div class="game-hints">
                 <button class="hint-btn" onclick="spk(targetWord, 'fr-FR', true)">📢 Listen</button>
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
                 <button id="musicToggleBtn" class="hint-btn" style="background:#fef3c7; color:#92400e; border-color:#f59e0b" onclick="toggleMusic()">🎵 Music: Off</button>
             </div>
+
             <div id="clueEmoji" class="clue-emoji">💡</div>
             <canvas id="hangmanCanvas" width="200" height="150"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
-            <div id="gameMsg" style="font-weight:900; margin-bottom:8px; font-size:1.1rem; height:1.2rem;">Guess!</div>
+            <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess!</div>
             <div id="keyboard" class="keyboard"></div>
-            <button onclick="startHangman()" style="margin-top:15px; background:#4cd964; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">🎯 Next Word</button>
-            <button onclick="exitGame()" style="margin-top:8px; background:#2d3748; color:white; padding:12px; width:100%; border-radius:20px; border:none; font-weight:900">Exit</button>
+
+            <!-- Row 2: Bottom Action Buttons (Next and Exit) -->
+            <div class="game-actions">
+                <button onclick="startHangman()" style="background:#4cd964; color:white;">🎯 Next</button>
+                <button onclick="exitGame()" style="background:#2d3748; color:white;">Exit</button>
+            </div>
         </div>
     </div>
 
@@ -949,37 +1001,47 @@ function updateSpeechSpeed(value) {
             }
         }
 
-        function playHappyLoop() {
-            if (!musicContext) return;
-            const playNote = (f, s, d) => { 
-                if (!musicNode) return; 
-                const osc = musicContext.createOscillator(); 
-                const gain = musicContext.createGain();
-                osc.type = 'sine'; 
-                gain.gain.setValueAtTime(0, s); 
-                gain.gain.linearRampToValueAtTime(0.15, s + 0.1); 
-                gain.gain.exponentialRampToValueAtTime(0.001, s + d);
-                osc.frequency.setValueAtTime(f, s); 
-                osc.connect(gain); 
-                gain.connect(musicContext.destination); 
-                osc.start(s); 
-                osc.stop(s + d);
-            };
-            const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66]; 
-            let t = musicContext.currentTime; 
-            musicNode = { 
-                stop: () => { 
-                    if (musicNode && musicNode.timer) clearTimeout(musicNode.timer);
-                    musicNode = null; 
-                } 
-            }; 
-            const schedule = () => { 
-                if (!musicNode) return; 
-                melody.forEach(n => { playNote(n, t, 0.8); t += 0.8; }); 
-                musicNode.timer = setTimeout(schedule, 6400); 
-            };
-            schedule();
-        }
+       function playHappyLoop() {
+    if (!musicContext) return;
+    
+    const playNote = (f, s, d) => { 
+        if (!musicNode) return; 
+        const osc = musicContext.createOscillator(); 
+        const gain = musicContext.createGain();
+        
+        // SAWTOOTH wave gives that gritty "Rock" energy
+        osc.type = 'sawtooth'; 
+        
+        // Volume: increased slightly for more presence
+        gain.gain.setValueAtTime(0, s); 
+        gain.gain.linearRampToValueAtTime(0.20, s + 0.05); 
+        gain.gain.exponentialRampToValueAtTime(0.001, s + d);
+        
+        osc.frequency.setValueAtTime(f, s); 
+        osc.connect(gain); 
+        gain.connect(musicContext.destination); 
+        osc.start(s); 
+        osc.stop(s + d);
+    };
+
+    // A faster, energetic "Rock" bassline melody
+    const melody = [110.00, 110.00, 130.81, 146.83, 110.00, 110.00, 164.81, 146.83]; 
+    let t = musicContext.currentTime; 
+    musicNode = { 
+        stop: () => { 
+            if (musicNode && musicNode.timer) clearTimeout(musicNode.timer);
+            musicNode = null; 
+        } 
+    }; 
+    
+    const schedule = () => { 
+        if (!musicNode) return; 
+        // 0.4s duration = fast Rock tempo!
+        melody.forEach(n => { playNote(n, t, 0.4); t += 0.4; }); 
+        musicNode.timer = setTimeout(schedule, 3200); 
+    };
+    schedule();
+}
 
         function getCardData(p) {
             if (MASTER_DATA[p]) return MASTER_DATA[p];
@@ -1710,6 +1772,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
