@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V8.0 🎉</title>
+    <title>🇫🇷 French Fun V8.1 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -50,7 +50,20 @@
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
     @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
-    .history-item { padding: 15px; border-bottom: 2px solid #eee; display: flex; flex-direction: column; align-items: center; background: #f9fafb; border-radius: 15px; margin-bottom: 10px; }
+    
+    /* UPDATED: Contrast for history items (Backpack Cards) */
+    .history-item { 
+        padding: 15px; 
+        border: 3px solid #9d4edd; /* Stronger purple border */
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        background: #ffffff; /* Pure white background */
+        border-radius: 20px; 
+        margin-bottom: 15px; 
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15); /* Stronger shadow */
+    }
+    
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
     .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
     .del-btn { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
@@ -144,10 +157,10 @@
 
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V8.0 🎉</h1>
+            <h1>🇫🇷 French Fun V8.1 🎉</h1>
         </div>
         
-        <!-- Status Bar (without Add Homework button) -->
+        <!-- Status Bar -->
         <div class="status-bar">
             <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
         </div>
@@ -223,7 +236,7 @@
     <!-- Homework Drawer (Add/Edit Homework) -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
-            <h2 style="color:#9d4edd">✏️ Add Homework</h2>
+            <h2 id="hwDrawerTitle" style="color:#9d4edd">✏️ Add Homework</h2>
             
             <div id="hwMessages"></div>
             <textarea id="hwInput" placeholder="Enter French words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
@@ -317,7 +330,7 @@
     </div>
 
     <script>
-        /* ===== MASTER_DATA Dictionary ===== */
+        /* ===== MASTER_DATA Dictionary (RESTORED FULL VERSION) ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},
             "Un":{en:"One",icon:"1️⃣",pronunciation:"uhn"},"Deux":{en:"Two",icon:"2️⃣",pronunciation:"duh"},"Trois":{en:"Three",icon:"3️⃣",pronunciation:"twah"},"Quatre":{en:"Four",icon:"4️⃣",pronunciation:"KAH-truh"},"Cinq":{en:"Five",icon:"5️⃣",pronunciation:"sank"},"Six":{en:"Six",icon:"6️⃣",pronunciation:"seess"},"Sept":{en:"Seven",icon:"7️⃣",pronunciation:"set"},"Huit":{en:"Eight",icon:"8️⃣",pronunciation:"weet"},"Neuf":{en:"Nine",icon:"9️⃣",pronunciation:"nuhf"},"Dix":{en:"Ten",icon:"🔟",pronunciation:"deess"},
@@ -358,6 +371,7 @@
         let isPracticingPreset = false;
         let currentlyPlayingAudio = null;
         let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
+        let editingHomeworkName = null; // NEW: Track if we are editing an existing item
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -381,16 +395,48 @@
             document.getElementById(id).style.display = 'none'; 
         }
 
-        // ===== NEW FUNCTIONS FOR FIXES =====
+        // ===== NEW FUNCTIONS FOR FIXES (Surgical Update) =====
 
         function openBackpackFromHW() {
             closeOverlay('hwDrawer');
-            setTimeout(() => openOverlay('bpModal'), 300);
+            openOverlay('bpModal'); // Instant switch
         }
 
         function addNewHomework() {
+            // Reset for a fresh entry
+            editingHomeworkName = null;
+            document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+            document.getElementById('hwInput').value = "";
+            currentWeekAudio = null;
+            displayAudioPlayer();
+            
             closeOverlay('bpModal');
-            setTimeout(() => openOverlay('hwDrawer'), 300);
+            openOverlay('hwDrawer'); // Instant switch
+        }
+
+        function editHomework(name) {
+            let hwData = { words: '', audio: null };
+            try {
+                const parsed = JSON.parse(history[name]);
+                if (parsed.words !== undefined) {
+                    hwData = parsed;
+                } else {
+                    hwData.words = history[name];
+                }
+            } catch (e) {
+                hwData.words = history[name];
+            }
+
+            // Load saved data into the editor
+            editingHomeworkName = name;
+            document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
+            document.getElementById('hwInput').value = hwData.words;
+            currentWeekAudio = hwData.audio;
+            displayAudioPlayer();
+
+            // Open the homework drawer
+            closeOverlay('bpModal');
+            openOverlay('hwDrawer');
         }
 
         function loadHomeworkForPractice(name, words, audio) {
@@ -516,7 +562,7 @@
                 speechSpeed,
                 lastHomework: lastLoadedHomework,
                 exportDate: new Date().toISOString(),
-                appVersion: "French Fun V8.0"
+                appVersion: "French Fun V8.1"
             };
             
             const defaultName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
@@ -592,7 +638,7 @@
             input.click();
         }
 
-        // ===== ORIGINAL APP FUNCTIONS =====
+        // ===== ORIGINAL APP FUNCTIONS (RESTORED ALL) =====
 
         function playWeekAudio(audioData) {
             if (!audioData) return;
@@ -1344,7 +1390,7 @@
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        // ===== HOMEWORK & STORAGE FUNCTIONS =====
+        // ===== HOMEWORK & STORAGE FUNCTIONS (SURGICAL UPDATES HERE) =====
 
         function saveHW() { 
             const val = document.getElementById('hwInput').value.trim(); 
@@ -1361,7 +1407,8 @@
                 localStorage.removeItem('currentWeekAudio');
             }
             
-            let name = prompt("Week Name (max 20 characters):", "Week " + (Object.keys(history).length + 1)); 
+            // NEW: Pre-fill the name if editing
+            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
             if (name) { 
                 if (name.length > 20) {
                     name = name.substring(0, 20);
@@ -1374,24 +1421,22 @@
                     date: new Date().toISOString()
                 };
                 
-                // Make sure history exists
                 if (!history) history = {};
                 
                 history[name] = JSON.stringify(hwData);
                 localStorage.setItem('frenchHistory', JSON.stringify(history)); 
                 
-                console.log('Saved homework:', name, 'History keys:', Object.keys(history));
-                
                 document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
                 setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
                 
-                // Clear current homework after saving
+                // Clear state
+                editingHomeworkName = null;
+                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
                 document.getElementById('hwInput').value = "";
                 currentWeekAudio = null;
                 localStorage.removeItem('currentWeekAudio');
                 displayAudioPlayer();
                 
-                // Reload backpack to show new item
                 openBP();
             } 
         }
@@ -1408,7 +1453,7 @@
             
             Object.keys(history).reverse().forEach(name => {
                 const div = document.createElement('div'); 
-                div.className = 'history-item';
+                div.className = 'history-item'; // Styles updated for contrast above
                 
                 let hwData = { words: '', audio: null };
                 try {
@@ -1428,38 +1473,31 @@
                         ${name} ${hasAudio}
                     </div>
                     <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
-                        ${hwData.audio ? '<button class="load-btn" style="background:#28a745; color:white;">▶️ Play</button>' : ''}
-                        <button class="load-btn">🎯 Practice</button>
+                        <button class="load-btn" style="background:#4cd964; color:white;">🎯 Practice</button>
+                        <button class="load-btn" style="background:#ff9e6d; color:white;">✏️ Edit</button>
                         <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
-                        ${hwData.audio ? '<button class="load-btn" style="background:#ff9e6d; color:white;">🎤 Share Audio</button>' : ''}
                         <button class="del-btn">🗑️</button>
                     </div>
                 `;
                 
-                let buttonIndex = 0;
                 const buttons = div.querySelectorAll('.load-btn');
                 
-                if (hwData.audio) {
-                    buttons[buttonIndex++].onclick = () => { 
-                        playWeekAudio(hwData.audio);
-                    };
-                }
-                
-                // FIXED: Practice button now loads directly to main screen
-                buttons[buttonIndex++].onclick = () => { 
+                // 🎯 Practice Button
+                buttons[0].onclick = () => { 
                     loadHomeworkForPractice(name, hwData.words, hwData.audio);
                 };
                 
-                buttons[buttonIndex++].onclick = () => { 
+                // ✏️ Edit Button (NEW LOGIC)
+                buttons[1].onclick = () => { 
+                    editHomework(name);
+                };
+                
+                // 📤 Share Button
+                buttons[2].onclick = () => { 
                     shareWeek(name, hwData.words, hwData.audio); 
                 };
                 
-                if (hwData.audio) {
-                    buttons[buttonIndex++].onclick = () => { 
-                        shareAudioOnly(name, hwData.audio);
-                    };
-                }
-                
+                // 🗑️ Delete Button
                 div.querySelector('.del-btn').onclick = () => { 
                     if(confirm("Delete " + name + "?")){ 
                         delete history[name]; 
@@ -1472,6 +1510,32 @@
             }); 
         }
 
+        // NEW: Logic to load homework back into the editor
+        function editHomework(name) {
+            let hwData = { words: '', audio: null };
+            try {
+                const parsed = JSON.parse(history[name]);
+                if (parsed.words !== undefined) {
+                    hwData = parsed;
+                } else {
+                    hwData.words = history[name];
+                }
+            } catch (e) {
+                hwData.words = history[name];
+            }
+
+            // Set state
+            editingHomeworkName = name;
+            document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
+            document.getElementById('hwInput').value = hwData.words;
+            currentWeekAudio = hwData.audio;
+            displayAudioPlayer();
+
+            // Switch Screen
+            closeOverlay('bpModal');
+            openOverlay('hwDrawer');
+        }
+
         function shareCurrentHW() {
             const words = document.getElementById('hwInput').value.trim();
             if (!words) {
@@ -1479,7 +1543,7 @@
                 return;
             }
             
-            const weekName = "Shared Homework";
+            const weekName = editingHomeworkName || "Shared Homework";
             shareWeek(weekName, words, currentWeekAudio);
         }
 
@@ -1491,7 +1555,6 @@
             const weekData = { 
                 name: weekName, 
                 words: wordsText,
-                // Don't include audio in URL (too long)
                 hasAudio: !!audioData
             };
             const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
@@ -1501,21 +1564,17 @@
             
             if (audioData) {
                 shareText += '\n🎤 Includes teacher recording';
-                // Offer to share audio separately
                 if (confirm('This homework includes a teacher recording. Share text first, then audio separately?')) {
-                    // Share text first
                     if (navigator.share) {
                         navigator.share({
                             title: `French Fun - ${weekName}`,
                             text: shareText + `\n\n✨ Import to app: ${importURL}`
                         }).then(() => {
-                            // Then share audio
                             setTimeout(() => shareAudioOnly(weekName, audioData), 500);
                         }).catch(err => {
                             console.log('Share cancelled');
                         });
                     } else {
-                        // Fallback for desktop
                         prompt('Copy this homework (audio will be shared separately):', shareText + `\n\n✨ Import to app: ${importURL}`);
                         setTimeout(() => shareAudioOnly(weekName, audioData), 500);
                     }
@@ -1626,7 +1685,6 @@
                 localStorage.removeItem('currentWeekAudio');
                 displayAudioPlayer();
                 document.getElementById('phrasesList').innerHTML = '';
-                // Update status text
                 const statusInfo = document.querySelector('.status-info');
                 if (statusInfo) {
                     statusInfo.textContent = '🇫🇷 Ready to learn!';
@@ -1637,7 +1695,7 @@
         function shareApp() { 
             if (navigator.share) { 
                 navigator.share({ 
-                    title: 'French Fun V8.0', 
+                    title: 'French Fun V8.1', 
                     text: 'Check out this fun French learning app for kids!',
                     url: window.location.href 
                 }).catch(() => {}); 
