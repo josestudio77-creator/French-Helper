@@ -356,7 +356,7 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
                 <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
                 <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
-                <button onclick="openOverlay('parentDrawer')" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚙️ Settings</button>
+                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚙️ Settings</button>
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
             </div>
             
@@ -471,6 +471,13 @@
             closeOverlay('bpModal');
             openOverlay('hwDrawer'); // Instant switch
         }
+
+        function openSettingsFromBP() {
+    // 1. Hide the backpack first
+    closeOverlay('bpModal');
+    // 2. Open the parent settings immediately after
+    openOverlay('parentDrawer');
+    }
 
 function editHomework(name) {
     let hwData = { words: '', audio: null };
@@ -1725,6 +1732,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
