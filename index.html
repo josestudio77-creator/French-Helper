@@ -439,25 +439,30 @@
             openOverlay('hwDrawer');
         }
 
-        function loadHomeworkForPractice(name, words, audio) {
-            // Save to current homework
-            document.getElementById('hwInput').value = words;
-            localStorage.setItem('homeworkPhrases', words);
-            lastLoadedHomework = words;
-            
-            // Set audio if exists
-            currentWeekAudio = audio;
-            if (currentWeekAudio) {
-                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
-            }
-            displayAudioPlayer();
-            
-            // Close backpack and render list on main screen
-            closeOverlay('bpModal');
-            renderList(words.split('\n').filter(w => w.trim()));
-        }
+function loadHomeworkForPractice(name, words, audio) {
+    console.log('Loading for practice:', name, 'Audio present:', !!audio);
+    
+    // 1. Update text input
+    document.getElementById('hwInput').value = words;
+    localStorage.setItem('homeworkPhrases', words);
+    lastLoadedHomework = words;
+    
+    // 2. SAFETY FIX: Explicitly set audio to the new value or NULL
+    currentWeekAudio = audio || null; 
+    
+    if (currentWeekAudio) {
+        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+    } else {
+        localStorage.removeItem('currentWeekAudio');
+    }
+    
+    // 3. Update the UI player and clear the screen
+    displayAudioPlayer();
+    
+    // 4. Close backpack and render
+    closeOverlay('bpModal');
+    renderList(words.split('\n').filter(w => w.trim()));
+}
 
         function practiceNow() {
             const words = document.getElementById('hwInput').value.trim();
@@ -1052,192 +1057,197 @@
             renderList(presets[k]);
         }
 
-        function renderList(list) {
-            console.log('Rendering list with', list.length, 'items');
-            currentScreenList = list; 
-            const container = document.getElementById('phrasesList'); 
-            container.innerHTML = '';
-            
-            // Update status text
-            const statusInfo = document.querySelector('.status-info');
-            if (statusInfo) {
-                statusInfo.textContent = `${list.length} phrases ready!`;
-            }
-            
-            const existingBanner = document.querySelector('.teacher-audio-banner');
-            if (existingBanner && existingBanner.parentElement) {
-                existingBanner.remove();
-            }
-            
-            const hasTeacherAudio = currentWeekAudio !== null;
-            
-            if (hasTeacherAudio && list.length > 0) {
-                const banner = document.createElement('div');
-                banner.className = 'teacher-audio-banner';
-                banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
-                banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
-                container.parentElement.insertBefore(banner, container);
-                
-                const card = document.createElement('div');
-                card.className = 'phrase-card';
-                card.style.border = '5px solid #ffc107';
-                card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
-                
-                const icon = document.createElement('div');
-                icon.className = 'card-icon';
-                icon.textContent = '🎤';
-                
-                const title = document.createElement('div');
-                title.className = 'french-text';
-                title.style.fontSize = '1.2rem';
-                title.textContent = '📚 Teacher\'s Recording';
-                
-                const wordsList = document.createElement('div');
-                wordsList.style.fontSize = '1.4rem';
-                wordsList.style.fontWeight = '900';
-                wordsList.style.color = '#2d3748';
-                wordsList.style.marginBottom = '15px';
-                wordsList.style.textAlign = 'left';
-                wordsList.style.padding = '15px';
-                wordsList.style.background = 'white';
-                wordsList.style.borderRadius = '12px';
-                wordsList.innerHTML = list.map(w => `• ${w}`).join('<br>');
-                
-                const audioPlayer = document.createElement('audio');
-                audioPlayer.controls = true;
-                audioPlayer.style.width = '100%';
-                audioPlayer.style.marginBottom = '15px';
-                audioPlayer.src = currentWeekAudio.data;
-                
-                audioPlayer.onplay = () => {
-                    document.querySelectorAll('audio').forEach(audio => {
-                        if (audio !== audioPlayer && !audio.paused) {
-                            audio.pause();
-                        }
-                    });
-                };
-                
-                const instructions = document.createElement('div');
-                instructions.style.fontSize = '0.9rem';
-                instructions.style.color = '#856404';
-                instructions.style.marginBottom = '15px';
-                instructions.textContent = '👆 Play the recording and follow along with the words above';
-                
-                const btnContainer = document.createElement('div');
-                btnContainer.className = 'card-btns';
-                
-                const playBtn = document.createElement('button');
-                playBtn.className = 'card-btn';
-                playBtn.style.background = '#28a745';
-                playBtn.textContent = '▶️ Play Recording';
-                playBtn.onclick = () => {
-                    if (audioPlayer.paused) {
-                        audioPlayer.play();
-                        playBtn.textContent = '⏸️ Pause';
-                    } else {
-                        audioPlayer.pause();
-                        playBtn.textContent = '▶️ Play Recording';
-                    }
-                };
-                
-                audioPlayer.onended = () => {
-                    playBtn.textContent = '▶️ Play Recording';
-                };
-                
-                const practiceBtn = document.createElement('button');
-                practiceBtn.className = 'card-btn spk-fr';
-                practiceBtn.textContent = '📖 Practice Words';
-                practiceBtn.onclick = () => {
-                    const tempAudio = currentWeekAudio;
-                    currentWeekAudio = null;
-                    renderList(list);
-                    currentWeekAudio = tempAudio;
-                };
-                
-                btnContainer.append(playBtn, practiceBtn);
-                card.append(icon, title, wordsList, audioPlayer, instructions, btnContainer);
-                container.appendChild(card);
-                
+       function renderList(list) {
+    console.log('Rendering list with', list.length, 'items. Audio state:', !!currentWeekAudio);
+    currentScreenList = list; 
+    const container = document.getElementById('phrasesList'); 
+    
+    // 1. CLEAR PREVIOUS UI STATE
+    container.innerHTML = '';
+    
+    // 2. SAFETY FIX: Remove any existing teacher audio banner before deciding to show a new one
+    const existingBanner = document.querySelector('.teacher-audio-banner');
+    if (existingBanner) {
+        existingBanner.remove();
+    }
+    
+    // Update status text
+    const statusInfo = document.querySelector('.status-info');
+    if (statusInfo) {
+        statusInfo.textContent = list.length > 0 ? `${list.length} phrases ready!` : '🇫🇷 Ready to learn!';
+    }
+    
+    // 3. Check if we should show Teacher Mode
+    const hasTeacherAudio = currentWeekAudio !== null;
+    
+    if (hasTeacherAudio && list.length > 0) {
+        const banner = document.createElement('div');
+        banner.className = 'teacher-audio-banner';
+        banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
+        banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+        container.parentElement.insertBefore(banner, container);
+        
+        const card = document.createElement('div');
+        card.className = 'phrase-card';
+        card.style.border = '5px solid #ffc107';
+        card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
+        
+        const icon = document.createElement('div');
+        icon.className = 'card-icon';
+        icon.textContent = '🎤';
+        
+        const title = document.createElement('div');
+        title.className = 'french-text';
+        title.style.fontSize = '1.2rem';
+        title.textContent = '📚 Teacher\'s Recording';
+        
+        const wordsList = document.createElement('div');
+        wordsList.style.fontSize = '1.4rem';
+        wordsList.style.fontWeight = '900';
+        wordsList.style.color = '#2d3748';
+        wordsList.style.marginBottom = '15px';
+        wordsList.style.textAlign = 'left';
+        wordsList.style.padding = '15px';
+        wordsList.style.background = 'white';
+        wordsList.style.borderRadius = '12px';
+        wordsList.innerHTML = list.map(w => `• ${w}`).join('<br>');
+        
+        const audioPlayer = document.createElement('audio');
+        audioPlayer.controls = true;
+        audioPlayer.style.width = '100%';
+        audioPlayer.style.marginBottom = '15px';
+        audioPlayer.src = currentWeekAudio.data;
+        
+        audioPlayer.onplay = () => {
+            document.querySelectorAll('audio').forEach(audio => {
+                if (audio !== audioPlayer && !audio.paused) {
+                    audio.pause();
+                }
+            });
+        };
+        
+        const instructions = document.createElement('div');
+        instructions.style.fontSize = '0.9rem';
+        instructions.style.color = '#856404';
+        instructions.style.marginBottom = '15px';
+        instructions.textContent = '👆 Play the recording and follow along with the words above';
+        
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'card-btns';
+        
+        const playBtn = document.createElement('button');
+        playBtn.className = 'card-btn';
+        playBtn.style.background = '#28a745';
+        playBtn.textContent = '▶️ Play Recording';
+        playBtn.onclick = () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playBtn.textContent = '⏸️ Pause';
             } else {
-                list.forEach(p => {
-                    const data = getCardData(p); 
-                    const card = document.createElement('div'); 
-                    card.className = 'phrase-card';
-                    
-                    if(data.g) { 
-                        const b = document.createElement('div'); 
-                        b.className = 'gender-icon'; 
-                        b.textContent = data.g === 'f' ? '👧' : '👦'; 
-                        card.appendChild(b); 
+                audioPlayer.pause();
+                playBtn.textContent = '▶️ Play Recording';
+            }
+        };
+        
+        audioPlayer.onended = () => {
+            playBtn.textContent = '▶️ Play Recording';
+        };
+        
+        const practiceBtn = document.createElement('button');
+        practiceBtn.className = 'card-btn spk-fr';
+        practiceBtn.textContent = '📖 Practice Words';
+        practiceBtn.onclick = () => {
+            const tempAudio = currentWeekAudio;
+            currentWeekAudio = null;
+            renderList(list);
+            currentWeekAudio = tempAudio;
+        };
+        
+        btnContainer.append(playBtn, practiceBtn);
+        card.append(icon, title, wordsList, audioPlayer, instructions, btnContainer);
+        container.appendChild(card);
+        
+    } else {
+        // ... (The rest of the standard phrase card rendering logic remains exactly as it was)
+        list.forEach(p => {
+            const data = getCardData(p); 
+            const card = document.createElement('div'); 
+            card.className = 'phrase-card';
+            
+            if(data.g) { 
+                const b = document.createElement('div'); 
+                b.className = 'gender-icon'; 
+                b.textContent = data.g === 'f' ? '👧' : '👦'; 
+                card.appendChild(b); 
+            }
+            
+            const icon = document.createElement('span'); 
+            icon.className = 'card-icon'; 
+            icon.textContent = data.icon;
+            
+            const fS = document.createElement('span'); 
+            fS.className = 'french-text'; 
+            fS.textContent = p;
+            
+            const eS = document.createElement('span'); 
+            eS.className = 'english-text'; 
+            eS.textContent = data.en;
+            
+            const bD = document.createElement('div'); 
+            bD.className = 'card-btns';
+            
+            const sB = document.createElement('button'); 
+            sB.className = 'card-btn spk-fr'; 
+            sB.textContent = '🎤 French';
+            sB.onclick = () => {
+                spk(p, 'fr-FR');
+            };
+            
+            const tB = document.createElement('button'); 
+            tB.className = 'card-btn spk-en';
+            tB.textContent = '🎯 English'; 
+            tB.onclick = () => { 
+                spk(data.en, 'en-US'); 
+            };
+            
+            let lastTap = 0;
+            tB.addEventListener('touchstart', (e) => {
+                const now = Date.now();
+                if (now - lastTap < 300) {
+                    e.preventDefault();
+                    if(confirm("Fix translation for '" + p + "'?")){ 
+                        const fix = prompt("Enter correct English:", data.en); 
+                        if(fix){ 
+                            cache[norm(p)] = fix; 
+                            localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
+                            renderList(currentScreenList); 
+                        } 
                     }
-                    
-                    const icon = document.createElement('span'); 
-                    icon.className = 'card-icon'; 
-                    icon.textContent = data.icon;
-                    
-                    const fS = document.createElement('span'); 
-                    fS.className = 'french-text'; 
-                    fS.textContent = p;
-                    
-                    const eS = document.createElement('span'); 
-                    eS.className = 'english-text'; 
-                    eS.textContent = data.en;
-                    
-                    const bD = document.createElement('div'); 
-                    bD.className = 'card-btns';
-                    
-                    const sB = document.createElement('button'); 
-                    sB.className = 'card-btn spk-fr'; 
-                    sB.textContent = '🎤 French';
-                    sB.onclick = () => {
-                        spk(p, 'fr-FR');
-                    };
-                    
-                    const tB = document.createElement('button'); 
-                    tB.className = 'card-btn spk-en';
-                    tB.textContent = '🎯 English'; 
-                    tB.onclick = () => { 
-                        spk(data.en, 'en-US'); 
-                    };
-                    
-                    let lastTap = 0;
-                    tB.addEventListener('touchstart', (e) => {
-                        const now = Date.now();
-                        if (now - lastTap < 300) {
-                            e.preventDefault();
-                            if(confirm("Fix translation for '" + p + "'?")){ 
-                                const fix = prompt("Enter correct English:", data.en); 
-                                if(fix){ 
-                                    cache[norm(p)] = fix; 
-                                    localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                    renderList(currentScreenList); 
-                                } 
-                            }
+                }
+                lastTap = now;
+            });
+            
+            if (!MASTER_DATA[p]) {
+                tB.addEventListener('click', (e) => {
+                    if (e.detail === 2) {
+                        if(confirm("Fix translation for '" + p + "'?")){ 
+                            const fix = prompt("Enter correct English:", data.en); 
+                            if(fix){ 
+                                cache[norm(p)] = fix; 
+                                localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
+                                renderList(currentScreenList); 
+                            } 
                         }
-                        lastTap = now;
-                    });
-                    
-                    if (!MASTER_DATA[p]) {
-                        tB.addEventListener('click', (e) => {
-                            if (e.detail === 2) {
-                                if(confirm("Fix translation for '" + p + "'?")){ 
-                                    const fix = prompt("Enter correct English:", data.en); 
-                                    if(fix){ 
-                                        cache[norm(p)] = fix; 
-                                        localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                        renderList(currentScreenList); 
-                                    } 
-                                }
-                            }
-                        });
                     }
-                    
-                    bD.append(sB, tB); 
-                    card.append(icon, fS, eS, bD); 
-                    container.appendChild(card);
                 });
             }
-        }
+            
+            bD.append(sB, tB); 
+            card.append(icon, fS, eS, bD); 
+            container.appendChild(card);
+        });
+    }
+}
 
         async function translateOne(p) {
             const n = norm(p); 
@@ -1720,3 +1730,4 @@
     </script>
 </body>
 </html>
+
