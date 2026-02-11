@@ -158,7 +158,7 @@
             <h1>🇫🇷 French Fun V8.1 🎉</h1>
         </div>
         
-       <!-- Consolidated App Control Panel -->
+        <!-- Consolidated App Control Panel -->
         <div class="app-control-panel">
             <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
             
@@ -166,13 +166,9 @@
                 <span>🎚️ Voice Speed:</span>
                 <span id="speedValue">0.85</span>x
             </div>
-            <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechSpeed(this.value)">
-        </div>
-        
-        <div id="finishPracticingContainer" style="display:none; text-align:center; margin:20px 0;">
-            <button onclick="finishPracticing()" style="background:#ff6b8b; color:white; border:none; border-radius:20px; padding:15px 30px; font-weight:900; font-size:1.1rem; box-shadow:0 4px 12px rgba(255,107,139,0.3); cursor:pointer;">
-                ✅ Finish Practicing
-            </button>
+            <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" 
+                oninput="updateSpeechLabel(this.value)" 
+                onchange="updateSpeechSpeed(this.value)">
         </div>
 
         <div id="phrasesList"></div>
@@ -359,7 +355,6 @@
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
         let wins = parseInt(localStorage.getItem('gameWins') || '0'), losses = parseInt(localStorage.getItem('gameLosses') || '0');
         let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
-        let isPracticingPreset = false;
         let currentlyPlayingAudio = null;
         let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
         let editingHomeworkName = null; // NEW: Track if we are editing an existing item
@@ -475,28 +470,6 @@ function practiceNow() {
     closeOverlay('hwDrawer');
     renderList(words.split('\n').filter(w => w.trim()));
 }
-
-        function finishPracticing() {
-            isPracticingPreset = false;
-            document.getElementById('finishPracticingContainer').style.display = 'none';
-            document.getElementById('phrasesList').innerHTML = '';
-            
-            // Try to load last homework
-            if (lastLoadedHomework && lastLoadedHomework.trim()) {
-                renderList(lastLoadedHomework.split('\n').filter(w => w.trim()));
-            } else if (Object.keys(history).length > 0) {
-                // Load the most recent homework from backpack as fallback
-                const recentKey = Object.keys(history)[Object.keys(history).length - 1];
-                try {
-                    const hwData = JSON.parse(history[recentKey]);
-                    renderList(hwData.words.split('\n').filter(w => w.trim()));
-                } catch (e) {
-                    document.getElementById('phrasesList').innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No homework loaded.<br>Go to 🎒 Backpack to load homework.</p>';
-                }
-            } else {
-                document.getElementById('phrasesList').innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">No homework loaded.<br>Go to 🎒 Backpack to load homework.</p>';
-            }
-        }
 
         function magicTranslate() {
             const msgDiv = document.getElementById('hwMessages');
@@ -847,13 +820,13 @@ function practiceNow() {
             display.textContent = speechSpeed.toFixed(2);
         }
 
+// NEW: Just updates the number while sliding (silent)
 function updateSpeechLabel(value) {
-    // This just updates the text number while you slide
     document.getElementById('speedValue').textContent = parseFloat(value).toFixed(2);
 }
 
+// UPDATED: Only speaks when you let go of the slider
 function updateSpeechSpeed(value) {
-    // This only runs when you LET GO of the slider
     speechSpeed = parseFloat(value);
     document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
     localStorage.setItem('speechSpeed', speechSpeed);
@@ -1032,18 +1005,15 @@ function updateSpeechSpeed(value) {
             return { en: cache[n] || "...", icon: smartIcon };
         }
 
-        function loadPresetAndClose(k) {
-            console.log('Loading preset:', k, 'Available:', presets[k]);
-            if (!presets[k]) {
-                alert('Preset not found: ' + k);
-                return;
-            }
-            
-            isPracticingPreset = true;
-            loadPreset(k);
-            closeOverlay('presetsOverlay');
-            document.getElementById('finishPracticingContainer').style.display = 'block';
-        }
+function loadPresetAndClose(k) {
+    console.log('Loading preset:', k);
+    if (!presets[k]) return;
+    
+    currentWeekAudio = null;
+    localStorage.removeItem('currentWeekAudio');
+    renderList(presets[k]);
+    closeOverlay('presetsOverlay');
+}
 
         function loadPreset(k) {
             console.log('Loading preset list:', presets[k]);
@@ -1740,6 +1710,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
