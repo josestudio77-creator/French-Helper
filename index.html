@@ -414,30 +414,30 @@
             openOverlay('hwDrawer'); // Instant switch
         }
 
-        function editHomework(name) {
-            let hwData = { words: '', audio: null };
-            try {
-                const parsed = JSON.parse(history[name]);
-                if (parsed.words !== undefined) {
-                    hwData = parsed;
-                } else {
-                    hwData.words = history[name];
-                }
-            } catch (e) {
-                hwData.words = history[name];
-            }
-
-            // Load saved data into the editor
-            editingHomeworkName = name;
-            document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
-            document.getElementById('hwInput').value = hwData.words;
-            currentWeekAudio = hwData.audio;
-            displayAudioPlayer();
-
-            // Open the homework drawer
-            closeOverlay('bpModal');
-            openOverlay('hwDrawer');
+function editHomework(name) {
+    let hwData = { words: '', audio: null };
+    try {
+        const parsed = JSON.parse(history[name]);
+        if (parsed.words !== undefined) {
+            hwData = parsed;
+        } else {
+            hwData.words = history[name];
         }
+    } catch (e) {
+        hwData.words = history[name];
+    }
+
+    // FIX: Added '|| null' to ensure audio is never 'undefined'
+    editingHomeworkName = name;
+    document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
+    document.getElementById('hwInput').value = hwData.words;
+    currentWeekAudio = hwData.audio || null; 
+    displayAudioPlayer();
+
+    // Switch Screen
+    closeOverlay('bpModal');
+    openOverlay('hwDrawer');
+}
 
 function loadHomeworkForPractice(name, words, audio) {
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
@@ -464,28 +464,26 @@ function loadHomeworkForPractice(name, words, audio) {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
-        function practiceNow() {
-            const words = document.getElementById('hwInput').value.trim();
-            if (!words) {
-                alert('Please enter some homework words first!');
-                return;
-            }
-            
-            localStorage.setItem('homeworkPhrases', words);
-            lastLoadedHomework = words;
-            
-            const savedAudio = localStorage.getItem('currentWeekAudio');
-            if (savedAudio) {
-                try {
-                    currentWeekAudio = JSON.parse(savedAudio);
-                } catch (e) {
-                    currentWeekAudio = null;
-                }
-            }
-            
-            closeOverlay('hwDrawer');
-            renderList(words.split('\n').filter(w => w.trim()));
-        }
+function practiceNow() {
+    const words = document.getElementById('hwInput').value.trim();
+    if (!words) {
+        alert('Please enter some homework words first!');
+        return;
+    }
+    
+    localStorage.setItem('homeworkPhrases', words);
+    lastLoadedHomework = words;
+    
+    // FIX: If the editor has no audio, explicitly clear it from memory 
+    // so it doesn't carry over from a previous session.
+    if (!currentWeekAudio) {
+        localStorage.removeItem('currentWeekAudio');
+        currentWeekAudio = null;
+    }
+    
+    closeOverlay('hwDrawer');
+    renderList(words.split('\n').filter(w => w.trim()));
+}
 
         function finishPracticing() {
             isPracticingPreset = false;
@@ -1078,7 +1076,7 @@ function loadHomeworkForPractice(name, words, audio) {
     }
     
     // 3. Check if we should show Teacher Mode
-    const hasTeacherAudio = currentWeekAudio !== null;
+    const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
     if (hasTeacherAudio && list.length > 0) {
         const banner = document.createElement('div');
@@ -1730,4 +1728,5 @@ function loadHomeworkForPractice(name, words, audio) {
     </script>
 </body>
 </html>
+
 
