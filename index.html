@@ -319,6 +319,12 @@
         transform: scale(1.05);
     }
 
+    .phrases-container {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
     /* Gap Slider Styles */
     .gap-control {
         background: #f8fafc;
@@ -1235,19 +1241,20 @@ function renderList(list) {
     console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
     currentScreenList = list; 
     const container = document.getElementById('phrasesList'); 
+    if (!container) return;
     container.innerHTML = '';
     
     // 1. Remove any old banners
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
 
-    // 2. NEW: Toggle Auto-Play controls visibility
+    // 2. Toggle Auto-Play controls visibility
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
         autoPlayUI.style.display = (viewMode === 'dialogue') ? 'block' : 'none';
     }
 
-    // 3. NEW: Update the Toggle Button Label based on currentIsDialogue
+    // 3. Update the Toggle Button Label
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
@@ -1273,7 +1280,6 @@ function renderList(list) {
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
     if (hasTeacherAudio && list.length > 0) {
-        // --- RESTORED: TEACHER RECORDING SPECIAL VIEW ---
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
         banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
@@ -1283,34 +1289,17 @@ function renderList(list) {
         const card = document.createElement('div');
         card.className = 'phrase-card';
         card.style.border = '5px solid #ffc107';
-        card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
-        
-        const wordsList = document.createElement('div');
-        wordsList.style.cssText = 'font-size: 1.4rem; font-weight: 900; color: #2d3748; margin-bottom: 15px; text-align: left; padding: 15px; background: white; border-radius: 12px;';
-        wordsList.innerHTML = list.map(w => `• ${w.split('|')[0]}`).join('<br>');
-        
-        const audioPlayer = document.createElement('audio');
-        audioPlayer.controls = true;
-        audioPlayer.style.width = '100%';
-        audioPlayer.src = currentWeekAudio.data;
-        
-        const practiceBtn = document.createElement('button');
-        practiceBtn.className = 'card-btn spk-fr';
-        practiceBtn.textContent = '📖 Practice Individual Words';
-        practiceBtn.style.width = "100%";
-        practiceBtn.style.marginTop = "15px";
-        practiceBtn.onclick = () => {
-            const tempAudio = currentWeekAudio;
-            currentWeekAudio = null;
-            renderList(list);
-            currentWeekAudio = tempAudio;
-        };
-        
-        card.append(wordsList, audioPlayer, practiceBtn);
+        card.innerHTML = `
+            <div style="font-size:1.4rem; font-weight:900; color:#2d3748; margin-bottom:15px; text-align:left; padding:15px; background:white; border-radius:12px;">
+                ${list.map(w => `• ${w.split('|')[0]}`).join('<br>')}
+            </div>
+            <audio controls style="width:100%;" src="${currentWeekAudio.data}"></audio>
+            <button class="card-btn spk-fr" style="width:100%; margin-top:15px;" onclick="currentWeekAudio=null; renderList(currentScreenList);">📖 Practice Individual Words</button>
+        `;
         container.appendChild(card);
         
     } else if (viewMode === 'dialogue') {
-        // --- DIALOGUE / LIST MODE ---
+        // 6. DIALOGUE / LIST MODE (Condensed)
         const diagCard = document.createElement('div');
         diagCard.className = 'condensed-card';
         diagCard.style.display = 'flex';
@@ -1318,13 +1307,9 @@ function renderList(list) {
 
         list.forEach((p, index) => {
             const line = document.createElement('div');
-            
-            // Logic: If currentIsDialogue is true, alternate sides. If false, use line-center.
             const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
-            
             line.className = `dialogue-line ${sideClass}`;
-            line.id = `line-${index}`; // ID needed for Auto-Play highlighting
-            
+            line.id = `line-${index}`;
             const cleanText = p.split('|')[0].trim();
             line.textContent = cleanText;
             line.onclick = () => spk(cleanText, 'fr-FR', true);
@@ -1333,7 +1318,7 @@ function renderList(list) {
         container.appendChild(diagCard);
 
     } else {
-        // --- STANDARD CARDS MODE ---
+        // 7. STANDARD CARDS MODE
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
@@ -1927,6 +1912,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
