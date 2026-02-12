@@ -300,6 +300,34 @@
         color: white;
         border-color: #434190;
     }
+
+       /* Centered List Mode Style */
+    .line-center {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        background: #f0f9ff;
+        border-color: #bee3f8;
+        width: 95%;
+    }
+
+    /* Auto-play highlighting */
+    .playing-now {
+        background: #4cd964 !important;
+        color: white !important;
+        border-color: #2ea44e !important;
+        transform: scale(1.05);
+    }
+
+    /* Gap Slider Styles */
+    .gap-control {
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 15px;
+        margin-top: 10px;
+        border: 2px solid #e2e8f0;
+        display: none; /* Hidden by default, shown in Dialogue/List mode */
+    }
    </style>
 </head>
 <body>
@@ -310,24 +338,26 @@
         </div>
         
         <!-- Consolidated App Control Panel -->
-        <div class="app-control-panel">
-            <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
-            
-            <div class="speech-speed-label">
-                <span>🎚️ Voice Speed:</span>
-                <span id="speedValue">0.85</span>x
-            </div>
-            <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" 
-                oninput="updateSpeechLabel(this.value)" 
-                onchange="updateSpeechSpeed(this.value)">
-            
-            <div class="view-switcher">
-                <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
-                <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Dialogue</button>
-            </div>
+    <div class="app-control-panel">
+        <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
+        
+        <div class="speech-speed-label">
+            <span>🎚️ Voice Speed:</span>
+            <span id="speedValue">0.85</span>x
         </div>
-
-        <div id="phrasesList"></div>
+        <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechLabel(this.value)" onchange="updateSpeechSpeed(this.value)">
+        
+        <div class="view-switcher">
+            <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
+            <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Mode</button>
+        </div>
+    
+        <!-- NEW: Auto-Play Controls -->
+        <div id="autoplayControls" class="gap-control">
+            <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; width:100%; margin-bottom:8px;">▶️ Play All</button>
+            <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">2.0</span>s</div>
+            <input type="range" id="gapSlider" min="0.5" max="5.0" step="0.5" value="2.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
+        </div>
     </div>
 
     <div class="bottom-nav">
@@ -392,6 +422,12 @@
                     <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
                     <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
                 </div>
+            </div>
+
+            <div style="margin: 10px 0; text-align: left; background: #fdf2ff; padding: 10px; border-radius: 12px; border: 2px solid #9d4edd;">
+                <label style="font-weight: 900; color: #9d4edd; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="hwIsDialogue" style="transform: scale(1.5);"> 💬 This is a Dialogue
+                </label>
             </div>
             
             <!-- 3-column button grid for Homework screen -->
@@ -522,6 +558,9 @@
         let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
         let editingHomeworkName = null; // NEW: Track if we are editing an existing item
         let viewMode = 'cards'; // Default mode
+        let currentIsDialogue = false; 
+        let isAutoPlaying = false;
+        let autoPlayTimeout = null;
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -606,6 +645,19 @@ function editHomework(name) {
 function loadHomeworkForPractice(name, words, audio) {
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
     
+    // --- NEW: Detect if this homework is a Dialogue ---
+    let hwData = { isDialogue: false };
+    try {
+        const parsed = JSON.parse(history[name]);
+        if (parsed.isDialogue !== undefined) {
+            hwData = parsed;
+        }
+    } catch (e) {
+        // Fallback for old data formats that aren't JSON strings
+    }
+    currentIsDialogue = !!hwData.isDialogue;
+    // ------------------------------------------------
+
     // 1. Update text input
     document.getElementById('hwInput').value = words;
     localStorage.setItem('homeworkPhrases', words);
@@ -1186,8 +1238,20 @@ function renderList(list) {
     // 1. Remove any old banners
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
+
+    // 2. NEW: Toggle Auto-Play controls visibility
+    const autoPlayUI = document.getElementById('autoplayControls');
+    if (autoPlayUI) {
+        autoPlayUI.style.display = (viewMode === 'dialogue') ? 'block' : 'none';
+    }
+
+    // 3. NEW: Update the Toggle Button Label based on currentIsDialogue
+    const diagBtn = document.getElementById('btnViewDialogue');
+    if (diagBtn) {
+        diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+    }
     
-    // 2. Update the Smart Status Message
+    // 4. Update the Smart Status Message
     const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
         if (!list || list.length === 0) {
@@ -1203,7 +1267,7 @@ function renderList(list) {
         }
     }
     
-    // 3. PRIORITY: Check for Teacher Recording
+    // 5. PRIORITY: Check for Teacher Recording
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
     if (hasTeacherAudio && list.length > 0) {
@@ -1234,7 +1298,6 @@ function renderList(list) {
         practiceBtn.style.width = "100%";
         practiceBtn.style.marginTop = "15px";
         practiceBtn.onclick = () => {
-            // Temporarily ignore audio to see individual cards
             const tempAudio = currentWeekAudio;
             currentWeekAudio = null;
             renderList(list);
@@ -1245,7 +1308,7 @@ function renderList(list) {
         container.appendChild(card);
         
     } else if (viewMode === 'dialogue') {
-        // --- DIALOGUE MODE (When no teacher audio is present) ---
+        // --- DIALOGUE / LIST MODE ---
         const diagCard = document.createElement('div');
         diagCard.className = 'condensed-card';
         diagCard.style.display = 'flex';
@@ -1253,8 +1316,13 @@ function renderList(list) {
 
         list.forEach((p, index) => {
             const line = document.createElement('div');
-            const sideClass = (index % 2 === 0) ? 'line-left' : 'line-right';
+            
+            // Logic: If currentIsDialogue is true, alternate sides. If false, use line-center.
+            const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
+            
             line.className = `dialogue-line ${sideClass}`;
+            line.id = `line-${index}`; // ID needed for Auto-Play highlighting
+            
             const cleanText = p.split('|')[0].trim();
             line.textContent = cleanText;
             line.onclick = () => spk(cleanText, 'fr-FR', true);
@@ -1465,53 +1533,58 @@ function renderList(list) {
         // ===== HOMEWORK & STORAGE FUNCTIONS (SURGICAL UPDATES HERE) =====
 
         function saveHW() { 
-            const val = document.getElementById('hwInput').value.trim(); 
-            if (!val) {
-                alert('Please enter some homework words first!');
-                return;
-            }
-            
-            localStorage.setItem('homeworkPhrases', val);
-            
-            if (currentWeekAudio) {
-                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
-            }
-            
-            // NEW: Pre-fill the name if editing
-            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
-            if (name) { 
-                if (name.length > 20) {
-                    name = name.substring(0, 20);
-                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
-                }
-                
-                const hwData = {
-                    words: val,
-                    audio: currentWeekAudio,
-                    date: new Date().toISOString()
-                };
-                
-                if (!history) history = {};
-                
-                history[name] = JSON.stringify(hwData);
-                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                
-                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
-                setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
-                
-                // Clear state
-                editingHomeworkName = null;
-                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-                document.getElementById('hwInput').value = "";
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                displayAudioPlayer();
-                
-                openBP();
-            } 
+    const val = document.getElementById('hwInput').value.trim(); 
+    // 1. Capture the checkbox state
+    const isDiag = document.getElementById('hwIsDialogue').checked;
+
+    if (!val) {
+        alert('Please enter some homework words first!');
+        return;
+    }
+    
+    localStorage.setItem('homeworkPhrases', val);
+    
+    if (currentWeekAudio) {
+        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+    } else {
+        localStorage.removeItem('currentWeekAudio');
+    }
+    
+    // NEW: Pre-fill the name if editing
+    let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
+    if (name) { 
+        if (name.length > 20) {
+            name = name.substring(0, 20);
+            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
         }
+        
+        const hwData = {
+            words: val,
+            audio: currentWeekAudio,
+            isDialogue: isDiag, // 2. Save the dialogue flag into the data object
+            date: new Date().toISOString()
+        };
+        
+        if (!history) history = {};
+        
+        history[name] = JSON.stringify(hwData);
+        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+        
+        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
+        setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
+        
+        // Clear state
+        editingHomeworkName = null;
+        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+        document.getElementById('hwInput').value = "";
+        document.getElementById('hwIsDialogue').checked = false; // 3. Reset the checkbox for next time
+        currentWeekAudio = null;
+        localStorage.removeItem('currentWeekAudio');
+        displayAudioPlayer();
+        
+        openBP();
+    } 
+}
 
         function openBP() {
             console.log('Opening backpack, history:', history);
@@ -1621,7 +1694,8 @@ function renderList(list) {
         
         // NEW: Logic to load homework back into the editor
         function editHomework(name) {
-            let hwData = { words: '', audio: null };
+            // 1. Initialize with defaults including the new isDialogue flag
+            let hwData = { words: '', audio: null, isDialogue: false };
             try {
                 const parsed = JSON.parse(history[name]);
                 if (parsed.words !== undefined) {
@@ -1632,14 +1706,19 @@ function renderList(list) {
             } catch (e) {
                 hwData.words = history[name];
             }
-
+        
             // Set state
             editingHomeworkName = name;
             document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
             document.getElementById('hwInput').value = hwData.words;
-            currentWeekAudio = hwData.audio;
+            
+            // --- NEW: Update the Dialogue Checkbox based on saved data ---
+            document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
+        
+            // Safety fix: Ensure audio is cleaned if it was 'undefined'
+            currentWeekAudio = hwData.audio || null;
             displayAudioPlayer();
-
+        
             // Switch Screen
             closeOverlay('bpModal');
             openOverlay('hwDrawer');
@@ -1779,6 +1858,44 @@ function renderList(list) {
                 } 
             }
         }
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('playAllBtn');
+            if (isAutoPlaying) {
+                isAutoPlaying = false;
+                clearTimeout(autoPlayTimeout);
+                btn.innerHTML = "▶️ Play All";
+                document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            } else {
+                isAutoPlaying = true;
+                btn.innerHTML = "⏹️ Stop";
+                playLine(0);
+            }
+        }
+        
+        function playLine(index) {
+            if (!isAutoPlaying || index >= currentScreenList.length) {
+                toggleAutoPlay(); // Reset button
+                return;
+            }
+        
+            const text = currentScreenList[index].split('|')[0].trim();
+            const gap = parseFloat(document.getElementById('gapSlider').value) * 1000;
+        
+            // Highlight bubble
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            const currentEl = document.getElementById(`line-${index}`);
+            if (currentEl) {
+                currentEl.classList.add('playing-now');
+                currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        
+            spk(text, 'fr-FR', true);
+        
+            autoPlayTimeout = setTimeout(() => {
+                playLine(index + 1);
+            }, 2000 + gap); // Standard speech time + user gap
+        }
         
         function shareApp() { 
             if (navigator.share) { 
@@ -1808,6 +1925,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
