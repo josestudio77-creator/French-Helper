@@ -1204,7 +1204,7 @@ function renderList(list) {
         }
     }
     
-    // Teacher Audio Logic (Always stays at top)
+    // Teacher Audio Logic
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     if (hasTeacherAudio && list.length > 0) {
         const banner = document.createElement('div');
@@ -1223,14 +1223,10 @@ function renderList(list) {
 
         list.forEach((p, index) => {
             const line = document.createElement('div');
-            // Alternate left/right based on line number
             const sideClass = (index % 2 === 0) ? 'line-left' : 'line-right';
             line.className = `dialogue-line ${sideClass}`;
-            
-            // Clean text (removes everything after | if you added phonetic notes)
             const cleanText = p.split('|')[0].trim();
             line.textContent = cleanText;
-            
             line.onclick = () => spk(cleanText, 'fr-FR', true);
             dialogueCard.appendChild(line);
         });
@@ -1263,25 +1259,35 @@ function renderList(list) {
                 </div>
             `;
 
+            // Wire up French button
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
+            
+            // Wire up English button
             const tB = card.querySelector('.spk-en');
             tB.onclick = () => spk(data.en, 'en-US', true);
 
-            // Double-tap fixing logic (Same as V8.2)
+            // FIX: Independent tap tracker for each card
+            let lastTap = 0;
+            
+            // Fix translation for Mobile (Double Tap)
             tB.addEventListener('touchstart', (e) => {
                 const now = Date.now();
                 if (now - lastTap < 300) {
-                    e.preventDefault();
-                    fixTranslationPrompt(p, data.en);
+                    e.preventDefault(); // Prevents zooming on mobile
+                    manualFixTranslation(p, data.en);
                 }
                 lastTap = now;
+            });
+
+            // Fix translation for Desktop (Double Click)
+            tB.addEventListener('dblclick', () => {
+                manualFixTranslation(p, data.en);
             });
             
             container.appendChild(card);
         });
     }
 }
-
         async function translateOne(p) {
             const n = norm(p); 
             for (let key in MASTER_DATA) { 
@@ -1723,22 +1729,34 @@ function renderList(list) {
             } 
         }
 
-function clearHW() { 
-    if(confirm("Clear current homework?")) { 
-        document.getElementById('hwInput').value = ""; 
-        localStorage.setItem('homeworkPhrases', ""); 
-        currentWeekAudio = null;
-        localStorage.removeItem('currentWeekAudio');
-        displayAudioPlayer();
-        document.getElementById('phrasesList').innerHTML = '';
-        
-        const statusInfo = document.getElementById('stCountText');
-        if (statusInfo) {
-            statusInfo.textContent = '🇫🇷 Ready to learn!';
+        function clearHW() { 
+            if(confirm("Clear current homework?")) { 
+                document.getElementById('hwInput').value = ""; 
+                localStorage.setItem('homeworkPhrases', ""); 
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
+                document.getElementById('phrasesList').innerHTML = '';
+                
+                const statusInfo = document.getElementById('stCountText');
+                if (statusInfo) {
+                    statusInfo.textContent = '🇫🇷 Ready to learn!';
+                }
+            } 
         }
-    } 
-}
-
+        
+        function manualFixTranslation(p, currentEn) {
+            if(confirm(`Fix translation for "${p}"?`)){ 
+                const fix = prompt("Enter correct English:", currentEn); 
+                if(fix){ 
+                    cache[norm(p)] = fix; 
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
+                    // Re-draw the screen to show the new word
+                    renderList(currentScreenList); 
+                } 
+            }
+        }
+        
         function shareApp() { 
             if (navigator.share) { 
                 navigator.share({ 
@@ -1767,6 +1785,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
