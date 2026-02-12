@@ -214,6 +214,16 @@
         cursor: pointer;
         font-size: 0.85rem;
     }
+
+    /* Phonetic reference guide in practice cards */
+    .pronunciation-text {
+        display: block;
+        font-size: 0.9rem;
+        color: #718096;
+        font-style: italic;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
    </style>
 </head>
 <body>
@@ -1095,13 +1105,11 @@ function loadPresetAndClose(k) {
     // 3. SMART BANNER: Audit the translations
     const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
-        if (list.length === 0) {
+        if (!list || list.length === 0) {
             statusInfo.textContent = '🇫🇷 Ready to learn!';
         } else {
-            // Count how many words have translations
             const translatedCount = list.filter(p => {
                 const n = norm(p);
-                // Presets are built-in, otherwise check the cache for real data
                 return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
             }).length;
 
@@ -1128,70 +1136,20 @@ function loadPresetAndClose(k) {
         card.style.border = '5px solid #ffc107';
         card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
         
-        const icon = document.createElement('div');
-        icon.className = 'card-icon';
-        icon.textContent = '🎤';
-        
-        const title = document.createElement('div');
-        title.className = 'french-text';
-        title.style.fontSize = '1.2rem';
-        title.textContent = '📚 Teacher\'s Recording';
-        
         const wordsList = document.createElement('div');
-        wordsList.style.fontSize = '1.4rem';
-        wordsList.style.fontWeight = '900';
-        wordsList.style.color = '#2d3748';
-        wordsList.style.marginBottom = '15px';
-        wordsList.style.textAlign = 'left';
-        wordsList.style.padding = '15px';
-        wordsList.style.background = 'white';
-        wordsList.style.borderRadius = '12px';
+        wordsList.style.cssText = 'font-size: 1.4rem; font-weight: 900; color: #2d3748; margin-bottom: 15px; text-align: left; padding: 15px; background: white; border-radius: 12px;';
         wordsList.innerHTML = list.map(w => `• ${w}`).join('<br>');
         
         const audioPlayer = document.createElement('audio');
         audioPlayer.controls = true;
         audioPlayer.style.width = '100%';
-        audioPlayer.style.marginBottom = '15px';
         audioPlayer.src = currentWeekAudio.data;
-        
-        audioPlayer.onplay = () => {
-            document.querySelectorAll('audio').forEach(audio => {
-                if (audio !== audioPlayer && !audio.paused) {
-                    audio.pause();
-                }
-            });
-        };
-        
-        const instructions = document.createElement('div');
-        instructions.style.fontSize = '0.9rem';
-        instructions.style.color = '#856404';
-        instructions.style.marginBottom = '15px';
-        instructions.textContent = '👆 Play the recording and follow along with the words above';
-        
-        const btnContainer = document.createElement('div');
-        btnContainer.className = 'card-btns';
-        
-        const playBtn = document.createElement('button');
-        playBtn.className = 'card-btn';
-        playBtn.style.background = '#28a745';
-        playBtn.textContent = '▶️ Play Recording';
-        playBtn.onclick = () => {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                playBtn.textContent = '⏸️ Pause';
-            } else {
-                audioPlayer.pause();
-                playBtn.textContent = '▶️ Play Recording';
-            }
-        };
-        
-        audioPlayer.onended = () => {
-            playBtn.textContent = '▶️ Play Recording';
-        };
         
         const practiceBtn = document.createElement('button');
         practiceBtn.className = 'card-btn spk-fr';
         practiceBtn.textContent = '📖 Practice Words';
+        practiceBtn.style.width = "100%";
+        practiceBtn.style.marginTop = "10px";
         practiceBtn.onclick = () => {
             const tempAudio = currentWeekAudio;
             currentWeekAudio = null;
@@ -1199,52 +1157,46 @@ function loadPresetAndClose(k) {
             currentWeekAudio = tempAudio;
         };
         
-        btnContainer.append(playBtn, practiceBtn);
-        card.append(icon, title, wordsList, audioPlayer, instructions, btnContainer);
+        card.append(wordsList, audioPlayer, practiceBtn);
         container.appendChild(card);
         
     } else {
+        // 5. Standard Card Rendering
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
             
+            // Gender icon
             if(data.g) { 
                 const b = document.createElement('div'); 
                 b.className = 'gender-icon'; 
                 b.textContent = data.g === 'f' ? '👧' : '👦'; 
                 card.appendChild(b); 
             }
-            
-            const icon = document.createElement('span'); 
-            icon.className = 'card-icon'; 
-            icon.textContent = data.icon;
-            
-            const fS = document.createElement('span'); 
-            fS.className = 'french-text'; 
-            fS.textContent = p;
-            
-            const eS = document.createElement('span'); 
-            eS.className = 'english-text'; 
-            eS.textContent = data.en;
-            
-            const bD = document.createElement('div'); 
-            bD.className = 'card-btns';
-            
-            const sB = document.createElement('button'); 
-            sB.className = 'card-btn spk-fr'; 
-            sB.textContent = '🎤 French';
-            sB.onclick = () => {
-                spk(p, 'fr-FR');
-            };
-            
-            const tB = document.createElement('button'); 
-            tB.className = 'card-btn spk-en';
-            tB.textContent = '🎯 English'; 
-            tB.onclick = () => { 
-                spk(data.en, 'en-US'); 
-            };
-            
+
+            // Pronunciation check
+            const pronunciationHtml = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+
+            card.innerHTML = `
+                <span class="card-icon">${data.icon}</span>
+                <span class="french-text">${p}</span>
+                ${pronunciationHtml}
+                <span class="english-text">${data.en}</span>
+                <div class="card-btns">
+                    <button class="card-btn spk-fr">🎤 French</button>
+                    <button class="card-btn spk-en">🎯 English</button>
+                </div>
+            `;
+
+            // Wire up the French button
+            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR');
+
+            // Wire up the English button + Double tap fix
+            const tB = card.querySelector('.spk-en');
+            tB.onclick = () => spk(data.en, 'en-US');
+
+            // Translation Fix Logic (Touch)
             let lastTap = 0;
             tB.addEventListener('touchstart', (e) => {
                 const now = Date.now();
@@ -1262,9 +1214,10 @@ function loadPresetAndClose(k) {
                 lastTap = now;
             });
             
+            // Translation Fix Logic (Double Click)
             if (!MASTER_DATA[p]) {
                 tB.addEventListener('click', (e) => {
-                    if (e.detail === 2) {
+                    if (e.detail === 2) { 
                         if(confirm("Fix translation for '" + p + "'?")){ 
                             const fix = prompt("Enter correct English:", data.en); 
                             if(fix){ 
@@ -1277,8 +1230,6 @@ function loadPresetAndClose(k) {
                 });
             }
             
-            bD.append(sB, tB); 
-            card.append(icon, fS, eS, bD); 
             container.appendChild(card);
         });
     }
@@ -1769,6 +1720,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
