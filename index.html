@@ -224,6 +224,82 @@
         margin-bottom: 10px;
         font-weight: 700;
     }
+
+       /* Condensed & Dialogue Mode Styles */
+    .condensed-card {
+        background: white;
+        border-radius: 25px;
+        padding: 15px;
+        margin: 15px 0;
+        border: 5px solid #a3e4d7;
+        text-align: left;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    }
+    
+    .dialogue-line {
+        padding: 12px 18px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.1s;
+        display: block;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        color: #2d3748;
+        max-width: 85%;
+        line-height: 1.3;
+        position: relative;
+    }
+
+    /* Visual Feedback on Click */
+    .dialogue-line:active {
+        transform: scale(0.96);
+        background: #4cd964 !important;
+        color: white !important;
+        border-color: #2ea44e;
+    }
+
+    /* Alternating speakers */
+    .line-left {
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        background: #f0fdf4; /* Soft green */
+        border-color: #dcfce7;
+    }
+
+    .line-right {
+        margin-left: auto; /* Push to right */
+        text-align: right;
+        border-bottom-right-radius: 4px;
+        background: #f5f3ff; /* Soft purple */
+        border-color: #ede9fe;
+    }
+
+    /* Toggle Switcher in Control Panel */
+    .view-switcher {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .view-btn {
+        background: #edf2f7;
+        border: 2px solid #cbd5e0;
+        padding: 6px;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 0.7rem;
+        cursor: pointer;
+    }
+
+    .view-btn.active {
+        background: #5a67d8;
+        color: white;
+        border-color: #434190;
+    }
    </style>
 </head>
 <body>
@@ -244,6 +320,11 @@
             <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" 
                 oninput="updateSpeechLabel(this.value)" 
                 onchange="updateSpeechSpeed(this.value)">
+            
+            <div class="view-switcher">
+                <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
+                <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Dialogue</button>
+            </div>
         </div>
 
         <div id="phrasesList"></div>
@@ -440,6 +521,7 @@
         let currentlyPlayingAudio = null;
         let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
         let editingHomeworkName = null; // NEW: Track if we are editing an existing item
+        let viewMode = 'cards'; // Default mode
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -463,7 +545,14 @@
             document.getElementById(id).style.display = 'none'; 
         }
 
-        // ===== NEW FUNCTIONS FOR FIXES (Surgical Update) =====
+        function setViewMode(mode) {
+            viewMode = mode;
+            // Update button visuals
+            document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
+            document.getElementById('btnViewDialogue').classList.toggle('active', mode === 'dialogue');
+            // Re-render current list
+            renderList(currentScreenList);
+        }
 
         function openBackpackFromHW() {
             closeOverlay('hwDrawer');
@@ -1088,21 +1177,16 @@ function loadPresetAndClose(k) {
             renderList(presets[k]);
         }
 
-    function renderList(list) {
-    console.log('Rendering list with', list.length, 'items. Audio state:', !!currentWeekAudio);
+function renderList(list) {
+    console.log('Rendering mode:', viewMode, 'Items:', list.length);
     currentScreenList = list; 
     const container = document.getElementById('phrasesList'); 
-    
-    // 1. CLEAR PREVIOUS UI STATE
     container.innerHTML = '';
     
-    // 2. SAFETY FIX: Remove any existing teacher audio banner
     const existingBanner = document.querySelector('.teacher-audio-banner');
-    if (existingBanner) {
-        existingBanner.remove();
-    }
+    if (existingBanner) existingBanner.remove();
     
-    // 3. SMART BANNER: Audit the translations
+    // Status Audit Logic
     const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
         if (!list || list.length === 0) {
@@ -1112,7 +1196,6 @@ function loadPresetAndClose(k) {
                 const n = norm(p);
                 return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
             }).length;
-
             if (translatedCount === list.length) {
                 statusInfo.innerHTML = `✅ ${list.length} phrases ready!`;
             } else {
@@ -1121,53 +1204,45 @@ function loadPresetAndClose(k) {
         }
     }
     
-    // 4. Check if we should show Teacher Mode
+    // Teacher Audio Logic (Always stays at top)
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
-    
     if (hasTeacherAudio && list.length > 0) {
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
-        banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
-        banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+        banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center;';
+        banner.innerHTML = '🎤 Teacher Recording Mode';
         container.parentElement.insertBefore(banner, container);
-        
-        const card = document.createElement('div');
-        card.className = 'phrase-card';
-        card.style.border = '5px solid #ffc107';
-        card.style.background = 'linear-gradient(to bottom, #fff3cd, white)';
-        
-        const wordsList = document.createElement('div');
-        wordsList.style.cssText = 'font-size: 1.4rem; font-weight: 900; color: #2d3748; margin-bottom: 15px; text-align: left; padding: 15px; background: white; border-radius: 12px;';
-        wordsList.innerHTML = list.map(w => `• ${w}`).join('<br>');
-        
-        const audioPlayer = document.createElement('audio');
-        audioPlayer.controls = true;
-        audioPlayer.style.width = '100%';
-        audioPlayer.src = currentWeekAudio.data;
-        
-        const practiceBtn = document.createElement('button');
-        practiceBtn.className = 'card-btn spk-fr';
-        practiceBtn.textContent = '📖 Practice Words';
-        practiceBtn.style.width = "100%";
-        practiceBtn.style.marginTop = "10px";
-        practiceBtn.onclick = () => {
-            const tempAudio = currentWeekAudio;
-            currentWeekAudio = null;
-            renderList(list);
-            currentWeekAudio = tempAudio;
-        };
-        
-        card.append(wordsList, audioPlayer, practiceBtn);
-        container.appendChild(card);
-        
+    }
+
+    if (viewMode === 'dialogue') {
+        // --- DIALOGUE MODE RENDERING ---
+        const dialogueCard = document.createElement('div');
+        dialogueCard.className = 'condensed-card';
+        dialogueCard.style.display = 'flex';
+        dialogueCard.style.flexDirection = 'column';
+
+        list.forEach((p, index) => {
+            const line = document.createElement('div');
+            // Alternate left/right based on line number
+            const sideClass = (index % 2 === 0) ? 'line-left' : 'line-right';
+            line.className = `dialogue-line ${sideClass}`;
+            
+            // Clean text (removes everything after | if you added phonetic notes)
+            const cleanText = p.split('|')[0].trim();
+            line.textContent = cleanText;
+            
+            line.onclick = () => spk(cleanText, 'fr-FR', true);
+            dialogueCard.appendChild(line);
+        });
+        container.appendChild(dialogueCard);
+
     } else {
-        // 5. Standard Card Rendering
+        // --- STANDARD CARD RENDERING ---
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
             
-            // Gender icon
             if(data.g) { 
                 const b = document.createElement('div'); 
                 b.className = 'gender-icon'; 
@@ -1175,7 +1250,6 @@ function loadPresetAndClose(k) {
                 card.appendChild(b); 
             }
 
-            // Pronunciation check
             const pronunciationHtml = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
             card.innerHTML = `
@@ -1189,46 +1263,19 @@ function loadPresetAndClose(k) {
                 </div>
             `;
 
-            // Wire up the French button
-            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR');
-
-            // Wire up the English button + Double tap fix
+            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             const tB = card.querySelector('.spk-en');
-            tB.onclick = () => spk(data.en, 'en-US');
+            tB.onclick = () => spk(data.en, 'en-US', true);
 
-            // Translation Fix Logic (Touch)
-            let lastTap = 0;
+            // Double-tap fixing logic (Same as V8.2)
             tB.addEventListener('touchstart', (e) => {
                 const now = Date.now();
                 if (now - lastTap < 300) {
                     e.preventDefault();
-                    if(confirm("Fix translation for '" + p + "'?")){ 
-                        const fix = prompt("Enter correct English:", data.en); 
-                        if(fix){ 
-                            cache[norm(p)] = fix; 
-                            localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                            renderList(currentScreenList); 
-                        } 
-                    }
+                    fixTranslationPrompt(p, data.en);
                 }
                 lastTap = now;
             });
-            
-            // Translation Fix Logic (Double Click)
-            if (!MASTER_DATA[p]) {
-                tB.addEventListener('click', (e) => {
-                    if (e.detail === 2) { 
-                        if(confirm("Fix translation for '" + p + "'?")){ 
-                            const fix = prompt("Enter correct English:", data.en); 
-                            if(fix){ 
-                                cache[norm(p)] = fix; 
-                                localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                                renderList(currentScreenList); 
-                            } 
-                        }
-                    }
-                });
-            }
             
             container.appendChild(card);
         });
@@ -1720,6 +1767,7 @@ function clearHW() {
     </script>
 </body>
 </html>
+
 
 
 
