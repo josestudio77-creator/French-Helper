@@ -311,12 +311,13 @@
         width: 95%;
     }
 
-    /* Auto-play highlighting */
+    /* Highlight for Auto-play */
     .playing-now {
         background: #4cd964 !important;
         color: white !important;
         border-color: #2ea44e !important;
-        transform: scale(1.05);
+        transform: scale(1.03);
+        box-shadow: 0 0 15px rgba(76, 217, 100, 0.5);
     }
 
     .phrases-container {
@@ -1224,6 +1225,9 @@ function loadPresetAndClose(k) {
     console.log('Loading preset:', k);
     if (!presets[k]) return;
     
+    // FIX: Force dialogue mode to OFF for presets
+    currentIsDialogue = false; 
+    
     currentWeekAudio = null;
     localStorage.removeItem('currentWeekAudio');
     renderList(presets[k]);
@@ -1238,6 +1242,7 @@ function loadPresetAndClose(k) {
         }
 
 function renderList(list) {
+    // Keep your logs
     console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
     currentScreenList = list; 
     const container = document.getElementById('phrasesList'); 
@@ -1248,19 +1253,26 @@ function renderList(list) {
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
 
-    // 2. Toggle Auto-Play controls visibility
+    // 2. Toggle Auto-Play controls visibility (Point #3 logic)
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
-        autoPlayUI.style.display = (viewMode === 'dialogue') ? 'block' : 'none';
+        // Only show if in Dialogue mode and NOT showing the teacher card
+        autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
-    // 3. Update the Toggle Button Label
+    // 3. Update the Toggle Button Label (Point #2 logic)
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
-        diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+        if (currentWeekAudio) {
+            // Label for Teacher Mode
+            diagBtn.innerHTML = "🎧 Recording";
+        } else {
+            // Label based on checkbox state
+            diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+        }
     }
     
-    // 4. Update the Smart Status Message
+    // 4. Update the Smart Status Message (Kept exactly as you had it)
     const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
         if (!list || list.length === 0) {
@@ -1276,10 +1288,12 @@ function renderList(list) {
         }
     }
     
-    // 5. PRIORITY: Check for Teacher Recording
+    // 5. PRIORITY: Check for Teacher Recording (Point #4 logic)
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
-    if (hasTeacherAudio && list.length > 0) {
+    // CHANGE: We only show the teacher card if viewMode is 'dialogue'
+    // If the user clicks 'Cards', we skip this and go to individual cards below
+    if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
         banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
@@ -1294,7 +1308,7 @@ function renderList(list) {
                 ${list.map(w => `• ${w.split('|')[0]}`).join('<br>')}
             </div>
             <audio controls style="width:100%;" src="${currentWeekAudio.data}"></audio>
-            <button class="card-btn spk-fr" style="width:100%; margin-top:15px;" onclick="currentWeekAudio=null; renderList(currentScreenList);">📖 Practice Individual Words</button>
+            <p style="font-size:0.8rem; margin-top:10px; color:#856404; font-weight:800;">💡 Switch to 🗂️ Cards mode to see translations</p>
         `;
         container.appendChild(card);
         
@@ -1307,6 +1321,7 @@ function renderList(list) {
 
         list.forEach((p, index) => {
             const line = document.createElement('div');
+            // Logic: Alternate if Dialogue, Center if List
             const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
             line.className = `dialogue-line ${sideClass}`;
             line.id = `line-${index}`;
@@ -1318,25 +1333,21 @@ function renderList(list) {
         container.appendChild(diagCard);
 
     } else {
-        // 7. STANDARD CARDS MODE
+        // 7. STANDARD CARDS MODE (Point #1 Gender Icons Restored)
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
             
-            if(data.g) { 
-                const b = document.createElement('div'); 
-                b.className = 'gender-icon'; 
-                b.textContent = data.g === 'f' ? '👧' : '👦'; 
-                card.appendChild(b); 
-            }
-
-            const pronunciationHtml = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+            // FIX: We generate the icon HTML first so it can be inserted into the innerHTML
+            const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
+            const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
             card.innerHTML = `
+                ${gIcon}
                 <span class="card-icon">${data.icon}</span>
                 <span class="french-text">${p}</span>
-                ${pronunciationHtml}
+                ${pGuide}
                 <span class="english-text">${data.en}</span>
                 <div class="card-btns">
                     <button class="card-btn spk-fr">🎤 French</button>
@@ -1344,6 +1355,7 @@ function renderList(list) {
                 </div>
             `;
 
+            // Wire up your buttons and existing translation fix logic
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             const tB = card.querySelector('.spk-en');
             tB.onclick = () => spk(data.en, 'en-US', true);
@@ -1912,6 +1924,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
