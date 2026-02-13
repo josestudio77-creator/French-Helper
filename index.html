@@ -1326,9 +1326,9 @@ function renderList(list) {
             
             // Show name if we have it, otherwise just "List"
             if (currentSetName) {
-                statusInfo.innerHTML = `📚 ${currentSetName} (${list.length}) ${statusIcon}`;
+                statusInfo.innerHTML = `📚 ${currentSetName} (${list.length} phrases ${statusIcon})`;
             } else {
-                statusInfo.innerHTML = `📚 List (${list.length}) ${statusIcon}`;
+                statusInfo.innerHTML = `📚 List (${list.length} phrases ${statusIcon})`;
             }
         }
     }
@@ -1988,6 +1988,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
