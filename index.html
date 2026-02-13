@@ -340,6 +340,23 @@
         border: 2px solid #e2e8f0;
         display: none; /* Hidden by default, shown in Dialogue/List mode */
     }
+
+    /* Custom photo styling */
+    .card-photo {
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 10px;
+        border: 3px solid #a3e4d7;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .card-photo:active {
+        transform: scale(0.95);
+    }
+       
    </style>
 </head>
 <body>
@@ -529,6 +546,30 @@
         </div>
     </div>
 
+    <!-- Icon/Photo Picker Overlay -->
+    <div id="iconPickerOverlay" class="overlay">
+        <div class="overlay-content">
+            <h2 style="color:#9d4edd; margin-bottom:20px">🎨 Choose Icon for "<span id="pickerPhrase"></span>"</h2>
+            
+            <div style="margin-bottom:20px;">
+                <button onclick="openEmojiPicker()" style="background:#4cd964; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-bottom:10px;">😊 Choose Emoji</button>
+                <button onclick="openPhotoPicker()" style="background:#5a67d8; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-bottom:10px;">📷 Choose Photo</button>
+                <button onclick="resetToDefaultIcon()" style="background:#ff9e6d; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%;">↺ Reset to Default</button>
+            </div>
+            
+            <!-- Emoji Input (uses phone's native emoji keyboard) -->
+            <div id="emojiInputSection" style="margin:20px 0; display:none;">
+                <p style="font-weight:800; color:#64748b; margin-bottom:10px;">Type any emoji using your keyboard:</p>
+                <input type="text" id="emojiInput" maxlength="2" style="width:100%; padding:15px; font-size:2rem; text-align:center; border:3px solid #9d4edd; border-radius:15px;" placeholder="😊">
+                <button onclick="submitEmoji()" style="background:#4cd964; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-top:10px;">Use This Emoji</button>
+            </div>
+            
+            <input type="file" id="photoPickerInput" accept="image/*" style="display:none;">
+            
+            <button onclick="closeOverlay('iconPickerOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Cancel</button>
+        </div>
+    </div>
+            
     <script>
         /* ===== MASTER_DATA Dictionary (RESTORED FULL VERSION) ===== */
         const MASTER_DATA = {
@@ -576,6 +617,9 @@
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
         let currentSetName = localStorage.getItem('currentSetName') || '';
+        let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}'); // Stores custom emojis per phrase
+        let customPhotos = JSON.parse(localStorage.getItem('customPhotos') || '{}'); // Stores photo data per phrase
+        let currentPickerPhrase = ''; // For the icon picker
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -1239,12 +1283,39 @@ function updateSpeechSpeed(value) {
 }
 
         function getCardData(p) {
+            const normalizedPhrase = norm(p);
+            
+            // Check for custom photo first (highest priority)
+            if (customPhotos[normalizedPhrase]) {
+                return {
+                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
+                    icon: '📷', // Placeholder
+                    isPhoto: true,
+                    photoData: customPhotos[normalizedPhrase],
+                    pronunciation: MASTER_DATA[p]?.pronunciation,
+                    g: MASTER_DATA[p]?.g
+                };
+            }
+            
+            // Check for custom emoji
+            if (customIcons[normalizedPhrase]) {
+                return {
+                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
+                    icon: customIcons[normalizedPhrase],
+                    pronunciation: MASTER_DATA[p]?.pronunciation,
+                    g: MASTER_DATA[p]?.g,
+                    isCustom: true
+                };
+            }
+            
+            // Fall back to MASTER_DATA or smart icon
             if (MASTER_DATA[p]) return MASTER_DATA[p];
             const n = norm(p);
             for (let key in MASTER_DATA) { 
                 if (norm(key) === n) return MASTER_DATA[key]; 
             }
             
+            // Smart icon logic (your existing code)
             const word = p.toLowerCase();
             let smartIcon = "✨";
             
@@ -1388,17 +1459,31 @@ function renderList(list) {
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
-            card.innerHTML = `
-                ${gIcon}
-                <span class="card-icon">${data.icon}</span>
-                <span class="french-text">${p}</span>
-                ${pGuide}
-                <span class="english-text">${data.en}</span>
-                <div class="card-btns">
-                    <button class="card-btn spk-fr">🎤 French</button>
-                    <button class="card-btn spk-en">🎯 English</button>
-                </div>
-            `;
+            if (data.isPhoto) {
+                card.innerHTML = `
+                    ${gIcon}
+                    <img src="${data.photoData}" class="card-photo" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                    <span class="french-text">${p}</span>
+                    ${data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : ''}
+                    <span class="english-text">${data.en}</span>
+                    <div class="card-btns">
+                        <button class="card-btn spk-fr">🎤 French</button>
+                        <button class="card-btn spk-en">🎯 English</button>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    ${gIcon}
+                    <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                    <span class="french-text">${p}</span>
+                    ${data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : ''}
+                    <span class="english-text">${data.en}</span>
+                    <div class="card-btns">
+                        <button class="card-btn spk-fr">🎤 French</button>
+                        <button class="card-btn spk-en">🎯 English</button>
+                    </div>
+                `;
+            }
 
             // Wire up your buttons and existing translation fix logic
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
@@ -1423,6 +1508,111 @@ function renderList(list) {
         });
     }
 }
+
+// ===== CUSTOM ICON/PHOTO FUNCTIONS =====
+
+function openIconPicker(phrase) {
+    currentPickerPhrase = phrase;
+    document.getElementById('pickerPhrase').textContent = phrase;
+    document.getElementById('emojiInputSection').style.display = 'none';
+    document.getElementById('emojiInput').value = '';
+    openOverlay('iconPickerOverlay');
+}
+
+function openEmojiPicker() {
+    document.getElementById('emojiInputSection').style.display = 'block';
+    document.getElementById('emojiInput').focus();
+    
+    // Show a helpful tip
+    setTimeout(() => {
+        alert('📱 Use your phone\'s emoji keyboard!\n\nTap the smiley face button on your keyboard to browse all emojis by category.');
+    }, 500);
+}
+
+function submitEmoji() {
+    const emoji = document.getElementById('emojiInput').value.trim();
+    if (!emoji) {
+        alert('Please type an emoji first!');
+        return;
+    }
+    
+    // Take just the first character (handles surrogate pairs correctly)
+    const selectedEmoji = [...emoji][0];
+    
+    const normalizedPhrase = norm(currentPickerPhrase);
+    
+    // Save the emoji
+    customIcons[normalizedPhrase] = selectedEmoji;
+    
+    // Remove photo if it existed
+    if (customPhotos[normalizedPhrase]) {
+        delete customPhotos[normalizedPhrase];
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('customIcons', JSON.stringify(customIcons));
+    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+    
+    closeOverlay('iconPickerOverlay');
+    renderList(currentScreenList); // Refresh to show new icon
+}
+
+function openPhotoPicker() {
+    document.getElementById('photoPickerInput').click();
+}
+
+function resetToDefaultIcon() {
+    const normalizedPhrase = norm(currentPickerPhrase);
+    
+    // Remove any customizations
+    if (customIcons[normalizedPhrase]) {
+        delete customIcons[normalizedPhrase];
+    }
+    if (customPhotos[normalizedPhrase]) {
+        delete customPhotos[normalizedPhrase];
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('customIcons', JSON.stringify(customIcons));
+    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+    
+    closeOverlay('iconPickerOverlay');
+    renderList(currentScreenList); // Refresh to show default icon
+}
+
+// Set up photo picker listener
+document.getElementById('photoPickerInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check file size (limit to 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        alert('Photo is too large! Please choose a smaller photo (under 2MB).');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const normalizedPhrase = norm(currentPickerPhrase);
+        
+        // Save photo data
+        customPhotos[normalizedPhrase] = event.target.result;
+        
+        // Remove emoji if it existed
+        if (customIcons[normalizedPhrase]) {
+            delete customIcons[normalizedPhrase];
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('customIcons', JSON.stringify(customIcons));
+        localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+        
+        closeOverlay('iconPickerOverlay');
+        renderList(currentScreenList); // Refresh to show photo
+    };
+    reader.readAsDataURL(file);
+});
+        
         async function translateOne(p) {
             const n = norm(p); 
             for (let key in MASTER_DATA) { 
@@ -1574,7 +1764,6 @@ function renderList(list) {
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        // ===== HOMEWORK & STORAGE FUNCTIONS (SURGICAL UPDATES HERE) =====
 
         function saveHW() { 
     const val = document.getElementById('hwInput').value.trim(); 
@@ -1877,12 +2066,24 @@ function renderList(list) {
 
         function clearHW() { 
             if(confirm("Clear current homework?")) { 
+                // Optional: Ask if they want to clear custom icons too
+                if (confirm("Also clear custom icons/photos for these phrases?")) {
+                    const words = document.getElementById('hwInput').value.split('\n').map(w => w.trim());
+                    words.forEach(word => {
+                        const normalized = norm(word);
+                        if (customIcons[normalized]) delete customIcons[normalized];
+                        if (customPhotos[normalized]) delete customPhotos[normalized];
+                    });
+                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                }
+                
                 document.getElementById('hwInput').value = ""; 
                 localStorage.setItem('homeworkPhrases', ""); 
                 currentWeekAudio = null;
                 localStorage.removeItem('currentWeekAudio');
-                currentSetName = ''; // ← ADD THIS
-                localStorage.removeItem('currentSetName'); // ← ADD THIS
+                currentSetName = '';
+                localStorage.removeItem('currentSetName');
                 displayAudioPlayer();
                 document.getElementById('phrasesList').innerHTML = '';
                 
@@ -1988,6 +2189,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
