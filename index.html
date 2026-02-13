@@ -362,8 +362,8 @@
         <!-- NEW: Auto-Play Controls -->
         <div id="autoplayControls" class="gap-control">
             <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; width:100%; margin-bottom:8px;">▶️ Play All</button>
-            <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">2.0</span>s</div>
-            <input type="range" id="gapSlider" min="0.5" max="5.0" step="0.5" value="2.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
+            <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">1.0</span>s</div>
+            <input type="range" id="gapSlider" min="0" max="3" step="0.25" value="1.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
         </div>
     </div>
 
@@ -1872,14 +1872,14 @@ function renderList(list) {
             }
         }
         
-        function playLine(index) {
+            function playLine(index) {
             if (!isAutoPlaying || index >= currentScreenList.length) {
-                toggleAutoPlay(); // Reset button
+                toggleAutoPlay();
                 return;
             }
         
             const text = currentScreenList[index].split('|')[0].trim();
-            const gap = parseFloat(document.getElementById('gapSlider').value) * 1000;
+            const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
         
             // Highlight bubble
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
@@ -1891,9 +1891,16 @@ function renderList(list) {
         
             spk(text, 'fr-FR', true);
         
+            // FIXED: Consistent timing calculation
+            // Base time: 1 second + 100ms per character, then add user gap
+            const speechTime = 1000 + (text.length * 100);
+            
+            // Clear any existing timeout
+            if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+            
             autoPlayTimeout = setTimeout(() => {
                 playLine(index + 1);
-            }, 2000 + gap); // Standard speech time + user gap
+            }, speechTime + userGap);
         }
         
         function shareApp() { 
@@ -1924,6 +1931,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
