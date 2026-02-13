@@ -1861,12 +1861,20 @@ function renderList(list) {
         function toggleAutoPlay() {
             const btn = document.getElementById('playAllBtn');
             if (isAutoPlaying) {
-                // ... (keep stop logic)
+                // STOP logic - this was missing!
+                isAutoPlaying = false;
+                clearTimeout(autoPlayTimeout);
+                btn.innerHTML = "▶️ Play All";
+                document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+                // Cancel any speaking
+                window.speechSynthesis.cancel();
             } else {
+                // START logic
                 isAutoPlaying = true;
                 btn.innerHTML = "⏹️ Stop";
                 
-                // ADD THIS LINE: It speaks a silent space to wake up the engine
+                // Wake up the speech engine
+                window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
                 
                 playLine(0);
@@ -1933,6 +1941,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
