@@ -1861,24 +1861,26 @@ function renderList(list) {
         function toggleAutoPlay() {
             const btn = document.getElementById('playAllBtn');
             if (isAutoPlaying) {
-                isAutoPlaying = false;
-                clearTimeout(autoPlayTimeout);
-                btn.innerHTML = "▶️ Play All";
-                document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+                // ... (keep stop logic)
             } else {
                 isAutoPlaying = true;
                 btn.innerHTML = "⏹️ Stop";
+                
+                // ADD THIS LINE: It speaks a silent space to wake up the engine
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+                
                 playLine(0);
             }
         }
         
-            function playLine(index) {
+        function playLine(index) {
             if (!isAutoPlaying || index >= currentScreenList.length) {
-                toggleAutoPlay();
+                toggleAutoPlay(); 
                 return;
             }
         
             const text = currentScreenList[index].split('|')[0].trim();
+            // Get user gap (0 to 3 seconds)
             const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
         
             // Highlight bubble
@@ -1891,16 +1893,16 @@ function renderList(list) {
         
             spk(text, 'fr-FR', true);
         
-            // FIXED: Consistent timing calculation
-            // Base time: 1 second + 100ms per character, then add user gap
-            const speechTime = 1000 + (text.length * 100);
-            
-            // Clear any existing timeout
+            // SPEED TUNING:
+            // 500ms base + 85ms per character. 
+            // This is much "tighter" so a 0s gap feels almost instant.
+            const speechDuration = 500 + (text.length * 85); 
+        
             if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
             
             autoPlayTimeout = setTimeout(() => {
                 playLine(index + 1);
-            }, speechTime + userGap);
+            }, speechDuration + userGap);
         }
         
         function shareApp() { 
@@ -1931,6 +1933,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
