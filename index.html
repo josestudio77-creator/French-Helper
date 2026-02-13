@@ -931,9 +931,37 @@ function practiceNow() {
             // Load last homework on startup if exists
             if (raw && raw.trim()) {
                 console.log('Loading last homework:', raw);
+                
+                // IMPORTANT: If we're loading homework, we need to find its name from history
+                let foundName = '';
+                for (let name in history) {
+                    try {
+                        const hwData = JSON.parse(history[name]);
+                        if (hwData.words === raw) {
+                            foundName = name;
+                            break;
+                        }
+                    } catch (e) {
+                        // Old format, skip
+                    }
+                }
+                
+                // If we found a matching homework name, use it
+                if (foundName) {
+                    currentSetName = foundName;
+                    localStorage.setItem('currentSetName', foundName);
+                } else {
+                    // This is unsaved homework or preset - clear the name
+                    currentSetName = '';
+                    localStorage.removeItem('currentSetName');
+                }
+                
                 loadCurrentHomework();
             } else {
                 console.log('No homework found in storage');
+                // No homework loaded, so clear the name
+                currentSetName = '';
+                localStorage.removeItem('currentSetName');
             }
             
             initVoices();
@@ -942,7 +970,7 @@ function practiceNow() {
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
         };
-
+        
         function loadCurrentHomework() {
             const words = document.getElementById('hwInput').value.trim();
             if (!words) {
@@ -958,6 +986,7 @@ function practiceNow() {
                 }
             }
             
+            // Don't override currentSetName here - we already set it in onload
             renderList(words.split('\n').filter(w => w.trim()));
         }
 
@@ -1292,14 +1321,15 @@ function renderList(list) {
                 const n = norm(p);
                 return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
             }).length;
-
-            // Status Icon logic
+    
             const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
             
-            // Result: 📚 Week 1 (10) ✅
-            statusInfo.innerHTML = currentSetName ? 
-            `📚 ${currentSetName} (${list.length}) ${statusIcon}` : 
-            `📚 List (${list.length}) ${statusIcon}`;
+            // Show name if we have it, otherwise just "List"
+            if (currentSetName) {
+                statusInfo.innerHTML = `📚 ${currentSetName} (${list.length}) ${statusIcon}`;
+            } else {
+                statusInfo.innerHTML = `📚 List (${list.length}) ${statusIcon}`;
+            }
         }
     }
     
@@ -1958,6 +1988,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
