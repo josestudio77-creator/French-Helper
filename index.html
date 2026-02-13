@@ -164,8 +164,13 @@
         color: #2d3748;
         margin-bottom: 10px;
         display: block;
-        border-bottom: 2px dashed #e2e8f0; /* Dashed line separates info from slider */
+        border-bottom: 2px dashed #e2e8f0;
         padding-bottom: 8px;
+        /* NEW: Force one line only */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .speech-speed-label { 
@@ -570,6 +575,7 @@
         let currentIsDialogue = false; 
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
+        let currentSetName = "";
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -652,6 +658,7 @@ function editHomework(name) {
 }
 
 function loadHomeworkForPractice(name, words, audio) {
+    currentSetName = name;
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
     
     // --- NEW: Detect if this homework is a Dialogue ---
@@ -1221,18 +1228,15 @@ function updateSpeechSpeed(value) {
             return { en: cache[n] || "...", icon: smartIcon };
         }
 
-function loadPresetAndClose(k) {
-    console.log('Loading preset:', k);
-    if (!presets[k]) return;
-    
-    // FIX: Force dialogue mode to OFF for presets
-    currentIsDialogue = false; 
-    
-    currentWeekAudio = null;
-    localStorage.removeItem('currentWeekAudio');
-    renderList(presets[k]);
-    closeOverlay('presetsOverlay');
-}
+        function loadPresetAndClose(k) {
+            if (!presets[k]) return;
+            currentSetName = k.charAt(0).toUpperCase() + k.slice(1); // "Animals", "Colors", etc.
+            currentIsDialogue = false; 
+            currentWeekAudio = null;
+            localStorage.removeItem('currentWeekAudio');
+            renderList(presets[k]);
+            closeOverlay('presetsOverlay');
+        }
 
         function loadPreset(k) {
             console.log('Loading preset list:', presets[k]);
@@ -1272,7 +1276,7 @@ function renderList(list) {
         }
     }
     
-    // 4. Update the Smart Status Message (Kept exactly as you had it)
+    // 4. Update the Smart Status Message (Compact One-Line Version)
     const statusInfo = document.getElementById('stCountText');
     if (statusInfo) {
         if (!list || list.length === 0) {
@@ -1282,9 +1286,12 @@ function renderList(list) {
                 const n = norm(p);
                 return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
             }).length;
-            statusInfo.innerHTML = (translatedCount === list.length) ? 
-                `✅ ${list.length} phrases ready!` : 
-                `⚠️ ${list.length} phrases (${list.length - translatedCount} need ✨ Magic Translate)`;
+
+            // Status Icon logic
+            const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
+            
+            // Result: 📚 Week 1 (10) ✅
+            statusInfo.innerHTML = `📚 ${currentSetName} (${list.length}) ${statusIcon}`;
         }
     }
     
@@ -1941,6 +1948,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
