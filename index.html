@@ -575,7 +575,7 @@
         let currentIsDialogue = false; 
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
-        let currentSetName = "";
+        let currentSetName = localStorage.getItem('currentSetName') || '';
 
         // ===== CORE NAVIGATION FUNCTIONS =====
 
@@ -659,6 +659,7 @@ function editHomework(name) {
 
 function loadHomeworkForPractice(name, words, audio) {
     currentSetName = name;
+    localStorage.setItem('currentSetName', name);
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
     
     // --- NEW: Detect if this homework is a Dialogue ---
@@ -703,11 +704,15 @@ function practiceNow() {
         return;
     }
     
+    // If this is a new unsaved homework, clear the name
+    if (!editingHomeworkName) {
+        currentSetName = '';
+        localStorage.removeItem('currentSetName');
+    }
+    
     localStorage.setItem('homeworkPhrases', words);
     lastLoadedHomework = words;
     
-    // FIX: If the editor has no audio, explicitly clear it from memory 
-    // so it doesn't carry over from a previous session.
     if (!currentWeekAudio) {
         localStorage.removeItem('currentWeekAudio');
         currentWeekAudio = null;
@@ -1231,6 +1236,7 @@ function updateSpeechSpeed(value) {
         function loadPresetAndClose(k) {
             if (!presets[k]) return;
             currentSetName = k.charAt(0).toUpperCase() + k.slice(1); // "Animals", "Colors", etc.
+            localStorage.setItem('currentSetName', currentSetName);
             currentIsDialogue = false; 
             currentWeekAudio = null;
             localStorage.removeItem('currentWeekAudio');
@@ -1291,7 +1297,9 @@ function renderList(list) {
             const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
             
             // Result: 📚 Week 1 (10) ✅
-            statusInfo.innerHTML = `📚 ${currentSetName} (${list.length}) ${statusIcon}`;
+            statusInfo.innerHTML = currentSetName ? 
+            `📚 ${currentSetName} (${list.length}) ${statusIcon}` : 
+            `📚 List (${list.length}) ${statusIcon}`;
         }
     }
     
@@ -1843,6 +1851,8 @@ function renderList(list) {
                 localStorage.setItem('homeworkPhrases', ""); 
                 currentWeekAudio = null;
                 localStorage.removeItem('currentWeekAudio');
+                currentSetName = ''; // ← ADD THIS
+                localStorage.removeItem('currentSetName'); // ← ADD THIS
                 displayAudioPlayer();
                 document.getElementById('phrasesList').innerHTML = '';
                 
@@ -1948,6 +1958,7 @@ function renderList(list) {
     </script>
 </body>
 </html>
+
 
 
 
