@@ -2363,11 +2363,14 @@ async function translateOne(p) {
             const loopBtn = document.getElementById('loopBtn');
             
             if (loopMode) {
-                loopBtn.style.background = '#4cd964';  // Green when ON
+                loopBtn.style.background = '#4cd964';
                 loopBtn.style.border = '2px solid #2ea44e';
+                // Add the same padding as before, but adjust for border
+                loopBtn.style.padding = '8px 0'; // Keep same padding
             } else {
-                loopBtn.style.background = '#ff9e6d';  // Orange when OFF
-                loopBtn.style.border = 'none';
+                loopBtn.style.background = '#ff9e6d';
+                loopBtn.style.border = '2px solid #ff9e6d'; // Make border same color as background when OFF
+                loopBtn.style.padding = '8px 0';
             }
         }
         
@@ -2437,6 +2440,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
