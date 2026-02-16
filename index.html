@@ -230,160 +230,7 @@
         font-weight: 700;
     }
 
-    /* Condensed & Dialogue Mode Styles */
-    .condensed-card {
-        background: white;
-        border-radius: 25px;
-        padding: 15px;
-        margin: 15px 0;
-        border: 5px solid #a3e4d7;
-        text-align: left;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-    }
-    
-    .dialogue-line {
-        padding: 12px 18px;
-        border-radius: 20px;
-        margin-bottom: 10px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: all 0.1s;
-        display: block;
-        border: 2px solid #e2e8f0;
-        background: #f8fafc;
-        color: #2d3748;
-        max-width: 85%;
-        line-height: 1.3;
-        position: relative;
-    }
-
-          /* Fix condensed card vertical spacing - ONLY centers content */
-        .condensed-card {
-            background: white;
-            border-radius: 25px;
-            padding: 20px 15px;  /* Equal padding top/bottom */
-            margin: 15px 0;
-            border: 5px solid #a3e4d7;
-            text-align: left;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Centers content vertically */
-        }
-        
-        /* Remove top margin from first line */
-        .condensed-card .dialogue-line:first-child {
-            margin-top: 0;
-        }
-        
-        /* Remove bottom margin from last line */
-        .condensed-card .dialogue-line:last-child {
-            margin-bottom: 0;
-        }
-
-    /* Ensure consistent line spacing */
-    .dialogue-line {
-        padding: 10px 15px;  /* Slightly reduced padding */
-        margin-bottom: 8px;   /* Reduced from 10px */
-        font-weight: 800;
-        font-size: 1rem;      /* Slightly smaller */
-        cursor: pointer;
-        transition: all 0.1s;
-        display: block;
-        border: 2px solid #e2e8f0;
-        background: #f8fafc;
-        color: #2d3748;
-        max-width: 85%;
-        line-height: 1.3;
-        position: relative;
-    }
-       
-    .dialogue-line:active {
-        transform: scale(0.96);
-        background: #4cd964 !important;
-        color: white !important;
-        border-color: #2ea44e;
-    }
-
-    .line-left {
-        align-self: flex-start;
-        border-bottom-left-radius: 4px;
-        background: #f0fdf4;
-        border-color: #dcfce7;
-    }
-
-    .line-right {
-        margin-left: auto;
-        text-align: right;
-        border-bottom-right-radius: 4px;
-        background: #f5f3ff;
-        border-color: #ede9fe;
-    }
-
-    .view-switcher {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .view-btn {
-        background: #edf2f7;
-        border: 2px solid #cbd5e0;
-        padding: 6px;
-        border-radius: 12px;
-        font-weight: 900;
-        font-size: 0.7rem;
-        cursor: pointer;
-    }
-
-    .view-btn.active {
-        background: #5a67d8;
-        color: white;
-        border-color: #434190;
-    }
-
-    .line-center {
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-        background: #f0f9ff;
-        border-color: #bee3f8;
-        width: 95%;
-    }
-
-    /* Auto-play highlight */
-    .playing-now {
-        background: #4cd964 !important;
-        color: white !important;
-        border-color: #2ea44e !important;
-        transform: scale(1.03);
-        box-shadow: 0 0 15px rgba(76, 217, 100, 0.5);
-    }
-
-    .phrases-container {
-        margin-top: 20px;
-        margin-bottom: 20px;
-        width: 100%;
-    }
-
-    /* Gap Slider */
-    .gap-control {
-        background: #f8fafc;
-        padding: 10px;
-        border-radius: 15px;
-        margin-top: 10px;
-        border: 2px solid #e2e8f0;
-        display: none;
-    }
-
-    /* Custom photo styling - ENHANCED */
-    .card-photo {
-        width: 6rem;
-        height: 6rem;
-        border-radius: 50%;
-        object-fit: co    /* Condensed & Dialogue Mode Styles */
+       /* Condensed & Dialogue Mode Styles - CLEANED UP */
     .condensed-card {
         background: white;
         border-radius: 25px;
@@ -398,19 +245,19 @@
     }
     
     .dialogue-line {
-        padding: 12px 18px;  /* KEEP ORIGINAL SIZE */
+        padding: 15px 20px;  /* INCREASED padding for better touch target */
         border-radius: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;  /* INCREASED space between phrases */
         font-weight: 800;
-        font-size: 1.1rem;   /* KEEP ORIGINAL SIZE */
+        font-size: 1.3rem;    /* INCREASED for easier reading */
         cursor: pointer;
         transition: all 0.1s;
         display: block;
         border: 2px solid #e2e8f0;
         background: #f8fafc;
         color: #2d3748;
-        max-width: 85%;
-        line-height: 1.3;
+        max-width: 90%;       /* Slightly wider */
+        line-height: 1.4;
         position: relative;
     }
     
@@ -446,29 +293,6 @@
         border-color: #ede9fe;
     }
 
-    .view-switcher {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 10px;
-    }
-        
-    .view-btn {
-        background: #edf2f7;
-        border: 2px solid #cbd5e0;
-        padding: 6px;
-        border-radius: 12px;
-        font-weight: 900;
-        font-size: 0.7rem;
-        cursor: pointer;
-    }
-
-    .view-btn.active {
-        background: #5a67d8;
-        color: white;
-        border-color: #434190;
-    }
-
     .line-center {
         margin-left: auto;
         margin-right: auto;
@@ -487,6 +311,32 @@
         box-shadow: 0 0 15px rgba(76, 217, 100, 0.5);
     }
 
+    /* View Switcher */
+    .view-switcher {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .view-btn {
+        background: #edf2f7;
+        border: 2px solid #cbd5e0;
+        padding: 6px;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 0.7rem;
+        cursor: pointer;
+        height: 36px;           /* Fixed height to prevent jumping */
+        box-sizing: border-box; /* Include border in height calculation */
+    }
+
+    .view-btn.active {
+        background: #5a67d8;
+        color: white;
+        border-color: #434190;
+    }
+
     .phrases-container {
         margin-top: 20px;
         margin-bottom: 20px;
@@ -503,19 +353,28 @@
         display: none;
     }
 
-    /* Custom photo styling - ENHANCED */
+    /* Fix button height consistency for Play All and Loop buttons */
+    #playAllBtn, #loopBtn {
+        height: 42px;           /* Fixed height */
+        box-sizing: border-box; /* Include padding/border in height */
+        line-height: 1.2;
+    }
+
+    /* Loop button specific - always keep border for consistent height */
+    #loopBtn {
+        border: 2px solid transparent; /* Transparent border when off */
+    }
+    
+    #loopBtn[style*="background:#4cd964"] {
+        border: 2px solid #2ea44e !important; /* Green border when on */
+    }
+
+    /* Custom photo styling */
     .card-photo {
         width: 6rem;
         height: 6rem;
         border-radius: 50%;
         object-fit: cover;
-        object-position: center;
-        margin-bottom: 10px;
-        border: 4px solid #a3e4d7;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    }ver;
         object-position: center;
         margin-bottom: 10px;
         border: 4px solid #a3e4d7;
@@ -2543,12 +2402,9 @@ async function translateOne(p) {
             if (loopMode) {
                 loopBtn.style.background = '#4cd964';
                 loopBtn.style.border = '2px solid #2ea44e';
-                // Add the same padding as before, but adjust for border
-                loopBtn.style.padding = '8px 0'; // Keep same padding
             } else {
                 loopBtn.style.background = '#ff9e6d';
-                loopBtn.style.border = '2px solid #ff9e6d'; // Make border same color as background when OFF
-                loopBtn.style.padding = '8px 0';
+                loopBtn.style.border = '2px solid transparent'; // Keeps height consistent
             }
         }
         
@@ -2618,6 +2474,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
