@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V8.1 🎉</title>
+    <title>🇫🇷 French Fun V9.0 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Cropper.js for photo cropping -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     
    <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -22,7 +25,9 @@
     button:active, .key:active { transform: scale(1.15); }
     .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     
-    .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; }
+    .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; cursor: pointer; }
+    .card-icon:active { transform: scale(1.1); }
+    
     .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
     
     .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
@@ -48,17 +53,17 @@
     @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
     
-    /* UPDATED: Contrast for history items (Backpack Cards) */
+    /* History items */
     .history-item { 
         padding: 15px; 
-        border: 3px solid #9d4edd; /* Stronger purple border */
+        border: 3px solid #9d4edd;
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        background: #ffffff; /* Pure white background */
+        background: #ffffff;
         border-radius: 20px; 
         margin-bottom: 15px; 
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15); /* Stronger shadow */
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
     }
     
     .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
@@ -80,7 +85,7 @@
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Consolidated Game Layout Styles */
+    /* Game Layout Styles */
     .game-hints { 
         display: flex; 
         gap: 6px; 
@@ -88,7 +93,6 @@
         margin-bottom: 5px; 
     }
     
-    /* Smaller control buttons to fit 3 in a row */
     .hint-btn { 
         flex: 1;
         background: #e0f2fe; 
@@ -102,7 +106,6 @@
         white-space: nowrap;
     }
 
-   /* Consolidated Game Layout Styles - Updated for V8.2 */
     .keyboard { 
         display: flex; 
         flex-wrap: wrap; 
@@ -110,7 +113,6 @@
         gap: 6px; 
         margin: 10px 0; 
         width: 100%; 
-        /* NEW: Visual Zone for Keyboard */
         background: #f1f5f9; 
         padding: 12px 8px; 
         border-radius: 20px; 
@@ -121,7 +123,7 @@
     .game-actions {
         display: flex;
         gap: 10px;
-        margin-top: 25px; /* INCREASED: Adds nice space between keyboard and buttons */
+        margin-top: 25px;
     }
     
     .game-actions button {
@@ -131,7 +133,7 @@
         border: none;
         font-weight: 900;
         cursor: pointer;
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1); /* Subtle 3D effect for the action buttons */
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
     }
     
     .game-actions button:active {
@@ -139,7 +141,6 @@
         box-shadow: none;
     }
        
-    /* Smaller canvas and emoji to save height */
     #hangmanCanvas { 
         width: 150px; 
         height: 110px; 
@@ -148,7 +149,7 @@
     .clue-emoji { font-size: 3rem; margin: 2px 0; }
     .hangman-word { font-size: 1.6rem; margin: 10px 0; }
        
-   /* Unified App Control Panel (Replaces Status Bar & Speed Slider) */
+    /* App Control Panel */
     .app-control-panel {
         background: white;
         border-radius: 25px;
@@ -166,7 +167,6 @@
         display: block;
         border-bottom: 2px dashed #e2e8f0;
         padding-bottom: 8px;
-        /* NEW: Force one line only */
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -204,7 +204,7 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
-    /* Homework screen buttons - 3-column grid */
+    /* Homework screen buttons */
     .hw-buttons-grid {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -220,7 +220,7 @@
         font-size: 0.85rem;
     }
 
-    /* Phonetic reference guide in practice cards */
+    /* Phonetic reference */
     .pronunciation-text {
         display: block;
         font-size: 0.9rem;
@@ -230,7 +230,7 @@
         font-weight: 700;
     }
 
-       /* Condensed & Dialogue Mode Styles */
+    /* Condensed & Dialogue Mode Styles */
     .condensed-card {
         background: white;
         border-radius: 25px;
@@ -258,7 +258,6 @@
         position: relative;
     }
 
-    /* Visual Feedback on Click */
     .dialogue-line:active {
         transform: scale(0.96);
         background: #4cd964 !important;
@@ -266,23 +265,21 @@
         border-color: #2ea44e;
     }
 
-    /* Alternating speakers */
     .line-left {
         align-self: flex-start;
         border-bottom-left-radius: 4px;
-        background: #f0fdf4; /* Soft green */
+        background: #f0fdf4;
         border-color: #dcfce7;
     }
 
     .line-right {
-        margin-left: auto; /* Push to right */
+        margin-left: auto;
         text-align: right;
         border-bottom-right-radius: 4px;
-        background: #f5f3ff; /* Soft purple */
+        background: #f5f3ff;
         border-color: #ede9fe;
     }
 
-    /* Toggle Switcher in Control Panel */
     .view-switcher {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -306,7 +303,6 @@
         border-color: #434190;
     }
 
-       /* Centered List Mode Style */
     .line-center {
         margin-left: auto;
         margin-right: auto;
@@ -316,7 +312,7 @@
         width: 95%;
     }
 
-    /* Highlight for Auto-play */
+    /* Auto-play highlight */
     .playing-now {
         background: #4cd964 !important;
         color: white !important;
@@ -331,71 +327,98 @@
         width: 100%;
     }
 
-    /* Gap Slider Styles */
+    /* Gap Slider */
     .gap-control {
         background: #f8fafc;
         padding: 10px;
         border-radius: 15px;
         margin-top: 10px;
         border: 2px solid #e2e8f0;
-        display: none; /* Hidden by default, shown in Dialogue/List mode */
+        display: none;
     }
 
-    /* Custom photo styling */
+    /* Custom photo styling - ENHANCED */
     .card-photo {
-        width: 4.5rem;
-        height: 4.5rem;
+        width: 6rem;
+        height: 6rem;
         border-radius: 50%;
         object-fit: cover;
+        object-position: center;
         margin-bottom: 10px;
-        border: 3px solid #a3e4d7;
+        border: 4px solid #a3e4d7;
         cursor: pointer;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
     }
-    
+
     .card-photo:active {
         transform: scale(0.95);
     }
-       
+
+    /* Photo position classes */
+    .card-photo.top { object-position: top; }
+    .card-photo.bottom { object-position: bottom; }
+    .card-photo.left { object-position: left; }
+    .card-photo.right { object-position: right; }
+    .card-photo.center { object-position: center; }
+
+    /* Cropper custom styles */
+    .cropper-container {
+        max-height: 50vh !important;
+    }
+    
+    .cropper-view-box {
+        outline-color: #4cd964;
+        outline-width: 3px;
+    }
+    
+    .cropper-line {
+        background-color: #4cd964 !important;
+    }
+    
+    .cropper-point {
+        background-color: #4cd964 !important;
+    }
    </style>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V8.1 🎉</h1>
+            <h1>🇫🇷 French Fun V9.0 🎉</h1>
         </div>
         
-        <!-- Consolidated App Control Panel -->
-    <div class="app-control-panel">
-        <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
+        <!-- App Control Panel -->
+        <div class="app-control-panel">
+            <div class="status-info" id="stCountText">🇫🇷 Ready to learn!</div>
+            
+            <div class="speech-speed-label">
+                <span>🎚️ Voice Speed:</span>
+                <span id="speedValue">0.85</span>x
+            </div>
+            <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechLabel(this.value)" onchange="updateSpeechSpeed(this.value)">
+            
+            <div class="view-switcher">
+                <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
+                <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Mode</button>
+            </div>
         
-        <div class="speech-speed-label">
-            <span>🎚️ Voice Speed:</span>
-            <span id="speedValue">0.85</span>x
+            <!-- Auto-Play Controls -->
+            <div id="autoplayControls" class="gap-control">
+                <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; width:100%; margin-bottom:8px;">▶️ Play All</button>
+                <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">1.0</span>s</div>
+                <input type="range" id="gapSlider" min="0" max="3" step="0.25" value="1.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
+            </div>
         </div>
-        <input type="range" id="speedSlider" class="speech-speed-slider" min="0.3" max="1.5" step="0.05" value="0.85" oninput="updateSpeechLabel(this.value)" onchange="updateSpeechSpeed(this.value)">
-        
-        <div class="view-switcher">
-            <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
-            <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Mode</button>
-        </div>
-    
-        <!-- NEW: Auto-Play Controls -->
-        <div id="autoplayControls" class="gap-control">
-            <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; width:100%; margin-bottom:8px;">▶️ Play All</button>
-            <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">1.0</span>s</div>
-            <input type="range" id="gapSlider" min="0" max="3" step="0.25" value="1.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
-        </div>
-    </div>
 
-    <div id="phrasesList" class="phrases-container"></div>
+        <div id="phrasesList" class="phrases-container"></div>
         
-    <div class="bottom-nav">
-        <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-        <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-        <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-        <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
+        <div class="bottom-nav">
+            <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
+            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
+            <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
+            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
+        </div>
     </div>
 
     <!-- Parent Settings Drawer -->
@@ -437,7 +460,7 @@
         </div>
     </div>
 
-    <!-- Homework Drawer (Add/Edit Homework) -->
+    <!-- Homework Drawer -->
     <div id="hwDrawer" class="overlay">
         <div class="overlay-content">
             <h2 id="hwDrawerTitle" style="color:#9d4edd">✏️ Add Homework</h2>
@@ -461,7 +484,6 @@
                 </label>
             </div>
             
-            <!-- 3-column button grid for Homework screen -->
             <div class="hw-buttons-grid">
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
@@ -475,7 +497,7 @@
         </div>
     </div>
 
-    <!-- Updated Compact Game Drawer -->
+    <!-- Game Drawer -->
     <div id="gameDrawer" class="overlay">
         <div class="overlay-content">
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:900">
@@ -483,7 +505,6 @@
                 <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
             </div>
             
-            <!-- Row 1: The 3 Controls (Listen, Spell, Music) -->
             <div class="game-hints">
                 <button class="hint-btn" onclick="spk(targetWord, 'fr-FR', true)">📢 Listen</button>
                 <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
@@ -496,7 +517,6 @@
             <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess!</div>
             <div id="keyboard" class="keyboard"></div>
 
-            <!-- Row 2: Bottom Action Buttons (Next and Exit) -->
             <div class="game-actions">
                 <button onclick="startHangman()" style="background:#4cd964; color:white;">🎯 Next</button>
                 <button onclick="exitGame()" style="background:#2d3748; color:white;">Exit</button>
@@ -510,7 +530,6 @@
             <h2 style="color:#9d4edd; margin-bottom:15px">🎒 Backpack</h2>
             <div id="bpList"></div>
             
-           <!-- Simplified Backpack Actions -->
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
                 <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
                 <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
@@ -569,9 +588,29 @@
             <button onclick="closeOverlay('iconPickerOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Cancel</button>
         </div>
     </div>
+
+    <!-- Photo Cropper Overlay (NEW) -->
+    <div id="photoCropperOverlay" class="overlay" style="z-index:2500;">
+        <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column;">
+            <h2 style="color:#9d4edd; margin-bottom:10px;">📷 Crop Your Photo</h2>
+            <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Drag the corners to adjust. Tap the center point you want to highlight.</p>
             
+            <!-- Image container for cropping -->
+            <div style="flex:1; min-height:300px; background:#f0f0f0; border-radius:10px; overflow:hidden; margin-bottom:10px; position:relative;">
+                <img id="cropperImage" src="" style="max-width:100%; display:block;">
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <button onclick="cancelCrop()" style="background:#ff9e6d; color:white; padding:15px; border:none; border-radius:15px; font-weight:900;">Cancel</button>
+                <button onclick="saveCroppedPhoto()" style="background:#4cd964; color:white; padding:15px; border:none; border-radius:15px; font-weight:900;">Save Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
     <script>
-        /* ===== MASTER_DATA Dictionary (RESTORED FULL VERSION) ===== */
+        /* ===== MASTER_DATA Dictionary ===== */
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},
             "Un":{en:"One",icon:"1️⃣",pronunciation:"uhn"},"Deux":{en:"Two",icon:"2️⃣",pronunciation:"duh"},"Trois":{en:"Three",icon:"3️⃣",pronunciation:"twah"},"Quatre":{en:"Four",icon:"4️⃣",pronunciation:"KAH-truh"},"Cinq":{en:"Five",icon:"5️⃣",pronunciation:"sank"},"Six":{en:"Six",icon:"6️⃣",pronunciation:"seess"},"Sept":{en:"Seven",icon:"7️⃣",pronunciation:"set"},"Huit":{en:"Eight",icon:"8️⃣",pronunciation:"weet"},"Neuf":{en:"Nine",icon:"9️⃣",pronunciation:"nuhf"},"Dix":{en:"Ten",icon:"🔟",pronunciation:"deess"},
@@ -602,7 +641,7 @@
             actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"]
         };
 
-        // App state
+        // ===== APP STATE =====
         let speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.85');
         let currentWeekAudio = null;
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
@@ -611,18 +650,23 @@
         let lastWord = "", gameActive = false, isSpelling = false, musicContext = null, musicNode = null, currentScreenList = [], frVoices = [], selectedFrVoice = null, cachedEnVoice = null;
         let currentlyPlayingAudio = null;
         let lastLoadedHomework = localStorage.getItem('homeworkPhrases') || '';
-        let editingHomeworkName = null; // NEW: Track if we are editing an existing item
-        let viewMode = 'cards'; // Default mode
+        let editingHomeworkName = null;
+        let viewMode = localStorage.getItem('viewMode') || 'cards';
         let currentIsDialogue = false; 
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
         let currentSetName = localStorage.getItem('currentSetName') || '';
-        let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}'); // Stores custom emojis per phrase
-        let customPhotos = JSON.parse(localStorage.getItem('customPhotos') || '{}'); // Stores photo data per phrase
-        let currentPickerPhrase = ''; // For the icon picker
+        
+        // NEW: Custom icon/photo state
+        let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
+        let customPhotos = JSON.parse(localStorage.getItem('customPhotos') || '{}');
+        let currentPickerPhrase = '';
+        
+        // Cropper instance
+        let cropper = null;
+        let tempPhotoData = null;
 
-        // ===== CORE NAVIGATION FUNCTIONS =====
-
+        // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             document.getElementById(id).style.display = 'block'; 
@@ -630,12 +674,6 @@
                 startHangman(); 
             } else if (id === 'bpModal') {
                 openBP();
-            } else if (id === 'presetsOverlay') {
-                console.log('Presets overlay opened');
-            } else if (id === 'parentDrawer') {
-                console.log('Parent drawer opened');
-            } else if (id === 'hwDrawer') {
-                console.log('Homework drawer opened');
             }
         }
 
@@ -645,61 +683,503 @@
 
         function setViewMode(mode) {
             viewMode = mode;
-            // Update button visuals
+            localStorage.setItem('viewMode', mode);
             document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
             document.getElementById('btnViewDialogue').classList.toggle('active', mode === 'dialogue');
-            // Re-render current list
             renderList(currentScreenList);
         }
 
-        function openBackpackFromHW() {
-            closeOverlay('hwDrawer');
-            openOverlay('bpModal'); // Instant switch
+        // ===== CUSTOM ICON/PHOTO FUNCTIONS =====
+        function openIconPicker(phrase) {
+            currentPickerPhrase = phrase;
+            document.getElementById('pickerPhrase').textContent = phrase;
+            document.getElementById('emojiInputSection').style.display = 'none';
+            document.getElementById('emojiInput').value = '';
+            openOverlay('iconPickerOverlay');
         }
 
-        function addNewHomework() {
-            // Reset for a fresh entry
-            editingHomeworkName = null;
-            document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-            document.getElementById('hwInput').value = "";
-            currentWeekAudio = null;
-            displayAudioPlayer();
+        function openEmojiPicker() {
+            document.getElementById('emojiInputSection').style.display = 'block';
+            document.getElementById('emojiInput').focus();
             
-            closeOverlay('bpModal');
-            openOverlay('hwDrawer'); // Instant switch
+            setTimeout(() => {
+                alert('📱 Use your phone\'s emoji keyboard!\n\nTap the smiley face button on your keyboard to browse all emojis by category.');
+            }, 500);
         }
 
-        function openSettingsFromBP() {
-    // 1. Hide the backpack first
-    closeOverlay('bpModal');
-    // 2. Open the parent settings immediately after
-    openOverlay('parentDrawer');
-    }
-
-function editHomework(name) {
-    let hwData = { words: '', audio: null };
-    try {
-        const parsed = JSON.parse(history[name]);
-        if (parsed.words !== undefined) {
-            hwData = parsed;
-        } else {
-            hwData.words = history[name];
+        function submitEmoji() {
+            const emoji = document.getElementById('emojiInput').value.trim();
+            if (!emoji) {
+                alert('Please type an emoji first!');
+                return;
+            }
+            
+            const selectedEmoji = [...emoji][0];
+            const normalizedPhrase = norm(currentPickerPhrase);
+            
+            customIcons[normalizedPhrase] = selectedEmoji;
+            
+            if (customPhotos[normalizedPhrase]) {
+                delete customPhotos[normalizedPhrase];
+            }
+            
+            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+            
+            closeOverlay('iconPickerOverlay');
+            renderList(currentScreenList);
         }
-    } catch (e) {
-        hwData.words = history[name];
-    }
 
-    // FIX: Added '|| null' to ensure audio is never 'undefined'
-    editingHomeworkName = name;
-    document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
-    document.getElementById('hwInput').value = hwData.words;
-    currentWeekAudio = hwData.audio || null; 
-    displayAudioPlayer();
+        function openPhotoPicker() {
+            document.getElementById('photoPickerInput').click();
+        }
 
-    // Switch Screen
-    closeOverlay('bpModal');
-    openOverlay('hwDrawer');
-}
+        function resetToDefaultIcon() {
+            const normalizedPhrase = norm(currentPickerPhrase);
+            
+            if (customIcons[normalizedPhrase]) delete customIcons[normalizedPhrase];
+            if (customPhotos[normalizedPhrase]) delete customPhotos[normalizedPhrase];
+            
+            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+            
+            closeOverlay('iconPickerOverlay');
+            renderList(currentScreenList);
+        }
+
+        // ===== CROPPER FUNCTIONS =====
+        function openPhotoCropper(imageData) {
+            tempPhotoData = imageData;
+            
+            closeOverlay('iconPickerOverlay');
+            document.getElementById('photoCropperOverlay').style.display = 'block';
+            
+            const image = document.getElementById('cropperImage');
+            image.src = imageData;
+            
+            image.onload = function() {
+                if (cropper) cropper.destroy();
+                
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: true,
+                    scalable: false,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    background: true,
+                    minCropBoxWidth: 100,
+                    minCropBoxHeight: 100,
+                    ready() {
+                        console.log('Cropper ready');
+                    }
+                });
+            };
+        }
+
+        function cancelCrop() {
+            if (cropper) cropper.destroy();
+            cropper = null;
+            document.getElementById('photoCropperOverlay').style.display = 'none';
+        }
+
+        function saveCroppedPhoto() {
+            if (!cropper) return;
+            
+            const canvas = cropper.getCroppedCanvas({
+                width: 200,
+                height: 200,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            
+            const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+            
+            const normalizedPhrase = norm(currentPickerPhrase);
+            customPhotos[normalizedPhrase] = croppedImageData;
+            
+            if (customIcons[normalizedPhrase]) {
+                delete customIcons[normalizedPhrase];
+            }
+            
+            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+            
+            cropper.destroy();
+            cropper = null;
+            document.getElementById('photoCropperOverlay').style.display = 'none';
+            
+            renderList(currentScreenList);
+        }
+
+        // Update photo picker to use cropper
+        document.getElementById('photoPickerInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Photo is too large! Please choose a smaller photo (under 5MB).');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                openPhotoCropper(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ===== UPDATED getCardData WITH CUSTOM ICONS/PHOTOS =====
+        function getCardData(p) {
+            const normalizedPhrase = norm(p);
+            
+            // Check for custom photo first
+            if (customPhotos[normalizedPhrase]) {
+                return {
+                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
+                    icon: '📷',
+                    isPhoto: true,
+                    photoData: customPhotos[normalizedPhrase],
+                    pronunciation: MASTER_DATA[p]?.pronunciation,
+                    g: MASTER_DATA[p]?.g
+                };
+            }
+            
+            // Check for custom emoji
+            if (customIcons[normalizedPhrase]) {
+                return {
+                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
+                    icon: customIcons[normalizedPhrase],
+                    pronunciation: MASTER_DATA[p]?.pronunciation,
+                    g: MASTER_DATA[p]?.g,
+                    isCustom: true
+                };
+            }
+            
+            // Fall back to MASTER_DATA
+            if (MASTER_DATA[p]) return MASTER_DATA[p];
+            const n = norm(p);
+            for (let key in MASTER_DATA) { 
+                if (norm(key) === n) return MASTER_DATA[key]; 
+            }
+            
+            // Smart icon logic
+            const word = p.toLowerCase();
+            let smartIcon = "✨";
+            
+            if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
+            else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
+            else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
+            else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
+            else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
+            else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
+            else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
+            else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
+            else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
+            else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
+            
+            return { en: cache[n] || "...", icon: smartIcon };
+        }
+
+        // ===== UPDATED renderList WITH CUSTOM ICONS/PHOTOS =====
+        function renderList(list) {
+            console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
+            currentScreenList = list; 
+            const container = document.getElementById('phrasesList'); 
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const existingBanner = document.querySelector('.teacher-audio-banner');
+            if (existingBanner) existingBanner.remove();
+
+            const autoPlayUI = document.getElementById('autoplayControls');
+            if (autoPlayUI) {
+                autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
+            }
+
+            const diagBtn = document.getElementById('btnViewDialogue');
+            if (diagBtn) {
+                if (currentWeekAudio) {
+                    diagBtn.innerHTML = "🎧 Recording";
+                } else {
+                    diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+                }
+            }
+            
+            const statusInfo = document.getElementById('stCountText');
+            if (statusInfo) {
+                if (!list || list.length === 0) {
+                    statusInfo.textContent = '🇫🇷 Ready to learn!';
+                } else {
+                    const translatedCount = list.filter(p => {
+                        const n = norm(p);
+                        return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
+                    }).length;
+            
+                    const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
+                    
+                    if (currentSetName) {
+                        statusInfo.innerHTML = `📚 ${currentSetName} (${list.length} phrases ${statusIcon})`;
+                    } else {
+                        statusInfo.innerHTML = `📚 List (${list.length} phrases ${statusIcon})`;
+                    }
+                }
+            }
+            
+            const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
+            
+            if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
+                const banner = document.createElement('div');
+                banner.className = 'teacher-audio-banner';
+                banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
+                banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+                container.parentElement.insertBefore(banner, container);
+                
+                const card = document.createElement('div');
+                card.className = 'phrase-card';
+                card.style.border = '5px solid #ffc107';
+                card.innerHTML = `
+                    <div style="font-size:1.4rem; font-weight:900; color:#2d3748; margin-bottom:15px; text-align:left; padding:15px; background:white; border-radius:12px;">
+                        ${list.map(w => `• ${w.split('|')[0]}`).join('<br>')}
+                    </div>
+                    <audio controls style="width:100%;" src="${currentWeekAudio.data}"></audio>
+                    <p style="font-size:0.8rem; margin-top:10px; color:#856404; font-weight:800;">💡 Switch to 🗂️ Cards mode to see translations</p>
+                `;
+                container.appendChild(card);
+                
+            } else if (viewMode === 'dialogue') {
+                const diagCard = document.createElement('div');
+                diagCard.className = 'condensed-card';
+                diagCard.style.display = 'flex';
+                diagCard.style.flexDirection = 'column';
+
+                list.forEach((p, index) => {
+                    const line = document.createElement('div');
+                    const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
+                    line.className = `dialogue-line ${sideClass}`;
+                    line.id = `line-${index}`;
+                    const cleanText = p.split('|')[0].trim();
+                    line.textContent = cleanText;
+                    line.onclick = () => spk(cleanText, 'fr-FR', true);
+                    diagCard.appendChild(line);
+                });
+                container.appendChild(diagCard);
+
+            } else {
+                list.forEach(p => {
+                    const data = getCardData(p); 
+                    const card = document.createElement('div'); 
+                    card.className = 'phrase-card';
+                    
+                    const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
+                    const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+
+                    if (data.isPhoto) {
+                        card.innerHTML = `
+                            ${gIcon}
+                            <img src="${data.photoData}" class="card-photo" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                            <span class="french-text">${p}</span>
+                            ${pGuide}
+                            <span class="english-text">${data.en}</span>
+                            <div class="card-btns">
+                                <button class="card-btn spk-fr">🎤 French</button>
+                                <button class="card-btn spk-en">🎯 English</button>
+                            </div>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            ${gIcon}
+                            <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                            <span class="french-text">${p}</span>
+                            ${pGuide}
+                            <span class="english-text">${data.en}</span>
+                            <div class="card-btns">
+                                <button class="card-btn spk-fr">🎤 French</button>
+                                <button class="card-btn spk-en">🎯 English</button>
+                            </div>
+                        `;
+                    }
+
+                    card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
+                    const tB = card.querySelector('.spk-en');
+                    tB.onclick = () => spk(data.en, 'en-US', true);
+
+                    let lastTap = 0;
+                    tB.addEventListener('touchstart', (e) => {
+                        const now = Date.now();
+                        if (now - lastTap < 300) {
+                            e.preventDefault();
+                            manualFixTranslation(p, data.en);
+                        }
+                        lastTap = now;
+                    });
+
+                    tB.addEventListener('dblclick', () => {
+                        manualFixTranslation(p, data.en);
+                    });
+                    
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        // ===== UPDATED SHARE FUNCTIONS TO INCLUDE CUSTOM ICONS/PHOTOS =====
+        function shareWeek(weekName, wordsText, audioData = null) {
+            if (!audioData) {
+                const weekData = { 
+                    name: weekName, 
+                    words: wordsText, 
+                    hasAudio: false,
+                    customIcons: customIcons,
+                    customPhotos: customPhotos
+                };
+                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+                const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+                const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
+                if (navigator.share) { navigator.share({ title: weekName, text: shareText }).catch(() => {}); }
+                else { prompt('Copy link:', importURL); }
+                return;
+            }
+        
+            const singleWeekData = {
+                history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
+                cache: cache,
+                customIcons: customIcons,
+                customPhotos: customPhotos,
+                appVersion: "French Fun V9.0"
+            };
+            const jsonString = JSON.stringify(singleWeekData);
+            const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
+            attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
+        }
+        
+        function shareAllWeeks() {
+            if (!history || Object.keys(history).length === 0) { 
+                alert('No saved weeks to share yet!'); 
+                return; 
+            }
+            const data = { 
+                history, 
+                cache, 
+                customIcons,
+                customPhotos,
+                wins, 
+                losses, 
+                speechSpeed, 
+                lastHomework: lastLoadedHomework, 
+                exportDate: new Date().toISOString(), 
+                appVersion: "French Fun V9.0" 
+            };
+            const jsonString = JSON.stringify(data);
+            const fileName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
+            attemptFileShare(jsonString, fileName, '🇫🇷 French Fun Backpack/Backup');
+        }
+
+        // Update importBackup to handle custom icons/photos
+        function importBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    if (!data.history) throw new Error('Invalid file format');
+
+                    const incomingKeys = Object.keys(data.history);
+                    let importedCount = 0;
+
+                    for (const name of incomingKeys) {
+                        let finalName = name;
+                        
+                        if (history[name]) {
+                            const choice = confirm(`" ${name} " already exists in your backpack.\n\nClick OK to REPLACE it.\nClick CANCEL to keep both (renames incoming to "${name} - New").`);
+                            if (!choice) {
+                                finalName = name + " - New";
+                            }
+                        }
+                        
+                        history[finalName] = data.history[name];
+                        importedCount++;
+                    }
+
+                    if (data.cache) Object.assign(cache, data.cache);
+                    if (data.customIcons) Object.assign(customIcons, data.customIcons);
+                    if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
+
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                    
+                    alert(`✅ Successfully imported ${importedCount} week(s) with custom icons!`);
+                    location.reload(); 
+
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('❌ Failed to import. Ensure it is a valid French Fun backup file.');
+                }
+            };
+            input.click();
+        }
+
+        // Update checkForImport to handle custom icons
+        function checkForImport() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#import=')) {
+                try {
+                    const encodedData = hash.substring(8);
+                    const weekData = JSON.parse(decodeURIComponent(atob(encodedData)));
+                    
+                    if (confirm(`📥 Import "${weekData.name}"?\n\n${weekData.words.split('\n').length} words${weekData.audio ? ' with teacher recording 🎤' : ''}`)) {
+                        history[weekData.name] = JSON.stringify(weekData);
+                        localStorage.setItem('frenchHistory', JSON.stringify(history));
+                        
+                        document.getElementById('hwInput').value = weekData.words;
+                        localStorage.setItem('homeworkPhrases', weekData.words);
+                        
+                        if (weekData.audio) {
+                            currentWeekAudio = weekData.audio;
+                            localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+                            displayAudioPlayer();
+                        }
+                        
+                        // Import custom icons/photos if they exist
+                        if (weekData.customIcons) {
+                            Object.assign(customIcons, weekData.customIcons);
+                            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                        }
+                        if (weekData.customPhotos) {
+                            Object.assign(customPhotos, weekData.customPhotos);
+                            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                        }
+                        
+                        renderList(weekData.words.split('\n').filter(w => w.trim()));
+                        alert('✅ Imported successfully with custom icons!');
+                        window.location.hash = '';
+                    } else {
+                        window.location.hash = '';
+                    }
+                } catch (e) {
+                    console.error('Import error:', e);
+                    alert('❌ Could not import homework. Link may be corrupted.');
+                    window.location.hash = '';
+                }
+            }
+        }
+
+
+// *********************************************************************************************************
 
 function loadHomeworkForPractice(name, words, audio) {
     currentSetName = name;
@@ -815,61 +1295,8 @@ function practiceNow() {
             processTranslation(0);
         }
 
-       function importBackup() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,application/json';
-    
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
-            if (!data.history) throw new Error('Invalid file format');
 
-            const incomingKeys = Object.keys(data.history);
-            let importedCount = 0;
-
-            for (const name of incomingKeys) {
-                let finalName = name;
-                
-                // CONFLICT CHECK: If name exists in our backpack
-                if (history[name]) {
-                    const choice = confirm(`" ${name} " already exists in your backpack.\n\nClick OK to REPLACE it.\nClick CANCEL to keep both (renames incoming to "${name} - New").`);
-                    if (!choice) {
-                        finalName = name + " - New";
-                    }
-                }
-                
-                history[finalName] = data.history[name];
-                importedCount++;
-            }
-
-            // Merge fixed translations cache
-            if (data.cache) {
-                Object.assign(cache, data.cache);
-            }
-
-            // Save and Reload
-            localStorage.setItem('frenchHistory', JSON.stringify(history));
-            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-            
-            alert(`✅ Successfully imported ${importedCount} week(s)!`);
-            location.reload(); 
-
-        } catch (error) {
-            console.error('Import error:', error);
-            alert('❌ Failed to import. Ensure it is a valid French Fun backup file.');
-        }
-    };
-    input.click();
-}
-
-        // ===== ORIGINAL APP FUNCTIONS (RESTORED ALL) =====
-
-        function playWeekAudio(audioData) {
+function playWeekAudio(audioData) {
             if (!audioData) return;
             
             // Stop any currently playing audio
@@ -932,41 +1359,7 @@ function practiceNow() {
             }
         }
 
-        function checkForImport() {
-            const hash = window.location.hash;
-            if (hash.startsWith('#import=')) {
-                try {
-                    const encodedData = hash.substring(8);
-                    const weekData = JSON.parse(decodeURIComponent(atob(encodedData)));
-                    
-                    if (confirm(`📥 Import "${weekData.name}"?\n\n${weekData.words.split('\n').length} words${weekData.audio ? ' with teacher recording 🎤' : ''}`)) {
-                        history[weekData.name] = JSON.stringify(weekData);
-                        localStorage.setItem('frenchHistory', JSON.stringify(history));
-                        
-                        document.getElementById('hwInput').value = weekData.words;
-                        localStorage.setItem('homeworkPhrases', weekData.words);
-                        
-                        if (weekData.audio) {
-                            currentWeekAudio = weekData.audio;
-                            localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-                            displayAudioPlayer();
-                        }
-                        
-                        renderList(weekData.words.split('\n').filter(w => w.trim()));
-                        alert('✅ Imported successfully!');
-                        window.location.hash = '';
-                    } else {
-                        window.location.hash = '';
-                    }
-                } catch (e) {
-                    console.error('Import error:', e);
-                    alert('❌ Could not import homework. Link may be corrupted.');
-                    window.location.hash = '';
-                }
-            }
-        }
-
-        window.onload = () => {
+window.onload = () => {
             console.log('App loading...');
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
@@ -1034,7 +1427,8 @@ function practiceNow() {
             renderList(words.split('\n').filter(w => w.trim()));
         }
 
-        function initAudioUpload() {
+
+ function initAudioUpload() {
             const fileInput = document.getElementById('teacherAudioFile');
             fileInput.addEventListener('change', handleAudioUpload);
             loadCurrentWeekAudio();
@@ -1091,7 +1485,8 @@ function practiceNow() {
             }
         }
 
-        function loadCurrentWeekAudio() {
+
+ function loadCurrentWeekAudio() {
             const audioData = localStorage.getItem('currentWeekAudio');
             if (audioData) {
                 try {
@@ -1282,58 +1677,7 @@ function updateSpeechSpeed(value) {
     schedule();
 }
 
-        function getCardData(p) {
-            const normalizedPhrase = norm(p);
-            
-            // Check for custom photo first (highest priority)
-            if (customPhotos[normalizedPhrase]) {
-                return {
-                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
-                    icon: '📷', // Placeholder
-                    isPhoto: true,
-                    photoData: customPhotos[normalizedPhrase],
-                    pronunciation: MASTER_DATA[p]?.pronunciation,
-                    g: MASTER_DATA[p]?.g
-                };
-            }
-            
-            // Check for custom emoji
-            if (customIcons[normalizedPhrase]) {
-                return {
-                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
-                    icon: customIcons[normalizedPhrase],
-                    pronunciation: MASTER_DATA[p]?.pronunciation,
-                    g: MASTER_DATA[p]?.g,
-                    isCustom: true
-                };
-            }
-            
-            // Fall back to MASTER_DATA or smart icon
-            if (MASTER_DATA[p]) return MASTER_DATA[p];
-            const n = norm(p);
-            for (let key in MASTER_DATA) { 
-                if (norm(key) === n) return MASTER_DATA[key]; 
-            }
-            
-            // Smart icon logic (your existing code)
-            const word = p.toLowerCase();
-            let smartIcon = "✨";
-            
-            if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
-            else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
-            else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
-            else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
-            else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
-            else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
-            else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
-            else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
-            else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
-            else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
-            
-            return { en: cache[n] || "...", icon: smartIcon };
-        }
-
-        function loadPresetAndClose(k) {
+ function loadPresetAndClose(k) {
             if (!presets[k]) return;
             currentSetName = k.charAt(0).toUpperCase() + k.slice(1); // "Animals", "Colors", etc.
             localStorage.setItem('currentSetName', currentSetName);
@@ -1351,269 +1695,8 @@ function updateSpeechSpeed(value) {
             renderList(presets[k]);
         }
 
-function renderList(list) {
-    // Keep your logs
-    console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
-    currentScreenList = list; 
-    const container = document.getElementById('phrasesList'); 
-    if (!container) return;
-    container.innerHTML = '';
-    
-    // 1. Remove any old banners
-    const existingBanner = document.querySelector('.teacher-audio-banner');
-    if (existingBanner) existingBanner.remove();
 
-    // 2. Toggle Auto-Play controls visibility (Point #3 logic)
-    const autoPlayUI = document.getElementById('autoplayControls');
-    if (autoPlayUI) {
-        // Only show if in Dialogue mode and NOT showing the teacher card
-        autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
-    }
-
-    // 3. Update the Toggle Button Label (Point #2 logic)
-    const diagBtn = document.getElementById('btnViewDialogue');
-    if (diagBtn) {
-        if (currentWeekAudio) {
-            // Label for Teacher Mode
-            diagBtn.innerHTML = "🎧 Recording";
-        } else {
-            // Label based on checkbox state
-            diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
-        }
-    }
-    
-    // 4. Update the Smart Status Message (Compact One-Line Version)
-    const statusInfo = document.getElementById('stCountText');
-    if (statusInfo) {
-        if (!list || list.length === 0) {
-            statusInfo.textContent = '🇫🇷 Ready to learn!';
-        } else {
-            const translatedCount = list.filter(p => {
-                const n = norm(p);
-                return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
-            }).length;
-    
-            const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
-            
-            // Show name if we have it, otherwise just "List"
-            if (currentSetName) {
-                statusInfo.innerHTML = `📚 ${currentSetName} (${list.length} phrases ${statusIcon})`;
-            } else {
-                statusInfo.innerHTML = `📚 List (${list.length} phrases ${statusIcon})`;
-            }
-        }
-    }
-    
-    // 5. PRIORITY: Check for Teacher Recording (Point #4 logic)
-    const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
-    
-    // CHANGE: We only show the teacher card if viewMode is 'dialogue'
-    // If the user clicks 'Cards', we skip this and go to individual cards below
-    if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
-        const banner = document.createElement('div');
-        banner.className = 'teacher-audio-banner';
-        banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
-        banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
-        container.parentElement.insertBefore(banner, container);
-        
-        const card = document.createElement('div');
-        card.className = 'phrase-card';
-        card.style.border = '5px solid #ffc107';
-        card.innerHTML = `
-            <div style="font-size:1.4rem; font-weight:900; color:#2d3748; margin-bottom:15px; text-align:left; padding:15px; background:white; border-radius:12px;">
-                ${list.map(w => `• ${w.split('|')[0]}`).join('<br>')}
-            </div>
-            <audio controls style="width:100%;" src="${currentWeekAudio.data}"></audio>
-            <p style="font-size:0.8rem; margin-top:10px; color:#856404; font-weight:800;">💡 Switch to 🗂️ Cards mode to see translations</p>
-        `;
-        container.appendChild(card);
-        
-    } else if (viewMode === 'dialogue') {
-        // 6. DIALOGUE / LIST MODE (Condensed)
-        const diagCard = document.createElement('div');
-        diagCard.className = 'condensed-card';
-        diagCard.style.display = 'flex';
-        diagCard.style.flexDirection = 'column';
-
-        list.forEach((p, index) => {
-            const line = document.createElement('div');
-            // Logic: Alternate if Dialogue, Center if List
-            const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
-            line.className = `dialogue-line ${sideClass}`;
-            line.id = `line-${index}`;
-            const cleanText = p.split('|')[0].trim();
-            line.textContent = cleanText;
-            line.onclick = () => spk(cleanText, 'fr-FR', true);
-            diagCard.appendChild(line);
-        });
-        container.appendChild(diagCard);
-
-    } else {
-        // 7. STANDARD CARDS MODE (Point #1 Gender Icons Restored)
-        list.forEach(p => {
-            const data = getCardData(p); 
-            const card = document.createElement('div'); 
-            card.className = 'phrase-card';
-            
-            // FIX: We generate the icon HTML first so it can be inserted into the innerHTML
-            const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
-            const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
-
-            if (data.isPhoto) {
-                card.innerHTML = `
-                    ${gIcon}
-                    <img src="${data.photoData}" class="card-photo" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
-                    <span class="french-text">${p}</span>
-                    ${data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : ''}
-                    <span class="english-text">${data.en}</span>
-                    <div class="card-btns">
-                        <button class="card-btn spk-fr">🎤 French</button>
-                        <button class="card-btn spk-en">🎯 English</button>
-                    </div>
-                `;
-            } else {
-                card.innerHTML = `
-                    ${gIcon}
-                    <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                    <span class="french-text">${p}</span>
-                    ${data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : ''}
-                    <span class="english-text">${data.en}</span>
-                    <div class="card-btns">
-                        <button class="card-btn spk-fr">🎤 French</button>
-                        <button class="card-btn spk-en">🎯 English</button>
-                    </div>
-                `;
-            }
-
-            // Wire up your buttons and existing translation fix logic
-            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
-            const tB = card.querySelector('.spk-en');
-            tB.onclick = () => spk(data.en, 'en-US', true);
-
-            let lastTap = 0;
-            tB.addEventListener('touchstart', (e) => {
-                const now = Date.now();
-                if (now - lastTap < 300) {
-                    e.preventDefault();
-                    manualFixTranslation(p, data.en);
-                }
-                lastTap = now;
-            });
-
-            tB.addEventListener('dblclick', () => {
-                manualFixTranslation(p, data.en);
-            });
-            
-            container.appendChild(card);
-        });
-    }
-}
-
-// ===== CUSTOM ICON/PHOTO FUNCTIONS =====
-
-function openIconPicker(phrase) {
-    currentPickerPhrase = phrase;
-    document.getElementById('pickerPhrase').textContent = phrase;
-    document.getElementById('emojiInputSection').style.display = 'none';
-    document.getElementById('emojiInput').value = '';
-    openOverlay('iconPickerOverlay');
-}
-
-function openEmojiPicker() {
-    document.getElementById('emojiInputSection').style.display = 'block';
-    document.getElementById('emojiInput').focus();
-    
-    // Show a helpful tip
-    setTimeout(() => {
-        alert('📱 Use your phone\'s emoji keyboard!\n\nTap the smiley face button on your keyboard to browse all emojis by category.');
-    }, 500);
-}
-
-function submitEmoji() {
-    const emoji = document.getElementById('emojiInput').value.trim();
-    if (!emoji) {
-        alert('Please type an emoji first!');
-        return;
-    }
-    
-    // Take just the first character (handles surrogate pairs correctly)
-    const selectedEmoji = [...emoji][0];
-    
-    const normalizedPhrase = norm(currentPickerPhrase);
-    
-    // Save the emoji
-    customIcons[normalizedPhrase] = selectedEmoji;
-    
-    // Remove photo if it existed
-    if (customPhotos[normalizedPhrase]) {
-        delete customPhotos[normalizedPhrase];
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('customIcons', JSON.stringify(customIcons));
-    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-    
-    closeOverlay('iconPickerOverlay');
-    renderList(currentScreenList); // Refresh to show new icon
-}
-
-function openPhotoPicker() {
-    document.getElementById('photoPickerInput').click();
-}
-
-function resetToDefaultIcon() {
-    const normalizedPhrase = norm(currentPickerPhrase);
-    
-    // Remove any customizations
-    if (customIcons[normalizedPhrase]) {
-        delete customIcons[normalizedPhrase];
-    }
-    if (customPhotos[normalizedPhrase]) {
-        delete customPhotos[normalizedPhrase];
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('customIcons', JSON.stringify(customIcons));
-    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-    
-    closeOverlay('iconPickerOverlay');
-    renderList(currentScreenList); // Refresh to show default icon
-}
-
-// Set up photo picker listener
-document.getElementById('photoPickerInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    // Check file size (limit to 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-        alert('Photo is too large! Please choose a smaller photo (under 2MB).');
-        return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const normalizedPhrase = norm(currentPickerPhrase);
-        
-        // Save photo data
-        customPhotos[normalizedPhrase] = event.target.result;
-        
-        // Remove emoji if it existed
-        if (customIcons[normalizedPhrase]) {
-            delete customIcons[normalizedPhrase];
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('customIcons', JSON.stringify(customIcons));
-        localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-        
-        closeOverlay('iconPickerOverlay');
-        renderList(currentScreenList); // Refresh to show photo
-    };
-    reader.readAsDataURL(file);
-});
-        
-        async function translateOne(p) {
+async function translateOne(p) {
             const n = norm(p); 
             for (let key in MASTER_DATA) { 
                 if (norm(key) === n) return MASTER_DATA[key].en; 
@@ -1968,47 +2051,8 @@ document.getElementById('photoPickerInput').addEventListener('change', function(
             shareWeek(weekName, words, currentWeekAudio);
         }
 
-            // 1. Updated Single Week Share (Handles links vs files automatically)
-        function shareWeek(weekName, wordsText, audioData = null) {
-            if (!audioData) {
-                const weekData = { name: weekName, words: wordsText, hasAudio: false };
-                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-                const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-                const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
-                if (navigator.share) { navigator.share({ title: weekName, text: shareText }).catch(() => {}); }
-                else { prompt('Copy link:', importURL); }
-                return;
-            }
-        
-            const singleWeekData = {
-                history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
-                cache: cache, 
-                appVersion: "French Fun V8.2"
-            };
-            const jsonString = JSON.stringify(singleWeekData);
-            const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
-            attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
-        }
-        
-        // 2. Consolidated Share All / Backup function
-        function shareAllWeeks() {
-            if (!history || Object.keys(history).length === 0) { 
-                alert('No saved weeks to share yet!'); 
-                return; 
-            }
-            const data = { 
-                history, cache, wins, losses, speechSpeed, 
-                lastHomework: lastLoadedHomework, 
-                exportDate: new Date().toISOString(), 
-                appVersion: "French Fun V8.2" 
-            };
-            const jsonString = JSON.stringify(data);
-            const fileName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
-            attemptFileShare(jsonString, fileName, '🇫🇷 French Fun Backpack/Backup');
-        }
-        
-        // 3. The Core Sharing Engine (Fixes "Could not share file" error)
-        function attemptFileShare(jsonString, fileName, title) {
+
+function attemptFileShare(jsonString, fileName, title) {
             const blob = new Blob([jsonString], { type: 'application/json' });
             const file = new File([blob], fileName, { type: 'application/json' });
         
@@ -2186,36 +2230,7 @@ document.getElementById('photoPickerInput').addEventListener('change', function(
             deferredPrompt = e; 
             document.getElementById('installBtn').style.display = 'block'; 
         });
+        
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
