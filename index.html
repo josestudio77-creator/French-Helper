@@ -2183,22 +2183,31 @@ async function translateOne(p) {
         }
 
 
-function attemptFileShare(jsonString, fileName, title) {
+        // 3. The Core Sharing Engine (UPDATED to use native share for files)
+        function attemptFileShare(jsonString, fileName, title) {
             const blob = new Blob([jsonString], { type: 'application/json' });
             const file = new File([blob], fileName, { type: 'application/json' });
-        
-            // Check if the device is capable of sharing files
+            
+            // Check if the device supports file sharing AND we're on a secure context (HTTPS)
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                // Use the native share sheet - this will show WhatsApp, Telegram, etc.
                 navigator.share({
                     title: title,
-                    text: 'Save this file and use "Import Backpack/Backup" in the app to load it.',
+                    text: 'French Fun homework with custom photos!',
                     files: [file]
                 }).catch(err => {
-                    // If the user cancels, do nothing. For other errors, fallback to download.
-                    if(err.name !== 'AbortError') saveDataAsFile(jsonString, fileName);
+                    // If user cancels, do nothing
+                    if(err.name === 'AbortError') {
+                        console.log('Share cancelled');
+                        return;
+                    }
+                    // For other errors, fallback to download
+                    console.warn('Share failed, falling back to download:', err);
+                    saveDataAsFile(jsonString, fileName);
                 });
             } else {
-                // Fallback for browsers/devices that block native file sharing
+                // Fallback for browsers that don't support file sharing
+                console.log('File sharing not supported, falling back to download');
                 saveDataAsFile(jsonString, fileName);
             }
         }
@@ -2213,8 +2222,8 @@ function attemptFileShare(jsonString, fileName, title) {
             a.click();
             URL.revokeObjectURL(url);
             
-            // Alert only if we are falling back from a failed share
-            alert("Share/Backup complete! The data file has been saved to your device Downloads.");
+            // More helpful message
+            alert("✅ File saved! You can now share it manually via WhatsApp, email, etc.");
         }
 
         function debugStorage() {
@@ -2365,5 +2374,6 @@ function attemptFileShare(jsonString, fileName, title) {
     </script>
 </body>
 </html>
+
 
 
