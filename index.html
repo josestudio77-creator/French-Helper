@@ -2344,21 +2344,12 @@ async function translateOne(p) {
             document.getElementById('playAllBtn').innerHTML = "▶️ Play All";
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             window.speechSynthesis.cancel();
-            
-            // Reset loop counter
-            currentLoopRemaining = loopCount;
-            if (loopMode) {
-                document.getElementById('loopCount').textContent = loopCount === 0 ? '∞' : loopCount;
-            }
+            // Removed all loop counter references
         }
         
         function startAutoPlay() {
             isAutoPlaying = true;
             document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
-            
-            // Initialize loop counter
-            totalPhrases = currentScreenList.length;
-            currentLoopRemaining = loopCount;
             
             // Wake up speech engine
             window.speechSynthesis.cancel();
@@ -2386,17 +2377,6 @@ async function translateOne(p) {
             // If we've reached the end of the list
             if (index >= currentScreenList.length) {
                 if (loopMode) {
-                    // Check if we have loops remaining
-                    if (loopCount > 0) {
-                        currentLoopRemaining--;
-                        document.getElementById('loopCount').textContent = currentLoopRemaining;
-                        
-                        if (currentLoopRemaining <= 0) {
-                            // Loop finished
-                            stopAutoPlay();
-                            return;
-                        }
-                    }
                     // Start new loop from beginning
                     playLine(0);
                 } else {
@@ -2457,6 +2437,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
