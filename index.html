@@ -1572,11 +1572,6 @@ window.onload = () => {
             initAudioUpload();
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-    
-            // Initialize loop button long press after DOM is loaded
-            setTimeout(() => {
-                setupLoopLongPress();
-            }, 1000);
         };
         
         function loadCurrentHomework() {
@@ -2397,114 +2392,21 @@ async function translateOne(p) {
         
         function toggleLoop() {
             loopMode = !loopMode;
-            updateLoopButton();
-            
-            if (loopMode) {
-                // Show loop counter with default infinite
-                loopCount = 0;
-                document.getElementById('loopCounter').style.display = 'block';
-                document.getElementById('loopCount').textContent = '∞';
-            } else {
-                // Hide loop counter and options
-                document.getElementById('loopCounter').style.display = 'none';
-                closeLoopOptions();
-            }
-        }
-        
-       // Long press for loop options (UPDATED to handle both single tap and long press)
-        function setupLoopLongPress() {
             const loopBtn = document.getElementById('loopBtn');
-            let pressTimer = null;
-            let longPressTriggered = false;
             
-            // Touch events for mobile
-            loopBtn.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                longPressTriggered = false;
-                pressTimer = setTimeout(() => {
-                    longPressTriggered = true;
-                    showLoopOptions();
-                }, 500); // 500ms long press
-            });
-            
-            loopBtn.addEventListener('touchend', (e) => {
-                clearTimeout(pressTimer);
-                // If it wasn't a long press, trigger the single tap action
-                if (!longPressTriggered) {
-                    toggleLoop();
-                }
-            });
-            
-            loopBtn.addEventListener('touchcancel', () => {
-                clearTimeout(pressTimer);
-            });
-            
-            // Mouse events for desktop
-            loopBtn.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                longPressTriggered = false;
-                pressTimer = setTimeout(() => {
-                    longPressTriggered = true;
-                    showLoopOptions();
-                }, 500);
-            });
-            
-            loopBtn.addEventListener('mouseup', (e) => {
-                clearTimeout(pressTimer);
-                // If it wasn't a long press, trigger the single tap action
-                if (!longPressTriggered) {
-                    toggleLoop();
-                }
-            });
-            
-            loopBtn.addEventListener('mouseleave', () => {
-                clearTimeout(pressTimer);
-            });
-            
-            // For mouse users (right click) - keep this
-            loopBtn.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                showLoopOptions();
-            });
-        }
-        
-        function showLoopOptions() {
-            document.getElementById('loopOptions').style.display = 'block';
-        }
-        
-        function closeLoopOptions() {
-            document.getElementById('loopOptions').style.display = 'none';
-        }
-        
-        function setLoopCount(times) {
-            loopMode = true;
-            loopCount = times;
-            currentLoopRemaining = times;
-            
-            // Update UI
-            document.getElementById('loopCounter').style.display = 'block';
-            document.getElementById('loopCount').textContent = times === 0 ? '∞' : times;
-            updateLoopButton();
-            closeLoopOptions();
-            
-            // If currently playing, update the loop behavior
-            if (isAutoPlaying) {
-                // Restart with new loop settings
-                stopAutoPlay();
-                startAutoPlay();
-            }
-        }
-        
-        function updateLoopButton() {
-            const loopBtn = document.getElementById('loopBtn');
             if (loopMode) {
                 loopBtn.style.background = '#4cd964';
                 loopBtn.style.color = 'white';
                 loopBtn.style.border = '2px solid #2ea44e';
+                // Show simple indicator
+                document.getElementById('loopCounter').style.display = 'block';
+                document.getElementById('loopCount').textContent = '∞';
             } else {
                 loopBtn.style.background = '#ff9e6d';
                 loopBtn.style.color = 'white';
                 loopBtn.style.border = 'none';
+                // Hide indicator
+                document.getElementById('loopCounter').style.display = 'none';
             }
         }
         
@@ -2585,6 +2487,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
