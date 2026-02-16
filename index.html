@@ -403,23 +403,34 @@
                 <button id="btnViewDialogue" class="view-btn" onclick="setViewMode('dialogue')">💬 Mode</button>
             </div>
         
-            <!-- Auto-Play Controls -->
-            <div id="autoplayControls" class="gap-control">
-                <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; width:100%; margin-bottom:8px;">▶️ Play All</button>
-                <div style="font-size:0.7rem; font-weight:800; color:#64748b;">Gap between phrases: <span id="gapValue">1.0</span>s</div>
-                <input type="range" id="gapSlider" min="0" max="3" step="0.25" value="1.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
+            <!-- Auto-Play Controls (UPDATED with Loop) -->
+        <div id="autoplayControls" class="gap-control">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <button id="playAllBtn" onclick="toggleAutoPlay()" style="background:#5a67d8; color:white; border:none; border-radius:10px; padding:8px 15px; font-weight:900; flex: 3; cursor:pointer;">▶️ Play All</button>
+                <button id="loopBtn" onclick="toggleLoop()" style="background:#ff9e6d; color:white; border:none; border-radius:10px; padding:8px 0; font-weight:900; flex: 1; font-size:1.2rem; position:relative; cursor:pointer;">🔁</button>
+            </div>
+            
+            <!-- Loop counter badge (appears when loop is active) -->
+            <div id="loopCounter" style="display: none; background:#4cd964; color:white; border-radius:20px; padding:5px; margin-bottom:8px; font-weight:900; font-size:0.9rem;">
+                🔁 Loop: <span id="loopCount">∞</span> times remaining
+            </div>
+            
+            <div style="font-size:0.7rem; font-weight:800; color:#64748b; margin-bottom:5px;">Gap between phrases: <span id="gapValue">1.0</span>s</div>
+            <input type="range" id="gapSlider" min="0" max="3" step="0.25" value="1.0" style="width:100%" oninput="document.getElementById('gapValue').innerText = this.value">
+            
+            <!-- Loop options (appears on long press) -->
+            <div id="loopOptions" style="display: none; margin-top: 10px; background:#f8fafc; padding:10px; border-radius:15px; border:2px solid #ff9e6d;">
+                <p style="font-weight:800; color:#2d3748; margin-bottom:8px;">How many times?</p>
+                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px;">
+                    <button onclick="setLoopCount(2)" style="background:#4cd964; color:white; border:none; border-radius:8px; padding:8px; font-weight:900;">2x</button>
+                    <button onclick="setLoopCount(3)" style="background:#4cd964; color:white; border:none; border-radius:8px; padding:8px; font-weight:900;">3x</button>
+                    <button onclick="setLoopCount(5)" style="background:#4cd964; color:white; border:none; border-radius:8px; padding:8px; font-weight:900;">5x</button>
+                    <button onclick="setLoopCount(10)" style="background:#4cd964; color:white; border:none; border-radius:8px; padding:8px; font-weight:900;">10x</button>
+                    <button onclick="setLoopCount(0)" style="background:#ff9e6d; color:white; border:none; border-radius:8px; padding:8px; font-weight:900;">∞</button>
+                </div>
+                <button onclick="closeLoopOptions()" style="margin-top:8px; background:#e2e8f0; color:#2d3748; border:none; border-radius:8px; padding:5px; width:100%; font-weight:800;">Cancel</button>
             </div>
         </div>
-
-        <div id="phrasesList" class="phrases-container"></div>
-        
-        <div class="bottom-nav">
-            <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-            <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
-        </div>
-    </div>
 
     <!-- Parent Settings Drawer -->
     <div id="parentDrawer" class="overlay">
@@ -665,6 +676,13 @@
         // Cropper instance
         let cropper = null;
         let tempPhotoData = null;
+
+        // Play Loop
+        let loopMode = false;              // Whether loop is enabled
+        let loopCount = 0;                 // 0 = infinite, >0 = number of times
+        let currentLoopRemaining = 0;      // How many loops left in current session
+        let totalPhrases = 0;              // Total number of phrases in current list
+        let loopLongPressTimer = null;     // Timer for long press detection
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -1552,6 +1570,11 @@ window.onload = () => {
             initAudioUpload();
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+    
+            // Initialize loop button long press after DOM is loaded
+            setTimeout(() => {
+                setupLoopLongPress();
+            }, 1000);
         };
         
         function loadCurrentHomework() {
@@ -2331,51 +2354,168 @@ async function translateOne(p) {
         function toggleAutoPlay() {
             const btn = document.getElementById('playAllBtn');
             if (isAutoPlaying) {
-                // STOP logic - this was missing!
-                isAutoPlaying = false;
-                clearTimeout(autoPlayTimeout);
-                btn.innerHTML = "▶️ Play All";
-                document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-                // Cancel any speaking
-                window.speechSynthesis.cancel();
+                // STOP logic
+                stopAutoPlay();
             } else {
                 // START logic
-                isAutoPlaying = true;
-                btn.innerHTML = "⏹️ Stop";
-                
-                // Wake up the speech engine
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
-                
-                playLine(0);
+                startAutoPlay();
+            }
+        }
+        
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            clearTimeout(autoPlayTimeout);
+            document.getElementById('playAllBtn').innerHTML = "▶️ Play All";
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            window.speechSynthesis.cancel();
+            
+            // Reset loop counter
+            currentLoopRemaining = loopCount;
+            if (loopMode) {
+                document.getElementById('loopCount').textContent = loopCount === 0 ? '∞' : loopCount;
+            }
+        }
+        
+        function startAutoPlay() {
+            isAutoPlaying = true;
+            document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
+            
+            // Initialize loop counter
+            totalPhrases = currentScreenList.length;
+            currentLoopRemaining = loopCount;
+            
+            // Wake up speech engine
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+            
+            playLine(0);
+        }
+
+        // ===== LOOP FUNCTIONS =====
+        
+        function toggleLoop() {
+            loopMode = !loopMode;
+            updateLoopButton();
+            
+            if (loopMode) {
+                // Show loop counter with default infinite
+                loopCount = 0;
+                document.getElementById('loopCounter').style.display = 'block';
+                document.getElementById('loopCount').textContent = '∞';
+            } else {
+                // Hide loop counter
+                document.getElementById('loopCounter').style.display = 'none';
+                closeLoopOptions();
+            }
+        }
+        
+        // Long press for loop options
+        function setupLoopLongPress() {
+            const loopBtn = document.getElementById('loopBtn');
+            
+            loopBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                loopLongPressTimer = setTimeout(() => {
+                    showLoopOptions();
+                }, 500); // 500ms long press
+            });
+            
+            loopBtn.addEventListener('touchend', () => {
+                clearTimeout(loopLongPressTimer);
+            });
+            
+            loopBtn.addEventListener('touchcancel', () => {
+                clearTimeout(loopLongPressTimer);
+            });
+            
+            // For mouse users (right click)
+            loopBtn.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                showLoopOptions();
+            });
+        }
+        
+        function showLoopOptions() {
+            document.getElementById('loopOptions').style.display = 'block';
+        }
+        
+        function closeLoopOptions() {
+            document.getElementById('loopOptions').style.display = 'none';
+        }
+        
+        function setLoopCount(times) {
+            loopMode = true;
+            loopCount = times;
+            currentLoopRemaining = times;
+            
+            // Update UI
+            document.getElementById('loopCounter').style.display = 'block';
+            document.getElementById('loopCount').textContent = times === 0 ? '∞' : times;
+            updateLoopButton();
+            closeLoopOptions();
+            
+            // If currently playing, update the loop behavior
+            if (isAutoPlaying) {
+                // Restart with new loop settings
+                stopAutoPlay();
+                startAutoPlay();
+            }
+        }
+        
+        function updateLoopButton() {
+            const loopBtn = document.getElementById('loopBtn');
+            if (loopMode) {
+                loopBtn.style.background = '#4cd964';
+                loopBtn.style.color = 'white';
+                loopBtn.style.border = '2px solid #2ea44e';
+            } else {
+                loopBtn.style.background = '#ff9e6d';
+                loopBtn.style.color = 'white';
+                loopBtn.style.border = 'none';
             }
         }
         
         function playLine(index) {
-            if (!isAutoPlaying || index >= currentScreenList.length) {
-                toggleAutoPlay(); 
+            if (!isAutoPlaying) return;
+            
+            // If we've reached the end of the list
+            if (index >= currentScreenList.length) {
+                if (loopMode) {
+                    // Check if we have loops remaining
+                    if (loopCount > 0) {
+                        currentLoopRemaining--;
+                        document.getElementById('loopCount').textContent = currentLoopRemaining;
+                        
+                        if (currentLoopRemaining <= 0) {
+                            // Loop finished
+                            stopAutoPlay();
+                            return;
+                        }
+                    }
+                    // Start new loop from beginning
+                    playLine(0);
+                } else {
+                    // No loop, just stop
+                    stopAutoPlay();
+                }
                 return;
             }
-        
+            
             const text = currentScreenList[index].split('|')[0].trim();
-            // Get user gap (0 to 3 seconds)
             const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
-        
-            // Highlight bubble
+            
+            // Highlight current line
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             const currentEl = document.getElementById(`line-${index}`);
             if (currentEl) {
                 currentEl.classList.add('playing-now');
                 currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        
+            
             spk(text, 'fr-FR', true);
-        
-            // SPEED TUNING:
-            // 500ms base + 85ms per character. 
-            // This is much "tighter" so a 0s gap feels almost instant.
-            const speechDuration = 500 + (text.length * 85); 
-        
+            
+            const speechDuration = 500 + (text.length * 85);
+            
             if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
             
             autoPlayTimeout = setTimeout(() => {
@@ -2412,6 +2552,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
