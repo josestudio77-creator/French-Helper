@@ -1029,35 +1029,64 @@
             }
         }
 
-        // ===== UPDATED SHARE FUNCTIONS TO INCLUDE CUSTOM ICONS/PHOTOS =====
-        function shareWeek(weekName, wordsText, audioData = null) {
-            if (!audioData) {
-                const weekData = { 
-                    name: weekName, 
-                    words: wordsText, 
-                    hasAudio: false,
-                    customIcons: customIcons,
-                    customPhotos: customPhotos
-                };
-                const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-                const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-                const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
-                if (navigator.share) { navigator.share({ title: weekName, text: shareText }).catch(() => {}); }
-                else { prompt('Copy link:', importURL); }
-                return;
-            }
-        
-            const singleWeekData = {
-                history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, date: new Date().toISOString() }) },
-                cache: cache,
-                customIcons: customIcons,
-                customPhotos: customPhotos,
-                appVersion: "French Fun V9.0"
-            };
-            const jsonString = JSON.stringify(singleWeekData);
-            const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
-            attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
+function shareWeek(weekName, wordsText, audioData = null) {
+    // Get the list of phrases in this homework
+    const phraseList = wordsText.split('\n').map(w => w.trim());
+    
+    // Filter custom icons to only those for this homework's phrases
+    const homeworkIcons = {};
+    const homeworkPhotos = {};
+    
+    phraseList.forEach(phrase => {
+        const normalized = norm(phrase);
+        if (customIcons[normalized]) {
+            homeworkIcons[normalized] = customIcons[normalized];
         }
+        if (customPhotos[normalized]) {
+            homeworkPhotos[normalized] = customPhotos[normalized];
+        }
+    });
+    
+    // Check if ANY phrase has a custom photo
+    const hasCustomPhoto = Object.keys(homeworkPhotos).length > 0;
+    
+    // If there are photos OR audio, use file sharing
+    if (audioData || hasCustomPhoto) {
+        const singleWeekData = {
+            history: { [weekName]: JSON.stringify({ 
+                words: wordsText, 
+                audio: audioData, 
+                date: new Date().toISOString() 
+            })},
+            cache: cache,
+            customIcons: homeworkIcons,     // ← Only this homework's icons
+            customPhotos: homeworkPhotos,   // ← Only this homework's photos
+            appVersion: "French Fun V9.0"
+        };
+        const jsonString = JSON.stringify(singleWeekData);
+        const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
+        attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
+        return;
+    }
+    
+    // NO photos or audio - safe to use URL sharing
+    const weekData = { 
+        name: weekName, 
+        words: wordsText, 
+        hasAudio: false,
+        customIcons: homeworkIcons,    // ← Only this homework's icons
+        // Don't include photos in URL
+    };
+    const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+    const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+    const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
+    
+    if (navigator.share) { 
+        navigator.share({ title: weekName, text: shareText }).catch(() => {}); 
+    } else { 
+        prompt('Copy link:', importURL); 
+    }
+}
         
         function shareAllWeeks() {
             if (!history || Object.keys(history).length === 0) { 
@@ -1134,52 +1163,120 @@
         }
 
         // Update checkForImport to handle custom icons
-        function checkForImport() {
-            const hash = window.location.hash;
-            if (hash.startsWith('#import=')) {
-                try {
-                    const encodedData = hash.substring(8);
-                    const weekData = JSON.parse(decodeURIComponent(atob(encodedData)));
+function checkForImport() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#import=')) {
+        try {
+            const encodedData = hash.substring(8);
+            
+            // URLs can only handle so much data
+            if (encodedData.length > 2000) {
+                alert('⚠️ This link is too long. The homework probably contains photos.\n\nPlease use the "Import Backpack/Backup" option in Parent Settings instead.');
+                window.location.hash = '';
+                return;
+            }
+            
+            const decodedData = decodeURIComponent(atob(encodedData));
+            const weekData = JSON.parse(decodedData);
+            
+            // Count how many customizations are in this import
+            const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
+            const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
+            
+            // CHECK FOR DUPLICATE NAME
+            let finalName = weekData.name;
+            if (history[weekData.name]) {
+                const choice = confirm(`"${weekData.name}" already exists in your backpack.\n\n• Click OK to REPLACE it\n• Click CANCEL to keep both (renames to "${weekData.name} - Imported")`);
+                
+                if (!choice) {
+                    // User wants to keep both - rename the incoming one
+                    finalName = weekData.name + " - Imported";
                     
-                    if (confirm(`📥 Import "${weekData.name}"?\n\n${weekData.words.split('\n').length} words${weekData.audio ? ' with teacher recording 🎤' : ''}`)) {
-                        history[weekData.name] = JSON.stringify(weekData);
-                        localStorage.setItem('frenchHistory', JSON.stringify(history));
-                        
-                        document.getElementById('hwInput').value = weekData.words;
-                        localStorage.setItem('homeworkPhrases', weekData.words);
-                        
-                        if (weekData.audio) {
-                            currentWeekAudio = weekData.audio;
-                            localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-                            displayAudioPlayer();
-                        }
-                        
-                        // Import custom icons/photos if they exist
-                        if (weekData.customIcons) {
-                            Object.assign(customIcons, weekData.customIcons);
-                            localStorage.setItem('customIcons', JSON.stringify(customIcons));
-                        }
-                        if (weekData.customPhotos) {
-                            Object.assign(customPhotos, weekData.customPhotos);
-                            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                        }
-                        
-                        renderList(weekData.words.split('\n').filter(w => w.trim()));
-                        alert('✅ Imported successfully with custom icons!');
-                        window.location.hash = '';
-                    } else {
-                        window.location.hash = '';
+                    // If that name also exists, add a number
+                    let counter = 1;
+                    while (history[finalName]) {
+                        counter++;
+                        finalName = `${weekData.name} - Imported ${counter}`;
                     }
-                } catch (e) {
-                    console.error('Import error:', e);
-                    alert('❌ Could not import homework. Link may be corrupted.');
-                    window.location.hash = '';
                 }
             }
+            
+            let message = `📥 Import "${finalName}"?\n\n`;
+            message += `📝 ${weekData.words.split('\n').length} words\n`;
+            if (iconCount > 0) message += `😊 ${iconCount} custom emoji${iconCount > 1 ? 's' : ''}\n`;
+            if (photoCount > 0) message += `📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}\n`;
+            
+            if (confirm(message)) {
+                // Save the homework to history with the (possibly new) name
+                const hwData = {
+                    words: weekData.words,
+                    audio: null,  // Links can't include audio
+                    isDialogue: weekData.isDialogue || false,
+                    date: new Date().toISOString()
+                };
+                
+                history[finalName] = JSON.stringify(hwData);
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                
+                // Load the homework for practice
+                document.getElementById('hwInput').value = weekData.words;
+                localStorage.setItem('homeworkPhrases', weekData.words);
+                
+                // Import custom icons if they exist (MERGE, don't replace)
+                if (weekData.customIcons) {
+                    // Only import icons for phrases that exist in this homework
+                    const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                    Object.keys(weekData.customIcons).forEach(key => {
+                        if (phraseList.includes(key) || phraseList.some(p => p === key)) {
+                            customIcons[key] = weekData.customIcons[key];
+                        }
+                    });
+                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                }
+                
+                // Import custom photos if they exist
+                if (weekData.customPhotos) {
+                    const photoKeys = Object.keys(weekData.customPhotos);
+                    if (photoKeys.length > 0) {
+                        const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                        let importedPhotoCount = 0;
+                        
+                        photoKeys.forEach(key => {
+                            if (phraseList.includes(key) || phraseList.some(p => p === key)) {
+                                customPhotos[key] = weekData.customPhotos[key];
+                                importedPhotoCount++;
+                            }
+                        });
+                        
+                        localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                    }
+                }
+                
+                // Set the current set name
+                currentSetName = finalName;
+                localStorage.setItem('currentSetName', finalName);
+                
+                // Render the list
+                renderList(weekData.words.split('\n').filter(w => w.trim()));
+                
+                alert(`✅ Imported successfully as "${finalName}"!`);
+                window.location.hash = '';
+            } else {
+                window.location.hash = '';
+            }
+        } catch (e) {
+            console.error('Import error:', e);
+            
+            if (e.message.includes('Unexpected token')) {
+                alert('❌ The import link appears to be corrupted. This can happen if the link was truncated when shared.\n\nTry using the "Import Backpack/Backup" option in Parent Settings instead.');
+            } else {
+                alert('❌ Could not import homework. Link may be corrupted.\n\nTry using the "Import Backpack/Backup" option in Parent Settings.');
+            }
+            
+            window.location.hash = '';
         }
-
-
-// *********************************************************************************************************
+    }
+}
 
 function loadHomeworkForPractice(name, words, audio) {
     currentSetName = name;
@@ -1431,7 +1528,6 @@ window.onload = () => {
  function initAudioUpload() {
             const fileInput = document.getElementById('teacherAudioFile');
             fileInput.addEventListener('change', handleAudioUpload);
-            loadCurrentWeekAudio();
         }
 
         function handleAudioUpload(event) {
@@ -1482,20 +1578,6 @@ window.onload = () => {
                 currentWeekAudio = null;
                 document.getElementById('teacherAudioFile').value = '';
                 document.getElementById('audioPlayerContainer').style.display = 'none';
-            }
-        }
-
-
- function loadCurrentWeekAudio() {
-            const audioData = localStorage.getItem('currentWeekAudio');
-            if (audioData) {
-                try {
-                    currentWeekAudio = JSON.parse(audioData);
-                    displayAudioPlayer();
-                } catch (e) {
-                    console.error('Error loading audio:', e);
-                    currentWeekAudio = null;
-                }
             }
         }
 
@@ -2234,3 +2316,4 @@ function attemptFileShare(jsonString, fileName, title) {
     </script>
 </body>
 </html>
+
