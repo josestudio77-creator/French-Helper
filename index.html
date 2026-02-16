@@ -2405,32 +2405,63 @@ async function translateOne(p) {
                 document.getElementById('loopCounter').style.display = 'block';
                 document.getElementById('loopCount').textContent = '∞';
             } else {
-                // Hide loop counter
+                // Hide loop counter and options
                 document.getElementById('loopCounter').style.display = 'none';
                 closeLoopOptions();
             }
         }
         
-        // Long press for loop options
+       // Long press for loop options (UPDATED to handle both single tap and long press)
         function setupLoopLongPress() {
             const loopBtn = document.getElementById('loopBtn');
+            let pressTimer = null;
+            let longPressTriggered = false;
             
+            // Touch events for mobile
             loopBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                loopLongPressTimer = setTimeout(() => {
+                longPressTriggered = false;
+                pressTimer = setTimeout(() => {
+                    longPressTriggered = true;
                     showLoopOptions();
                 }, 500); // 500ms long press
             });
             
-            loopBtn.addEventListener('touchend', () => {
-                clearTimeout(loopLongPressTimer);
+            loopBtn.addEventListener('touchend', (e) => {
+                clearTimeout(pressTimer);
+                // If it wasn't a long press, trigger the single tap action
+                if (!longPressTriggered) {
+                    toggleLoop();
+                }
             });
             
             loopBtn.addEventListener('touchcancel', () => {
-                clearTimeout(loopLongPressTimer);
+                clearTimeout(pressTimer);
             });
             
-            // For mouse users (right click)
+            // Mouse events for desktop
+            loopBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                longPressTriggered = false;
+                pressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    showLoopOptions();
+                }, 500);
+            });
+            
+            loopBtn.addEventListener('mouseup', (e) => {
+                clearTimeout(pressTimer);
+                // If it wasn't a long press, trigger the single tap action
+                if (!longPressTriggered) {
+                    toggleLoop();
+                }
+            });
+            
+            loopBtn.addEventListener('mouseleave', () => {
+                clearTimeout(pressTimer);
+            });
+            
+            // For mouse users (right click) - keep this
             loopBtn.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 showLoopOptions();
@@ -2554,6 +2585,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
