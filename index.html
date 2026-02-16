@@ -1278,6 +1278,55 @@ function checkForImport() {
     }
 }
 
+function openBackpackFromHW() {
+            closeOverlay('hwDrawer');
+            openOverlay('bpModal'); // Instant switch
+        }
+
+        function addNewHomework() {
+            // Reset for a fresh entry
+            editingHomeworkName = null;
+            document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+            document.getElementById('hwInput').value = "";
+            currentWeekAudio = null;
+            displayAudioPlayer();
+            
+            closeOverlay('bpModal');
+            openOverlay('hwDrawer'); // Instant switch
+        }
+
+        function openSettingsFromBP() {
+    // 1. Hide the backpack first
+    closeOverlay('bpModal');
+    // 2. Open the parent settings immediately after
+    openOverlay('parentDrawer');
+    }
+
+function editHomework(name) {
+    let hwData = { words: '', audio: null };
+    try {
+        const parsed = JSON.parse(history[name]);
+        if (parsed.words !== undefined) {
+            hwData = parsed;
+        } else {
+            hwData.words = history[name];
+        }
+    } catch (e) {
+        hwData.words = history[name];
+    }
+
+    // FIX: Added '|| null' to ensure audio is never 'undefined'
+    editingHomeworkName = name;
+    document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
+    document.getElementById('hwInput').value = hwData.words;
+    currentWeekAudio = hwData.audio || null; 
+    displayAudioPlayer();
+
+    // Switch Screen
+    closeOverlay('bpModal');
+    openOverlay('hwDrawer');
+}
+        
 function loadHomeworkForPractice(name, words, audio) {
     currentSetName = name;
     localStorage.setItem('currentSetName', name);
@@ -2316,4 +2365,5 @@ function attemptFileShare(jsonString, fileName, title) {
     </script>
 </body>
 </html>
+
 
