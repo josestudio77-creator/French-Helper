@@ -2212,7 +2212,7 @@ async function translateOne(p) {
             }
         }
         
-        // 4. The Download Engine (Used when sharing is blocked)
+       // 4. The Download Engine (Updated with platform-specific instructions)
         function saveDataAsFile(content, fileName) {
             const blob = new Blob([content], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -2222,8 +2222,46 @@ async function translateOne(p) {
             a.click();
             URL.revokeObjectURL(url);
             
-            // More helpful message
-            alert("✅ File saved! You can now share it manually via WhatsApp, email, etc.");
+            // Detect platform
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            // Small delay to ensure file is saved before showing instructions
+            setTimeout(() => {
+                let message = `✅ File saved as "${fileName}"!\n\n`;
+                
+                if (isAndroid) {
+                    message += `To share the file:\n`;
+                    message += `1. Open your file manager or Downloads app\n`;
+                    message += `2. Find "${fileName}"\n`;
+                    message += `3. Tap and hold the file\n`;
+                    message += `4. Select "Share" from the menu\n`;
+                    message += `5. Choose WhatsApp, Telegram, email, etc.\n\n`;
+                    message += `Would you like to open your Downloads folder now?`;
+                    
+                    if (confirm(message)) {
+                        // Try to open downloads folder (works on most Android devices)
+                        window.location.href = 'file:///storage/emulated/0/Download/';
+                    }
+                } 
+                else if (isIOS) {
+                    message += `To share the file:\n`;
+                    message += `1. Open the "Files" app on your iPhone/iPad\n`;
+                    message += `2. Tap "Browse" at the bottom\n`;
+                    message += `3. Go to "Downloads" or "On My iPhone"\n`;
+                    message += `4. Find "${fileName}"\n`;
+                    message += `5. Long press on the file\n`;
+                    message += `6. Select "Share" from the menu\n`;
+                    message += `7. Choose WhatsApp, Messages, email, etc.`;
+                    alert(message);
+                } 
+                else {
+                    // Desktop browser
+                    message += `File saved to your Downloads folder.\n`;
+                    message += `You can now attach it to an email, upload it, or share it manually.`;
+                    alert(message);
+                }
+            }, 500);
         }
 
         function debugStorage() {
@@ -2374,6 +2412,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
