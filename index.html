@@ -2099,11 +2099,7 @@ async function translateOne(p) {
                         k.style.transition = '';
                         k.style.zIndex = '';
                         // Return to appropriate color based on used state
-                        if (guessed.includes(l)) {
-                            k.style.backgroundColor = '#e2e8f0'; // Used keys
-                        } else {
-                            k.style.backgroundColor = '#f0f4f8'; // Available keys
-                        }
+                        k.style.backgroundColor = guessed.includes(l) ? '#e2e8f0' : '#f0f4f8';
                         k.style.color = '#2d3748';
                     }, 200);
                     
@@ -2171,9 +2167,6 @@ async function translateOne(p) {
             }
             updateHangmanUI();
         }
-        
-        // Add keyboard listener when game is active
-        document.addEventListener('keydown', handleKeyPress);
 
         function updateScoreUI() { 
             document.getElementById('winCount').textContent = wins; 
@@ -2674,6 +2667,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
