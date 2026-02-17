@@ -667,7 +667,7 @@
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
-                <button onclick="runPrintLogic()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
+                <button onclick="runPrintLogic(document.getElementById('hwInput').value)" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
                 <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
@@ -2877,6 +2877,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
