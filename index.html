@@ -454,6 +454,42 @@
     .pop-animation {
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+
+    /* Container for the print-only content */
+    #printArea { display: none; }
+    
+    @media print {
+        /* Hide everything else */
+        body * { visibility: hidden; background: white !important; }
+        #printArea, #printArea * { visibility: visible; }
+        #printArea { 
+            display: block !important; 
+            position: absolute; 
+            left: 0; top: 0; width: 100%; 
+            padding: 20px;
+            background: white !important;
+        }
+        .print-phrase-block { margin-bottom: 40px; page-break-inside: avoid; }
+        .print-header { font-size: 40pt; font-weight: 900; margin-bottom: 10px; color: black; text-align: left; }
+        
+        /* Calligraphy Lines */
+        .calligraphy-box {
+            height: 80px;
+            width: 100%;
+            margin-top: 15px;
+            position: relative;
+            /* Draws 3 lines: Top(solid), Mid(dashed), Base(solid) */
+            background-image: 
+                linear-gradient(black 1px, transparent 1px),
+                linear-gradient(to right, #ccc 5px, transparent 5px),
+                linear-gradient(black 1px, transparent 1px);
+            background-size: 100% 80px, 10px 1px, 100% 1px;
+            background-position: 0 0, 0 40px, 0 80px;
+            background-repeat: no-repeat, repeat-x, no-repeat;
+        }
+        
+        .print-label { font-size: 10pt; color: #666; font-style: italic; margin-top: 5px; }
+    }
        
    </style>
 </head>
@@ -565,6 +601,7 @@
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
+                <button onclick="generatePrintSheet()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button> 
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
                 <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
@@ -2678,6 +2715,43 @@ async function translateOne(p) {
                 playLine(index + 1);
             }, speechDuration + userGap);
         }
+
+        function generatePrintSheet() {
+            const input = document.getElementById('hwInput').value.trim();
+            if (!input) {
+                alert("Please enter some phrases first!");
+                return;
+            }
+        
+            // 1. Create the print area if it doesn't exist
+            let printArea = document.getElementById('printArea');
+            if (!printArea) {
+                printArea = document.createElement('div');
+                printArea.id = 'printArea';
+                document.body.appendChild(printArea);
+            }
+        
+            // 2. Build the HTML content
+            const phrases = input.split('\n').filter(p => p.trim() !== "");
+            let html = `<h1 style="text-align:center; margin-bottom:30px;">🇫🇷 French Writing Practice</h1>`;
+        
+            phrases.forEach(phrase => {
+                const cleanPhrase = phrase.split('|')[0].trim();
+                html += `
+                    <div class="print-phrase-block">
+                        <div class="print-header">${cleanPhrase}</div>
+                        <div class="calligraphy-box"></div>
+                        <div class="calligraphy-box"></div>
+                        <p class="print-label">Ecris la phrase deux fois (Write the phrase twice)</p>
+                    </div>
+                `;
+            });
+        
+            printArea.innerHTML = html;
+        
+            // 3. Trigger Print
+            window.print();
+        }
         
         function shareApp() { 
             if (navigator.share) { 
@@ -2704,10 +2778,13 @@ async function translateOne(p) {
             deferredPrompt = e; 
             document.getElementById('installBtn').style.display = 'block'; 
         });
+
+        <div id="printArea"></div>
         
     </script>
 </body>
 </html>
+
 
 
 
