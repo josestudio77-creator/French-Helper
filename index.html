@@ -427,6 +427,17 @@
     .cropper-point {
         background-color: #4cd964 !important;
     }
+
+    @keyframes keyFlash {
+        0% { transform: scale(1); background-color: #f0f4f8; }
+        50% { transform: scale(1.3); background-color: #4cd964; color: white; z-index: 10; }
+        100% { transform: scale(1); background-color: #e2e8f0; }
+    }
+    
+    .key-animate {
+        animation: keyFlash 0.25s ease-out forwards;
+    }
+       
    </style>
 </head>
 <body>
@@ -2072,7 +2083,6 @@ async function translateOne(p) {
                 document.getElementById('gameMsg').textContent = "Good try! Here's the word 👆"; 
                 spk("Oups! " + targetWord, 'fr-FR', true);
             }
-            renderKeyboard();
         }
 
         function renderKeyboard() { 
@@ -2085,25 +2095,13 @@ async function translateOne(p) {
                 k.setAttribute('data-letter', l);
                 
                 k.onclick = () => { 
-                    if (!gameActive) return; 
+                    if (!gameActive || guessed.includes(l)) return; 
                     
-                    // Visual feedback - flash the key
-                    k.style.transform = 'scale(1.3)';
-                    k.style.backgroundColor = '#4cd964'; // Bright green
-                    k.style.color = 'white';
-                    k.style.transition = 'all 0.1s';
-                    k.style.zIndex = '10';
-                    
-                    setTimeout(() => {
-                        k.style.transform = '';
-                        k.style.transition = '';
-                        k.style.zIndex = '';
-                        // Return to appropriate color based on used state
-                        k.style.backgroundColor = guessed.includes(l) ? '#e2e8f0' : '#f0f4f8';
-                        k.style.color = '#2d3748';
-                    }, 200);
+                    // Add animation class for visual feedback
+                    k.classList.add('key-animate');
                     
                     guessed.push(l); 
+                    
                     if (targetWord.includes(l)) { 
                         spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
                     } else { 
@@ -2111,7 +2109,12 @@ async function translateOne(p) {
                         drawHangman(mistakes); 
                         spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
                     } 
-                    updateHangmanUI(); 
+                    
+                    // Wait for animation to complete before updating UI
+                    setTimeout(() => {
+                        updateHangmanUI();
+                        renderKeyboard();
+                    }, 250); // Match animation duration
                 }; 
                 kb.appendChild(k); 
             }); 
@@ -2136,25 +2139,8 @@ async function translateOne(p) {
             // If letter already used, ignore
             if (guessed.includes(key)) return;
             
-            // Visual feedback on the on-screen key
-            keyElement.style.transform = 'scale(1.3)';
-            keyElement.style.backgroundColor = '#4cd964';
-            keyElement.style.color = 'white';
-            keyElement.style.transition = 'all 0.1s';
-            keyElement.style.zIndex = '10';
-            
-            setTimeout(() => {
-                keyElement.style.transform = '';
-                keyElement.style.transition = '';
-                keyElement.style.zIndex = '';
-                // Return to appropriate color based on used state
-                if (guessed.includes(key)) {
-                    keyElement.style.backgroundColor = '#e2e8f0'; // Used keys
-                } else {
-                    keyElement.style.backgroundColor = '#f0f4f8'; // Available keys
-                }
-                keyElement.style.color = '#2d3748';
-            }, 200);
+            // Add animation class for visual feedback
+            keyElement.classList.add('key-animate');
             
             // Process the guess
             guessed.push(key);
@@ -2165,7 +2151,12 @@ async function translateOne(p) {
                 drawHangman(mistakes);
                 spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true);
             }
-            updateHangmanUI();
+            
+            // Wait for animation to complete before updating UI
+            setTimeout(() => {
+                updateHangmanUI();
+                renderKeyboard();
+            }, 250); // Match animation duration
         }
 
         function updateScoreUI() { 
@@ -2667,6 +2658,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
