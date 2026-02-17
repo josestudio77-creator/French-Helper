@@ -601,7 +601,7 @@
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
-                <button onclick="generatePrintSheet()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button> 
+                <button onclick="runPrintLogic()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
                 <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
@@ -2372,28 +2372,34 @@ async function translateOne(p) {
                          style="text-align:center; font-weight:900; font-size:1.1rem; color:#2d3748; margin-bottom:10px; cursor:pointer; text-decoration:underline dotted #9d4edd;">
                     ${name} ${hasAudio}
                     </div>
-                    <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
-                        <button class="load-btn" style="background:#4cd964; color:white;">🎯 Practice</button>
-                        <button class="load-btn" style="background:#ff9e6d; color:white;">✏️ Edit</button>
-                        <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
-                        <button class="del-btn">🗑️</button>
-                    </div>
+                <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
+                    <button class="load-btn" style="background:#4cd964; color:white; padding: 10px 8px;">🎯 Practice</button>
+                    <button class="load-btn" style="background:#ff9e6d; color:white; padding: 10px 8px;">✏️ Edit</button>
+                    <button class="load-btn" style="background:#f59e0b; color:white; padding: 10px 8px;">🖨️ Print</button>
+                    <button class="load-btn" style="background:#5a67d8; color:white; padding: 10px 8px;">📤 Share</button>
+                    <button class="del-btn">🗑️</button>
+                </div>
                 `;
                 
                 const buttons = div.querySelectorAll('.load-btn');
-                
-                // 🎯 Practice Button
+
+                // 🎯 Practice
                 buttons[0].onclick = () => { 
                     loadHomeworkForPractice(name, hwData.words, hwData.audio);
                 };
                 
-                // ✏️ Edit Button (NEW LOGIC)
+                // ✏️ Edit
                 buttons[1].onclick = () => { 
                     editHomework(name);
                 };
                 
-                // 📤 Share Button
-                buttons[2].onclick = () => { 
+                // 🖨️ Print (NEW)
+                buttons[2].onclick = () => {
+                    runPrintLogic(hwData.words);
+                };
+                
+                // 📤 Share
+                buttons[3].onclick = () => { 
                     shareWeek(name, hwData.words, hwData.audio); 
                 };
                 
@@ -2716,14 +2722,15 @@ async function translateOne(p) {
             }, speechDuration + userGap);
         }
 
-        function generatePrintSheet() {
-            const input = document.getElementById('hwInput').value.trim();
-            if (!input) {
+        function runPrintLogic(words) {
+            // If no words were passed (from the edit screen), get them from the textbox
+            const textToPrint = words || document.getElementById('hwInput').value.trim();
+            
+            if (!textToPrint) {
                 alert("Please enter some phrases first!");
                 return;
             }
         
-            // 1. Create the print area if it doesn't exist
             let printArea = document.getElementById('printArea');
             if (!printArea) {
                 printArea = document.createElement('div');
@@ -2731,8 +2738,7 @@ async function translateOne(p) {
                 document.body.appendChild(printArea);
             }
         
-            // 2. Build the HTML content
-            const phrases = input.split('\n').filter(p => p.trim() !== "");
+            const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
             let html = `<h1 style="text-align:center; margin-bottom:30px;">🇫🇷 French Writing Practice</h1>`;
         
             phrases.forEach(phrase => {
@@ -2748,8 +2754,6 @@ async function translateOne(p) {
             });
         
             printArea.innerHTML = html;
-        
-            // 3. Trigger Print
             window.print();
         }
         
@@ -2785,3 +2789,4 @@ async function translateOne(p) {
         
 </body>
 </html>
+
