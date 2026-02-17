@@ -459,36 +459,64 @@
     #printArea { display: none; }
     
     @media print {
-        /* Hide everything else */
+        /* Force browser to print background gradients and colors */
+        * { 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+        }
+    
         body * { visibility: hidden; background: white !important; }
         #printArea, #printArea * { visibility: visible; }
         #printArea { 
             display: block !important; 
             position: absolute; 
             left: 0; top: 0; width: 100%; 
-            padding: 20px;
+            padding: 40px;
             background: white !important;
         }
-        .print-phrase-block { margin-bottom: 40px; page-break-inside: avoid; }
-        .print-header { font-size: 40pt; font-weight: 900; margin-bottom: 10px; color: black; text-align: left; }
-        
-        /* Calligraphy Lines */
-        .calligraphy-box {
-            height: 80px;
-            width: 100%;
-            margin-top: 15px;
+    
+        .print-phrase-block { 
+            margin-bottom: 50px; 
+            page-break-inside: avoid; 
             position: relative;
-            /* Draws 3 lines: Top(solid), Mid(dashed), Base(solid) */
-            background-image: 
-                linear-gradient(black 1px, transparent 1px),
-                linear-gradient(to right, #ccc 5px, transparent 5px),
-                linear-gradient(black 1px, transparent 1px);
-            background-size: 100% 80px, 10px 1px, 100% 1px;
-            background-position: 0 0, 0 40px, 0 80px;
-            background-repeat: no-repeat, repeat-x, no-repeat;
+            border-bottom: 1px solid #eee; /* Light separator between phrases */
+            padding-bottom: 20px;
+        }
+    
+        /* Font scaled down to 30pt (from 40pt) for better fit */
+        .print-header { 
+            font-size: 30pt; 
+            font-weight: 900; 
+            margin-bottom: 20px; 
+            color: black; 
+            text-align: left; 
+            padding-right: 60px; /* Space for the bunny/butterfly */
         }
         
-        .print-label { font-size: 10pt; color: #666; font-style: italic; margin-top: 5px; }
+        /* Improved Calligraphy Lines */
+        .calligraphy-box {
+            height: 60px;
+            width: 100%;
+            margin: 15px 0;
+            position: relative;
+            /* Bottom line is solid black */
+            border-bottom: 2px solid black;
+            /* Top line is solid black */
+            border-top: 1px solid black;
+            /* Middle line is a gray dashed gradient */
+            background-image: linear-gradient(to right, #888 50%, rgba(255,255,255,0) 0%);
+            background-position: center;
+            background-size: 15px 2px;
+            background-repeat: repeat-x;
+        }
+    
+        /* The Cute Icon */
+        .cute-decoration {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 40pt;
+        }
     }
        
    </style>
@@ -2723,7 +2751,6 @@ async function translateOne(p) {
         }
 
         function runPrintLogic(words) {
-            // If no words were passed (from the edit screen), get them from the textbox
             const textToPrint = words || document.getElementById('hwInput').value.trim();
             
             if (!textToPrint) {
@@ -2739,22 +2766,36 @@ async function translateOne(p) {
             }
         
             const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
-            let html = `<h1 style="text-align:center; margin-bottom:30px;">🇫🇷 French Writing Practice</h1>`;
+            // Add a cute header to the page
+            let html = `
+                <div style="text-align:center; margin-bottom:40px;">
+                    <span style="font-size:30pt;">✨</span>
+                    <span style="font-size:24pt; font-weight:900; border-bottom:4px solid #ff6b8b;"> Mon Travail de Français </span>
+                    <span style="font-size:30pt;">✨</span>
+                </div>`;
         
-            phrases.forEach(phrase => {
+            const cuteIcons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈"];
+        
+            phrases.forEach((phrase, index) => {
                 const cleanPhrase = phrase.split('|')[0].trim();
+                const icon = cuteIcons[index % cuteIcons.length]; // Cycles through icons
+                
                 html += `
                     <div class="print-phrase-block">
+                        <div class="cute-decoration">${icon}</div>
                         <div class="print-header">${cleanPhrase}</div>
                         <div class="calligraphy-box"></div>
                         <div class="calligraphy-box"></div>
-                        <p class="print-label">Ecris la phrase deux fois (Write the phrase twice)</p>
                     </div>
                 `;
             });
         
             printArea.innerHTML = html;
-            window.print();
+            
+            // Tiny delay to ensure images/styles are ready
+            setTimeout(() => {
+                window.print();
+            }, 500);
         }
         
         function shareApp() { 
@@ -2789,4 +2830,5 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
