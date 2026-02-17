@@ -1329,29 +1329,29 @@ function checkForImport() {
 function openBackpackFromHW() {
             closeOverlay('hwDrawer');
             openOverlay('bpModal'); // Instant switch
-        }
+}
 
-        function addNewHomework() {
-            // Reset for a fresh entry
-            editingHomeworkName = null;
-            document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-            document.getElementById('hwInput').value = "";
-            currentWeekAudio = null;
-            displayAudioPlayer();
-            
-            closeOverlay('bpModal');
-            openOverlay('hwDrawer'); // Instant switch
-        }
+function addNewHomework() {
+    // Reset for a fresh entry
+    editingHomeworkName = null;
+    document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+    document.getElementById('hwInput').value = "";
+    currentWeekAudio = null;
+    displayAudioPlayer();      
+    closeOverlay('bpModal');
+    openOverlay('hwDrawer'); // Instant switch
+}
 
-        function openSettingsFromBP() {
+function openSettingsFromBP() {
     // 1. Hide the backpack first
     closeOverlay('bpModal');
     // 2. Open the parent settings immediately after
     openOverlay('parentDrawer');
-    }
+}
 
 function editHomework(name) {
-    let hwData = { words: '', audio: null };
+    // 1. Initialize with defaults including the new isDialogue flag
+    let hwData = { words: '', audio: null, isDialogue: false };
     try {
         const parsed = JSON.parse(history[name]);
         if (parsed.words !== undefined) {
@@ -1363,11 +1363,19 @@ function editHomework(name) {
         hwData.words = history[name];
     }
 
-    // FIX: Added '|| null' to ensure audio is never 'undefined'
+    // Set state
     editingHomeworkName = name;
     document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
     document.getElementById('hwInput').value = hwData.words;
-    currentWeekAudio = hwData.audio || null; 
+    
+    // Update the Dialogue Checkbox based on saved data ---
+    document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
+    
+    // Update the currentIsDialogue state to match the homework ---
+    currentIsDialogue = !!hwData.isDialogue;
+
+    // Safety fix: Ensure audio is cleaned if it was 'undefined'
+    currentWeekAudio = hwData.audio || null;
     displayAudioPlayer();
 
     // Switch Screen
@@ -1420,15 +1428,14 @@ function loadHomeworkForPractice(name, words, audio) {
 }
 
 function practiceNow() {
-    // STOP AUTO-PLAY when practicing from drawer
-    if (isAutoPlaying) {
-        stopAutoPlay();
-    }
     const words = document.getElementById('hwInput').value.trim();
     if (!words) {
         alert('Please enter some homework words first!');
         return;
     }
+    
+    // --- FIX: Set currentIsDialogue based on checkbox BEFORE rendering ---
+    currentIsDialogue = document.getElementById('hwIsDialogue').checked;
     
     // If this is a new unsaved homework, clear the name
     if (!editingHomeworkName) {
@@ -2427,6 +2434,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
