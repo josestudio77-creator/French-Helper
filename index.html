@@ -1771,18 +1771,9 @@ function updateSpeechSpeed(value) {
             const volumeControl = document.getElementById('musicVolumeControl');
             
             if (musicNode) { 
-                // Turn music OFF - IMMEDIATELY
+                // Turn music OFF
                 if (musicNode.stop) {
-                    musicNode.stop(); // Stop the current loop
-                }
-                // Clear any pending scheduled notes
-                if (musicNode.timer) {
-                    clearTimeout(musicNode.timer);
-                }
-                // Immediately disconnect gain node to silence any playing notes
-                if (musicGainNode) {
-                    musicGainNode.disconnect();
-                    musicGainNode = null;
+                    musicNode.stop();
                 }
                 musicNode = null; 
                 btn.textContent = "🎵 Music: Off"; 
@@ -1791,15 +1782,25 @@ function updateSpeechSpeed(value) {
                 volumeControl.style.display = 'none';
             } else { 
                 // Turn music ON
-                if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (musicContext.state === 'suspended') musicContext.resume();
+                if (!musicContext) {
+                    musicContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Resume if suspended
+                if (musicContext.state === 'suspended') {
+                    musicContext.resume();
+                }
                 
                 // Create gain node for volume control
                 musicGainNode = musicContext.createGain();
                 musicGainNode.gain.setValueAtTime(musicVolume / 100, musicContext.currentTime);
                 musicGainNode.connect(musicContext.destination);
                 
-                playHappyLoop(); 
+                // Small delay to ensure context is running
+                setTimeout(() => {
+                    playHappyLoop();
+                }, 100);
+                
                 btn.textContent = "🎵 Music: On"; 
                 btn.style.background = '#4cd964';
                 btn.style.color = 'white';
@@ -1822,54 +1823,86 @@ function updateSpeechSpeed(value) {
         function playHappyLoop() {
             if (!musicContext || !musicGainNode) return;
             
+            // Ensure audio context is running
+            if (musicContext.state === 'suspended') {
+                musicContext.resume();
+            }
+            
             let isActive = true;
-            const startTime = musicContext.currentTime;
+            let currentTimer = null;
+            let nextNoteTime = musicContext.currentTime + 0.1; // Start slightly in the future
             
-            const playNote = (f, delay) => { 
-                if (!isActive || !musicNode) return; 
-                const osc = musicContext.createOscillator(); 
-                osc.type = 'sawtooth'; 
-                osc.frequency.setValueAtTime(f, startTime + delay); 
-                osc.connect(musicGainNode);
-                osc.start(startTime + delay); 
-                osc.stop(startTime + delay + 0.35);
+            const melody = [110.00, 110.00, 130.81, 146.83, 110.00, 110.00, 164.81, 146.83];
+            const noteDuration = 0.4; // seconds per note
+            const loopDuration = melody.length * noteDuration; // 3.2 seconds
+            
+            const playNote = (freq, startTime) => { 
+                if (!isActive || !musicGainNode) return; 
                 
-                // Ensure oscillator is cleaned up
-                osc.onended = () => osc.disconnect();
+                const osc = musicContext.createOscillator(); 
+                const noteGain = musicContext.createGain();
+                
+                osc.type = 'sawtooth'; 
+                osc.frequency.setValueAtTime(freq, startTime); 
+                
+                // Volume envelope to avoid clicks
+                noteGain.gain.setValueAtTime(0, startTime);
+                noteGain.gain.linearRampToValueAtTime(musicVolume / 100, startTime + 0.02);
+                noteGain.gain.linearRampToValueAtTime(0, startTime + noteDuration - 0.02);
+                
+                osc.connect(noteGain);
+                noteGain.connect(musicGainNode);
+                
+                osc.start(startTime); 
+                osc.stop(startTime + noteDuration);
+                
+                // Clean up
+                osc.onended = () => {
+                    osc.disconnect();
+                    noteGain.disconnect();
+                };
             };
-        
-            const melody = [110.00, 110.00, 130.81, 146.83, 110.00, 110.00, 164.81, 146.83]; 
             
-            // Schedule all notes at once instead of using setTimeout
+            // Schedule the first loop
             melody.forEach((note, index) => {
-                playNote(note, index * 0.4);
+                playNote(note, nextNoteTime + (index * noteDuration));
             });
             
-            // Store the loop reference
+            // Schedule subsequent loops
+            const scheduleLoop = () => {
+                if (!isActive || !musicNode) return;
+                
+                nextNoteTime += loopDuration;
+                
+                melody.forEach((note, index) => {
+                    playNote(note, nextNoteTime + (index * noteDuration));
+                });
+                
+                currentTimer = setTimeout(scheduleLoop, loopDuration * 1000 - 50); // Slightly before next loop
+            };
+            
+            currentTimer = setTimeout(scheduleLoop, loopDuration * 1000 - 50);
+            
+            // Store everything in musicNode
             musicNode = { 
                 stop: () => { 
                     isActive = false;
+                    if (currentTimer) {
+                        clearTimeout(currentTimer);
+                    }
                     if (musicGainNode) {
-                        // Ramp down volume quickly to avoid pops
-                        musicGainNode.gain.linearRampToValueAtTime(0, musicContext.currentTime + 0.05);
+                        // Quick fade out
+                        musicGainNode.gain.linearRampToValueAtTime(0, musicContext.currentTime + 0.1);
+                        setTimeout(() => {
+                            if (musicGainNode) {
+                                musicGainNode.disconnect();
+                                musicGainNode = null;
+                            }
+                        }, 150);
                     }
                 },
-                timer: null
+                timer: currentTimer
             }; 
-            
-            // Schedule next loop
-            const scheduleNext = () => {
-                if (!isActive || !musicNode) return;
-                
-                const nextStart = musicContext.currentTime + (melody.length * 0.4);
-                melody.forEach((note, index) => {
-                    playNote(note, (melody.length * 0.4) + (index * 0.4));
-                });
-                
-                musicNode.timer = setTimeout(scheduleNext, melody.length * 0.4 * 1000);
-            };
-            
-            musicNode.timer = setTimeout(scheduleNext, melody.length * 0.4 * 1000);
         }
 
  function loadPresetAndClose(k) {
@@ -2601,6 +2634,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
