@@ -698,11 +698,24 @@
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
+            
+            // STOP AUTO-PLAY when opening any overlay
+            if (isAutoPlaying) {
+                stopAutoPlay();
+            }
+            
             document.getElementById(id).style.display = 'block'; 
+            
             if(id === 'gameDrawer') { 
                 startHangman(); 
             } else if (id === 'bpModal') {
                 openBP();
+            } else if (id === 'presetsOverlay') {
+                console.log('Presets overlay opened');
+            } else if (id === 'parentDrawer') {
+                console.log('Parent drawer opened');
+            } else if (id === 'hwDrawer') {
+                console.log('Homework drawer opened');
             }
         }
 
@@ -715,6 +728,12 @@
             localStorage.setItem('viewMode', mode);
             document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
             document.getElementById('btnViewDialogue').classList.toggle('active', mode === 'dialogue');
+            
+            // STOP AUTO-PLAY when switching modes
+            if (isAutoPlaying) {
+                stopAutoPlay();
+            }
+            
             renderList(currentScreenList);
         }
 
@@ -1357,6 +1376,10 @@ function editHomework(name) {
 }
         
 function loadHomeworkForPractice(name, words, audio) {
+    // STOP AUTO-PLAY when loading homework
+    if (isAutoPlaying) {
+        stopAutoPlay();
+    }
     currentSetName = name;
     localStorage.setItem('currentSetName', name);
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
@@ -1397,6 +1420,10 @@ function loadHomeworkForPractice(name, words, audio) {
 }
 
 function practiceNow() {
+    // STOP AUTO-PLAY when practicing from drawer
+    if (isAutoPlaying) {
+        stopAutoPlay();
+    }
     const words = document.getElementById('hwInput').value.trim();
     if (!words) {
         alert('Please enter some homework words first!');
@@ -1774,15 +1801,20 @@ function updateSpeechSpeed(value) {
 }
 
  function loadPresetAndClose(k) {
-            if (!presets[k]) return;
-            currentSetName = k.charAt(0).toUpperCase() + k.slice(1); // "Animals", "Colors", etc.
-            localStorage.setItem('currentSetName', currentSetName);
-            currentIsDialogue = false; 
-            currentWeekAudio = null;
-            localStorage.removeItem('currentWeekAudio');
-            renderList(presets[k]);
-            closeOverlay('presetsOverlay');
-        }
+    // STOP AUTO-PLAY when loading a new preset
+    if (isAutoPlaying) {
+        stopAutoPlay();
+    }
+    
+    if (!presets[k]) return;
+    currentSetName = k.charAt(0).toUpperCase() + k.slice(1);
+    localStorage.setItem('currentSetName', currentSetName);
+    currentIsDialogue = false; 
+    currentWeekAudio = null;
+    localStorage.removeItem('currentWeekAudio');
+    renderList(presets[k]);
+    closeOverlay('presetsOverlay');
+}
 
 async function translateOne(p) {
             const n = norm(p); 
@@ -2395,6 +2427,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
