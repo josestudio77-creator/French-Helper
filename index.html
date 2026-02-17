@@ -458,80 +458,84 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
-    @media print {
-    /* Kill the app background and ghosting */
-    html, body { 
-        background: white !important; 
-        margin: 0 !important; 
-        padding: 0 !important; 
-        -webkit-print-color-adjust: exact !important; 
-        print-color-adjust: exact !important; 
-    }
-
-    /* Hide everything but the print area */
-    body * { visibility: hidden; }
-    #printArea, #printArea * { visibility: visible; }
+        @media print {
+        /* Reset everything for a clean white page */
+        html, body { 
+            background: white !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+        }
     
-    #printArea { 
-        display: block !important; 
-        position: absolute; 
-        left: 0; top: 0; width: 100%; 
-        padding: 30px; /* Reduced padding to fit more */
-        background: white !important;
-    }
-
-    .print-phrase-block { 
-        margin-bottom: 25px; /* Tighter spacing to fit 6 phrases */
-        page-break-inside: avoid; 
-        position: relative;
-    }
-
-    /* Smaller font (22pt) to ensure phrases fit on one line */
-    .print-header { 
-        font-size: 22pt; 
-        font-weight: 700; 
-        margin-bottom: 10px; 
-        color: black; 
-        text-align: left; 
-    }
+        /* Hide the app UI */
+        body * { visibility: hidden; }
+        #printArea, #printArea * { visibility: visible; }
+        
+        #printArea { 
+            display: block !important; 
+            position: absolute; 
+            left: 0; top: 0; width: 100%; 
+            padding: 20px 40px;
+            background: white !important;
+        }
     
-    /* The Calligraphy Row (The 3-line system) */
-    .calligraphy-row {
-        height: 44px; /* Total height of one writing line */
-        width: 100%;
-        margin-bottom: 8px;
-        position: relative;
-        /* Bottom Line (Baseline) - Thicker for the letters to sit on */
-        border-bottom: 2px solid black;
-        /* Top Line (Ascender line) - Thin for tall letters */
-        border-top: 1px solid #aaa;
-        /* Middle Line (Dashed) - For lowercase heights */
-        background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
-        background-position: center; /* Puts it exactly in the middle */
-        background-size: 10px 1px;
-        background-repeat: repeat-x;
+        /* THE REPEATING HEADER */
+        .print-header-repeat {
+            position: fixed;
+            top: 0;
+            left: 40px;
+            right: 40px;
+            height: 40px;
+            border-bottom: 2px solid black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white !important;
+            z-index: 9999;
+        }
+    
+        .print-header-text { font-size: 14pt; font-weight: 900; color: black; }
+        .print-date-text { font-size: 12pt; font-weight: 700; color: #444; }
+    
+        /* Space out the content so it doesn't hide under the repeating header */
+        .print-content-wrapper {
+            margin-top: 60px; 
+        }
+    
+        .print-phrase-block { 
+            margin-bottom: 25px; 
+            page-break-inside: avoid; 
+            position: relative;
+        }
+    
+        .print-phrase-text { 
+            font-size: 22pt; 
+            font-weight: 700; 
+            margin-bottom: 10px; 
+            color: black; 
+        }
+        
+        .calligraphy-row {
+            height: 44px;
+            width: 100%;
+            margin-bottom: 8px;
+            border-bottom: 2px solid black;
+            border-top: 1px solid #aaa;
+            background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
+            background-position: center;
+            background-size: 10px 1px;
+            background-repeat: repeat-x;
+        }
+    
+        .cute-decoration {
+            position: absolute;
+            top: -5px;
+            right: 0;
+            font-size: 25pt;
+            opacity: 0.8;
+        }
     }
-
-    .cute-decoration {
-        position: absolute;
-        top: -5px;
-        right: 0;
-        font-size: 25pt; /* Smaller icons */
-        opacity: 0.8;
-    }
-
-    /* Remove the header "Mon Travail" if space is tight, or make it small */
-    .print-page-title {
-        text-align: center;
-        font-size: 16pt;
-        font-weight: 900;
-        margin-bottom: 25px;
-        color: black;
-        border-bottom: 2px solid black;
-        display: inline-block;
-        width: 100%;
-    }
-}
        
    </style>
 </head>
@@ -2779,11 +2783,22 @@ async function translateOne(p) {
                 document.body.appendChild(printArea);
             }
         
-            const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
-            
-            // Page Title
-            let html = `<div class="print-page-title">🇫🇷 Mon Travail de Français 🇫🇷</div>`;
+            // Prepare Date and Name
+            const today = new Date().toLocaleDateString('en-GB', { 
+                day: 'numeric', month: 'short', year: 'numeric' 
+            });
+            const setName = currentSetName || "French";
         
+            // Start building HTML
+            let html = `
+                <div class="print-header-repeat">
+                    <div class="print-header-text">🇫🇷 ${setName} Writing Practice</div>
+                    <div class="print-date-text">${today}</div>
+                </div>
+                <div class="print-content-wrapper">
+            `;
+        
+            const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
             const cuteIcons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
         
             phrases.forEach((phrase, index) => {
@@ -2793,17 +2808,16 @@ async function translateOne(p) {
                 html += `
                     <div class="print-phrase-block">
                         <div class="cute-decoration">${icon}</div>
-                        <div class="print-header">${cleanPhrase}</div>
-                        <!-- Two writing attempts per phrase -->
+                        <div class="print-phrase-text">${cleanPhrase}</div>
                         <div class="calligraphy-row"></div>
                         <div class="calligraphy-row"></div>
                     </div>
                 `;
             });
         
+            html += `</div>`; // Close wrapper
             printArea.innerHTML = html;
             
-            // Allow a moment for the styles to inject before printing
             setTimeout(() => {
                 window.print();
             }, 300);
@@ -2841,6 +2855,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
