@@ -44,8 +44,31 @@
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 15px 0; outline: none; }
-    .key { width: 34px; height: 42px; background: #f0f4f8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 1px solid #cbd5e0; font-size: 0.9rem; color: #2d3748; cursor: pointer; }
-    .key.used { opacity: 0.2; pointer-events: none; }
+   /* Keyboard key styles - UPDATED */
+.key { 
+    width: 34px; 
+    height: 42px; 
+    background: #f0f4f8; 
+    border-radius: 8px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 900; 
+    border: 1px solid #cbd5e0; 
+    font-size: 0.9rem; 
+    color: #2d3748; 
+    cursor: pointer;
+    transition: all 0.1s ease; /* ADD THIS - smooth feedback */
+    box-sizing: border-box;
+}
+
+/* Make used keys more distinct - UPDATED */
+.key.used { 
+    opacity: 0.4; 
+    background-color: #e2e8f0 !important; 
+    pointer-events: none;
+    border-color: #a0aec0;
+}
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
@@ -2059,20 +2082,28 @@ async function translateOne(p) {
                 const k = document.createElement('div'); 
                 k.className = 'key' + (guessed.includes(l) ? ' used' : ''); 
                 k.textContent = l; 
-                k.setAttribute('data-letter', l); // Add for keyboard mapping
+                k.setAttribute('data-letter', l);
                 
-                // Add visual feedback on click
                 k.onclick = () => { 
                     if (!gameActive) return; 
                     
                     // Visual feedback - flash the key
                     k.style.transform = 'scale(1.3)';
-                    k.style.backgroundColor = '#4cd964';
+                    k.style.backgroundColor = '#4cd964'; // Bright green
                     k.style.color = 'white';
+                    k.style.transition = 'all 0.1s';
+                    k.style.zIndex = '10';
                     
                     setTimeout(() => {
                         k.style.transform = '';
-                        k.style.backgroundColor = guessed.includes(l) ? '#f0f4f8' : '#f0f4f8';
+                        k.style.transition = '';
+                        k.style.zIndex = '';
+                        // Return to appropriate color based on used state
+                        if (guessed.includes(l)) {
+                            k.style.backgroundColor = '#e2e8f0'; // Used keys
+                        } else {
+                            k.style.backgroundColor = '#f0f4f8'; // Available keys
+                        }
                         k.style.color = '#2d3748';
                     }, 200);
                     
@@ -2103,7 +2134,7 @@ async function translateOne(p) {
             const keyElement = document.querySelector(`.key[data-letter="${key}"]`);
             if (!keyElement) return;
             
-            // Prevent default browser behavior
+            // Prevent default browser behavior (like typing in search bars)
             e.preventDefault();
             
             // If letter already used, ignore
@@ -2113,10 +2144,19 @@ async function translateOne(p) {
             keyElement.style.transform = 'scale(1.3)';
             keyElement.style.backgroundColor = '#4cd964';
             keyElement.style.color = 'white';
+            keyElement.style.transition = 'all 0.1s';
+            keyElement.style.zIndex = '10';
             
             setTimeout(() => {
                 keyElement.style.transform = '';
-                keyElement.style.backgroundColor = guessed.includes(key) ? '#f0f4f8' : '#f0f4f8';
+                keyElement.style.transition = '';
+                keyElement.style.zIndex = '';
+                // Return to appropriate color based on used state
+                if (guessed.includes(key)) {
+                    keyElement.style.backgroundColor = '#e2e8f0'; // Used keys
+                } else {
+                    keyElement.style.backgroundColor = '#f0f4f8'; // Available keys
+                }
                 keyElement.style.color = '#2d3748';
             }, 200);
             
@@ -2634,6 +2674,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
