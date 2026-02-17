@@ -458,8 +458,7 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
-        @media print {
-        /* Reset everything for a clean white page */
+    @media print {
         html, body { 
             background: white !important; 
             margin: 0 !important; 
@@ -468,7 +467,6 @@
             print-color-adjust: exact !important; 
         }
     
-        /* Hide the app UI */
         body * { visibility: hidden; }
         #printArea, #printArea * { visibility: visible; }
         
@@ -480,31 +478,50 @@
             background: white !important;
         }
     
-        /* THE REPEATING HEADER */
+        /* THE REPEATING HEADER: Name: _________ Date: _______ */
         .print-header-repeat {
             position: fixed;
             top: 0;
             left: 40px;
             right: 40px;
-            height: 40px;
-            border-bottom: 2px solid black;
+            height: 60px; /* Increased height for better spacing */
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-end; /* Sits elements on the bottom of the header area */
+            border-bottom: 2px solid black;
             background: white !important;
             z-index: 9999;
+            padding-bottom: 10px;
         }
     
-        .print-header-text { font-size: 14pt; font-weight: 900; color: black; }
-        .print-date-text { font-size: 12pt; font-weight: 700; color: #444; }
+        .name-line {
+            font-size: 14pt;
+            font-weight: 900;
+            flex-grow: 1; /* Allows the line to stretch */
+            text-align: left;
+        }
     
-        /* Space out the content so it doesn't hide under the repeating header */
+        .name-underline {
+            display: inline-block;
+            width: 250px; /* Specific length for the name line */
+            border-bottom: 1.5px solid black;
+            margin-left: 5px;
+        }
+    
+        .date-box {
+            font-size: 12pt;
+            font-weight: 700;
+            margin-left: 20px;
+            white-space: nowrap;
+        }
+    
+        /* Extra space between header and first phrase */
         .print-content-wrapper {
-            margin-top: 60px; 
+            margin-top: 100px; 
         }
     
         .print-phrase-block { 
-            margin-bottom: 25px; 
+            margin-bottom: 35px; /* Adjusted to fit exactly 5 phrases per page */
             page-break-inside: avoid; 
             position: relative;
         }
@@ -512,18 +529,21 @@
         .print-phrase-text { 
             font-size: 22pt; 
             font-weight: 700; 
-            margin-bottom: 10px; 
+            margin-bottom: 12px; 
             color: black; 
+            text-align: left; /* Left justified as requested */
+            width: 100%;
+            display: block;
         }
         
         .calligraphy-row {
             height: 44px;
             width: 100%;
-            margin-bottom: 8px;
-            border-bottom: 2px solid black;
-            border-top: 1px solid #aaa;
+            margin-bottom: 10px;
+            border-bottom: 2px solid black; /* Baseline */
+            border-top: 1px solid #aaa;    /* Topline */
             background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
-            background-position: center;
+            background-position: center;   /* Midline */
             background-size: 10px 1px;
             background-repeat: repeat-x;
         }
@@ -2783,17 +2803,19 @@ async function translateOne(p) {
                 document.body.appendChild(printArea);
             }
         
-            // Prepare Date and Name
+            // Prepare Date
             const today = new Date().toLocaleDateString('en-GB', { 
                 day: 'numeric', month: 'short', year: 'numeric' 
             });
-            const setName = currentSetName || "French";
         
-            // Start building HTML
+            // Build HTML Header
             let html = `
                 <div class="print-header-repeat">
-                    <div class="print-header-text">🇫🇷 ${setName} Writing Practice</div>
-                    <div class="print-date-text">${today}</div>
+                    <div class="name-line">Nom:<span class="name-underline"></span></div>
+                    <div style="font-weight:900; font-size:12pt; position:absolute; left:50%; transform:translateX(-50%); bottom:10px;">
+                        ${currentSetName || "Français"}
+                    </div>
+                    <div class="date-box">Date: ${today}</div>
                 </div>
                 <div class="print-content-wrapper">
             `;
@@ -2815,7 +2837,7 @@ async function translateOne(p) {
                 `;
             });
         
-            html += `</div>`; // Close wrapper
+            html += `</div>`; 
             printArea.innerHTML = html;
             
             setTimeout(() => {
@@ -2855,3 +2877,4 @@ async function translateOne(p) {
         
 </body>
 </html>
+
