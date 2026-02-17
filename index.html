@@ -437,6 +437,23 @@
     .key-animate {
         animation: keyFlash 0.25s ease-out forwards;
     }
+
+    @keyframes letterPop {
+        0% { transform: scale(4); color: #4cd964; opacity: 0; filter: drop-shadow(0 0 20px #4cd964); }
+        50% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 5px #4cd964); }
+        100% { transform: scale(1); color: #2d3748; opacity: 1; }
+    }
+    
+    .letter-slot {
+        display: inline-block;
+        width: 30px; /* Fixed width so letters don't jump around */
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .pop-animation {
+        animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
        
    </style>
 </head>
@@ -1800,6 +1817,29 @@ function updateSpeechSpeed(value) {
             });
         }
 
+        function playDingSound() {
+            if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (musicContext.state === 'suspended') musicContext.resume();
+        
+            const now = musicContext.currentTime;
+            const osc = musicContext.createOscillator();
+            const gain = musicContext.createGain();
+        
+            osc.type = 'sine'; // Pure, sweet sound
+            osc.frequency.setValueAtTime(880, now); // High A
+            osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1); // Slide up to high E
+        
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        
+            osc.connect(gain);
+            gain.connect(musicContext.destination);
+        
+            osc.start();
+            osc.stop(now + 0.5);
+        }
+
         function toggleMusic() {
             const btn = document.getElementById('musicToggleBtn');
             const volumeControl = document.getElementById('musicVolumeControl');
@@ -2041,46 +2081,56 @@ async function translateOne(p) {
         }
         
         function updateHangmanUI() {
-            let d = ""; 
-            for (let c of targetWord) d += guessed.includes(c) ? c + " " : "_ ";
-            document.getElementById('hangmanDisplay').textContent = d;
+            const display = document.getElementById('hangmanDisplay');
+            const currentGuess = guessed[guessed.length - 1]; // The letter she just clicked
+            const isCorrect = targetWord.includes(currentGuess);
             
-            if (!d.includes("_")) {
-                // Win condition
+            // Clear the display but keep it ready for elements
+            display.innerHTML = ''; 
+        
+            for (let char of targetWord) {
+                const span = document.createElement('span');
+                span.className = 'letter-slot';
+                
+                if (guessed.includes(char)) {
+                    span.textContent = char;
+                    // If this is the letter she JUST clicked, make it spectacular!
+                    if (char === currentGuess && isCorrect) {
+                        span.classList.add('pop-animation');
+                        playDingSound(); // Play the magic chime
+                    }
+                } else {
+                    span.textContent = '_';
+                }
+                display.appendChild(span);
+            }
+        
+            // WIN/LOSS Logic
+            const isWon = targetWord.split('').every(char => guessed.includes(char));
+            
+            if (isWon) {
                 gameActive = false; 
                 wins++; 
                 updateScoreUI(); 
                 celebrate(); 
-                
-                // Play victory sound and music
                 playVictorySound();
-                if (!musicNode) {
-                    // Music was off, turn it on temporarily
-                    toggleMusic();
-                    setTimeout(() => {
-                        if (musicNode) toggleMusic(); // Turn off after celebration
-                    }, 4000);
-                }
-                
                 document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
                 setTimeout(() => spk(targetWord, 'fr-FR'), 800);
             } else if (mistakes >= 10) {
-                // Loss condition - SHOW THE ANSWER
                 gameActive = false; 
                 losses++; 
                 updateScoreUI();
+                document.getElementById('gameMsg').textContent = "Good try! 👍"; 
                 
-                // Show the complete word with different styling for missing letters
-                let revealWord = "";
-                for (let c of targetWord) {
-                    if (guessed.includes(c)) {
-                        revealWord += c + " "; // Already guessed
-                    } else {
-                        revealWord += `<span style="color: #ff6b8b; font-weight: 900; text-decoration: underline;">${c}</span> `; // Highlight missing
-                    }
+                // Show the missing letters in red
+                display.innerHTML = '';
+                for (let char of targetWord) {
+                    const span = document.createElement('span');
+                    span.className = 'letter-slot';
+                    span.textContent = char;
+                    if (!guessed.includes(char)) span.style.color = '#ff6b8b';
+                    display.appendChild(span);
                 }
-                document.getElementById('hangmanDisplay').innerHTML = revealWord;
-                document.getElementById('gameMsg').textContent = "Good try! Here's the word 👆"; 
                 spk("Oups! " + targetWord, 'fr-FR', true);
             }
         }
@@ -2658,6 +2708,7 @@ async function translateOne(p) {
     </script>
 </body>
 </html>
+
 
 
 
