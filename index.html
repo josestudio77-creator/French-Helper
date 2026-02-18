@@ -459,71 +459,58 @@
     #printArea { display: none; }
     
     @media print {
+        /* 1. Kills Chrome URL/Date headers */
         @page { 
             margin: 0; 
-            size: auto; 
         }
         
         html, body { 
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
-            height: auto !important; 
-            /* We use display: none on elements instead of visibility: hidden 
-               on the body to ensure the height is truly 0 */
         }
 
-        /* Truly hide the app UI so it takes up ZERO space */
-        .container, .overlay, .bottom-nav, .header, button, #hwDrawer, #bpModal { 
+        /* 2. Hide everything in the app UI */
+        .container, .overlay, .bottom-nav, .header, button { 
             display: none !important; 
         }
 
+        /* 3. The Print Area: No absolute/fixed positioning */
         #printArea { 
             display: block !important; 
-            position: relative !important; 
-            width: 100%; 
-            padding: 1.2cm 1.5cm; 
+            padding: 1cm 1.5cm;
             background: white !important;
-            height: auto !important;
+            width: 100%;
         }
 
-        /* KEEP FIXED position so header repeats on every page */
-        .print-header-repeat {
-            position: fixed;
-            top: 0.4cm; 
-            left: 1.5cm;
-            right: 1.5cm;
-            height: 50px;
+        /* 4. The Header: Normal flow, Page 1 only */
+        .print-header-simple {
+            width: 100%;
+            border-bottom: 2px solid black;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid black;
-            background: white !important;
-            z-index: 9999;
+            padding-bottom: 10px;
+            margin-bottom: 40px; /* Space before first phrase */
         }
 
-        .name-label { font-size: 13pt; font-weight: 900; }
-        .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
-        .set-name-center { font-weight: 900; font-size: 11pt; position: absolute; left: 50%; transform: translateX(-50%); }
-        .date-label { font-size: 11pt; font-weight: 700; }
-
-        .print-content-wrapper { margin-top: 70px; }
+        .name-label { font-size: 14pt; font-weight: 900; }
+        .name-underline { border-bottom: 1.5px solid black; width: 250px; display: inline-block; margin-left: 5px; height: 15pt; }
+        .set-name-center { font-weight: 900; font-size: 12pt; }
+        .date-label { font-size: 12pt; font-weight: 700; }
 
         .print-phrase-block { 
             margin-bottom: 30px; 
             page-break-inside: avoid; 
-            position: relative; 
         }
 
-        /* Force last block to have no margin and prevent breaking */
+        /* The Ultimate Blank Page Killer */
         .print-phrase-block:last-child {
             margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
-            page-break-after: avoid !important;
         }
 
         .print-phrase-text { 
-            font-size: 20pt; font-weight: 700; margin-bottom: 8px; 
+            font-size: 22pt; font-weight: 700; margin-bottom: 10px; 
             color: black; text-align: left; display: block;
         }
         
@@ -532,16 +519,18 @@
             border-bottom: 2px solid black; border-top: 1px solid #aaa;
             background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
             background-position: center; background-size: 10px 1px;
-            background-repeat: repeat-x; position: relative;
+            background-repeat: repeat-x;
         }
 
-        .cute-decoration { position: absolute; top: -10px; right: 0; font-size: 22pt; }
+        .cute-decoration { float: right; font-size: 25pt; margin-top: -5px; }
     }
        
    </style>
 </head>
 <body>
 
+    <div id="printArea"></div>
+    
     <div class="container">
         <div class="header">
             <h1>🇫🇷 French Fun V9.0 🎉</h1>
@@ -2779,6 +2768,7 @@ async function translateOne(p) {
 function runPrintLogic(words) {
     if (isPrinting) return;
     
+    // Clean the input to ensure no trailing empty lines
     const textToPrint = (words || document.getElementById('hwInput').value).trim();
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
@@ -2791,7 +2781,7 @@ function runPrintLogic(words) {
     if (!printArea) {
         printArea = document.createElement('div');
         printArea.id = 'printArea';
-        document.body.appendChild(printArea);
+        document.body.prepend(printArea); // Place it at the very top of the body
     }
     printArea.innerHTML = ''; 
 
@@ -2799,13 +2789,13 @@ function runPrintLogic(words) {
         day: 'numeric', month: 'short', year: 'numeric' 
     });
 
+    // Build simple Page 1 Header
     let html = `
-        <div class="print-header-repeat">
+        <div class="print-header-simple">
             <div class="name-label">Nom:<span class="name-underline"></span></div>
-            <div class="set-name-center">${currentSetName || "Français"} Practice</div>
+            <div class="set-name-center">${currentSetName || "Français"}</div>
             <div class="date-label">Date: ${today}</div>
         </div>
-        <div class="print-content-wrapper">
     `;
 
     const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
@@ -2815,28 +2805,26 @@ function runPrintLogic(words) {
         const cleanPhrase = phrase.split('|')[0].trim();
         html += `
             <div class="print-phrase-block">
-                <div class="cute-decoration">${icons[index % icons.length]}</div>
+                <span class="cute-decoration">${icons[index % icons.length]}</span>
                 <div class="print-phrase-text">${cleanPhrase}</div>
                 <div class="calligraphy-row"></div>
                 <div class="calligraphy-row"></div>
             </div>`;
     });
 
-    html += `</div>`; 
     printArea.innerHTML = html;
     
-    // Trigger print
+    // Reset the browser state
+    window.stop();
+
     setTimeout(() => {
         window.print();
         
-        // Cleanup after the print dialog is handled
+        // Final cleanup
         setTimeout(() => {
             isPrinting = false;
-            // Optional: Uncomment the line below if you want the print data 
-            // cleared immediately after printing
-            // printArea.innerHTML = ''; 
         }, 1000);
-    }, 300);
+    }, 400);
 }
         
         function shareApp() { 
@@ -2866,10 +2854,9 @@ function runPrintLogic(words) {
         });
         
     </script>
-
-    <div id="printArea"></div>
         
 </body>
 </html>
+
 
 
