@@ -464,31 +464,18 @@
         margin: 1.5cm;
         size: auto;
         
-        /* Exact rules from your working version to suppress browser extras */
-        @top-center {
-            content: "" !important;
-        }
-        @top-left {
-            content: "" !important;
-        }
-        @top-right {
-            content: "" !important;
-        }
-        @bottom-center {
-            content: "" !important;
-        }
+        /* THE MAGIC KEY: Keep these exactly as they are */
+        @top-center { content: "" !important; }
+        @top-left { content: "" !important; }
+        @top-right { content: "" !important; }
+        @bottom-center { content: "" !important; }
+        @bottom-left { content: "" !important; }
+        @bottom-right { content: "" !important; }
     }
     
-    /* Keep these margin rules as they worked for you */
-    @page :first {
-        margin-top: 1.5cm;
-    }
-    @page :left {
-        margin: 1.5cm;
-    }
-    @page :right {
-        margin: 1.5cm;
-    }
+    @page :first { margin-top: 1.5cm; }
+    @page :left { margin: 1.5cm; }
+    @page :right { margin: 1.5cm; }
     
     html, body { 
         background: white !important; 
@@ -497,10 +484,10 @@
         height: auto;
     }
 
-    /* Hide the App UI */
+    /* Hide App UI */
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
-    .bottom-nav, .nav-item, .overlay-content {
+    .nav-item, .overlay-content {
         display: none !important; 
     }
 
@@ -519,29 +506,27 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 10px;
-        margin-bottom: 20px;
-        page-break-after: avoid;
+        margin-bottom: 30px; /* Increased space before first box */
     }
 
     .name-label { font-size: 13pt; font-weight: 900; }
-    .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
+    .name-underline { border-bottom: 1.5px solid black; width: 220px; display: inline-block; margin-left: 5px; height: 14pt; }
     .set-name-center { font-weight: 900; font-size: 11pt; }
     .date-label { font-size: 11pt; font-weight: 700; }
 
-    /* THE ROUNDED RECTANGLE BOX */
+    /* THE UPDATED ROUNDED BOX */
     .print-phrase-block { 
-        margin-bottom: 15px; 
-        padding: 12px 18px;
-        border: 2px solid #a3e4d7; 
+        margin-bottom: 28px;       /* INCREASED SPACE between boxes */
+        padding: 15px 20px;
+        border: 2.5px solid #333;  /* DARKER & THICKER outline for B&W printing */
         border-radius: 20px;       
         page-break-inside: avoid; 
+        break-inside: avoid;
         position: relative;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
-        break-inside: avoid;
     }
 
-    /* Extra Page Killer */
     .print-phrase-block:last-child {
         margin-bottom: 0 !important;
     }
@@ -549,14 +534,14 @@
     .print-phrase-text { 
         font-size: 18pt;
         font-weight: 900; 
-        margin-bottom: 10px; 
-        color: #2d3748; 
+        margin-bottom: 15px; 
+        color: #000; /* Force black for text */
         text-align: left; 
         display: block;
         padding-right: 40px; 
     }
 
-    /* ADDED: CURSIVE FONT CLASS */
+    /* CURSIVE STYLE */
     .cursive-font {
         font-family: 'Dancing Script', cursive !important;
         font-size: 26pt !important; 
@@ -564,11 +549,11 @@
         letter-spacing: 1px;
     }
     
-    /* Guidelines with TAIL ROOM */
+    /* Guidelines */
     .calligraphy-row {
         height: 38px;
         width: 100%; 
-        margin-bottom: 25px; 
+        margin-bottom: 25px; /* Tail room */
         border-bottom: 2px solid black; 
         border-top: 1px solid #aaa;    
         position: relative;
@@ -2953,6 +2938,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
