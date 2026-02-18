@@ -2786,29 +2786,26 @@ async function translateOne(p) {
             }, speechDuration + userGap);
         }
 
- function runPrintLogic(words) {
+function runPrintLogic(words) {
     const textToPrint = words || document.getElementById('hwInput').value.trim();
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
         return; 
     }
 
-    // 1. HARD RESET: Delete any existing print area entirely
-    let oldPrintArea = document.getElementById('printArea');
-    if (oldPrintArea) {
-        oldPrintArea.remove();
+    // 1. Get or Create the print area (Don't delete it, just reuse it)
+    let printArea = document.getElementById('printArea');
+    if (!printArea) {
+        printArea = document.createElement('div');
+        printArea.id = 'printArea';
+        document.body.appendChild(printArea);
     }
-
-    // 2. CREATE FRESH: Build a brand new print div
-    const printArea = document.createElement('div');
-    printArea.id = 'printArea';
-    document.body.appendChild(printArea);
-
+    
+    // 2. Prepare content
     const today = new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', month: 'short', year: 'numeric' 
     });
 
-    // 3. BUILD CONTENT
     let html = `
         <div class="print-header-repeat">
             <div class="name-line">Nom:<span class="name-underline"></span></div>
@@ -2838,22 +2835,11 @@ async function translateOne(p) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    // 4. THE WAKE-UP TRICK
-    // We close all overlays before printing. Sometimes the phone won't print 
-    // because it thinks a "modal" (the homework drawer) is in the way.
-    const openOverlays = document.querySelectorAll('.overlay');
-    openOverlays.forEach(o => o.style.display = 'none');
-
-    // 5. EXECUTE with a slightly longer delay
+    // 3. TRIGGER PRINT IMMEDIATELY
+    // Shortening the delay helps the phone recognize this is still part of the user's click.
     setTimeout(() => {
         window.print();
-        
-        // After printing, if they were in the Backpack, let's reopen it 
-        // so the app doesn't look "broken"
-        if (typeof openBP === "function") {
-            openOverlay('bpModal');
-        }
-    }, 800);
+    }, 250); 
 }
         
         function shareApp() { 
@@ -2888,6 +2874,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
