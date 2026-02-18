@@ -459,56 +459,32 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
-  @media print {
-    /* 1. THE HEADER KILLER - Enhanced version */
+ @media print {
+    /* Set page margins */
     @page {
         margin: 1.5cm;
-        size: auto;
-        
-        /* Remove browser-generated content */
-        @top-left { content: none !important; }
-        @top-center { content: none !important; }
-        @top-right { content: none !important; }
-        @bottom-left { content: none !important; }
-        @bottom-center { content: none !important; }
-        @bottom-right { content: none !important; }
-        
-        /* Additional rules for some browsers */
-        marks: none !important;
-        bleed: 0 !important;
     }
     
-    /* Force margins on all pages */
-    @page :first { margin-top: 1.5cm; }
-    @page :left { margin: 1.5cm; }
-    @page :right { margin: 1.5cm; }
-    
-    /* Hide ALL browser print extras */
-    html, body { 
-        background: white !important; 
-        margin: 0 !important; 
-        padding: 0 !important;
-        height: auto;
-    }
-
-    /* 2. Hide the App UI completely - including everything */
-    .container, .overlay, .bottom-nav, .header, button, 
-    .app-control-panel, .gap-control, .view-switcher, 
-    .nav-item, .overlay-content, #hwDrawer, #bpModal,
-    #parentDrawer, #gameDrawer, #presetsOverlay,
-    #iconPickerOverlay, #photoCropperOverlay,
-    #printSelectionOverlay {
-        display: none !important; 
-    }
-
-    /* 3. The Print Layout - ensure it's the only visible thing */
-    #printArea { 
-        display: block !important; 
+    /* Hide everything except our print area */
+    html, body {
         background: white !important;
-        width: 100%;
-        box-sizing: border-box;
+        height: 100%;
         margin: 0 !important;
         padding: 0 !important;
+    }
+
+    /* Hide ALL app elements */
+    body > *:not(#printArea) {
+        display: none !important;
+    }
+
+    /* Print area takes over */
+    #printArea {
+        display: block !important;
+        background: white !important;
+        padding: 0;
+        margin: 0;
+        width: 100%;
     }
 
     .print-header-simple {
@@ -538,7 +514,6 @@
         -webkit-print-color-adjust: exact !important;
     }
 
-    /* Ghost Page Killer */
     .print-phrase-block:last-child {
         margin-bottom: 0 !important;
     }
@@ -553,7 +528,6 @@
         padding-right: 40px; 
     }
 
-    /* 4. CURSIVE STYLE */
     .cursive-font {
         font-family: 'Dancing Script', cursive !important;
         font-size: 26pt !important;
@@ -562,11 +536,10 @@
         line-height: 1.2;
     }
     
-    /* Writing guidelines with TAIL ROOM */
     .calligraphy-row {
         height: 38px;
         width: 100%; 
-        margin-bottom: 25px; /* Gap for tails of letters like p, y, g, j */
+        margin-bottom: 25px;
         border-bottom: 2px solid black; 
         border-top: 1px solid #aaa;    
         position: relative;
@@ -2951,6 +2924,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
