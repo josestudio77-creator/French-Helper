@@ -460,8 +460,32 @@
     
     @media print {
     @page { 
-        margin: 1.5cm; /* Set page margin directly */
+        margin: 1.5cm;
         size: auto;
+        
+        /* Suppress browser default headers and footers */
+        @top-center {
+            content: "" !important;
+            display: none !important;
+        }
+        
+        @bottom-center {
+            content: "" !important;
+            display: none !important;
+        }
+    }
+    
+    /* Additional rule to hide browser print extras */
+    @page :first {
+        margin-top: 1.5cm;
+    }
+    
+    @page :left {
+        margin: 1.5cm;
+    }
+    
+    @page :right {
+        margin: 1.5cm;
     }
     
     html, body { 
@@ -472,11 +496,13 @@
     }
 
     /* Hide the App UI */
-    .container, .overlay, .bottom-nav, .header, button { 
+    .container, .overlay, .bottom-nav, .header, button, 
+    .app-control-panel, .gap-control, .view-switcher, 
+    .bottom-nav, .nav-item, .overlay, .overlay-content {
         display: none !important; 
     }
 
-    /* The Print Area - No extra padding since @page handles margins */
+    /* The Print Area */
     #printArea { 
         display: block !important; 
         background: white !important;
@@ -493,7 +519,6 @@
         align-items: center;
         padding-bottom: 10px;
         margin-bottom: 20px;
-        /* Ensure header doesn't get orphaned */
         page-break-after: avoid;
     }
 
@@ -512,7 +537,6 @@
         position: relative;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
-        /* Ensure consistent spacing after page breaks */
         break-inside: avoid;
     }
 
@@ -2888,6 +2912,7 @@ function runPrintLogic(words) {
         
 </body>
 </html>
+
 
 
 
