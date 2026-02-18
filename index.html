@@ -468,25 +468,26 @@
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
-            /* This tells the browser NOT to reserve space for the app */
             height: auto !important; 
-            overflow: visible !important;
-            visibility: hidden;
+            /* We use display: none on elements instead of visibility: hidden 
+               on the body to ensure the height is truly 0 */
+        }
+
+        /* Truly hide the app UI so it takes up ZERO space */
+        .container, .overlay, .bottom-nav, .header, button, #hwDrawer, #bpModal { 
+            display: none !important; 
         }
 
         #printArea { 
-            visibility: visible !important;
             display: block !important; 
-            position: absolute; 
-            top: 0; left: 0; width: 100%; 
+            position: relative !important; 
+            width: 100%; 
             padding: 1.2cm 1.5cm; 
             background: white !important;
-            /* Prevents height issues */
-            height: auto !important; 
+            height: auto !important;
         }
 
-        #printArea * { visibility: visible !important; }
-
+        /* KEEP FIXED position so header repeats on every page */
         .print-header-repeat {
             position: fixed;
             top: 0.4cm; 
@@ -514,10 +515,11 @@
             position: relative; 
         }
 
-        /* THE FIX: Remove margin from the last phrase so it doesn't trigger a new page */
+        /* Force last block to have no margin and prevent breaking */
         .print-phrase-block:last-child {
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
+            page-break-after: avoid !important;
         }
 
         .print-phrase-text { 
@@ -2775,20 +2777,16 @@ async function translateOne(p) {
         }
 
 function runPrintLogic(words) {
-    if (isPrinting) return; // If already processing a print, ignore extra clicks
+    if (isPrinting) return;
     
-    // THE FIX: We wrap the whole thing in parentheses and then .trim() 
-    // This ensures words from the Backpack get trimmed too!
     const textToPrint = (words || document.getElementById('hwInput').value).trim();
-    
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
         return; 
     }
 
-    isPrinting = true; // Lock the button
+    isPrinting = true;
 
-    // 1. Prepare Print Area (as we did before)
     let printArea = document.getElementById('printArea');
     if (!printArea) {
         printArea = document.createElement('div');
@@ -2827,17 +2825,17 @@ function runPrintLogic(words) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    // 2. THE FIX: Try to cancel any pending browser states before printing
-    window.stop(); 
-
+    // Trigger print
     setTimeout(() => {
         window.print();
         
-        // 3. THE UNLOCK: Wait 2 seconds before allowing another print click
-        // This gives the phone time to open the dialog safely.
+        // Cleanup after the print dialog is handled
         setTimeout(() => {
             isPrinting = false;
-        }, 2000);
+            // Optional: Uncomment the line below if you want the print data 
+            // cleared immediately after printing
+            // printArea.innerHTML = ''; 
+        }, 1000);
     }, 300);
 }
         
@@ -2873,4 +2871,5 @@ function runPrintLogic(words) {
         
 </body>
 </html>
+
 
