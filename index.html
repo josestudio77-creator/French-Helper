@@ -459,34 +459,59 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
- @media print {
-    /* Set page margins */
-    @page {
+@media print {
+    @page { 
+        margin: 1.5cm;
+        size: auto;
+        
+        /* Exact rules from your working version to suppress browser extras */
+        @top-center {
+            content: "" !important;
+        }
+        @top-left {
+            content: "" !important;
+        }
+        @top-right {
+            content: "" !important;
+        }
+        @bottom-center {
+            content: "" !important;
+        }
+    }
+    
+    /* Keep these margin rules as they worked for you */
+    @page :first {
+        margin-top: 1.5cm;
+    }
+    @page :left {
+        margin: 1.5cm;
+    }
+    @page :right {
         margin: 1.5cm;
     }
     
-    /* Hide everything except our print area */
-    html, body {
-        background: white !important;
-        height: 100%;
-        margin: 0 !important;
+    html, body { 
+        background: white !important; 
+        margin: 0 !important; 
         padding: 0 !important;
+        height: auto;
     }
 
-    /* Hide ALL app elements */
-    body > *:not(#printArea) {
-        display: none !important;
+    /* Hide the App UI */
+    .container, .overlay, .bottom-nav, .header, button, 
+    .app-control-panel, .gap-control, .view-switcher, 
+    .bottom-nav, .nav-item, .overlay-content {
+        display: none !important; 
     }
 
-    /* Print area takes over */
-    #printArea {
-        display: block !important;
+    #printArea { 
+        display: block !important; 
         background: white !important;
-        padding: 0;
-        margin: 0;
         width: 100%;
+        box-sizing: border-box;
     }
 
+    /* Page Header */
     .print-header-simple {
         width: 100%;
         border-bottom: 2px solid black;
@@ -494,7 +519,8 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 10px;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
+        page-break-after: avoid;
     }
 
     .name-label { font-size: 13pt; font-weight: 900; }
@@ -502,18 +528,20 @@
     .set-name-center { font-weight: 900; font-size: 11pt; }
     .date-label { font-size: 11pt; font-weight: 700; }
 
+    /* THE ROUNDED RECTANGLE BOX */
     .print-phrase-block { 
-        margin-bottom: 18px; 
+        margin-bottom: 15px; 
         padding: 12px 18px;
         border: 2px solid #a3e4d7; 
         border-radius: 20px;       
         page-break-inside: avoid; 
-        break-inside: avoid;
         position: relative;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
+        break-inside: avoid;
     }
 
+    /* Extra Page Killer */
     .print-phrase-block:last-child {
         margin-bottom: 0 !important;
     }
@@ -521,25 +549,26 @@
     .print-phrase-text { 
         font-size: 18pt;
         font-weight: 900; 
-        margin-bottom: 12px; 
+        margin-bottom: 10px; 
         color: #2d3748; 
         text-align: left; 
         display: block;
         padding-right: 40px; 
     }
 
+    /* ADDED: CURSIVE FONT CLASS */
     .cursive-font {
         font-family: 'Dancing Script', cursive !important;
-        font-size: 26pt !important;
+        font-size: 26pt !important; 
         font-weight: 700 !important;
         letter-spacing: 1px;
-        line-height: 1.2;
     }
     
+    /* Guidelines with TAIL ROOM */
     .calligraphy-row {
         height: 38px;
         width: 100%; 
-        margin-bottom: 25px;
+        margin-bottom: 25px; 
         border-bottom: 2px solid black; 
         border-top: 1px solid #aaa;    
         position: relative;
@@ -2924,6 +2953,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
