@@ -459,95 +459,68 @@
     #printArea { display: none; }
     
     @media print {
-        /* 1. Remove automatic URL/Date headers and footers */
-        @page { 
-            margin: 0; 
-        }
-
+        @page { margin: 0; }
         html, body { 
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
-            /* Important: Force visibility to hidden for the container */
             visibility: hidden;
-            height: 100%;
         }
 
-        /* 2. Target the Print Area specifically */
         #printArea { 
             visibility: visible !important;
             display: block !important; 
             position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            padding: 1.5cm; /* This creates your page margins */
+            top: 0; left: 0; width: 100%; 
+            padding: 1.2cm 1.5cm; /* Nice margins */
             background: white !important;
         }
 
-        /* Ensure everything inside the print area is visible */
-        #printArea * { 
-            visibility: visible !important; 
-        }
+        #printArea * { visibility: visible !important; }
 
-        /* 3. The Repeating Header */
+        /* THE REPEATING HEADER */
         .print-header-repeat {
             position: fixed;
-            top: 0.5cm; 
+            top: 0.4cm; 
             left: 1.5cm;
             right: 1.5cm;
-            height: 60px;
+            height: 50px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center; /* Vertical center */
             border-bottom: 2px solid black;
             background: white !important;
             z-index: 9999;
-            padding-bottom: 5px;
         }
 
-        .name-line { font-size: 13pt; font-weight: 900; }
-        .name-underline { display: inline-block; width: 220px; border-bottom: 1.5px solid black; margin-left: 5px; height: 13pt; }
-        .date-box { font-size: 11pt; font-weight: 700; white-space: nowrap; }
-
-        .print-content-wrapper {
-            margin-top: 80px; 
+        .name-label { font-size: 13pt; font-weight: 900; white-space: nowrap; }
+        .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
+        
+        .set-name-center { 
+            font-weight: 900; font-size: 11pt; 
+            position: absolute; left: 50%; transform: translateX(-50%); 
         }
 
-        .print-phrase-block { 
-            margin-bottom: 30px; 
-            page-break-inside: avoid; 
-            position: relative;
-        }
+        .date-label { font-size: 11pt; font-weight: 700; white-space: nowrap; }
+
+        .print-content-wrapper { margin-top: 70px; }
+
+        .print-phrase-block { margin-bottom: 30px; page-break-inside: avoid; position: relative; }
 
         .print-phrase-text { 
-            font-size: 20pt; 
-            font-weight: 700; 
-            margin-bottom: 8px; 
-            color: black; 
-            text-align: left; 
-            display: block;
+            font-size: 20pt; font-weight: 700; margin-bottom: 8px; 
+            color: black; text-align: left; display: block;
         }
         
         .calligraphy-row {
-            height: 44px;
-            width: 100%;
-            margin-bottom: 8px;
-            border-bottom: 2px solid black; 
-            border-top: 1px solid #aaa;    
+            height: 44px; width: 100%; margin-bottom: 10px;
+            border-bottom: 2px solid black; border-top: 1px solid #aaa;
             background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
-            background-position: center;   
-            background-size: 10px 1px;
-            background-repeat: repeat-x;
-            position: relative;
+            background-position: center; background-size: 10px 1px;
+            background-repeat: repeat-x; position: relative;
         }
 
-        .cute-decoration {
-            position: absolute;
-            top: -10px;
-            right: 0;
-            font-size: 22pt;
-        }
+        .cute-decoration { position: absolute; top: -10px; right: 0; font-size: 22pt; }
     }
        
    </style>
@@ -854,6 +827,8 @@
 
         // Play Loop
         let loopMode = false;              // Whether loop is enabled
+
+        let isPrinting = false; // Add this at the very top of your <script>
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -2787,32 +2762,34 @@ async function translateOne(p) {
         }
 
 function runPrintLogic(words) {
+    if (isPrinting) return; // If already processing a print, ignore extra clicks
+    
     const textToPrint = words || document.getElementById('hwInput').value.trim();
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
         return; 
     }
 
-    // 1. Get or Create the print area (Don't delete it, just reuse it)
+    isPrinting = true; // Lock the button
+
+    // 1. Prepare Print Area (as we did before)
     let printArea = document.getElementById('printArea');
     if (!printArea) {
         printArea = document.createElement('div');
         printArea.id = 'printArea';
         document.body.appendChild(printArea);
     }
-    
-    // 2. Prepare content
+    printArea.innerHTML = ''; 
+
     const today = new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', month: 'short', year: 'numeric' 
     });
 
     let html = `
         <div class="print-header-repeat">
-            <div class="name-line">Nom:<span class="name-underline"></span></div>
-            <div style="font-weight:900; font-size:11pt; position:absolute; left:50%; transform:translateX(-50%); bottom:5px;">
-                ${currentSetName || "Français"} Practice
-            </div>
-            <div class="date-box">Date: ${today}</div>
+            <div class="name-label">Nom:<span class="name-underline"></span></div>
+            <div class="set-name-center">${currentSetName || "Français"} Practice</div>
+            <div class="date-label">Date: ${today}</div>
         </div>
         <div class="print-content-wrapper">
     `;
@@ -2822,10 +2799,9 @@ function runPrintLogic(words) {
 
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
-        const icon = icons[index % icons.length];
         html += `
             <div class="print-phrase-block">
-                <div class="cute-decoration">${icon}</div>
+                <div class="cute-decoration">${icons[index % icons.length]}</div>
                 <div class="print-phrase-text">${cleanPhrase}</div>
                 <div class="calligraphy-row"></div>
                 <div class="calligraphy-row"></div>
@@ -2835,11 +2811,18 @@ function runPrintLogic(words) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    // 3. TRIGGER PRINT IMMEDIATELY
-    // Shortening the delay helps the phone recognize this is still part of the user's click.
+    // 2. THE FIX: Try to cancel any pending browser states before printing
+    window.stop(); 
+
     setTimeout(() => {
         window.print();
-    }, 250); 
+        
+        // 3. THE UNLOCK: Wait 2 seconds before allowing another print click
+        // This gives the phone time to open the dialog safely.
+        setTimeout(() => {
+            isPrinting = false;
+        }, 2000);
+    }, 300);
 }
         
         function shareApp() { 
@@ -2874,12 +2857,3 @@ function runPrintLogic(words) {
         
 </body>
 </html>
-
-
-
-
-
-
-
-
-
