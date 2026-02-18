@@ -459,19 +459,23 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
-   @media print {
-    /* 1. THE HEADER KILLER: Direct instructions to the printer */
-    @page { 
+  @media print {
+    /* 1. THE HEADER KILLER - Enhanced version */
+    @page {
         margin: 1.5cm;
         size: auto;
         
-        /* Suppress Chrome/Safari default headers/footers */
-        @top-center { content: none !important; display: none !important; }
-        @top-left { content: none !important; display: none !important; }
-        @top-right { content: none !important; display: none !important; }
-        @bottom-center { content: none !important; display: none !important; }
-        @bottom-left { content: none !important; display: none !important; }
-        @bottom-right { content: none !important; display: none !important; }
+        /* Remove browser-generated content */
+        @top-left { content: none !important; }
+        @top-center { content: none !important; }
+        @top-right { content: none !important; }
+        @bottom-left { content: none !important; }
+        @bottom-center { content: none !important; }
+        @bottom-right { content: none !important; }
+        
+        /* Additional rules for some browsers */
+        marks: none !important;
+        bleed: 0 !important;
     }
     
     /* Force margins on all pages */
@@ -479,6 +483,7 @@
     @page :left { margin: 1.5cm; }
     @page :right { margin: 1.5cm; }
     
+    /* Hide ALL browser print extras */
     html, body { 
         background: white !important; 
         margin: 0 !important; 
@@ -486,19 +491,24 @@
         height: auto;
     }
 
-    /* 2. Hide the App UI completely */
+    /* 2. Hide the App UI completely - including everything */
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
-    .nav-item, .overlay-content {
+    .nav-item, .overlay-content, #hwDrawer, #bpModal,
+    #parentDrawer, #gameDrawer, #presetsOverlay,
+    #iconPickerOverlay, #photoCropperOverlay,
+    #printSelectionOverlay {
         display: none !important; 
     }
 
-    /* 3. The Print Layout */
+    /* 3. The Print Layout - ensure it's the only visible thing */
     #printArea { 
         display: block !important; 
         background: white !important;
         width: 100%;
         box-sizing: border-box;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .print-header-simple {
@@ -2902,11 +2912,12 @@ function runPrintLogic(words, isCursive = false) {
     });
 
     printArea.innerHTML = html;
-    window.stop();
-
+    
     setTimeout(() => {
         window.print();
-        setTimeout(() => { isPrinting = false; }, 1000);
+        setTimeout(() => { 
+            isPrinting = false; 
+        }, 1000);
     }, 400);
 }
         
@@ -2940,6 +2951,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
