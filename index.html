@@ -479,7 +479,27 @@
     .pop-animation {
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-
+       
+    .snail-corner {
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    
+    .snail-corner:active {
+        transform: scale(1.2);
+        background-color: #ff6b8b !important;
+    }
+    
+    /* Optional: Add a subtle pulse effect */
+    @keyframes snailPulse {
+        0% { box-shadow: 0 2px 5px rgba(91, 192, 222, 0.3); }
+        50% { box-shadow: 0 4px 10px rgba(91, 192, 222, 0.6); }
+        100% { box-shadow: 0 2px 5px rgba(91, 192, 222, 0.3); }
+    }
+    
+    .snail-corner {
+        animation: snailPulse 2s infinite ease-in-out;
+    }
+       
     /* Container for the print-only content */
     #printArea { display: none; }
     
@@ -1270,27 +1290,26 @@ function renderList(list) {
             const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
             line.className = `dialogue-line ${sideClass}`;
             line.id = `line-${index}`;
-            const cleanText = p.split('|')[0].trim();
             
-            // Layout for the line to include a tiny snail
-            line.style.display = "flex";
-            line.style.justifyContent = "space-between";
-            line.style.alignItems = "center";
+            // Position relative for absolute positioning of snail
+            line.style.position = 'relative';
+            
+            const cleanText = p.split('|')[0].trim();
             
             line.innerHTML = `
                 <span>${cleanText}</span>
-                <span class="snail-btn" style="font-size:1.2rem; padding:5px; cursor:pointer; filter: grayscale(1) opacity(0.5);">🐌</span>
+                <span class="snail-corner" style="position: absolute; top: 5px; right: 10px; font-size: 1.3rem; background: #5bc0de; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; z-index: 5;">🐌</span>
             `;
-
+        
             // Main click = normal speed
             line.onclick = () => spk(cleanText, 'fr-FR', true);
             
-            // Snail click = 0.2 speed
-            line.querySelector('.snail-btn').onclick = (e) => {
+            // Snail click = slow speed
+            line.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
                 spk(cleanText, 'fr-FR', true, 0.2);
             };
-
+        
             diagCard.appendChild(line);
         });
         container.appendChild(diagCard);
@@ -1306,9 +1325,11 @@ function renderList(list) {
 
             // Update the HTML to include the Snail button in the grid
             const buttonHTML = `
-                <div class="card-btns">
-                    <button class="card-btn spk-snail" style="background:#5bc0de; font-size:1.4rem; padding:10px 0;">🐌</button>
-                    <button class="card-btn spk-fr">🎤 French</button>
+                <div class="card-btns" style="grid-template-columns: 1fr 1fr; position: relative;">
+                    <button class="card-btn spk-fr" style="position: relative; overflow: visible;">
+                        🎤 French
+                        <span class="snail-corner" style="position: absolute; top: -5px; right: -5px; font-size: 1.4rem; background: #5bc0de; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">🐌</span>
+                    </button>
                     <button class="card-btn spk-en">🎯 English</button>
                 </div>
             `;
@@ -1333,9 +1354,17 @@ function renderList(list) {
                 `;
             }
 
-            // Logic for the 3 buttons
-            card.querySelector('.spk-snail').onclick = () => spk(p, 'fr-FR', true, 0.2); // Force 0.2 speed
-            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true); // Use slider speed
+            // French button (normal speed)
+            card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
+            
+            // Snail corner (slow speed)
+            card.querySelector('.snail-corner').onclick = (e) => {
+                e.stopPropagation();
+                spk(p, 'fr-FR', true, 0.2);
+            };
+            
+            // English button (normal speed)
+            card.querySelector('.spk-en').onclick = () => spk(data.en, 'en-US', true);
             
             const tB = card.querySelector('.spk-en');
             tB.onclick = () => spk(data.en, 'en-US', true);
@@ -3020,6 +3049,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
