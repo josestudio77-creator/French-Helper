@@ -459,101 +459,95 @@
     #printArea { display: none; }
     
     @media print {
+        /* 1. Kill Browser Headers/Footers and App Background */
+        @page { 
+            margin: 0.5in; /* Sets a standard paper margin */
+        }
+
         html, body { 
             background: white !important; 
             margin: 0 !important; 
-            padding: 0 !important; 
+            padding: 0 !important;
+            height: auto !important;
             -webkit-print-color-adjust: exact !important; 
             print-color-adjust: exact !important; 
         }
-    
-        body * { visibility: hidden; }
-        #printArea, #printArea * { visibility: visible; }
+
+        /* 2. Truly remove the app UI so it doesn't create extra blank pages */
+        body > *:not(#printArea) { 
+            display: none !important; 
+        }
         
         #printArea { 
             display: block !important; 
-            position: absolute; 
-            left: 0; top: 0; width: 100%; 
-            padding: 20px 40px;
+            position: relative; 
+            width: 100%; 
             background: white !important;
         }
-    
-        /* THE REPEATING HEADER: Name: _________ Date: _______ */
+
+        /* 3. The Repeating Header */
+        .print-header-repeat {
+            position: running(header); /* Technical standard for repeating */
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid black;
+            background: white !important;
+            margin-bottom: 30px;
+            padding-bottom: 5px;
+        }
+
+        /* For standard browsers, position fixed works if display:none is used on body */
         .print-header-repeat {
             position: fixed;
             top: 0;
-            left: 40px;
-            right: 40px;
-            height: 60px; /* Increased height for better spacing */
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end; /* Sits elements on the bottom of the header area */
-            border-bottom: 2px solid black;
-            background: white !important;
-            z-index: 9999;
-            padding-bottom: 10px;
+            left: 0;
+            right: 0;
         }
-    
-        .name-line {
-            font-size: 14pt;
-            font-weight: 900;
-            flex-grow: 1; /* Allows the line to stretch */
-            text-align: left;
-        }
-    
-        .name-underline {
-            display: inline-block;
-            width: 250px; /* Specific length for the name line */
-            border-bottom: 1.5px solid black;
-            margin-left: 5px;
-        }
-    
-        .date-box {
-            font-size: 12pt;
-            font-weight: 700;
-            margin-left: 20px;
-            white-space: nowrap;
-        }
-    
-        /* Extra space between header and first phrase */
+
+        .name-line { font-size: 13pt; font-weight: 900; text-align: left; }
+        .name-underline { display: inline-block; width: 220px; border-bottom: 1.5px solid black; margin-left: 5px; height: 13pt; }
+        .date-box { font-size: 11pt; font-weight: 700; white-space: nowrap; }
+
         .print-content-wrapper {
-            margin-top: 50px; 
+            margin-top: 70px; /* Gap after the fixed header */
         }
-    
+
         .print-phrase-block { 
-            margin-bottom: 15px; /* Adjusted to fit exactly 5 phrases per page */
+            margin-bottom: 25px; 
             page-break-inside: avoid; 
             position: relative;
         }
-    
+
         .print-phrase-text { 
-            font-size: 22pt; 
+            font-size: 20pt; 
             font-weight: 700; 
-            margin-bottom: 12px; 
+            margin-bottom: 8px; 
             color: black; 
-            text-align: left; /* Left justified as requested */
-            width: 100%;
+            text-align: left; 
             display: block;
         }
         
         .calligraphy-row {
-            height: 44px;
+            height: 40px;
             width: 100%;
-            margin-bottom: 10px;
-            border-bottom: 2px solid black; /* Baseline */
-            border-top: 1px solid #aaa;    /* Topline */
+            margin-bottom: 8px;
+            border-bottom: 2px solid black; 
+            border-top: 1px solid #aaa;    
             background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
-            background-position: center;   /* Midline */
+            background-position: center;   
             background-size: 10px 1px;
             background-repeat: repeat-x;
+            position: relative;
         }
-    
+
         .cute-decoration {
             position: absolute;
-            top: -5px;
+            top: -10px;
             right: 0;
-            font-size: 25pt;
-            opacity: 0.8;
+            font-size: 22pt;
         }
     }
        
@@ -2788,62 +2782,55 @@ async function translateOne(p) {
             }, speechDuration + userGap);
         }
 
-        function runPrintLogic(words) {
-            const textToPrint = words || document.getElementById('hwInput').value.trim();
-            
-            if (!textToPrint) {
-                alert("Please enter some phrases first!");
-                return;
-            }
-        
-            let printArea = document.getElementById('printArea');
-            if (!printArea) {
-                printArea = document.createElement('div');
-                printArea.id = 'printArea';
-                document.body.appendChild(printArea);
-            }
-        
-            // Prepare Date
-            const today = new Date().toLocaleDateString('en-GB', { 
-                day: 'numeric', month: 'short', year: 'numeric' 
-            });
-        
-            // Build HTML Header
-            let html = `
-                <div class="print-header-repeat">
-                    <div class="name-line">Nom:<span class="name-underline"></span></div>
-                    <div style="font-weight:900; font-size:12pt; position:absolute; left:50%; transform:translateX(-50%); bottom:10px;">
-                        ${currentSetName || "Français"}
-                    </div>
-                    <div class="date-box">Date: ${today}</div>
-                </div>
-                <div class="print-content-wrapper">
-            `;
-        
-            const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
-            const cuteIcons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
-        
-            phrases.forEach((phrase, index) => {
-                const cleanPhrase = phrase.split('|')[0].trim();
-                const icon = cuteIcons[index % cuteIcons.length];
-                
-                html += `
-                    <div class="print-phrase-block">
-                        <div class="cute-decoration">${icon}</div>
-                        <div class="print-phrase-text">${cleanPhrase}</div>
-                        <div class="calligraphy-row"></div>
-                        <div class="calligraphy-row"></div>
-                    </div>
-                `;
-            });
-        
-            html += `</div>`; 
-            printArea.innerHTML = html;
-            
-            setTimeout(() => {
-                window.print();
-            }, 300);
-        }
+ function runPrintLogic(words) {
+    const textToPrint = words || document.getElementById('hwInput').value.trim();
+    if (!textToPrint) { alert("Please enter some phrases first!"); return; }
+
+    let printArea = document.getElementById('printArea');
+    if (!printArea) {
+        printArea = document.createElement('div');
+        printArea.id = 'printArea';
+        document.body.appendChild(printArea);
+    }
+    
+    // IMPORTANT: Clear the print area before building new content
+    printArea.innerHTML = ''; 
+
+    const today = new Date().toLocaleDateString('en-GB', { 
+        day: 'numeric', month: 'short', year: 'numeric' 
+    });
+
+    let html = `
+        <div class="print-header-repeat">
+            <div class="name-line">Nom:<span class="name-underline"></span></div>
+            <div style="font-weight:900; font-size:11pt; position:absolute; left:50%; transform:translateX(-50%); bottom:5px;">
+                ${currentSetName || "Français"} Practice
+            </div>
+            <div class="date-box">Date: ${today}</div>
+        </div>
+        <div class="print-content-wrapper">
+    `;
+
+    const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
+    const cuteIcons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
+
+    phrases.forEach((phrase, index) => {
+        const cleanPhrase = phrase.split('|')[0].trim();
+        const icon = cuteIcons[index % cuteIcons.length];
+        html += `
+            <div class="print-phrase-block">
+                <div class="cute-decoration">${icon}</div>
+                <div class="print-phrase-text">${cleanPhrase}</div>
+                <div class="calligraphy-row"></div>
+                <div class="calligraphy-row"></div>
+            </div>`;
+    });
+
+    html += `</div>`; 
+    printArea.innerHTML = html;
+    
+    setTimeout(() => { window.print(); }, 300);
+}
         
         function shareApp() { 
             if (navigator.share) { 
@@ -2877,6 +2864,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
