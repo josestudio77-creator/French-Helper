@@ -459,11 +459,18 @@
     #printArea { display: none; }
     
     @media print {
-        @page { margin: 0; }
+        @page { 
+            margin: 0; 
+            size: auto; 
+        }
+        
         html, body { 
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
+            /* This tells the browser NOT to reserve space for the app */
+            height: auto !important; 
+            overflow: visible !important;
             visibility: hidden;
         }
 
@@ -472,13 +479,14 @@
             display: block !important; 
             position: absolute; 
             top: 0; left: 0; width: 100%; 
-            padding: 1.2cm 1.5cm; /* Nice margins */
+            padding: 1.2cm 1.5cm; 
             background: white !important;
+            /* Prevents height issues */
+            height: auto !important; 
         }
 
         #printArea * { visibility: visible !important; }
 
-        /* THE REPEATING HEADER */
         .print-header-repeat {
             position: fixed;
             top: 0.4cm; 
@@ -487,25 +495,30 @@
             height: 50px;
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Vertical center */
+            align-items: center;
             border-bottom: 2px solid black;
             background: white !important;
             z-index: 9999;
         }
 
-        .name-label { font-size: 13pt; font-weight: 900; white-space: nowrap; }
+        .name-label { font-size: 13pt; font-weight: 900; }
         .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
-        
-        .set-name-center { 
-            font-weight: 900; font-size: 11pt; 
-            position: absolute; left: 50%; transform: translateX(-50%); 
-        }
-
-        .date-label { font-size: 11pt; font-weight: 700; white-space: nowrap; }
+        .set-name-center { font-weight: 900; font-size: 11pt; position: absolute; left: 50%; transform: translateX(-50%); }
+        .date-label { font-size: 11pt; font-weight: 700; }
 
         .print-content-wrapper { margin-top: 70px; }
 
-        .print-phrase-block { margin-bottom: 30px; page-break-inside: avoid; position: relative; }
+        .print-phrase-block { 
+            margin-bottom: 30px; 
+            page-break-inside: avoid; 
+            position: relative; 
+        }
+
+        /* THE FIX: Remove margin from the last phrase so it doesn't trigger a new page */
+        .print-phrase-block:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
 
         .print-phrase-text { 
             font-size: 20pt; font-weight: 700; margin-bottom: 8px; 
@@ -2764,7 +2777,10 @@ async function translateOne(p) {
 function runPrintLogic(words) {
     if (isPrinting) return; // If already processing a print, ignore extra clicks
     
-    const textToPrint = words || document.getElementById('hwInput').value.trim();
+    // THE FIX: We wrap the whole thing in parentheses and then .trim() 
+    // This ensures words from the Backpack get trimmed too!
+    const textToPrint = (words || document.getElementById('hwInput').value).trim();
+    
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
         return; 
@@ -2857,3 +2873,4 @@ function runPrintLogic(words) {
         
 </body>
 </html>
+
