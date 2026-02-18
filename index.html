@@ -459,19 +459,22 @@
     /* Container for the print-only content */
     #printArea { display: none; }
     
-    @media print {
+   @media print {
+    /* 1. THE HEADER KILLER: Direct instructions to the printer */
     @page { 
         margin: 1.5cm;
         size: auto;
         
-        /* Advanced rules to suppress browser default headers/footers */
+        /* Suppress Chrome/Safari default headers/footers */
         @top-center { content: none !important; display: none !important; }
-        @top-left { content: none !important; }
-        @top-right { content: none !important; }
+        @top-left { content: none !important; display: none !important; }
+        @top-right { content: none !important; display: none !important; }
         @bottom-center { content: none !important; display: none !important; }
+        @bottom-left { content: none !important; display: none !important; }
+        @bottom-right { content: none !important; display: none !important; }
     }
     
-    /* Forces margins on extra pages */
+    /* Force margins on all pages */
     @page :first { margin-top: 1.5cm; }
     @page :left { margin: 1.5cm; }
     @page :right { margin: 1.5cm; }
@@ -483,13 +486,14 @@
         height: auto;
     }
 
-    /* Total suppression of App UI */
+    /* 2. Hide the App UI completely */
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
     .nav-item, .overlay-content {
         display: none !important; 
     }
 
+    /* 3. The Print Layout */
     #printArea { 
         display: block !important; 
         background: white !important;
@@ -497,7 +501,6 @@
         box-sizing: border-box;
     }
 
-    /* Page Header (Nom / Name / Date) */
     .print-header-simple {
         width: 100%;
         border-bottom: 2px solid black;
@@ -505,17 +508,16 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 10px;
-        margin-bottom: 25px; /* Space before first phrase */
+        margin-bottom: 25px;
     }
 
     .name-label { font-size: 13pt; font-weight: 900; }
-    .name-underline { border-bottom: 1.5px solid black; width: 220px; display: inline-block; margin-left: 5px; height: 14pt; }
+    .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
     .set-name-center { font-weight: 900; font-size: 11pt; }
     .date-label { font-size: 11pt; font-weight: 700; }
 
-    /* THE ROUNDED RECTANGLE BOX */
     .print-phrase-block { 
-        margin-bottom: 18px; /* Spacing between boxes */
+        margin-bottom: 18px; 
         padding: 12px 18px;
         border: 2px solid #a3e4d7; 
         border-radius: 20px;       
@@ -526,7 +528,7 @@
         -webkit-print-color-adjust: exact !important;
     }
 
-    /* The "Ghost Page" Killer */
+    /* Ghost Page Killer */
     .print-phrase-block:last-child {
         margin-bottom: 0 !important;
     }
@@ -540,8 +542,17 @@
         display: block;
         padding-right: 40px; 
     }
+
+    /* 4. CURSIVE STYLE */
+    .cursive-font {
+        font-family: 'Dancing Script', cursive !important;
+        font-size: 26pt !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px;
+        line-height: 1.2;
+    }
     
-    /* Writing lines with TAIL ROOM (Descenders) */
+    /* Writing guidelines with TAIL ROOM */
     .calligraphy-row {
         height: 38px;
         width: 100%; 
@@ -551,7 +562,6 @@
         position: relative;
     }
 
-    /* The Midline (Dashed) - CorelDraw Friendly */
     .calligraphy-row::after {
         content: "";
         position: absolute;
@@ -562,7 +572,6 @@
         height: 0;
     }
 
-    /* No extra tail room needed for the very last line in the box */
     .calligraphy-row:last-child {
         margin-bottom: 5px; 
     }
@@ -573,13 +582,6 @@
         right: 15px;
         font-size: 20pt; 
     }
-
-    .cursive-font {
-        font-family: 'Dancing Script', cursive !important;
-        font-size: 26pt !important; /* Cursive often needs to be slightly larger to see the loops */
-        font-weight: 700 !important;
-        letter-spacing: 1px;
-}
 }
        
    </style>
@@ -2938,6 +2940,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
