@@ -459,64 +459,61 @@
     #printArea { display: none; }
     
     @media print {
-        /* 1. Kill Browser Headers/Footers and App Background */
+        /* 1. Remove Chrome's automatic URL/Date headers/footers */
         @page { 
-            margin: 0.5in; /* Sets a standard paper margin */
+            margin: 0; 
         }
 
         html, body { 
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
-            height: auto !important;
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important; 
+            width: 100%;
         }
 
-        /* 2. Truly remove the app UI so it doesn't create extra blank pages */
-        body > *:not(#printArea) { 
+        /* 2. Explicitly hide the App UI and all pop-ups */
+        .container, .overlay, .bottom-nav, .header, .bottom-nav, button { 
             display: none !important; 
         }
         
+        /* 3. Prepare the Print Area */
         #printArea { 
             display: block !important; 
-            position: relative; 
-            width: 100%; 
+            visibility: visible !important;
+            padding: 1.5cm; /* Adds the margin back manually since we set @page to 0 */
             background: white !important;
+            width: 100%;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
-        /* 3. The Repeating Header */
+        /* 4. The Repeating Header */
         .print-header-repeat {
-            position: running(header); /* Technical standard for repeating */
-            width: 100%;
-            height: 50px;
+            position: fixed;
+            top: 0.5cm; /* Positioned inside our manual padding */
+            left: 1.5cm;
+            right: 1.5cm;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             border-bottom: 2px solid black;
             background: white !important;
-            margin-bottom: 30px;
+            z-index: 9999;
             padding-bottom: 5px;
         }
 
-        /* For standard browsers, position fixed works if display:none is used on body */
-        .print-header-repeat {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-        }
-
-        .name-line { font-size: 13pt; font-weight: 900; text-align: left; }
+        .name-line { font-size: 13pt; font-weight: 900; }
         .name-underline { display: inline-block; width: 220px; border-bottom: 1.5px solid black; margin-left: 5px; height: 13pt; }
         .date-box { font-size: 11pt; font-weight: 700; white-space: nowrap; }
 
+        /* Content spacing */
         .print-content-wrapper {
-            margin-top: 70px; /* Gap after the fixed header */
+            margin-top: 80px; 
         }
 
         .print-phrase-block { 
-            margin-bottom: 25px; 
+            margin-bottom: 30px; 
             page-break-inside: avoid; 
             position: relative;
         }
@@ -531,7 +528,7 @@
         }
         
         .calligraphy-row {
-            height: 40px;
+            height: 44px;
             width: 100%;
             margin-bottom: 8px;
             border-bottom: 2px solid black; 
@@ -2784,7 +2781,10 @@ async function translateOne(p) {
 
  function runPrintLogic(words) {
     const textToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!textToPrint) { alert("Please enter some phrases first!"); return; }
+    if (!textToPrint) { 
+        alert("Please enter some phrases first!"); 
+        return; 
+    }
 
     let printArea = document.getElementById('printArea');
     if (!printArea) {
@@ -2793,7 +2793,7 @@ async function translateOne(p) {
         document.body.appendChild(printArea);
     }
     
-    // IMPORTANT: Clear the print area before building new content
+    // Clear everything first!
     printArea.innerHTML = ''; 
 
     const today = new Date().toLocaleDateString('en-GB', { 
@@ -2812,11 +2812,11 @@ async function translateOne(p) {
     `;
 
     const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
-    const cuteIcons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
+    const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
 
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
-        const icon = cuteIcons[index % cuteIcons.length];
+        const icon = icons[index % icons.length];
         html += `
             <div class="print-phrase-block">
                 <div class="cute-decoration">${icon}</div>
@@ -2829,7 +2829,10 @@ async function translateOne(p) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    setTimeout(() => { window.print(); }, 300);
+    // DELAY: Give the browser time to render the new HTML before showing the print dialog
+    setTimeout(() => {
+        window.print();
+    }, 500);
 }
         
         function shareApp() { 
@@ -2864,6 +2867,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
