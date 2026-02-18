@@ -459,23 +459,22 @@
     #printArea { display: none; }
     
     @media print {
-        /* 1. Kills Chrome URL/Date headers */
-        @page { 
-            margin: 0; 
-        }
+        @page { margin: 0; }
         
         html, body { 
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
         }
 
-        /* 2. Hide everything in the app UI */
+        /* Hide the App UI */
         .container, .overlay, .bottom-nav, .header, button { 
             display: none !important; 
         }
 
-        /* 3. The Print Area: No absolute/fixed positioning */
+        /* The Print Area */
         #printArea { 
             display: block !important; 
             padding: 1cm 1.5cm;
@@ -483,7 +482,7 @@
             width: 100%;
         }
 
-        /* 4. The Header: Normal flow, Page 1 only */
+        /* Header (Nom / Name / Date) */
         .print-header-simple {
             width: 100%;
             border-bottom: 2px solid black;
@@ -491,7 +490,7 @@
             justify-content: space-between;
             align-items: center;
             padding-bottom: 10px;
-            margin-bottom: 40px; /* Space before first phrase */
+            margin-bottom: 25px;
         }
 
         .name-label { font-size: 14pt; font-weight: 900; }
@@ -499,30 +498,62 @@
         .set-name-center { font-weight: 900; font-size: 12pt; }
         .date-label { font-size: 12pt; font-weight: 700; }
 
+        /* THE ROUNDED RECTANGLE BOX */
         .print-phrase-block { 
-            margin-bottom: 30px; 
+            margin-bottom: 20px; 
+            padding: 15px 20px;
+            border: 3px solid #a3e4d7; /* Matches your app card color */
+            border-radius: 25px;       /* Nice rounded corners */
             page-break-inside: avoid; 
+            position: relative;
+            background: white !important;
         }
 
-        /* The Ultimate Blank Page Killer */
         .print-phrase-block:last-child {
             margin-bottom: 0 !important;
         }
 
         .print-phrase-text { 
-            font-size: 22pt; font-weight: 700; margin-bottom: 10px; 
-            color: black; text-align: left; display: block;
+            font-size: 20pt; 
+            font-weight: 900; /* Bold like the app buttons */
+            margin-bottom: 12px; 
+            color: #2d3748; 
+            text-align: left; 
+            display: block;
+            padding-right: 40px; /* Leave room for icon */
         }
         
+        /* THE 3-LINE SYSTEM (Corel-Friendly Version) */
         .calligraphy-row {
-            height: 44px; width: 100%; margin-bottom: 10px;
-            border-bottom: 2px solid black; border-top: 1px solid #aaa;
-            background-image: linear-gradient(to right, #aaa 30%, rgba(255,255,255,0) 0%);
-            background-position: center; background-size: 10px 1px;
-            background-repeat: repeat-x;
+            height: 42px; 
+            width: 100%; 
+            margin-bottom: 10px;
+            border-bottom: 2px solid black; /* Baseline */
+            border-top: 1px solid #aaa;    /* Top Line */
+            position: relative;
         }
 
-        .cute-decoration { float: right; font-size: 25pt; margin-top: -5px; }
+        /* The Midline (Dashed line) - Cleaner for Vector Import */
+        .calligraphy-row::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            border-top: 1.5px dashed #888;
+            height: 0;
+        }
+
+        .calligraphy-row:last-child {
+            margin-bottom: 0; /* Tighten bottom of box */
+        }
+
+        .cute-decoration { 
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 22pt; 
+        }
     }
        
    </style>
@@ -2768,7 +2799,6 @@ async function translateOne(p) {
 function runPrintLogic(words) {
     if (isPrinting) return;
     
-    // Clean the input to ensure no trailing empty lines
     const textToPrint = (words || document.getElementById('hwInput').value).trim();
     if (!textToPrint) { 
         alert("Please enter some phrases first!"); 
@@ -2781,7 +2811,7 @@ function runPrintLogic(words) {
     if (!printArea) {
         printArea = document.createElement('div');
         printArea.id = 'printArea';
-        document.body.prepend(printArea); // Place it at the very top of the body
+        document.body.prepend(printArea);
     }
     printArea.innerHTML = ''; 
 
@@ -2789,7 +2819,6 @@ function runPrintLogic(words) {
         day: 'numeric', month: 'short', year: 'numeric' 
     });
 
-    // Build simple Page 1 Header
     let html = `
         <div class="print-header-simple">
             <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -2814,17 +2843,10 @@ function runPrintLogic(words) {
 
     printArea.innerHTML = html;
     
-    // Reset the browser state
-    window.stop();
-
     setTimeout(() => {
         window.print();
-        
-        // Final cleanup
-        setTimeout(() => {
-            isPrinting = false;
-        }, 1000);
-    }, 400);
+        isPrinting = false;
+    }, 500);
 }
         
         function shareApp() { 
@@ -2857,6 +2879,7 @@ function runPrintLogic(words) {
         
 </body>
 </html>
+
 
 
 
