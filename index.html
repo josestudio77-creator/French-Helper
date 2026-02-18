@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     
     <!-- Cropper.js for photo cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -463,30 +464,17 @@
         margin: 1.5cm;
         size: auto;
         
-        /* Suppress browser default headers and footers */
-        @top-center {
-            content: "" !important;
-            display: none !important;
-        }
-        
-        @bottom-center {
-            content: "" !important;
-            display: none !important;
-        }
+        /* Advanced rules to suppress browser default headers/footers */
+        @top-center { content: none !important; display: none !important; }
+        @top-left { content: none !important; }
+        @top-right { content: none !important; }
+        @bottom-center { content: none !important; display: none !important; }
     }
     
-    /* Additional rule to hide browser print extras */
-    @page :first {
-        margin-top: 1.5cm;
-    }
-    
-    @page :left {
-        margin: 1.5cm;
-    }
-    
-    @page :right {
-        margin: 1.5cm;
-    }
+    /* Forces margins on extra pages */
+    @page :first { margin-top: 1.5cm; }
+    @page :left { margin: 1.5cm; }
+    @page :right { margin: 1.5cm; }
     
     html, body { 
         background: white !important; 
@@ -495,14 +483,13 @@
         height: auto;
     }
 
-    /* Hide the App UI */
+    /* Total suppression of App UI */
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
-    .bottom-nav, .nav-item, .overlay, .overlay-content {
+    .nav-item, .overlay-content {
         display: none !important; 
     }
 
-    /* The Print Area */
     #printArea { 
         display: block !important; 
         background: white !important;
@@ -510,7 +497,7 @@
         box-sizing: border-box;
     }
 
-    /* Header (Nom / Name / Date) */
+    /* Page Header (Nom / Name / Date) */
     .print-header-simple {
         width: 100%;
         border-bottom: 2px solid black;
@@ -518,48 +505,53 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 10px;
-        margin-bottom: 20px;
-        page-break-after: avoid;
+        margin-bottom: 25px; /* Space before first phrase */
     }
 
     .name-label { font-size: 13pt; font-weight: 900; }
-    .name-underline { border-bottom: 1.5px solid black; width: 200px; display: inline-block; margin-left: 5px; height: 14pt; }
+    .name-underline { border-bottom: 1.5px solid black; width: 220px; display: inline-block; margin-left: 5px; height: 14pt; }
     .set-name-center { font-weight: 900; font-size: 11pt; }
     .date-label { font-size: 11pt; font-weight: 700; }
 
     /* THE ROUNDED RECTANGLE BOX */
     .print-phrase-block { 
-        margin-bottom: 15px; 
+        margin-bottom: 18px; /* Spacing between boxes */
         padding: 12px 18px;
         border: 2px solid #a3e4d7; 
         border-radius: 20px;       
         page-break-inside: avoid; 
+        break-inside: avoid;
         position: relative;
         background: white !important;
         -webkit-print-color-adjust: exact !important;
-        break-inside: avoid;
+    }
+
+    /* The "Ghost Page" Killer */
+    .print-phrase-block:last-child {
+        margin-bottom: 0 !important;
     }
 
     .print-phrase-text { 
         font-size: 18pt;
         font-weight: 900; 
-        margin-bottom: 10px; 
+        margin-bottom: 12px; 
         color: #2d3748; 
         text-align: left; 
         display: block;
         padding-right: 40px; 
     }
     
+    /* Writing lines with TAIL ROOM (Descenders) */
     .calligraphy-row {
         height: 38px;
         width: 100%; 
-        margin-bottom: 22px;
+        margin-bottom: 25px; /* Gap for tails of letters like p, y, g, j */
         border-bottom: 2px solid black; 
         border-top: 1px solid #aaa;    
         position: relative;
     }
 
-    /* The Midline (Dashed) */
+    /* The Midline (Dashed) - CorelDraw Friendly */
     .calligraphy-row::after {
         content: "";
         position: absolute;
@@ -570,7 +562,7 @@
         height: 0;
     }
 
-    /* Remove extra space from the very last line in a box */
+    /* No extra tail room needed for the very last line in the box */
     .calligraphy-row:last-child {
         margin-bottom: 5px; 
     }
@@ -582,15 +574,33 @@
         font-size: 20pt; 
     }
 
-    /* Ensure first element after page break has proper spacing */
-    .print-phrase-block:first-of-type {
-        margin-top: 0;
-    }
+    .cursive-font {
+        font-family: 'Dancing Script', cursive !important;
+        font-size: 26pt !important; /* Cursive often needs to be slightly larger to see the loops */
+        font-weight: 700 !important;
+        letter-spacing: 1px;
+}
 }
        
    </style>
 </head>
 <body>
+
+    <!-- Font Selection Popup -->
+    <div id="printSelectionOverlay" class="overlay" style="z-index: 5000;">
+        <div class="overlay-content" style="height: auto; margin-top: 20vh; padding: 30px;">
+            <h2 style="color: #9d4edd; margin-bottom: 20px;">✍️ Choose Writing Style</h2>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 1.2rem; border: none; cursor: pointer;">
+                    ABC Block Letters
+                </button>
+                <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 1.2rem; border: none; cursor: pointer; font-family: 'Dancing Script', cursive;">
+                    Cursive Writing
+                </button>
+            </div>
+            <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 20px; background: #eee; color: #666; padding: 10px; width: 100%; border-radius: 10px; border: none; font-weight: bold;">Cancel</button>
+        </div>
+    </div>
 
     <div id="printArea"></div>
     
@@ -700,7 +710,7 @@
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
-                <button onclick="runPrintLogic()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
+                <button onclick="openPrintSelection()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
                 <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
@@ -896,6 +906,7 @@
         let loopMode = false;              // Whether loop is enabled
 
         let isPrinting = false; // Add this at the very top of your <script>
+        let tempWordsToPrint = "";
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -2501,7 +2512,7 @@ async function translateOne(p) {
                 
                 // 🖨️ Print (NEW)
                 buttons[2].onclick = () => {
-                    runPrintLogic(hwData.words);
+                    openPrintSelection(hwData.words);
                 };
                 
                 // 📤 Share
@@ -2828,23 +2839,35 @@ async function translateOne(p) {
             }, speechDuration + userGap);
         }
 
-function runPrintLogic(words) {
-    if (isPrinting) return;
+// This is the NEW function the buttons will call
+function openPrintSelection(words) {
+    // Capture words from backpack or the text input
+    tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
     
-    const textToPrint = (words || document.getElementById('hwInput').value).trim();
-    if (!textToPrint) { 
-        alert("Please enter some phrases first!"); 
-        return; 
+    if (!tempWordsToPrint) {
+        alert("Please enter some phrases first!");
+        return;
     }
+    
+    openOverlay('printSelectionOverlay');
+}
 
+// This handles the choice from the popup
+function handlePrintChoice(choice) {
+    closeOverlay('printSelectionOverlay');
+    runPrintLogic(tempWordsToPrint, choice === 'cursive');
+}
+
+// The core engine (updated to accept the cursive boolean)
+function runPrintLogic(words, isCursive = false) {
+    if (isPrinting) return;
     isPrinting = true;
 
     let printArea = document.getElementById('printArea');
     if (!printArea) {
         printArea = document.createElement('div');
         printArea.id = 'printArea';
-        // Use append instead of prepend for more stable multi-page layout
-        document.body.appendChild(printArea);
+        document.body.prepend(printArea);
     }
     printArea.innerHTML = ''; 
 
@@ -2860,26 +2883,29 @@ function runPrintLogic(words) {
         </div>
     `;
 
-    const phrases = textToPrint.split('\n').filter(p => p.trim() !== "");
+    const phrases = words.split('\n').filter(p => p.trim() !== "");
     const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
 
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
+        const fontClass = isCursive ? 'cursive-font' : '';
+        
         html += `
             <div class="print-phrase-block">
                 <span class="cute-decoration">${icons[index % icons.length]}</span>
-                <div class="print-phrase-text">${cleanPhrase}</div>
+                <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
                 <div class="calligraphy-row"></div>
                 <div class="calligraphy-row"></div>
             </div>`;
     });
 
     printArea.innerHTML = html;
-    
+    window.stop();
+
     setTimeout(() => {
         window.print();
-        isPrinting = false;
-    }, 500);
+        setTimeout(() => { isPrinting = false; }, 1000);
+    }, 400);
 }
         
         function shareApp() { 
@@ -2912,6 +2938,7 @@ function runPrintLogic(words) {
         
 </body>
 </html>
+
 
 
 
