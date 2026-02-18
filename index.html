@@ -1669,6 +1669,11 @@ function practiceNow() {
 
 window.onload = () => {
             console.log('App loading...');
+            
+            // FORCE RESET PRINT STATE ON STARTUP
+            const ghostPrint = document.getElementById('printArea');
+            if (ghostPrint) ghostPrint.innerHTML = '';
+    
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
             lastLoadedHomework = raw || '';
@@ -2788,19 +2793,22 @@ async function translateOne(p) {
         return; 
     }
 
-    let printArea = document.getElementById('printArea');
-    if (!printArea) {
-        printArea = document.createElement('div');
-        printArea.id = 'printArea';
-        document.body.appendChild(printArea);
+    // 1. HARD RESET: Delete any existing print area entirely
+    let oldPrintArea = document.getElementById('printArea');
+    if (oldPrintArea) {
+        oldPrintArea.remove();
     }
-    
-    printArea.innerHTML = ''; 
+
+    // 2. CREATE FRESH: Build a brand new print div
+    const printArea = document.createElement('div');
+    printArea.id = 'printArea';
+    document.body.appendChild(printArea);
 
     const today = new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', month: 'short', year: 'numeric' 
     });
 
+    // 3. BUILD CONTENT
     let html = `
         <div class="print-header-repeat">
             <div class="name-line">Nom:<span class="name-underline"></span></div>
@@ -2830,10 +2838,22 @@ async function translateOne(p) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    // Increased delay for desktop rendering
+    // 4. THE WAKE-UP TRICK
+    // We close all overlays before printing. Sometimes the phone won't print 
+    // because it thinks a "modal" (the homework drawer) is in the way.
+    const openOverlays = document.querySelectorAll('.overlay');
+    openOverlays.forEach(o => o.style.display = 'none');
+
+    // 5. EXECUTE with a slightly longer delay
     setTimeout(() => {
         window.print();
-    }, 700);
+        
+        // After printing, if they were in the Backpack, let's reopen it 
+        // so the app doesn't look "broken"
+        if (typeof openBP === "function") {
+            openOverlay('bpModal');
+        }
+    }, 800);
 }
         
         function shareApp() { 
@@ -2868,6 +2888,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
