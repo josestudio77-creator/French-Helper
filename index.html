@@ -585,21 +585,31 @@
 </head>
 <body>
 
-    <!-- Font Selection Popup -->
-    <div id="printSelectionOverlay" class="overlay" style="z-index: 5000;">
-        <div class="overlay-content" style="height: auto; margin-top: 20vh; padding: 30px;">
-            <h2 style="color: #9d4edd; margin-bottom: 20px;">✍️ Choose Writing Style</h2>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
-                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 1.2rem; border: none; cursor: pointer;">
-                    ABC Block Letters
-                </button>
-                <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 20px; border-radius: 15px; font-weight: 900; font-size: 1.2rem; border: none; cursor: pointer; font-family: 'Dancing Script', cursive;">
-                    Cursive Writing
-                </button>
-            </div>
-            <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 20px; background: #eee; color: #666; padding: 10px; width: 100%; border-radius: 10px; border: none; font-weight: bold;">Cancel</button>
+<!-- Font & Repetition Selection Popup -->
+<div id="printSelectionOverlay" class="overlay" style="z-index: 5000;">
+    <div class="overlay-content" style="height: auto; margin-top: 15vh; padding: 30px; border: 5px solid #9d4edd; max-width: 400px; margin-left: auto; margin-right: auto;">
+        <h2 style="color: #9d4edd; margin-bottom: 20px;">🖨️ Print Settings</h2>
+        
+        <!-- Repetition Input Section -->
+        <div style="margin-bottom: 25px; background: #fdf2ff; padding: 15px; border-radius: 15px; border: 2px dashed #9d4edd;">
+            <p style="font-weight: 900; color: #9d4edd; margin-bottom: 10px; font-size: 1rem;">How many lines per phrase?</p>
+            <input type="number" id="repeatCountInput" value="2" min="1" max="10" 
+                   style="width: 80px; padding: 10px; font-size: 1.5rem; text-align: center; border-radius: 10px; border: 3px solid #9d4edd; font-weight: 900; outline: none;">
         </div>
+
+        <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.9rem;">Choose Style:</p>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">
+                ABC Block Letters
+            </button>
+            <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Dancing Script', cursive; box-shadow: 0 4px 0 #d6335c;">
+                Cursive Writing
+            </button>
+        </div>
+        
+        <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 20px; background: #eee; color: #666; padding: 12px; width: 100%; border-radius: 10px; border: none; font-weight: bold; cursor: pointer;">Cancel</button>
     </div>
+</div>
 
     <div id="printArea"></div>
     
@@ -2853,12 +2863,17 @@ function openPrintSelection(words) {
 
 // This handles the choice from the popup
 function handlePrintChoice(choice) {
+    // 1. Get the repetition count from the input
+    const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
+    
     closeOverlay('printSelectionOverlay');
-    runPrintLogic(tempWordsToPrint, choice === 'cursive');
+    
+    // 2. Pass the count to the print logic
+    runPrintLogic(tempWordsToPrint, choice === 'cursive', reps);
 }
 
-// The core engine (updated to accept the cursive boolean)
-function runPrintLogic(words, isCursive = false) {
+// The core engine (updated to accept repetitions)
+function runPrintLogic(words, isCursive = false, repetitions = 2) {
     if (isPrinting) return;
     isPrinting = true;
 
@@ -2889,22 +2904,26 @@ function runPrintLogic(words, isCursive = false) {
         const cleanPhrase = phrase.split('|')[0].trim();
         const fontClass = isCursive ? 'cursive-font' : '';
         
+        // BUILD THE REPETITION LINES
+        let calligraphyRows = "";
+        for (let i = 0; i < repetitions; i++) {
+            calligraphyRows += `<div class="calligraphy-row"></div>`;
+        }
+        
         html += `
             <div class="print-phrase-block">
                 <span class="cute-decoration">${icons[index % icons.length]}</span>
                 <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
-                <div class="calligraphy-row"></div>
-                <div class="calligraphy-row"></div>
+                ${calligraphyRows}
             </div>`;
     });
 
     printArea.innerHTML = html;
-    
+    window.stop();
+
     setTimeout(() => {
         window.print();
-        setTimeout(() => { 
-            isPrinting = false; 
-        }, 1000);
+        setTimeout(() => { isPrinting = false; }, 1000);
     }, 400);
 }
         
@@ -2938,6 +2957,7 @@ function runPrintLogic(words, isCursive = false) {
         
 </body>
 </html>
+
 
 
 
