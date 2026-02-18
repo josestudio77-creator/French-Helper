@@ -459,7 +459,7 @@
     #printArea { display: none; }
     
     @media print {
-        /* 1. Remove Chrome's automatic URL/Date headers/footers */
+        /* 1. Remove automatic URL/Date headers and footers */
         @page { 
             margin: 0; 
         }
@@ -468,29 +468,32 @@
             background: white !important; 
             margin: 0 !important; 
             padding: 0 !important;
-            width: 100%;
+            /* Important: Force visibility to hidden for the container */
+            visibility: hidden;
+            height: 100%;
         }
 
-        /* 2. Explicitly hide the App UI and all pop-ups */
-        .container, .overlay, .bottom-nav, .header, .bottom-nav, button { 
-            display: none !important; 
-        }
-        
-        /* 3. Prepare the Print Area */
+        /* 2. Target the Print Area specifically */
         #printArea { 
-            display: block !important; 
             visibility: visible !important;
-            padding: 1.5cm; /* Adds the margin back manually since we set @page to 0 */
+            display: block !important; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            padding: 1.5cm; /* This creates your page margins */
             background: white !important;
-            width: 100%;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
         }
 
-        /* 4. The Repeating Header */
+        /* Ensure everything inside the print area is visible */
+        #printArea * { 
+            visibility: visible !important; 
+        }
+
+        /* 3. The Repeating Header */
         .print-header-repeat {
             position: fixed;
-            top: 0.5cm; /* Positioned inside our manual padding */
+            top: 0.5cm; 
             left: 1.5cm;
             right: 1.5cm;
             height: 60px;
@@ -507,7 +510,6 @@
         .name-underline { display: inline-block; width: 220px; border-bottom: 1.5px solid black; margin-left: 5px; height: 13pt; }
         .date-box { font-size: 11pt; font-weight: 700; white-space: nowrap; }
 
-        /* Content spacing */
         .print-content-wrapper {
             margin-top: 80px; 
         }
@@ -2793,7 +2795,6 @@ async function translateOne(p) {
         document.body.appendChild(printArea);
     }
     
-    // Clear everything first!
     printArea.innerHTML = ''; 
 
     const today = new Date().toLocaleDateString('en-GB', { 
@@ -2829,10 +2830,10 @@ async function translateOne(p) {
     html += `</div>`; 
     printArea.innerHTML = html;
     
-    // DELAY: Give the browser time to render the new HTML before showing the print dialog
+    // Increased delay for desktop rendering
     setTimeout(() => {
         window.print();
-    }, 500);
+    }, 700);
 }
         
         function shareApp() { 
@@ -2867,6 +2868,7 @@ async function translateOne(p) {
         
 </body>
 </html>
+
 
 
 
