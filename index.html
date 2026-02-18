@@ -2857,6 +2857,12 @@ function openPrintSelection(words) {
         alert("Please enter some phrases first!");
         return;
     }
+
+    // THE RESET: Force the counter back to 2 every time the popup opens
+    const counter = document.getElementById('repeatCountInput');
+    if (counter) {
+        counter.value = 2;
+    }
     
     openOverlay('printSelectionOverlay');
 }
@@ -2957,6 +2963,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2) {
         
 </body>
 </html>
+
 
 
 
