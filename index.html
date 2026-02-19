@@ -1287,31 +1287,13 @@ function renderList(list) {
     diagCard.style.flexDirection = 'column';
 
     list.forEach((p, index) => {
-        const cleanText = p.split('|')[0].trim();
-        
-        // Create the line container
         const line = document.createElement('div');
         const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
         line.className = `dialogue-line ${sideClass}`;
         line.id = `line-${index}`;
-        
-        // Set up the inner content with flexbox
-        line.innerHTML = `
-            <span style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <span style="flex: 1; word-break: break-word; padding-right: 8px;">${cleanText}</span>
-                <span class="snail-corner" style="flex-shrink: 0; font-size: 1.3rem; background: #5bc0de; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.2s;">🐌</span>
-            </span>
-        `;
-
-        // Main click = normal speed
+        const cleanText = p.split('|')[0].trim();
+        line.textContent = cleanText;
         line.onclick = () => spk(cleanText, 'fr-FR', true);
-        
-        // Snail click = slow speed
-        line.querySelector('.snail-corner').onclick = (e) => {
-            e.stopPropagation();
-            spk(cleanText, 'fr-FR', true, 0.2);
-        };
-
         diagCard.appendChild(line);
     });
     container.appendChild(diagCard);
@@ -3050,6 +3032,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
