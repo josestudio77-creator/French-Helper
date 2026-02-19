@@ -2077,22 +2077,20 @@ function practiceNow() {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
                 
-                // Get the scale factor
-                const scale = detectSpeechScale();
-                
-                // Use speedOverride if provided (for the snail), otherwise use the slider speed
+                // TEMPORARILY COMMENT OUT SCALING
+                // const scale = detectSpeechScale();
                 let targetSpeed = speedOverride || speechSpeed;
+                // targetSpeed = targetSpeed / scale;
                 
-                // Apply scaling based on device
-                // For Android, we divide by scale to make it slower
-                targetSpeed = targetSpeed / scale;
+                u.rate = targetSpeed; // Use raw value
                 
-                u.rate = targetSpeed;
+                console.log(`Speaking at raw speed: ${targetSpeed}`);
                 
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                 window.speechSynthesis.speak(u);
             }, forceInterrupt ? 150 : 50);
         }
+        
         function spellWord() {
             isSpelling = true; 
             const letters = targetWord.split('');
@@ -3117,6 +3115,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
