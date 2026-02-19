@@ -674,13 +674,14 @@
                 <span>🎚️ Voice Speed:</span>
                 <span id="speedValue">0.85</span>x
             </div>
-           <input type="range" id="speedSlider" class="speech-speed-slider" 
-           min="0.05" 
-           max="1.2" 
-           step="0.05" 
-           value="0.7" 
-           oninput="updateSpeechLabel(this.value)" 
-           onchange="updateSpeechSpeed(this.value)">
+            
+    <input type="range" id="speedSlider" class="speech-speed-slider" 
+       min="0.2"  <!-- This will be overridden by JavaScript anyway -->
+       max="1.2" 
+       step="0.05" 
+       value="0.7" 
+       oninput="updateSpeechLabel(this.value)" 
+       onchange="updateSpeechSpeed(this.value)">
                 
             <div class="view-switcher">
                 <button id="btnViewCards" class="view-btn active" onclick="setViewMode('cards')">🗂️ Cards</button>
@@ -956,6 +957,7 @@
         let currentSetName = localStorage.getItem('currentSetName') || '';
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
+        let speechSpeedScale = 1.0; // Will be set based on device
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -1969,33 +1971,46 @@ function practiceNow() {
         function initSpeechSpeed() {
             const slider = document.getElementById('speedSlider');
             const display = document.getElementById('speedValue');
+            const scale = detectSpeechScale();
             
-            // Ensure we aren't using an old 1.5 value from local storage
-            if (speechSpeed > 1.2) speechSpeed = 0.7;
-            if (speechSpeed < 0.05) speechSpeed = 0.05;
+            // On Android, the effective minimum is higher due to scaling
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            
+            if (isAndroid) {
+                // On Android, slider values below 0.2 all give same speed due to hardware limit
+                slider.min = 0.2;
+            } else {
+                slider.min = 0.05; // Computer can go super slow
+            }
+            
+            slider.max = 1.2;
+            
+            // Ensure current speed is within limits
+            if (speechSpeed < slider.min) speechSpeed = parseFloat(slider.min);
+            if (speechSpeed > slider.max) speechSpeed = 1.2;
             
             slider.value = speechSpeed;
             display.textContent = speechSpeed.toFixed(2);
         }
 
-// NEW: Just updates the number while sliding (silent)
-function updateSpeechLabel(value) {
-    document.getElementById('speedValue').textContent = parseFloat(value).toFixed(2);
-}
-
-function updateSpeechSpeed(value) {
-    speechSpeed = parseFloat(value);
-    document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
-    localStorage.setItem('speechSpeed', speechSpeed);
-    
-    // If we're in auto-play mode, DON'T interrupt - just update the speed
-    // The next phrase will use the new speed automatically
-    if (!isAutoPlaying) {
-        // Only speak the test word when not in auto-play
-        spk("Bonjour", "fr-FR", true);
-    }
-    // When in auto-play, do nothing - the speed change will affect the next phrase
-}
+        // NEW: Just updates the number while sliding (silent)
+        function updateSpeechLabel(value) {
+            document.getElementById('speedValue').textContent = parseFloat(value).toFixed(2);
+        }
+        
+        function updateSpeechSpeed(value) {
+            speechSpeed = parseFloat(value);
+            document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
+            localStorage.setItem('speechSpeed', speechSpeed);
+            
+            // If we're in auto-play mode, DON'T interrupt - just update the speed
+            // The next phrase will use the new speed automatically
+            if (!isAutoPlaying) {
+                // Only speak the test word when not in auto-play
+                spk("Bonjour", "fr-FR", true);
+            }
+            // When in auto-play, do nothing - the speed change will affect the next phrase
+        }
 
         function initVoices() {
             const setVoices = () => {
@@ -2006,6 +2021,19 @@ function updateSpeechSpeed(value) {
             };
             setVoices(); 
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
+        }
+
+        function detectSpeechScale() {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isAndroid) {
+                return 2.5; // Your calibrated value for Pixel
+            } else if (isIOS) {
+                return 1.3; // You might need to calibrate this separately
+            } else {
+                return 1.0; // Desktop baseline
+            }
         }
 
         function showVoiceInstructions() {
@@ -2049,14 +2077,22 @@ function updateSpeechSpeed(value) {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
                 
+                // Get the scale factor
+                const scale = detectSpeechScale();
+                
                 // Use speedOverride if provided (for the snail), otherwise use the slider speed
-                u.rate = speedOverride || speechSpeed;
+                let targetSpeed = speedOverride || speechSpeed;
+                
+                // Apply scaling based on device
+                // For Android, we divide by scale to make it slower
+                targetSpeed = targetSpeed / scale;
+                
+                u.rate = targetSpeed;
                 
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                 window.speechSynthesis.speak(u);
             }, forceInterrupt ? 150 : 50);
         }
-
         function spellWord() {
             isSpelling = true; 
             const letters = targetWord.split('');
@@ -3081,5 +3117,6 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
