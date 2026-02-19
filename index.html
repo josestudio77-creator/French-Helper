@@ -2904,42 +2904,52 @@ async function translateOne(p) {
             }
         }
         
-        function playLine(index) {
-            if (!isAutoPlaying) return;
-            
-            // If we've reached the end of the list
-            if (index >= currentScreenList.length) {
-                if (loopMode) {
-                    // Start new loop from beginning
-                    playLine(0);
-                } else {
-                    // No loop, just stop
-                    stopAutoPlay();
-                }
-                return;
-            }
-            
-            const text = currentScreenList[index].split('|')[0].trim();
-            const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
-            
-            // Highlight current line
-            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-            const currentEl = document.getElementById(`line-${index}`);
-            if (currentEl) {
-                currentEl.classList.add('playing-now');
-                currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            
-            spk(text, 'fr-FR', true);
-            
-            const speechDuration = 500 + (text.length * 85);
-            
-            if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
-            
-            autoPlayTimeout = setTimeout(() => {
-                playLine(index + 1);
-            }, speechDuration + userGap);
+function playLine(index) {
+    if (!isAutoPlaying) return;
+    
+    // If we've reached the end of the list
+    if (index >= currentScreenList.length) {
+        if (loopMode) {
+            // Start new loop from beginning
+            playLine(0);
+        } else {
+            // No loop, just stop
+            stopAutoPlay();
         }
+        return;
+    }
+    
+    const text = currentScreenList[index].split('|')[0].trim();
+    const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
+    
+    // Highlight current line
+    document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+    const currentEl = document.getElementById(`line-${index}`);
+    if (currentEl) {
+        currentEl.classList.add('playing-now');
+        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    spk(text, 'fr-FR', true);
+    
+    // Calculate base duration at normal speed (1.0)
+    const baseDuration = 500 + (text.length * 85);
+    
+    // Scale by speed factor - slower speeds need MORE time
+    // At speed 1.0: multiplier = 1
+    // At speed 0.5: multiplier = 2 (takes twice as long)
+    // At speed 0.05: multiplier = 20 (takes 20x longer!)
+    const speedMultiplier = 1 / speechSpeed;
+    
+    // Apply the multiplier
+    const speechDuration = baseDuration * speedMultiplier;
+    
+    if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
+    
+    autoPlayTimeout = setTimeout(() => {
+        playLine(index + 1);
+    }, speechDuration + userGap);
+}
 
 // This is the NEW function the buttons will call
 function openPrintSelection(words) {
@@ -3047,6 +3057,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
