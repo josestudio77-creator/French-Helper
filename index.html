@@ -1886,9 +1886,14 @@ function practiceNow() {
             }, 100);
 
         // TEMPORARY: Auto-run the test after 2 seconds
-            setTimeout(() => {
-                findPhoneMinSpeed();
-            }, 2000);
+            //setTimeout(() => {
+            //    findPhoneMinSpeed();
+            //}, 2000);
+
+        // 🔴 TEMPORARY - Add this line to auto-run calibration
+        setTimeout(() => {
+            calibrateSpeechScale();
+        }, 2000); // Wait 2 seconds for app to fully load
             
         };
         
@@ -3115,6 +3120,21 @@ function findPhoneMinSpeed() {
     });
 }
 
+function calibrateSpeechScale() {
+    const scale = prompt("Enter a scale factor to test (try 1.5, 1.8, 2.0):", "1.8");
+    if (!scale) return;
+    
+    const testSpeed = 0.5; // Test with medium speed
+    const scaledSpeed = testSpeed / parseFloat(scale);
+    
+    console.log(`Testing scale ${scale}: sending rate ${scaledSpeed} to get feel of ${testSpeed}`);
+    
+    const utterance = new SpeechSynthesisUtterance("Bonjour, comment allez-vous?");
+    utterance.rate = scaledSpeed;
+    utterance.lang = 'fr-FR';
+    window.speechSynthesis.speak(utterance);
+}
+        
         let deferredPrompt; 
         window.addEventListener('beforeinstallprompt', (e) => { 
             e.preventDefault(); 
@@ -3126,3 +3146,4 @@ function findPhoneMinSpeed() {
         
 </body>
 </html>
+
