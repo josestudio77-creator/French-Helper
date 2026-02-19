@@ -1884,6 +1884,12 @@ function practiceNow() {
             setTimeout(() => {
                 setViewMode(viewMode);
             }, 100);
+
+        // TEMPORARY: Auto-run the test after 2 seconds
+            setTimeout(() => {
+                findPhoneMinSpeed();
+            }, 2000);
+            
         };
         
         function loadCurrentHomework() {
@@ -3069,6 +3075,46 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
             }
         }
 
+function findPhoneMinSpeed() {
+    const speeds = [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6];
+    let workingSpeed = 0.5; // Default fallback
+    let testedCount = 0;
+    
+    console.log("🔬 Testing minimum speech speed on this device:");
+    console.log("Watch the console and listen for which speeds actually speak!");
+    
+    // Clear any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    speeds.forEach(speed => {
+        setTimeout(() => {
+            const utterance = new SpeechSynthesisUtterance("Bonjour");
+            utterance.rate = speed;
+            utterance.lang = 'fr-FR';
+            
+            utterance.onstart = () => {
+                console.log(`✅ Speed ${speed} WORKS - you should hear "Bonjour"`);
+                if (speed < workingSpeed) workingSpeed = speed;
+            };
+            
+            utterance.onerror = (e) => {
+                console.log(`❌ Speed ${speed} FAILED - error:`, e);
+            };
+            
+            utterance.onend = () => {
+                testedCount++;
+                if (testedCount === speeds.length) {
+                    setTimeout(() => {
+                        alert(`✅ Your Pixel's minimum supported speed appears to be around ${workingSpeed}\n\nYou can now set your slider min to ${workingSpeed} for best results!`);
+                    }, 500);
+                }
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }, speed * 2000); // Space them out so they don't overlap
+    });
+}
+
         let deferredPrompt; 
         window.addEventListener('beforeinstallprompt', (e) => { 
             e.preventDefault(); 
@@ -3080,31 +3126,3 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
