@@ -1961,12 +1961,18 @@ function updateSpeechLabel(value) {
     document.getElementById('speedValue').textContent = parseFloat(value).toFixed(2);
 }
 
-// UPDATED: Only speaks when you let go of the slider
 function updateSpeechSpeed(value) {
     speechSpeed = parseFloat(value);
     document.getElementById('speedValue').textContent = speechSpeed.toFixed(2);
     localStorage.setItem('speechSpeed', speechSpeed);
-    spk("Bonjour", "fr-FR", true);
+    
+    // If we're in auto-play mode, DON'T interrupt - just update the speed
+    // The next phrase will use the new speed automatically
+    if (!isAutoPlaying) {
+        // Only speak the test word when not in auto-play
+        spk("Bonjour", "fr-FR", true);
+    }
+    // When in auto-play, do nothing - the speed change will affect the next phrase
 }
 
         function initVoices() {
@@ -3053,6 +3059,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
