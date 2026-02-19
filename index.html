@@ -1659,40 +1659,6 @@ function openSettingsFromBP() {
     openOverlay('parentDrawer');
 }
 
-function editHomework(name) {
-    // 1. Initialize with defaults including the new isDialogue flag
-    let hwData = { words: '', audio: null, isDialogue: false };
-    try {
-        const parsed = JSON.parse(history[name]);
-        if (parsed.words !== undefined) {
-            hwData = parsed;
-        } else {
-            hwData.words = history[name];
-        }
-    } catch (e) {
-        hwData.words = history[name];
-    }
-
-    // Set state
-    editingHomeworkName = name;
-    document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
-    document.getElementById('hwInput').value = hwData.words;
-    
-    // Update the Dialogue Checkbox based on saved data ---
-    document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
-    
-    // Update the currentIsDialogue state to match the homework ---
-    currentIsDialogue = !!hwData.isDialogue;
-
-    // Safety fix: Ensure audio is cleaned if it was 'undefined'
-    currentWeekAudio = hwData.audio || null;
-    displayAudioPlayer();
-
-    // Switch Screen
-    closeOverlay('bpModal');
-    openOverlay('hwDrawer');
-}
-        
 function loadHomeworkForPractice(name, words, audio) {
     // STOP AUTO-PLAY when loading homework
     if (isAutoPlaying) {
@@ -2023,19 +1989,7 @@ function practiceNow() {
             if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
         }
 
-        function detectSpeechScale() {
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            
-            if (isAndroid) {
-                return 2.5; // Your calibrated value for Pixel
-            } else if (isIOS) {
-                return 1.3; // You might need to calibrate this separately
-            } else {
-                return 1.0; // Desktop baseline
-            }
-        }
-
+       
         function showVoiceInstructions() {
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             const isAndroid = /Android/.test(navigator.userAgent);
@@ -2077,14 +2031,8 @@ function practiceNow() {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
                 
-                // TEMPORARILY COMMENT OUT SCALING
-                // const scale = detectSpeechScale();
-                let targetSpeed = speedOverride || speechSpeed;
-                // targetSpeed = targetSpeed / scale;
-                
-                u.rate = targetSpeed; // Use raw value
-                
-                console.log(`Speaking at raw speed: ${targetSpeed}`);
+                // Simple - just use the slider value directly
+                u.rate = speedOverride || speechSpeed;
                 
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                 window.speechSynthesis.speak(u);
@@ -2568,58 +2516,65 @@ async function translateOne(p) {
 
 
         function saveHW() { 
-    const val = document.getElementById('hwInput').value.trim(); 
-    // 1. Capture the checkbox state
-    const isDiag = document.getElementById('hwIsDialogue').checked;
-
-    if (!val) {
-        alert('Please enter some homework words first!');
-        return;
-    }
-    
-    localStorage.setItem('homeworkPhrases', val);
-    
-    if (currentWeekAudio) {
-        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-    } else {
-        localStorage.removeItem('currentWeekAudio');
-    }
-    
-    // NEW: Pre-fill the name if editing
-    let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
-    if (name) { 
-        if (name.length > 20) {
-            name = name.substring(0, 20);
-            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+            const val = document.getElementById('hwInput').value.trim(); 
+            // 1. Capture the checkbox state
+            const isDiag = document.getElementById('hwIsDialogue').checked;
+        
+            if (!val) {
+                alert('Please enter some homework words first!');
+                return;
+            }
+            
+            localStorage.setItem('homeworkPhrases', val);
+            
+            if (currentWeekAudio) {
+                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+            } else {
+                localStorage.removeItem('currentWeekAudio');
+            }
+            
+            // NEW: Pre-fill the name if editing
+            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
+            if (name) { 
+                if (name.length > 20) {
+                    name = name.substring(0, 20);
+                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+                }
+                
+                const hwData = {
+                    words: val,
+                    audio: currentWeekAudio,
+                    isDialogue: isDiag, // 2. Save the dialogue flag into the data object
+                    date: new Date().toISOString()
+                };
+                
+                if (!history) history = {};
+                
+                history[name] = JSON.stringify(hwData);
+                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                
+                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
+                setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
+                
+                // Clear state
+                editingHomeworkName = null;
+                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+                document.getElementById('hwInput').value = "";
+                document.getElementById('hwIsDialogue').checked = false; // 3. Reset the checkbox for next time
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
+                
+                openBP();
+                
+                if (currentSetName === name) {
+                    // Update the currentIsDialogue flag
+                    currentIsDialogue = isDiag;
+                    // Re-render the current list with the new dialogue setting
+                    renderList(currentScreenList);
+                }
+            } 
         }
-        
-        const hwData = {
-            words: val,
-            audio: currentWeekAudio,
-            isDialogue: isDiag, // 2. Save the dialogue flag into the data object
-            date: new Date().toISOString()
-        };
-        
-        if (!history) history = {};
-        
-        history[name] = JSON.stringify(hwData);
-        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-        
-        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
-        setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
-        
-        // Clear state
-        editingHomeworkName = null;
-        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-        document.getElementById('hwInput').value = "";
-        document.getElementById('hwIsDialogue').checked = false; // 3. Reset the checkbox for next time
-        currentWeekAudio = null;
-        localStorage.removeItem('currentWeekAudio');
-        displayAudioPlayer();
-        
-        openBP();
-    } 
-}
 
         function openBP() {
             console.log('Opening backpack, history:', history);
@@ -2733,7 +2688,6 @@ async function translateOne(p) {
             console.log(`Renamed "${oldName}" to "${newName}"`);
         }
         
-        // NEW: Logic to load homework back into the editor
         function editHomework(name) {
             // 1. Initialize with defaults including the new isDialogue flag
             let hwData = { words: '', audio: null, isDialogue: false };
@@ -2753,8 +2707,11 @@ async function translateOne(p) {
             document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
             document.getElementById('hwInput').value = hwData.words;
             
-            // --- NEW: Update the Dialogue Checkbox based on saved data ---
+            // Update the Dialogue Checkbox based on saved data ---
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
+            
+            // Update the currentIsDialogue state to match the homework ---
+            currentIsDialogue = !!hwData.isDialogue;  // ← KEEP THIS LINE
         
             // Safety fix: Ensure audio is cleaned if it was 'undefined'
             currentWeekAudio = hwData.audio || null;
@@ -3115,6 +3072,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
