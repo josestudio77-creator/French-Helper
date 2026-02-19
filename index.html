@@ -1281,6 +1281,17 @@ function renderList(list) {
         container.appendChild(card);
         
 } else if (viewMode === 'dialogue') {
+
+    // Reset loop button when entering dialogue mode
+    if (loopMode) {
+        loopMode = false;
+        const loopBtn = document.getElementById('loopBtn');
+        if (loopBtn) {
+            loopBtn.style.background = '#ff9e6d';
+            loopBtn.style.border = '2px solid transparent';
+        }
+    }
+        
     const diagCard = document.createElement('div');
     diagCard.className = 'condensed-card';
     diagCard.style.display = 'flex';
@@ -1870,6 +1881,9 @@ window.onload = () => {
             
             // Don't override currentSetName here - we already set it in onload
             renderList(words.split('\n').filter(w => w.trim()));
+
+            // Call setViewMode to ensure UI matches
+            setViewMode(viewMode);
         }
 
 
@@ -3032,6 +3046,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
