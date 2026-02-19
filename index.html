@@ -1811,13 +1811,13 @@ function practiceNow() {
             processTranslation(0);
         }
 
-window.onload = () => {
+        window.onload = () => {
             console.log('App loading...');
             
             // FORCE RESET PRINT STATE ON STARTUP
             const ghostPrint = document.getElementById('printArea');
             if (ghostPrint) ghostPrint.innerHTML = '';
-    
+        
             const raw = localStorage.getItem('homeworkPhrases');
             document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
             lastLoadedHomework = raw || '';
@@ -1826,13 +1826,17 @@ window.onload = () => {
             if (raw && raw.trim()) {
                 console.log('Loading last homework:', raw);
                 
-                // IMPORTANT: If we're loading homework, we need to find its name from history
+                // IMPORTANT: Find the homework in history AND load its dialogue flag
                 let foundName = '';
+                let foundIsDialogue = false;  // ← NEW: variable to store dialogue flag
+                
                 for (let name in history) {
                     try {
                         const hwData = JSON.parse(history[name]);
                         if (hwData.words === raw) {
                             foundName = name;
+                            // ← NEW: Get the dialogue flag from the saved data
+                            foundIsDialogue = hwData.isDialogue || false;
                             break;
                         }
                     } catch (e) {
@@ -1844,10 +1848,14 @@ window.onload = () => {
                 if (foundName) {
                     currentSetName = foundName;
                     localStorage.setItem('currentSetName', foundName);
+                    
+                    // ← NEW: Set the dialogue flag from the saved data
+                    currentIsDialogue = foundIsDialogue;
                 } else {
                     // This is unsaved homework or preset - clear the name
                     currentSetName = '';
                     localStorage.removeItem('currentSetName');
+                    currentIsDialogue = false; // ← NEW: Default to list mode for unsaved
                 }
                 
                 loadCurrentHomework();
@@ -1856,6 +1864,7 @@ window.onload = () => {
                 // No homework loaded, so clear the name
                 currentSetName = '';
                 localStorage.removeItem('currentSetName');
+                currentIsDialogue = false; // ← NEW: Default to list mode
             }
             
             initVoices();
@@ -1863,6 +1872,11 @@ window.onload = () => {
             initAudioUpload();
             checkForImport();
             if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+            
+            // ← NEW: Sync the view mode buttons after everything is loaded
+            setTimeout(() => {
+                setViewMode(viewMode);
+            }, 100);
         };
         
         function loadCurrentHomework() {
@@ -3059,6 +3073,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
