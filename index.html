@@ -2907,13 +2907,10 @@ async function translateOne(p) {
 function playLine(index) {
     if (!isAutoPlaying) return;
     
-    // If we've reached the end of the list
     if (index >= currentScreenList.length) {
         if (loopMode) {
-            // Start new loop from beginning
             playLine(0);
         } else {
-            // No loop, just stop
             stopAutoPlay();
         }
         return;
@@ -2930,25 +2927,24 @@ function playLine(index) {
         currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     
-    spk(text, 'fr-FR', true);
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
     
-    // Calculate base duration at normal speed (1.0)
-    const baseDuration = 500 + (text.length * 85);
+    // Create and speak the utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = speechSpeed;
     
-    // Scale by speed factor - slower speeds need MORE time
-    // At speed 1.0: multiplier = 1
-    // At speed 0.5: multiplier = 2 (takes twice as long)
-    // At speed 0.05: multiplier = 20 (takes 20x longer!)
-    const speedMultiplier = 1 / speechSpeed;
+    // When speech ends, wait for the gap then play next
+    utterance.onend = () => {
+        if (isAutoPlaying) {
+            autoPlayTimeout = setTimeout(() => {
+                playLine(index + 1);
+            }, userGap);
+        }
+    };
     
-    // Apply the multiplier
-    const speechDuration = baseDuration * speedMultiplier;
-    
-    if (autoPlayTimeout) clearTimeout(autoPlayTimeout);
-    
-    autoPlayTimeout = setTimeout(() => {
-        playLine(index + 1);
-    }, speechDuration + userGap);
+    window.speechSynthesis.speak(utterance);
 }
 
 // This is the NEW function the buttons will call
@@ -3057,6 +3053,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
