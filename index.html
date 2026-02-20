@@ -2796,8 +2796,8 @@ async function translateOne(p) {
                     words: val,
                     audio: currentWeekAudio,
                     isDialogue: isDiag,
-                    month: new Date().getMonth(), // <--- NEW: Automatically save current month (0-11)
-                    isFavorite: false,            // <--- NEW: Default to not favorite
+                    month: selectedBpMonth,
+                    isFavorite: false,
                     date: new Date().toISOString()
                 };
                 
@@ -2997,14 +2997,19 @@ async function translateOne(p) {
         }
         
         function editHomework(name) {
-            // 1. Initialize with defaults including the new isDialogue flag
-            let hwData = { words: '', audio: null, isDialogue: false };
+            // 1. Initialize with defaults. 
+            // We default 'month' to selectedBpMonth in case we're editing an old set that has no month.
+            let hwData = { words: '', audio: null, isDialogue: false, month: selectedBpMonth };
+            
             try {
-                const parsed = JSON.parse(history[name]);
-                if (parsed.words !== undefined) {
-                    hwData = parsed;
+                const raw = history[name];
+                if (typeof raw === 'string' && raw.trim().startsWith('{')) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.words !== undefined) {
+                        hwData = parsed;
+                    }
                 } else {
-                    hwData.words = history[name];
+                    hwData.words = raw;
                 }
             } catch (e) {
                 hwData.words = history[name];
@@ -3015,11 +3020,11 @@ async function translateOne(p) {
             document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
             document.getElementById('hwInput').value = hwData.words;
             
-            // Update the Dialogue Checkbox based on saved data ---
+            // Update the Dialogue Checkbox based on saved data
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
             
-            // Update the currentIsDialogue state to match the homework ---
-            currentIsDialogue = !!hwData.isDialogue;  // ← KEEP THIS LINE
+            // Update the currentIsDialogue state to match the homework
+            currentIsDialogue = !!hwData.isDialogue;
         
             // Safety fix: Ensure audio is cleaned if it was 'undefined'
             currentWeekAudio = hwData.audio || null;
@@ -3385,6 +3390,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
