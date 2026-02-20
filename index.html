@@ -1179,6 +1179,7 @@
             
             let outputWidth, outputHeight;
             let orientation;
+            let customRatio = null; // Define this variable!
             const MAX_SIZE = 600; // Maximum dimension in pixels
             
             if (currentAspectRatio === 0) {
@@ -1193,22 +1194,28 @@
                 outputWidth = Math.round(originalWidth * scale);
                 outputHeight = Math.round(originalHeight * scale);
                 
-                console.log(`Free crop: ${originalWidth}×${originalHeight} scaled to ${outputWidth}×${outputHeight}`);
+                // Calculate the actual ratio (width/height)
+                customRatio = outputWidth / outputHeight;
+                
+                console.log(`Free crop: ${originalWidth}×${originalHeight} scaled to ${outputWidth}×${outputHeight}, ratio: ${customRatio}`);
             } 
             else if (Math.abs(currentAspectRatio - 1) < 0.01) {
                 // SQUARE
                 outputWidth = MAX_SIZE;
                 outputHeight = MAX_SIZE;
+                customRatio = 1;
             }
             else if (Math.abs(currentAspectRatio - 0.75) < 0.01) {
                 // PORTRAIT (3/4)
                 outputWidth = Math.round(MAX_SIZE * 0.75); // 450
                 outputHeight = MAX_SIZE; // 600
+                customRatio = outputWidth / outputHeight;
             }
             else {
                 // LANDSCAPE (4/3)
                 outputWidth = MAX_SIZE; // 600
                 outputHeight = Math.round(MAX_SIZE * 0.75); // 450
+                customRatio = outputWidth / outputHeight;
             }
             
             // Determine orientation for CSS class
@@ -1234,7 +1241,8 @@
             customPhotos[normalizedPhrase] = {
                 data: croppedImageData,
                 orientation: orientation,
-                customRatio: customRatio,
+                isFreeCrop: currentAspectRatio === 0,
+                customRatio: customRatio, // Now this is defined!
                 originalWidth: outputWidth,
                 originalHeight: outputHeight
             };
@@ -1302,7 +1310,8 @@
                     isPhoto: true,
                     photoData: isNewFormat ? photoData.data : photoData,
                     photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
-                    photoRatio: isNewFormat ? photoData.customRatio : null,  // Add this
+                    isFreeCrop: isNewFormat ? photoData.isFreeCrop || false : false, // Add this
+                    customRatio: isNewFormat ? photoData.customRatio : null,  // Add this
                     pronunciation: MASTER_DATA[p]?.pronunciation,
                     g: MASTER_DATA[p]?.g
                 };
@@ -3226,6 +3235,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
