@@ -1179,33 +1179,45 @@
             
             let outputWidth, outputHeight;
             let orientation;
-            
-            // Get the actual crop data
-            const cropData = cropper.getData();
-            console.log('Crop data:', cropData);
-            console.log('Current aspect ratio:', currentAspectRatio);
+            const MAX_SIZE = 600; // Maximum dimension in pixels
             
             if (currentAspectRatio === 0) {
-                // FREE CROP - use the actual cropped dimensions
-                outputWidth = Math.round(cropData.width);
-                outputHeight = Math.round(cropData.height);
-                orientation = outputWidth > outputHeight ? 'landscape' : 'portrait';
-            } else if (Math.abs(currentAspectRatio - 1) < 0.01) {
-                // SQUARE (ratio = 1)
-                outputWidth = 400;
-                outputHeight = 400;
+                // FREE CROP - use actual proportions scaled to MAX_SIZE
+                const cropData = cropper.getData();
+                const originalWidth = Math.round(cropData.width);
+                const originalHeight = Math.round(cropData.height);
+                
+                // Calculate scaling factor to fit within MAX_SIZE
+                const scale = MAX_SIZE / Math.max(originalWidth, originalHeight);
+                
+                outputWidth = Math.round(originalWidth * scale);
+                outputHeight = Math.round(originalHeight * scale);
+                
+                console.log(`Free crop: ${originalWidth}×${originalHeight} scaled to ${outputWidth}×${outputHeight}`);
+            } 
+            else if (Math.abs(currentAspectRatio - 1) < 0.01) {
+                // SQUARE
+                outputWidth = MAX_SIZE;
+                outputHeight = MAX_SIZE;
+            }
+            else if (Math.abs(currentAspectRatio - 0.75) < 0.01) {
+                // PORTRAIT (3/4)
+                outputWidth = Math.round(MAX_SIZE * 0.75); // 450
+                outputHeight = MAX_SIZE; // 600
+            }
+            else {
+                // LANDSCAPE (4/3)
+                outputWidth = MAX_SIZE; // 600
+                outputHeight = Math.round(MAX_SIZE * 0.75); // 450
+            }
+            
+            // Determine orientation for CSS class
+            if (Math.abs(outputWidth - outputHeight) < 10) {
                 orientation = 'square';
-                console.log('Creating square image:', outputWidth, 'x', outputHeight);
-            } else if (Math.abs(currentAspectRatio - 0.75) < 0.01) {
-                // PORTRAIT (3/4 = 0.75)
-                outputWidth = 300;
-                outputHeight = 400;
-                orientation = 'portrait';
-            } else {
-                // LANDSCAPE (4/3 ≈ 1.333)
-                outputWidth = 400;
-                outputHeight = 300;
+            } else if (outputWidth > outputHeight) {
                 orientation = 'landscape';
+            } else {
+                orientation = 'portrait';
             }
             
             const canvas = cropper.getCroppedCanvas({
@@ -1218,10 +1230,13 @@
             const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
             const normalizedPhrase = norm(currentPickerPhrase);
             
-            // Store both the image data and its orientation
+            // Store the image data and orientation
             customPhotos[normalizedPhrase] = {
                 data: croppedImageData,
-                orientation: orientation
+                orientation: orientation,
+                customRatio: customRatio,
+                originalWidth: outputWidth,
+                originalHeight: outputHeight
             };
             
             if (customIcons[normalizedPhrase]) {
@@ -1278,7 +1293,6 @@
             
             // Check for custom photo first
             if (customPhotos[normalizedPhrase]) {
-                // Check if it's the new format with orientation or old format
                 const photoData = customPhotos[normalizedPhrase];
                 const isNewFormat = photoData.data !== undefined;
                 
@@ -1287,7 +1301,8 @@
                     icon: '📷',
                     isPhoto: true,
                     photoData: isNewFormat ? photoData.data : photoData,
-                    photoOrientation: isNewFormat ? photoData.orientation : 'landscape', // Default to landscape for old photos
+                    photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
+                    photoRatio: isNewFormat ? photoData.customRatio : null,  // Add this
                     pronunciation: MASTER_DATA[p]?.pronunciation,
                     g: MASTER_DATA[p]?.g
                 };
@@ -1444,12 +1459,31 @@ function renderList(list) {
             `;
 
             if (data.isPhoto) {
-                // Use the orientation directly - 'landscape', 'portrait', or 'square'
-                const orientationClass = data.photoOrientation || 'landscape';
+                let orientationClass = data.photoOrientation || 'landscape';
+                let inlineStyle = '';
+                
+                // Check if this is a free crop with custom ratio
+                if (data.isFreeCrop && data.originalRatio) {
+                    // Base size: make the longer side 7rem, adjust the other side proportionally
+                    const baseSize = 7; // rem
+                    
+                    if (data.originalRatio >= 1) {
+                        // Landscape or square - width is longer or equal
+                        const width = baseSize;
+                        const height = baseSize / data.originalRatio;
+                        inlineStyle = `style="width: ${width.toFixed(2)}rem; height: ${height.toFixed(2)}rem;"`;
+                    } else {
+                        // Portrait - height is longer
+                        const height = baseSize;
+                        const width = baseSize * data.originalRatio;
+                        inlineStyle = `style="width: ${width.toFixed(2)}rem; height: ${height.toFixed(2)}rem;"`;
+                    }
+                    orientationClass = ''; // Remove class, use inline styles for exact proportions
+                }
                 
                 card.innerHTML = `
                     ${gIcon}
-                    <img src="${data.photoData}" class="card-photo ${orientationClass}" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                    <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
                     <span class="french-text">${p}</span>
                     ${pGuide}
                     <span class="english-text">${data.en}</span>
@@ -3192,6 +3226,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
