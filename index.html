@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V9.0 🎉</title>
+    <title>🇫🇷 French Fun V10.0 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -53,12 +53,6 @@
         transition: transform 0.1s; 
     }
 
-    /* 3. Specific button overrides (Special padding and colors) */
-    .spk-snail {
-        background: #5bc0de !important; 
-        font-size: 1.2rem !important;
-        padding: 10px 5px !important; /* This will now correctly override the 15px above */
-    }
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
@@ -1827,7 +1821,6 @@ function shareWeek(weekName, wordsText, audioData = null) {
             input.click();
         }
 
-        // Update checkForImport to handle custom icons
 function checkForImport() {
     const hash = window.location.hash;
     if (hash.startsWith('#import=')) {
@@ -1872,12 +1865,13 @@ function checkForImport() {
             if (photoCount > 0) message += `📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}\n`;
             
             if (confirm(message)) {
+                // FIXED: Create hwData using weekData values, not undefined variables
                 const hwData = {
-                    words: val,
-                    audio: currentWeekAudio,
-                    isDialogue: isDiag,
-                    month: selectedBpMonth,
-                    isFavorite: false,            
+                    words: weekData.words,
+                    audio: null, // Links can't include audio
+                    isDialogue: weekData.isDialogue || false,
+                    month: weekData.month !== undefined ? weekData.month : new Date().getMonth(), // Use imported month or default to current
+                    isFavorite: false,
                     date: new Date().toISOString()
                 };
                 
@@ -1915,6 +1909,10 @@ function checkForImport() {
                         });
                         
                         localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                        
+                        if (importedPhotoCount > 0) {
+                            console.log(`📸 Imported ${importedPhotoCount} photos`);
+                        }
                     }
                 }
                 
@@ -3564,6 +3562,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
