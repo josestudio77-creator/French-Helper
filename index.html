@@ -1147,22 +1147,33 @@
         function saveCroppedPhoto() {
             if (!cropper) return;
             
-            // Determine output size based on aspect ratio
-            let outputWidth = 400;
-            let outputHeight = 300; // Default landscape
+            let outputWidth, outputHeight;
+            let orientation;
             
-            if (currentAspectRatio === 1) {
-                // Square
-                outputWidth = 400;
-                outputHeight = 400;
-            } else if (currentAspectRatio === 3/4) {
-                // Portrait
-                outputWidth = 300;
-                outputHeight = 400;
-            } else if (currentAspectRatio === 4/3 || currentAspectRatio === 0) {
-                // Landscape or free - keep landscape dimensions
-                outputWidth = 400;
-                outputHeight = 300;
+            if (currentAspectRatio === 0) {
+                // FREE CROP - use the actual cropped dimensions
+                const cropData = cropper.getData();
+                outputWidth = Math.round(cropData.width);
+                outputHeight = Math.round(cropData.height);
+                orientation = outputWidth > outputHeight ? 'landscape' : 'portrait';
+            } else {
+                // Fixed aspect ratio crops
+                if (currentAspectRatio === 1) {
+                    // Square
+                    outputWidth = 400;
+                    outputHeight = 400;
+                    orientation = 'square';
+                } else if (currentAspectRatio === 3/4) {
+                    // Portrait
+                    outputWidth = 300;
+                    outputHeight = 400;
+                    orientation = 'portrait';
+                } else {
+                    // Landscape (4/3)
+                    outputWidth = 400;
+                    outputHeight = 300;
+                    orientation = 'landscape';
+                }
             }
             
             const canvas = cropper.getCroppedCanvas({
@@ -1174,19 +1185,6 @@
             
             const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
             const normalizedPhrase = norm(currentPickerPhrase);
-            
-            // Store orientation based on the selected aspect ratio
-            let orientation = 'landscape';
-            if (currentAspectRatio === 1) {
-                orientation = 'square';
-            } else if (currentAspectRatio === 3/4) {
-                orientation = 'portrait';
-            } else if (currentAspectRatio === 4/3) {
-                orientation = 'landscape';
-            } else if (currentAspectRatio === 0) {
-                // Free form - determine from canvas dimensions
-                orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
-            }
             
             // Store both the image data and its orientation
             customPhotos[normalizedPhrase] = {
@@ -1200,7 +1198,7 @@
             
             localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
             localStorage.setItem('customIcons', JSON.stringify(customIcons));
-
+            
             cropper.destroy();
             cropper = null;
             document.getElementById('photoCropperOverlay').style.display = 'none';
@@ -3151,6 +3149,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
