@@ -1100,12 +1100,9 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
-            currentAspectRatio = 4/3; // Reset to default
+            currentAspectRatio = 4/3; // Reset to default landscape
             
-            // Make sure icon picker is closed and stays closed
             closeOverlay('iconPickerOverlay');
-            
-            // Open the cropper
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
             const image = document.getElementById('cropperImage');
@@ -1115,7 +1112,7 @@
                 if (cropper) cropper.destroy();
                 
                 cropper = new Cropper(image, {
-                    aspectRatio: currentAspectRatio,
+                    aspectRatio: currentAspectRatio === 0 ? NaN : currentAspectRatio,
                     viewMode: 1,
                     autoCropArea: 0.8,
                     movable: true,
@@ -1131,7 +1128,7 @@
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
                     ready() {
-                        console.log('Cropper ready');
+                        console.log('Cropper ready with aspect ratio:', currentAspectRatio);
                     }
                 });
             };
@@ -1227,8 +1224,22 @@
         function setAspectRatio(ratio) {
             currentAspectRatio = ratio;
             if (cropper) {
+                // For free crop (ratio 0), set to NaN which means no constraint
                 cropper.setAspectRatio(ratio === 0 ? NaN : ratio);
+                
+                // Optional: Update button visual feedback
+                updateAspectRatioButtons(ratio);
             }
+        }
+        
+        // Optional: Add visual feedback for selected button
+        function updateAspectRatioButtons(selectedRatio) {
+            const buttons = document.querySelectorAll('#photoCropperOverlay button');
+            buttons.forEach(btn => {
+                btn.style.background = '#e0f2fe'; // Default color
+            });
+            
+            // Find and highlight the selected button (you'd need to add IDs or data attributes)
         }
         
         // ===== UPDATED getCardData WITH CUSTOM ICONS/PHOTOS =====
@@ -3149,6 +3160,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
