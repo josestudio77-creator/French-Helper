@@ -1096,8 +1096,23 @@
             document.getElementById('emojiInputSection').style.display = 'block';
             document.getElementById('emojiInput').focus();
             
+            // Detect the user's device
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(navigator.userAgent);
+            
+            let msg = "";
+            
+            if (isIOS || isAndroid) {
+                msg = "📱 Mobile: Tap the smiley face (😊) button on your keyboard to browse emojis!";
+            } else if (isMac) {
+                msg = "💻 Mac: Press Command (⌘) + Control + Space to open the emoji picker!";
+            } else {
+                msg = "💻 Windows: Press the Windows Key + . (period) to open the emoji picker!";
+            }
+            
             setTimeout(() => {
-                alert('📱 Use your phone\'s emoji keyboard!\n\nTap the smiley face button on your keyboard to browse all emojis by category.');
+                alert(msg);
             }, 500);
         }
 
@@ -3228,6 +3243,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
