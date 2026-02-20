@@ -894,11 +894,19 @@
         </div>
     </div>
 
-    <!-- Photo Cropper Overlay (NEW) -->
+    <!-- Photo Cropper Overlay with aspect ratio controls -->
     <div id="photoCropperOverlay" class="overlay" style="z-index:2500;">
         <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column;">
             <h2 style="color:#9d4edd; margin-bottom:10px;">📷 Crop Your Photo</h2>
-            <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Drag the corners to adjust. Tap the center point you want to highlight.</p>
+            <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Choose shape and adjust</p>
+            
+            <!-- Aspect Ratio Selector -->
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;">
+                <button onclick="setAspectRatio(1)" style="flex:1; background:#e0f2fe; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900;">⬛ Square</button>
+                <button onclick="setAspectRatio(4/3)" style="flex:1; background:#e0f2fe; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900;">🖼️ Landscape</button>
+                <button onclick="setAspectRatio(3/4)" style="flex:1; background:#e0f2fe; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900;">📱 Portrait</button>
+                <button onclick="setAspectRatio(0)" style="flex:1; background:#fef3c7; border:2px solid #f59e0b; padding:8px; border-radius:10px; font-weight:900;">✂️ Free</button>
+            </div>
             
             <!-- Image container for cropping -->
             <div style="flex:1; min-height:300px; background:#f0f0f0; border-radius:10px; overflow:hidden; margin-bottom:10px; position:relative;">
@@ -969,6 +977,7 @@
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
         let customPhotos = JSON.parse(localStorage.getItem('customPhotos') || '{}');
         let currentPickerPhrase = '';
+        let currentAspectRatio = 4/3; // Default to landscape
         
         // Cropper instance
         let cropper = null;
@@ -1087,6 +1096,7 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
+            currentAspectRatio = 4/3; // Reset to default
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
@@ -1098,7 +1108,7 @@
                 if (cropper) cropper.destroy();
                 
                 cropper = new Cropper(image, {
-                    aspectRatio: 4 / 3,  // ← Changed from 1 (square) to 4:3 (rectangle)
+                    aspectRatio: currentAspectRatio,
                     viewMode: 1,
                     autoCropArea: 0.8,
                     movable: true,
@@ -1111,8 +1121,8 @@
                     center: true,
                     highlight: true,
                     background: true,
-                    minCropBoxWidth: 160,  // Increased for rectangle
-                    minCropBoxHeight: 120,
+                    minCropBoxWidth: 100,
+                    minCropBoxHeight: 100,
                     ready() {
                         console.log('Cropper ready');
                     }
@@ -1129,9 +1139,27 @@
         function saveCroppedPhoto() {
             if (!cropper) return;
             
+            // Determine output size based on aspect ratio
+            let outputWidth = 400;
+            let outputHeight = 300; // Default landscape
+            
+            if (currentAspectRatio === 1) {
+                // Square
+                outputWidth = 400;
+                outputHeight = 400;
+            } else if (currentAspectRatio === 3/4) {
+                // Portrait
+                outputWidth = 300;
+                outputHeight = 400;
+            } else if (currentAspectRatio === 4/3 || currentAspectRatio === 0) {
+                // Landscape or free - keep landscape dimensions
+                outputWidth = 400;
+                outputHeight = 300;
+            }
+            
             const canvas = cropper.getCroppedCanvas({
-                width: 400,
-                height: 300,
+                width: outputWidth,
+                height: outputHeight,
                 imageSmoothingEnabled: true,
                 imageSmoothingQuality: 'high'
             });
@@ -1139,13 +1167,23 @@
             const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
             const normalizedPhrase = norm(currentPickerPhrase);
             
-            // Determine if the cropped image is portrait or landscape
-            const isPortrait = canvas.height > canvas.width;
+            // Store orientation based on the selected aspect ratio
+            let orientation = 'landscape';
+            if (currentAspectRatio === 1) {
+                orientation = 'square';
+            } else if (currentAspectRatio === 3/4) {
+                orientation = 'portrait';
+            } else if (currentAspectRatio === 4/3) {
+                orientation = 'landscape';
+            } else if (currentAspectRatio === 0) {
+                // Free form - determine from canvas dimensions
+                orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+            }
             
             // Store both the image data and its orientation
             customPhotos[normalizedPhrase] = {
                 data: croppedImageData,
-                orientation: isPortrait ? 'portrait' : 'landscape'
+                orientation: orientation
             };
             
             if (customIcons[normalizedPhrase]) {
@@ -1179,6 +1217,13 @@
             reader.readAsDataURL(file);
         });
 
+        function setAspectRatio(ratio) {
+            currentAspectRatio = ratio;
+            if (cropper) {
+                cropper.setAspectRatio(ratio === 0 ? NaN : ratio);
+            }
+        }
+        
         // ===== UPDATED getCardData WITH CUSTOM ICONS/PHOTOS =====
         function getCardData(p) {
             const normalizedPhrase = norm(p);
@@ -3097,6 +3142,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
