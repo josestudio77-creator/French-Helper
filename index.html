@@ -411,11 +411,8 @@
         border: 2px solid #2ea44e !important; /* Green border when on */
     }
 
-    /* Custom photo styling - ROUNDED RECTANGLE VERSION */
-    /* Landscape orientation (default) */
+   /* Base styles for all photos */
     .card-photo {
-        width: 8rem;
-        height: 6rem;
         border-radius: 15px;
         object-fit: cover;
         object-position: center;
@@ -423,25 +420,38 @@
         border: 4px solid #a3e4d7;
         cursor: pointer;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
     }
     
-    /* Portrait orientation for vertical photos */
+    /* Landscape orientation */
+    .card-photo.landscape {
+        width: 8rem;
+        height: 6rem;
+    }
+    
+    /* Portrait orientation - KEEP ONLY ONE */
     .card-photo.portrait {
         width: 6rem;
         height: 8rem;
     }
     
+    /* Square orientation */
+    .card-photo.square {
+        width: 7rem;
+        height: 7rem;
+    }
+    
     .card-photo:active {
         transform: scale(0.95);
     }
-
+    
     /* Photo position classes */
     .card-photo.top { object-position: top; }
     .card-photo.bottom { object-position: bottom; }
     .card-photo.left { object-position: left; }
     .card-photo.right { object-position: right; }
     .card-photo.center { object-position: center; }
-
+    
     /* Cropper custom styles */
     .cropper-container {
         max-height: 50vh !important;
@@ -459,8 +469,8 @@
     .cropper-point {
         background-color: #4cd964 !important;
     }
-
-        /* Protect cropper buttons from global styles */
+    
+    /* Protect cropper buttons from global styles */
     .aspect-ratio-btn {
         background: #e0f2fe !important;
         color: #0369a1 !important;
@@ -1434,7 +1444,9 @@ function renderList(list) {
             `;
 
             if (data.isPhoto) {
-                const orientationClass = data.photoOrientation === 'portrait' ? 'portrait' : '';
+                // Use the orientation directly - 'landscape', 'portrait', or 'square'
+                const orientationClass = data.photoOrientation || 'landscape';
+                
                 card.innerHTML = `
                     ${gIcon}
                     <img src="${data.photoData}" class="card-photo ${orientationClass}" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
@@ -3180,6 +3192,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
