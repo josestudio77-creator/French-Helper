@@ -1078,9 +1078,12 @@
         }
 
         function openPhotoPicker() {
-            document.getElementById('photoPickerInput').click();
+            // Clear the input value so selecting the same file triggers change event
+            const photoInput = document.getElementById('photoPickerInput');
+            photoInput.value = ''; // ← Add this line
+            photoInput.click();
         }
-
+        
         function resetToDefaultIcon() {
             const normalizedPhrase = norm(currentPickerPhrase);
             
@@ -1212,6 +1215,7 @@
             
             if (file.size > 5 * 1024 * 1024) {
                 alert('Photo is too large! Please choose a smaller photo (under 5MB).');
+                this.value = ''; // Clear so they can try again
                 return;
             }
             
@@ -3147,6 +3151,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
