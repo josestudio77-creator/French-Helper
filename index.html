@@ -262,31 +262,48 @@
         font-size: 0.85rem;
     }
 
-    /* Container for the title to allow centering ignoring the icon */
+    /* Container for the title */
     #hwDrawerTitle {
         position: relative;
-        display: inline-block; /* Makes the title container only as wide as the text */
+        display: inline-block;
         text-align: center;
-        margin-bottom: 0px;
+        margin-bottom: 5px;
+        width: 100%; /* Ensures it centers in the drawer */
     }
     
     /* The floating pencil icon */
     .hw-title-emoji {
         position: absolute;
-        right: 100%;      /* Places it to the left of the start of the text */
-        margin-right: 12px; /* Gap between pencil and text */
+        left: 10px; /* Anchors it to the far left so it doesn't push the center */
         top: 0;
     }
     
-    /* The Month Subtitle */
+    /* The Navigation Container for the Month */
+    .hw-month-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px; /* Space between arrows and text */
+        margin-top: 5px;
+    }
+    
+    /* Style for the tiny arrows */
+    .hw-nav-btn {
+        background: #f0f4f8;
+        border: 1px solid #cbd5e0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        padding: 2px 8px;
+        cursor: pointer;
+        color: #9d4edd;
+    }
+    
     .hw-month-subtitle {
-        display: block;   /* Moves it to its own line */
         font-size: 0.9rem;
         color: #9d4edd;
-        opacity: 0.7;
+        opacity: 0.8;
         font-weight: 700;
-        margin-top: 4px;
-        white-space: nowrap; /* Prevents the month from wrapping */
+        white-space: nowrap;
     }
 
     /* Phonetic reference */
@@ -1771,10 +1788,11 @@ function checkForImport() {
             
             if (confirm(message)) {
                 const hwData = {
-                    words: weekData.words,
-                    audio: null,
-                    month: (weekData.month !== undefined) ? weekData.month : new Date().getMonth(),
-                    isDialogue: weekData.isDialogue || false,
+                    words: val,
+                    audio: currentWeekAudio,
+                    isDialogue: isDiag,
+                    month: selectedBpMonth,
+                    isFavorite: false,            
                     date: new Date().toISOString()
                 };
                 
@@ -1848,12 +1866,8 @@ function openBackpackFromHW() {
 
 function addNewHomework() {
     editingHomeworkName = null; 
-    const targetMonth = monthNames[selectedBpMonth];
     
-    // Updated HTML structure with a floating emoji
-    document.getElementById('hwDrawerTitle').innerHTML = 
-        `<span class="hw-title-emoji">✏️</span>Add Homework 
-         <span class="hw-month-subtitle">Folder: ${targetMonth}</span>`;
+    refreshHwTitle('add'); // Call our new engine
     
     document.getElementById('hwInput').value = "";
     document.getElementById('hwIsDialogue').checked = false;
@@ -1938,6 +1952,32 @@ function moveHomework(name) {
             alert("❌ Invalid month number. Please type a number between 1 and 12.");
         }
     }
+}
+
+        function changeHwFolder(direction) {
+    // 1. Update the global month tracker
+    selectedBpMonth += direction;
+    if (selectedBpMonth > 11) selectedBpMonth = 0;
+    if (selectedBpMonth < 0) selectedBpMonth = 11;
+
+    // 2. Refresh the title based on whether we are adding or editing
+    const type = editingHomeworkName ? 'edit' : 'add';
+    refreshHwTitle(type, editingHomeworkName);
+}
+
+function refreshHwTitle(type, name = "") {
+    const targetMonth = monthNames[selectedBpMonth];
+    const displayTitle = (type === 'edit') ? `Edit: ${name}` : "Add Homework";
+    
+    document.getElementById('hwDrawerTitle').innerHTML = `
+        <span class="hw-title-emoji">✏️</span>
+        ${displayTitle}
+        <div class="hw-month-nav">
+            <button class="hw-nav-btn" onclick="changeHwFolder(-1)">◀️</button>
+            <span class="hw-month-subtitle">Folder: ${targetMonth}</span>
+            <button class="hw-nav-btn" onclick="changeHwFolder(1)">▶️</button>
+        </div>
+    `;
 }
         
 function loadHomeworkForPractice(name, words, audio) {
@@ -3062,16 +3102,13 @@ async function translateOne(p) {
                 hwData.words = history[name];
             }
         
-            const monthIndex = hwData.month !== undefined ? hwData.month : selectedBpMonth;
-            const targetMonth = monthNames[monthIndex];
+            // Set the global month tracker to match the homework being edited
+            if (hwData.month !== undefined) selectedBpMonth = hwData.month;
         
             editingHomeworkName = name;
             
-            // Updated HTML structure for Edit mode
-            document.getElementById('hwDrawerTitle').innerHTML = 
-                `<span class="hw-title-emoji">✏️</span>Edit: ${name} 
-                 <span class="hw-month-subtitle">Folder: ${targetMonth}</span>`;
-        
+            refreshHwTitle('edit', name); // Call our new engine
+            
             document.getElementById('hwInput').value = hwData.words;
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
             currentIsDialogue = !!hwData.isDialogue;
@@ -3437,6 +3474,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
