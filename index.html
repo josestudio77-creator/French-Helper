@@ -306,6 +306,52 @@
         white-space: nowrap;
     }
 
+    .folder-card {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 10px 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative; /* For the badge */
+        cursor: pointer;
+        transition: transform 0.1s, border-color 0.2s;
+    }
+    
+    .folder-card:active {
+        transform: scale(0.95);
+        background: #e0f2fe;
+    }
+    
+    .folder-icon { font-size: 2rem; margin-bottom: 5px; }
+    
+    .folder-label {
+        font-size: 0.7rem;
+        font-weight: 900;
+        color: #475569;
+        text-transform: uppercase;
+    }
+    
+    /* The little number badge */
+    .folder-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #118AB2;
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 900;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
     /* Phonetic reference */
     .pronunciation-text {
         display: block;
@@ -756,6 +802,21 @@
     </div>
 </div>
 
+<!-- Visual Folder Selector Popup -->
+<div id="folderSelectionOverlay" class="overlay" style="z-index: 6000;">
+    <div class="overlay-content" style="max-height: 90vh; overflow-y: auto; padding: 20px; border: 5px solid #118AB2;">
+        <h2 style="color: #118AB2; margin-bottom: 15px;">📂 Move to Folder</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">Select a month for "<span id="movingHwName"></span>"</p>
+        
+        <!-- The Grid for the 12 Folders -->
+        <div id="folderGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+            <!-- Folders will be injected here by JavaScript -->
+        </div>
+        
+        <button onclick="closeOverlay('folderSelectionOverlay')" style="background: #eee; color: #666; padding: 15px; width: 100%; border-radius: 15px; border: none; font-weight: 900; cursor: pointer;">Cancel</button>
+    </div>
+</div>
+    
     <div id="printArea"></div>
     
     <div class="container">
@@ -1096,6 +1157,7 @@
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         let selectedBpMonth = new Date().getMonth(); // Defaults to current month (0-11)
         let showFavsOnly = false;
+        let homeworkToMove = ""; // Tracks which set we are moving
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -1911,50 +1973,62 @@ function toggleFavorite(name) {
     openBP();
 }
 
+// This is triggered when you click the 📁 icon in the Backpack
 function moveHomework(name) {
-    let currentData;
-    try {
-        const raw = history[name];
-        // Check if it's already a JSON object or just a plain string
-        if (typeof raw === 'string' && raw.trim().startsWith('{')) {
-            currentData = JSON.parse(raw);
-        } else {
-            // If it's old plain-text data, convert it to the new format first
-            currentData = { 
-                words: raw, 
-                date: new Date().toISOString(), 
-                isFavorite: false 
-            };
-        }
-    } catch (e) {
-        console.error("Error moving homework", e);
-        return;
-    }
-
-    // Build the menu for the user
-    let menu = `Move "${name}" to which month?\n\n`;
-    monthNames.forEach((m, i) => menu += `${i + 1}: ${m}\n`);
-    
-    const choice = prompt(menu);
-    
-    if (choice && !isNaN(choice)) {
-        const newMonth = parseInt(choice) - 1; // Convert 1-12 to 0-11
-        
-        if (newMonth >= 0 && newMonth <= 11) {
-            currentData.month = newMonth;
-            // Save back to history
-            history[name] = JSON.stringify(currentData);
-            localStorage.setItem('frenchHistory', JSON.stringify(history));
-            
-            // Refresh the backpack to show the item in its new folder
-            openBP();
-        } else {
-            alert("❌ Invalid month number. Please type a number between 1 and 12.");
-        }
-    }
+    homeworkToMove = name;
+    document.getElementById('movingHwName').textContent = name;
+    renderFolderGrid();
+    openOverlay('folderSelectionOverlay');
 }
 
-        function changeHwFolder(direction) {
+function renderFolderGrid() {
+    const grid = document.getElementById('folderGrid');
+    grid.innerHTML = '';
+
+    // 1. Calculate how many homeworks are in each month
+    const counts = new Array(12).fill(0);
+    Object.values(history).forEach(val => {
+        try {
+            const data = JSON.parse(val);
+            if (data.month !== undefined) counts[data.month]++;
+        } catch(e) {}
+    });
+
+    // 2. Create the 12 Folder buttons
+    monthNames.forEach((month, index) => {
+        const folder = document.createElement('div');
+        folder.className = 'folder-card';
+        folder.onclick = () => performMove(index);
+
+        // Add the badge only if there are items inside
+        const badge = counts[index] > 0 ? `<div class="folder-badge">${counts[index]}</div>` : '';
+
+        folder.innerHTML = `
+            ${badge}
+            <span class="folder-icon">📁</span>
+            <span class="folder-label">${month.substring(0, 3)}</span>
+        `;
+        grid.appendChild(folder);
+    });
+}
+
+function performMove(newMonthIndex) {
+    if (!homeworkToMove) return;
+
+    // Get the data, update the month, and save back
+    let hwData = JSON.parse(history[homeworkToMove]);
+    hwData.month = newMonthIndex;
+    
+    history[homeworkToMove] = JSON.stringify(hwData);
+    localStorage.setItem('frenchHistory', JSON.stringify(history));
+
+    // Close and Refresh
+    closeOverlay('folderSelectionOverlay');
+    homeworkToMove = "";
+    openBP(); // Refresh the backpack view
+}
+
+function changeHwFolder(direction) {
     // 1. Update the global month tracker
     selectedBpMonth += direction;
     if (selectedBpMonth > 11) selectedBpMonth = 0;
@@ -3474,6 +3548,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
