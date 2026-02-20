@@ -2932,11 +2932,34 @@ async function translateOne(p) {
                         shareWeek(name, hwData.words, hwData.audio);
                     };
         
-                    // 🗑️ Delete
+                    // 🗑️ Delete Button Logic
                     div.querySelector('.del-btn').onclick = () => { 
                         if(confirm(`Delete "${name}"?`)){ 
+                            // 1. Remove from the Backpack database
                             delete history[name]; 
                             localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                            
+                            // 2. CHECK: Is this the one we are currently practicing?
+                            if (currentSetName === name) {
+                                // WIPE the current session
+                                currentSetName = '';
+                                currentWeekAudio = null;
+                                currentIsDialogue = false;
+                                
+                                localStorage.removeItem('currentSetName');
+                                localStorage.removeItem('homeworkPhrases');
+                                localStorage.removeItem('currentWeekAudio');
+                                
+                                // Clear the text box and the screen
+                                document.getElementById('hwInput').value = "";
+                                renderList([]); 
+                                
+                                // Update status bar
+                                const statusInfo = document.getElementById('stCountText');
+                                if (statusInfo) statusInfo.textContent = '🇫🇷 Ready to learn!';
+                            }
+                            
+                            // 3. Refresh the Backpack view
                             openBP(); 
                         } 
                     };
@@ -3385,6 +3408,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
