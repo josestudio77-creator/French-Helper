@@ -1571,61 +1571,56 @@ if (data.isPhoto) {
 }
 
 function shareWeek(weekName, wordsText, audioData = null) {
-    // Get the list of phrases in this homework
     const phraseList = wordsText.split('\n').map(w => w.trim());
     
-    // Filter custom icons to only those for this homework's phrases
+    // Get the existing data from history to find the month and dialogue settings
+    let existingData = { month: selectedBpMonth, isDialogue: false };
+    try {
+        existingData = JSON.parse(history[weekName]);
+    } catch(e) {}
+
     const homeworkIcons = {};
     const homeworkPhotos = {};
     
     phraseList.forEach(phrase => {
         const normalized = norm(phrase);
-        if (customIcons[normalized]) {
-            homeworkIcons[normalized] = customIcons[normalized];
-        }
-        if (customPhotos[normalized]) {
-            homeworkPhotos[normalized] = customPhotos[normalized];
-        }
+        if (customIcons[normalized]) homeworkIcons[normalized] = customIcons[normalized];
+        if (customPhotos[normalized]) homeworkPhotos[normalized] = customPhotos[normalized];
     });
-    
-    // Check if ANY phrase has a custom photo
-    const hasCustomPhoto = Object.keys(homeworkPhotos).length > 0;
-    
-    // If there are photos OR audio, use file sharing
-    if (audioData || hasCustomPhoto) {
+
+    if (audioData || Object.keys(homeworkPhotos).length > 0) {
         const singleWeekData = {
             history: { [weekName]: JSON.stringify({ 
                 words: wordsText, 
                 audio: audioData, 
+                month: existingData.month, // <--- ADD THIS
+                isDialogue: existingData.isDialogue, // <--- ADD THIS
                 date: new Date().toISOString() 
             })},
             cache: cache,
-            customIcons: homeworkIcons,     // ← Only this homework's icons
-            customPhotos: homeworkPhotos,   // ← Only this homework's photos
-            appVersion: "French Fun V9.0"
+            customIcons: homeworkIcons,
+            customPhotos: homeworkPhotos,
+            appVersion: "French Fun V10.0"
         };
         const jsonString = JSON.stringify(singleWeekData);
-        const fileName = `${weekName.replace(/\s+/g, '_')}.json`;
-        attemptFileShare(jsonString, fileName, `🇫🇷 Homework: ${weekName}`);
-        return;
-    }
-    
-    // NO photos or audio - safe to use URL sharing
-    const weekData = { 
-        name: weekName, 
-        words: wordsText, 
-        hasAudio: false,
-        customIcons: homeworkIcons,    // ← Only this homework's icons
-        // Don't include photos in URL
-    };
-    const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-    const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-    const shareText = `🇫🇷 French Fun - ${weekName}\n\n${wordsText}\n\n✨ Import: ${importURL}`;
-    
-    if (navigator.share) { 
-        navigator.share({ title: weekName, text: shareText }).catch(() => {}); 
-    } else { 
-        prompt('Copy link:', importURL); 
+        attemptFileShare(jsonString, `${weekName.replace(/\s+/g, '_')}.json`, `🇫🇷 Homework: ${weekName}`);
+    } else {
+        // For URL sharing
+        const weekData = { 
+            name: weekName, 
+            words: wordsText, 
+            month: existingData.month, // <--- ADD THIS
+            isDialogue: existingData.isDialogue, // <--- ADD THIS
+            hasAudio: false,
+            customIcons: homeworkIcons
+        };
+        const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
+        const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
+        if (navigator.share) { 
+            navigator.share({ title: weekName, text: `🇫🇷 French Fun - ${weekName}\n\n✨ Import: ${importURL}` }); 
+        } else { 
+            prompt('Copy link:', importURL); 
+        }
     }
 }
         
@@ -1748,10 +1743,10 @@ function checkForImport() {
             if (photoCount > 0) message += `📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}\n`;
             
             if (confirm(message)) {
-                // Save the homework to history with the (possibly new) name
                 const hwData = {
                     words: weekData.words,
-                    audio: null,  // Links can't include audio
+                    audio: null,
+                    month: (weekData.month !== undefined) ? weekData.month : new Date().getMonth(),
                     isDialogue: weekData.isDialogue || false,
                     date: new Date().toISOString()
                 };
@@ -3390,6 +3385,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
