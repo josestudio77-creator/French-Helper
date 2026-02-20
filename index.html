@@ -1869,19 +1869,44 @@ function toggleFavorite(name) {
 }
 
 function moveHomework(name) {
-    const currentData = JSON.parse(history[name]);
-    const currentMonthName = monthNames[currentData.month || 0];
+    let currentData;
+    try {
+        const raw = history[name];
+        // Check if it's already a JSON object or just a plain string
+        if (typeof raw === 'string' && raw.trim().startsWith('{')) {
+            currentData = JSON.parse(raw);
+        } else {
+            // If it's old plain-text data, convert it to the new format first
+            currentData = { 
+                words: raw, 
+                date: new Date().toISOString(), 
+                isFavorite: false 
+            };
+        }
+    } catch (e) {
+        console.error("Error moving homework", e);
+        return;
+    }
+
+    // Build the menu for the user
+    let menu = `Move "${name}" to which month?\n\n`;
+    monthNames.forEach((m, i) => menu += `${i + 1}: ${m}\n`);
     
-    let msg = `Move "${name}" to which month?\n\n(Currently in ${currentMonthName})\nType a number 1-12:`;
-    const choice = prompt(msg);
+    const choice = prompt(menu);
     
     if (choice && !isNaN(choice)) {
-        const newMonth = parseInt(choice) - 1;
+        const newMonth = parseInt(choice) - 1; // Convert 1-12 to 0-11
+        
         if (newMonth >= 0 && newMonth <= 11) {
             currentData.month = newMonth;
+            // Save back to history
             history[name] = JSON.stringify(currentData);
             localStorage.setItem('frenchHistory', JSON.stringify(history));
+            
+            // Refresh the backpack to show the item in its new folder
             openBP();
+        } else {
+            alert("❌ Invalid month number. Please type a number between 1 and 12.");
         }
     }
 }
@@ -2807,32 +2832,60 @@ async function translateOne(p) {
         function openBP() {
             const list = document.getElementById('bpList'); 
             const headerTitle = document.getElementById('bpFolderName');
+            if (!list || !headerTitle) return; // Safety check
+            
             list.innerHTML = ''; 
             
+            // 1. Update the Header title based on what we are looking at
             if (showFavsOnly) {
                 headerTitle.innerHTML = "⭐ Favorites";
             } else {
                 headerTitle.innerHTML = "📅 " + monthNames[selectedBpMonth];
             }
             
-            const keys = Object.keys(history).reverse();
+            const keys = Object.keys(history).reverse(); // Show newest first
             let visibleCount = 0;
         
             keys.forEach(name => {
                 let hwData;
                 try {
-                    hwData = JSON.parse(history[name]);
-                    // Migration: If no month is set, assume it belongs to the current month
-                    if (hwData.month === undefined) hwData.month = new Date(hwData.date).getMonth();
+                    const rawData = history[name];
+                    
+                    // Check if the data is a JSON string (new format) or just words (very old format)
+                    if (typeof rawData === 'string' && rawData.trim().startsWith('{')) {
+                        hwData = JSON.parse(rawData);
+                    } else {
+                        // MIGRATION: Very old format where only words were saved
+                        hwData = { 
+                            words: rawData, 
+                            month: selectedBpMonth, 
+                            date: new Date().toISOString(),
+                            isFavorite: false 
+                        };
+                        // Heal the data immediately
+                        history[name] = JSON.stringify(hwData);
+                        localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    }
+                    
+                    // FIX: PERMANENT DATA MIGRATION (The "Healing" Logic)
+                    if (hwData.month === undefined) {
+                        // Assign a month based on its save date, or fallback to current selection
+                        hwData.month = hwData.date ? new Date(hwData.date).getMonth() : selectedBpMonth;
+                        // Save it back to storage permanently
+                        history[name] = JSON.stringify(hwData);
+                        localStorage.setItem('frenchHistory', JSON.stringify(history));
+                        console.log(`Healed data: Migrated "${name}" to ${monthNames[hwData.month]}`);
+                    }
                 } catch (e) {
-                    // Old format migration
-                    hwData = { words: history[name], month: selectedBpMonth, date: new Date().toISOString() };
+                    console.error("Error parsing homework:", name, e);
+                    return; // Skip broken items
                 }
         
-                // Filtering Logic
+                // 2. Filtering Logic
                 const matchesMonth = hwData.month === selectedBpMonth;
                 const matchesFav = hwData.isFavorite === true;
                 
+                // Only show if it matches the current folder view
                 if ((showFavsOnly && matchesFav) || (!showFavsOnly && matchesMonth)) {
                     visibleCount++;
                     const div = document.createElement('div'); 
@@ -2841,14 +2894,17 @@ async function translateOne(p) {
                     const favIcon = hwData.isFavorite ? "⭐" : "☆";
                     const hasAudio = hwData.audio ? '🎤' : '';
                     
+                    // Clean name for Javascript event attributes
+                    const safeName = name.replace(/'/g, "\\'");
+        
                     div.innerHTML = `
                         <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
-                            <button onclick="toggleFavorite('${name.replace(/'/g, "\\'")}')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">${favIcon}</button>
-                            <div onclick="renameHomework('${name.replace(/'/g, "\\'")}')" 
-                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd;">
+                            <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">${favIcon}</button>
+                            <div onclick="renameHomework('${safeName}')" 
+                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; flex:1; margin:0 10px;">
                                 ${name} ${hasAudio}
                             </div>
-                            <button onclick="moveHomework('${name.replace(/'/g, "\\'")}')" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">📁</button>
+                            <button onclick="moveHomework('${safeName}')" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">📁</button>
                         </div>
                         <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
                             <button class="load-btn" style="background:#4cd964; color:white; padding: 10px 8px;">🎯 Practice</button>
@@ -2860,20 +2916,47 @@ async function translateOne(p) {
                     `;
                     
                     const buttons = div.querySelectorAll('.load-btn');
-                    buttons[0].onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
-                    buttons[1].onclick = () => editHomework(name);
-                    buttons[2].onclick = () => runPrintLogic(hwData.words); 
-                    buttons[3].onclick = () => shareWeek(name, hwData.words, hwData.audio);
+                    
+                    // 🎯 Practice
+                    buttons[0].onclick = () => {
+                        loadHomeworkForPractice(name, hwData.words, hwData.audio);
+                    };
+                    
+                    // ✏️ Edit
+                    buttons[1].onclick = () => {
+                        editHomework(name);
+                    };
+                    
+                    // 🖨️ Print (Opens Choice Popup)
+                    buttons[2].onclick = () => {
+                        openPrintSelection(hwData.words, name);
+                    };
+                    
+                    // 📤 Share
+                    buttons[3].onclick = () => {
+                        shareWeek(name, hwData.words, hwData.audio);
+                    };
+        
+                    // 🗑️ Delete
                     div.querySelector('.del-btn').onclick = () => { 
-                        if(confirm("Delete " + name + "?")){ delete history[name]; localStorage.setItem('frenchHistory', JSON.stringify(history)); openBP(); } 
+                        if(confirm(`Delete "${name}"?`)){ 
+                            delete history[name]; 
+                            localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                            openBP(); 
+                        } 
                     };
                     
                     list.appendChild(div);
                 }
             });
         
+            // 3. Show "Empty" message if no homework matches the filter
             if (visibleCount === 0) {
-                list.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No homework found here!<br><br>${showFavsOnly ? "Star some items to see them here." : "Tap 'Add New' to create work for " + monthNames[selectedBpMonth]}</p>`;
+                list.innerHTML = `
+                    <div style="text-align:center; color:#64748b; padding:40px 20px; background:#f8fafc; border-radius:20px; border:2px dashed #cbd5e0;">
+                        <p style="font-size:1.1rem; font-weight:800; margin-bottom:10px;">Empty Folder</p>
+                        <p style="font-size:0.85rem;">${showFavsOnly ? "Star some homework to see it here!" : "No homework saved for " + monthNames[selectedBpMonth] + "."}</p>
+                    </div>`;
             }
         }
 
@@ -3302,6 +3385,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
