@@ -262,6 +262,15 @@
         font-size: 0.85rem;
     }
 
+    .hw-month-subtitle {
+        display: block;
+        font-size: 0.9rem;
+        color: #9d4edd; /* I changed this to match your purple theme */
+        opacity: 0.7;    /* Makes it look like a subtle sub-title */
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
     /* Phonetic reference */
     .pronunciation-text {
         display: block;
@@ -1820,14 +1829,22 @@ function openBackpackFromHW() {
 }
 
 function addNewHomework() {
-    // Reset for a fresh entry
-    editingHomeworkName = null;
-    document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+    editingHomeworkName = null; 
+    
+    // Get the name of the folder we are currently viewing
+    const targetMonth = monthNames[selectedBpMonth];
+    
+    // Set the Title with the subtitle underneath
+    document.getElementById('hwDrawerTitle').innerHTML = 
+        `✏️ Add Homework <span class="hw-month-subtitle">Folder: ${targetMonth}</span>`;
+    
     document.getElementById('hwInput').value = "";
+    document.getElementById('hwIsDialogue').checked = false;
     currentWeekAudio = null;
     displayAudioPlayer();      
+    
     closeOverlay('bpModal');
-    openOverlay('hwDrawer'); // Instant switch
+    openOverlay('hwDrawer'); 
 }
 
 function openSettingsFromBP() {
@@ -3015,17 +3032,12 @@ async function translateOne(p) {
         }
         
         function editHomework(name) {
-            // 1. Initialize with defaults. 
-            // We default 'month' to selectedBpMonth in case we're editing an old set that has no month.
             let hwData = { words: '', audio: null, isDialogue: false, month: selectedBpMonth };
-            
             try {
                 const raw = history[name];
                 if (typeof raw === 'string' && raw.trim().startsWith('{')) {
                     const parsed = JSON.parse(raw);
-                    if (parsed.words !== undefined) {
-                        hwData = parsed;
-                    }
+                    if (parsed.words !== undefined) hwData = parsed;
                 } else {
                     hwData.words = raw;
                 }
@@ -3033,22 +3045,22 @@ async function translateOne(p) {
                 hwData.words = history[name];
             }
         
-            // Set state
-            editingHomeworkName = name;
-            document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + name;
-            document.getElementById('hwInput').value = hwData.words;
-            
-            // Update the Dialogue Checkbox based on saved data
-            document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
-            
-            // Update the currentIsDialogue state to match the homework
-            currentIsDialogue = !!hwData.isDialogue;
+            // Determine the month name for the subtitle
+            const monthIndex = hwData.month !== undefined ? hwData.month : selectedBpMonth;
+            const targetMonth = monthNames[monthIndex];
         
-            // Safety fix: Ensure audio is cleaned if it was 'undefined'
+            editingHomeworkName = name;
+            
+            // Update title with Subtitle
+            document.getElementById('hwDrawerTitle').innerHTML = 
+                `✏️ Edit: ${name} <span class="hw-month-subtitle">Folder: ${targetMonth}</span>`;
+        
+            document.getElementById('hwInput').value = hwData.words;
+            document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
+            currentIsDialogue = !!hwData.isDialogue;
             currentWeekAudio = hwData.audio || null;
             displayAudioPlayer();
         
-            // Switch Screen
             closeOverlay('bpModal');
             openOverlay('hwDrawer');
         }
@@ -3408,6 +3420,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
