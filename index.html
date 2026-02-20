@@ -1018,7 +1018,6 @@
         let currentSetName = localStorage.getItem('currentSetName') || '';
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
-        let speechSpeedScale = 1.0; // Will be set based on device
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -3243,6 +3242,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
