@@ -468,11 +468,27 @@
         background-color: #4cd964 !important;
     }
     
-    /* Protect cropper buttons from global styles */
+    /* Styling for Aspect Ratio Buttons */
     .aspect-ratio-btn {
-        background: #e0f2fe !important;
-        color: #0369a1 !important;
-        border: 2px solid #0369a1 !important;
+        flex: 1;
+        background: #f1f5f9 !important; /* Light grey when not selected */
+        color: #64748b !important;
+        border: 2px solid #cbd5e0 !important;
+        padding: 8px 2px !important;
+        border-radius: 10px;
+        font-weight: 900;
+        font-size: 0.7rem !important;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    /* Bright Indigo when selected */
+    .aspect-ratio-btn.active {
+        background: #5a67d8 !important;
+        color: white !important;
+        border-color: #434190 !important;
+        transform: scale(1.05);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
     .aspect-ratio-btn.free-btn {
@@ -932,11 +948,11 @@
             <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Choose shape and adjust</p>
             
             <!-- Aspect Ratio Selector with specific classes -->
-            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 10px;">
-                <button onclick="setAspectRatio(1)" class="aspect-ratio-btn" style="flex:1; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900; cursor:pointer;">⬛ Square</button>
-                <button onclick="setAspectRatio(4/3)" class="aspect-ratio-btn" style="flex:1; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900; cursor:pointer;">🖼️ Landscape</button>
-                <button onclick="setAspectRatio(3/4)" class="aspect-ratio-btn" style="flex:1; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; padding:8px; border-radius:10px; font-weight:900; cursor:pointer;">📱 Portrait</button>
-                <button onclick="setAspectRatio(0)" class="aspect-ratio-btn" style="flex:1; background:#fef3c7; color:#92400e; border:2px solid #f59e0b; padding:8px; border-radius:10px; font-weight:900; cursor:pointer;">✂️ Free</button>
+            <div style="display: flex; gap: 5px; justify-content: center; margin-bottom: 10px;">
+                <button id="ratio-square" onclick="setAspectRatio(1)" class="aspect-ratio-btn">⬛ Square</button>
+                <button id="ratio-landscape" onclick="setAspectRatio(4/3)" class="aspect-ratio-btn">🖼️ Landsc.</button>
+                <button id="ratio-portrait" onclick="setAspectRatio(3/4)" class="aspect-ratio-btn">📱 Portr.</button>
+                <button id="ratio-free" onclick="setAspectRatio(0)" class="aspect-ratio-btn">✂️ Free</button>
             </div>
             
             <!-- Image container for cropping -->
@@ -1162,6 +1178,7 @@
                         console.log('Cropper ready with aspect ratio:', currentAspectRatio);
                     }
                 });
+                setAspectRatio(4/3); // This highlights the Landscape button by default
             };
         }
 
@@ -1265,15 +1282,20 @@
             currentAspectRatio = ratio;
             
             if (cropper) {
-                // Force the crop box to update
                 cropper.setAspectRatio(ratio === 0 ? NaN : ratio);
-                
-                // Force a redraw of the crop box
-                setTimeout(() => {
-                    const cropBox = cropper.getCropBoxData();
-                    cropper.setCropBoxData(cropBox); // This forces a refresh
-                }, 100);
             }
+        
+            // UPDATE BUTTON VISUALS
+            // Remove 'active' class from all ratio buttons
+            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        
+            // Add 'active' class to the correct one based on ratio
+            if (ratio === 1) document.getElementById('ratio-square').classList.add('active');
+            else if (ratio === 0) document.getElementById('ratio-free').classList.add('active');
+            else if (ratio > 1) document.getElementById('ratio-landscape').classList.add('active');
+            else if (ratio < 1) document.getElementById('ratio-portrait').classList.add('active');
         }
         
         // ===== UPDATED getCardData WITH CUSTOM ICONS/PHOTOS =====
@@ -3211,6 +3233,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
