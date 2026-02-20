@@ -352,6 +352,32 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
+    /* Container for the Move icon */
+    .move-btn-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+    }
+    
+    /* The tiny arrow sitting on the folder */
+    .move-btn-arrow {
+        position: absolute;
+        font-size: 0.75rem;
+        bottom: -2px;
+        right: -2px;
+        background: white;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+       
     /* Phonetic reference */
     .pronunciation-text {
         display: block;
@@ -3090,7 +3116,12 @@ async function translateOne(p) {
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; flex:1; margin:0 10px;">
                                 ${name} ${hasAudio}
                             </div>
-                            <button onclick="moveHomework('${safeName}')" style="background:none; border:none; font-size:1.3rem; cursor:pointer;">📁</button>
+                            <button onclick="moveHomework('${safeName}')" style="background:none; border:none; cursor:pointer; padding:0;">
+                                <div class="move-btn-wrapper">
+                                    <span style="font-size: 1.5rem;">📂</span>
+                                    <span class="move-btn-arrow">➡️</span>
+                                </div>
+                            </button>
                         </div>
                         <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
                             <button class="load-btn" style="background:#4cd964; color:white; padding: 10px 8px;">🎯 Practice</button>
@@ -3163,8 +3194,10 @@ async function translateOne(p) {
             if (visibleCount === 0) {
                 list.innerHTML = `
                     <div style="text-align:center; color:#64748b; padding:40px 20px; background:#f8fafc; border-radius:20px; border:2px dashed #cbd5e0;">
-                        <p style="font-size:1.1rem; font-weight:800; margin-bottom:10px;">Empty Folder</p>
-                        <p style="font-size:0.85rem;">${showFavsOnly ? "Star some homework to see it here!" : "No homework saved for " + monthNames[selectedBpMonth] + "."}</p>
+                        <p style="font-size:2.5rem; margin-bottom:10px;">∅</p>
+                        <p style="font-size:1.1rem; font-weight:800; margin-bottom:10px;">Folder is Empty</p>
+                        <p style="font-size:0.85rem; margin-bottom:15px;">${showFavsOnly ? "Star some homework to see it here!" : "No homework saved for " + monthNames[selectedBpMonth] + "."}</p>
+                        <button onclick="openFolderNav()" style="background:#118AB2; color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:900; cursor:pointer;">📂 View All Folders</button>
                     </div>`;
             }
         }
@@ -3591,6 +3624,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
