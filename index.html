@@ -352,30 +352,23 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    /* Container for the Move icon */
-    .move-btn-wrapper {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
+        /* Optimized for 6 buttons in the Backpack */
+    .history-item .load-btn, .history-item .del-btn {
+        flex: 1 1 calc(33.33% - 10px); /* Forces 3 buttons per row */
+        min-width: 85px;
+        font-size: 0.8rem;
+        padding: 12px 5px !important;
+        margin: 2px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 900;
+        cursor: pointer;
     }
     
-    /* The tiny arrow sitting on the folder */
-    .move-btn-arrow {
-        position: absolute;
-        font-size: 0.75rem;
-        bottom: -2px;
-        right: -2px;
-        background: white;
-        border-radius: 50%;
-        width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    /* Specific color for the trash can in the new grid */
+    .history-item .del-btn {
+        background: #fee2e2;
+        color: #ef4444;
     }
        
     /* Phonetic reference */
@@ -3044,60 +3037,41 @@ async function translateOne(p) {
         function openBP() {
             const list = document.getElementById('bpList'); 
             const headerTitle = document.getElementById('bpFolderName');
-            if (!list || !headerTitle) return; // Safety check
+            if (!list || !headerTitle) return;
             
             list.innerHTML = ''; 
             
-            // 1. Update the Header title based on what we are looking at
             if (showFavsOnly) {
                 headerTitle.innerHTML = "⭐ Favorites";
             } else {
                 headerTitle.innerHTML = "📅 " + monthNames[selectedBpMonth];
             }
             
-            const keys = Object.keys(history).reverse(); // Show newest first
+            const keys = Object.keys(history).reverse();
             let visibleCount = 0;
         
             keys.forEach(name => {
                 let hwData;
                 try {
                     const rawData = history[name];
-                    
-                    // Check if the data is a JSON string (new format) or just words (very old format)
                     if (typeof rawData === 'string' && rawData.trim().startsWith('{')) {
                         hwData = JSON.parse(rawData);
                     } else {
-                        // MIGRATION: Very old format where only words were saved
-                        hwData = { 
-                            words: rawData, 
-                            month: selectedBpMonth, 
-                            date: new Date().toISOString(),
-                            isFavorite: false 
-                        };
-                        // Heal the data immediately
+                        hwData = { words: rawData, month: selectedBpMonth, date: new Date().toISOString(), isFavorite: false };
                         history[name] = JSON.stringify(hwData);
                         localStorage.setItem('frenchHistory', JSON.stringify(history));
                     }
                     
-                    // FIX: PERMANENT DATA MIGRATION (The "Healing" Logic)
                     if (hwData.month === undefined) {
-                        // Assign a month based on its save date, or fallback to current selection
                         hwData.month = hwData.date ? new Date(hwData.date).getMonth() : selectedBpMonth;
-                        // Save it back to storage permanently
                         history[name] = JSON.stringify(hwData);
                         localStorage.setItem('frenchHistory', JSON.stringify(history));
-                        console.log(`Healed data: Migrated "${name}" to ${monthNames[hwData.month]}`);
                     }
-                } catch (e) {
-                    console.error("Error parsing homework:", name, e);
-                    return; // Skip broken items
-                }
+                } catch (e) { return; }
         
-                // 2. Filtering Logic
                 const matchesMonth = hwData.month === selectedBpMonth;
                 const matchesFav = hwData.isFavorite === true;
                 
-                // Only show if it matches the current folder view
                 if ((showFavsOnly && matchesFav) || (!showFavsOnly && matchesMonth)) {
                     visibleCount++;
                     const div = document.createElement('div'); 
@@ -3105,83 +3079,50 @@ async function translateOne(p) {
                     
                     const favIcon = hwData.isFavorite ? "⭐" : "☆";
                     const hasAudio = hwData.audio ? '🎤' : '';
-                    
-                    // Clean name for Javascript event attributes
                     const safeName = name.replace(/'/g, "\\'");
         
                     div.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
-                            <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">${favIcon}</button>
+                        <div style="display:grid; grid-template-columns: 40px 1fr 40px; width:100%; margin-bottom:12px; align-items:center;">
+                            <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0;">${favIcon}</button>
                             <div onclick="renameHomework('${safeName}')" 
-                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; flex:1; margin:0 10px;">
+                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center;">
                                 ${name} ${hasAudio}
                             </div>
-                            <button onclick="moveHomework('${safeName}')" style="background:none; border:none; cursor:pointer; padding:0;">
-                                <div class="move-btn-wrapper">
-                                    <span style="font-size: 1.5rem;">📂</span>
-                                    <span class="move-btn-arrow">➡️</span>
-                                </div>
-                            </button>
+                            <div></div>
                         </div>
-                        <div style="display:flex; gap:5px; justify-content:center; flex-wrap:wrap;">
-                            <button class="load-btn" style="background:#4cd964; color:white; padding: 10px 8px;">🎯 Practice</button>
-                            <button class="load-btn" style="background:#ff9e6d; color:white; padding: 10px 8px;">✏️ Edit</button>
-                            <button class="load-btn" style="background:#f59e0b; color:white; padding: 10px 8px;">🖨️ Print</button>
-                            <button class="load-btn" style="background:#5a67d8; color:white; padding: 10px 8px;">📤 Share</button>
-                            <button class="del-btn" style="padding:10px 15px;">🗑️</button>
+                        <!-- 3x2 Grid of Action Buttons -->
+                        <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; width:100%;">
+                            <button class="load-btn" style="background:#4cd964; color:white;">🎯 Pract.</button>
+                            <button class="load-btn" style="background:#ff9e6d; color:white;">✏️ Edit</button>
+                            <button class="load-btn" style="background:#f59e0b; color:white;">🖨️ Print</button>
+                            
+                            <button class="load-btn" style="background:#118AB2; color:white;">📂 Move</button>
+                            <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
+                            <button class="del-btn">🗑️ Del.</button>
                         </div>
                     `;
                     
                     const buttons = div.querySelectorAll('.load-btn');
                     
-                    // 🎯 Practice
-                    buttons[0].onclick = () => {
-                        loadHomeworkForPractice(name, hwData.words, hwData.audio);
-                    };
+                    // Row 1
+                    buttons[0].onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio); 
+                    buttons[1].onclick = () => editHomework(name); 
+                    buttons[2].onclick = () => openPrintSelection(hwData.words, name); 
                     
-                    // ✏️ Edit
-                    buttons[1].onclick = () => {
-                        editHomework(name);
-                    };
-                    
-                    // 🖨️ Print (Opens Choice Popup)
-                    buttons[2].onclick = () => {
-                        openPrintSelection(hwData.words, name);
-                    };
-                    
-                    // 📤 Share
-                    buttons[3].onclick = () => {
-                        shareWeek(name, hwData.words, hwData.audio);
-                    };
+                    // Row 2
+                    buttons[3].onclick = () => moveHomework(name); 
+                    buttons[4].onclick = () => shareWeek(name, hwData.words, hwData.audio); 
         
-                    // 🗑️ Delete Button Logic
+                    // Trash can
                     div.querySelector('.del-btn').onclick = () => { 
                         if(confirm(`Delete "${name}"?`)){ 
-                            // 1. Remove from the Backpack database
                             delete history[name]; 
                             localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                            
-                            // 2. CHECK: Is this the one we are currently practicing?
                             if (currentSetName === name) {
-                                // WIPE the current session
                                 currentSetName = '';
-                                currentWeekAudio = null;
-                                currentIsDialogue = false;
-                                
-                                localStorage.removeItem('currentSetName');
                                 localStorage.removeItem('homeworkPhrases');
-                                localStorage.removeItem('currentWeekAudio');
-                                
-                                // Clear the text box and the screen
-                                document.getElementById('hwInput').value = "";
-                                renderList([]); 
-                                
-                                // Update status bar
-                                const statusInfo = document.getElementById('stCountText');
-                                if (statusInfo) statusInfo.textContent = '🇫🇷 Ready to learn!';
+                                renderList([]);
                             }
-                            
-                            // 3. Refresh the Backpack view
                             openBP(); 
                         } 
                     };
@@ -3190,7 +3131,6 @@ async function translateOne(p) {
                 }
             });
         
-            // 3. Show "Empty" message if no homework matches the filter
             if (visibleCount === 0) {
                 list.innerHTML = `
                     <div style="text-align:center; color:#64748b; padding:40px 20px; background:#f8fafc; border-radius:20px; border:2px dashed #cbd5e0;">
@@ -3624,6 +3564,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
