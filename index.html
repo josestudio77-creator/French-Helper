@@ -1041,6 +1041,7 @@
             document.getElementById('pickerPhrase').textContent = phrase;
             document.getElementById('emojiInputSection').style.display = 'none';
             document.getElementById('emojiInput').value = '';
+            document.getElementById('photoCropperOverlay').style.display = 'none';
             openOverlay('iconPickerOverlay');
         }
 
@@ -1098,7 +1099,10 @@
             tempPhotoData = imageData;
             currentAspectRatio = 4/3; // Reset to default
             
+            // Make sure icon picker is closed and stays closed
             closeOverlay('iconPickerOverlay');
+            
+            // Open the cropper
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
             const image = document.getElementById('cropperImage');
@@ -1134,6 +1138,7 @@
             if (cropper) cropper.destroy();
             cropper = null;
             document.getElementById('photoCropperOverlay').style.display = 'none';
+            // Don't reopen icon picker - stay on the main screen
         }
 
         function saveCroppedPhoto() {
@@ -1192,7 +1197,7 @@
             
             localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
             localStorage.setItem('customIcons', JSON.stringify(customIcons));
-            
+
             cropper.destroy();
             cropper = null;
             document.getElementById('photoCropperOverlay').style.display = 'none';
@@ -3142,6 +3147,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
