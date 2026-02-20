@@ -812,6 +812,10 @@
         <div id="folderGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
             <!-- Folders will be injected here by JavaScript -->
         </div>
+
+        <div id="totalHwCount" style="margin-bottom: 20px; font-weight: 900; color: #118AB2; font-size: 0.9rem; background: #e0f2fe; padding: 10px; border-radius: 10px;">
+            Total Homeworks: 0
+        </div>
         
         <button onclick="closeOverlay('folderSelectionOverlay')" style="background: #eee; color: #666; padding: 15px; width: 100%; border-radius: 15px; border: none; font-weight: 900; cursor: pointer;">Cancel</button>
     </div>
@@ -988,7 +992,7 @@
             <div style="background: #fdf2ff; border-radius: 20px; padding: 15px; border: 3px solid #9d4edd; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <button onclick="changeBpMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀️</button>
-                    <h2 id="bpFolderName" style="color:#9d4edd; margin:0; font-size:1.4rem;">🎒 Backpack</h2>
+                    <h2 id="bpFolderName" onclick="openFolderNav()" style="color:#9d4edd; margin:0; font-size:1.4rem; cursor:pointer; text-decoration:underline dashed #9d4edd; text-underline-offset: 4px;">🎒 Backpack</h2>
                     <button onclick="changeBpMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶️</button>
                 </div>
                 
@@ -1973,34 +1977,65 @@ function toggleFavorite(name) {
     openBP();
 }
 
-// This is triggered when you click the 📁 icon in the Backpack
+// 1. Triggered when clicking the 📁 icon (to move an item)
 function moveHomework(name) {
-    homeworkToMove = name;
-    document.getElementById('movingHwName').textContent = name;
+    homeworkToMove = name; // Set the variable so the grid knows we are MOVING
+    const subtitle = document.querySelector('#folderSelectionOverlay p');
+    if (subtitle) subtitle.innerHTML = `Move "<span id="movingHwName">${name}</span>" to:`;
     renderFolderGrid();
     openOverlay('folderSelectionOverlay');
 }
 
+// 2. Triggered when clicking the "📅 Month Name" (to navigate)
+function openFolderNav() {
+    homeworkToMove = ""; // Clear the variable so the grid knows we are NAVIGATING
+    const subtitle = document.querySelector('#folderSelectionOverlay p');
+    if (subtitle) subtitle.innerHTML = 'Select a month folder to view:';
+    renderFolderGrid();
+    openOverlay('folderSelectionOverlay');
+}
+
+// 3. The "Engine" that builds the visual grid
 function renderFolderGrid() {
     const grid = document.getElementById('folderGrid');
+    if (!grid) return;
     grid.innerHTML = '';
-
-    // 1. Calculate how many homeworks are in each month
+    
+    let totalCount = 0;
     const counts = new Array(12).fill(0);
+
+    // Calculate counts for badges and grand total
     Object.values(history).forEach(val => {
         try {
             const data = JSON.parse(val);
-            if (data.month !== undefined) counts[data.month]++;
+            if (data.month !== undefined) {
+                counts[data.month]++;
+                totalCount++;
+            }
         } catch(e) {}
     });
 
-    // 2. Create the 12 Folder buttons
+    // Update the Total Display at the bottom
+    const totalDisplay = document.getElementById('totalHwCount');
+    if (totalDisplay) totalDisplay.textContent = `📊 Total saved in Backpack: ${totalCount}`;
+
+    // Update Popup Title based on mode
+    const title = document.querySelector('#folderSelectionOverlay h2');
+    if (title) title.textContent = homeworkToMove ? "📂 Move to Folder" : "📂 Select Month";
+
+    // Create the 12 Folder buttons
     monthNames.forEach((month, index) => {
         const folder = document.createElement('div');
         folder.className = 'folder-card';
-        folder.onclick = () => performMove(index);
+        
+        // Highlight current folder if we are just navigating
+        if (index === selectedBpMonth && !homeworkToMove) {
+            folder.style.borderColor = "#118AB2";
+            folder.style.background = "#e0f2fe";
+        }
 
-        // Add the badge only if there are items inside
+        folder.onclick = () => performFolderAction(index);
+
         const badge = counts[index] > 0 ? `<div class="folder-badge">${counts[index]}</div>` : '';
 
         folder.innerHTML = `
@@ -2012,19 +2047,27 @@ function renderFolderGrid() {
     });
 }
 
-function performMove(newMonthIndex) {
-    if (!homeworkToMove) return;
+// 4. The "Final Step" - actually does the move or the navigation
+function performFolderAction(newMonthIndex) {
+    if (homeworkToMove) {
+        // --- ACTION: MOVE ---
+        let hwData = JSON.parse(history[homeworkToMove]);
+        hwData.month = newMonthIndex;
+        history[homeworkToMove] = JSON.stringify(hwData);
+        localStorage.setItem('frenchHistory', JSON.stringify(history));
+    } else {
+        // --- ACTION: NAVIGATE ---
+        selectedBpMonth = newMonthIndex;
+        showFavsOnly = false; // Turn off favorites filter when picking a month folder
+        const favBtn = document.getElementById('btnFavFilter');
+        if(favBtn) {
+            favBtn.style.background = "white";
+            favBtn.style.color = "#fb8500";
+        }
+    }
 
-    // Get the data, update the month, and save back
-    let hwData = JSON.parse(history[homeworkToMove]);
-    hwData.month = newMonthIndex;
-    
-    history[homeworkToMove] = JSON.stringify(hwData);
-    localStorage.setItem('frenchHistory', JSON.stringify(history));
-
-    // Close and Refresh
     closeOverlay('folderSelectionOverlay');
-    homeworkToMove = "";
+    homeworkToMove = ""; // Reset for next time
     openBP(); // Refresh the backpack view
 }
 
@@ -3548,6 +3591,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
