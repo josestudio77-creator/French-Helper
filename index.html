@@ -411,20 +411,26 @@
         border: 2px solid #2ea44e !important; /* Green border when on */
     }
 
-    /* Custom photo styling */
+    /* Custom photo styling - ROUNDED RECTANGLE VERSION */
+    /* Landscape orientation (default) */
     .card-photo {
-        width: 6rem;
+        width: 8rem;
         height: 6rem;
-        border-radius: 50%;
+        border-radius: 15px;
         object-fit: cover;
         object-position: center;
         margin-bottom: 10px;
         border: 4px solid #a3e4d7;
         cursor: pointer;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
     }
-
+    
+    /* Portrait orientation for vertical photos */
+    .card-photo.portrait {
+        width: 6rem;
+        height: 8rem;
+    }
+    
     .card-photo:active {
         transform: scale(0.95);
     }
@@ -1092,7 +1098,7 @@
                 if (cropper) cropper.destroy();
                 
                 cropper = new Cropper(image, {
-                    aspectRatio: 1,
+                    aspectRatio: 4 / 3,  // ← Changed from 1 (square) to 4:3 (rectangle)
                     viewMode: 1,
                     autoCropArea: 0.8,
                     movable: true,
@@ -1105,8 +1111,8 @@
                     center: true,
                     highlight: true,
                     background: true,
-                    minCropBoxWidth: 100,
-                    minCropBoxHeight: 100,
+                    minCropBoxWidth: 160,  // Increased for rectangle
+                    minCropBoxHeight: 120,
                     ready() {
                         console.log('Cropper ready');
                     }
@@ -1124,16 +1130,23 @@
             if (!cropper) return;
             
             const canvas = cropper.getCroppedCanvas({
-                width: 200,
-                height: 200,
+                width: 400,
+                height: 300,
                 imageSmoothingEnabled: true,
                 imageSmoothingQuality: 'high'
             });
             
             const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
-            
             const normalizedPhrase = norm(currentPickerPhrase);
-            customPhotos[normalizedPhrase] = croppedImageData;
+            
+            // Determine if the cropped image is portrait or landscape
+            const isPortrait = canvas.height > canvas.width;
+            
+            // Store both the image data and its orientation
+            customPhotos[normalizedPhrase] = {
+                data: croppedImageData,
+                orientation: isPortrait ? 'portrait' : 'landscape'
+            };
             
             if (customIcons[normalizedPhrase]) {
                 delete customIcons[normalizedPhrase];
@@ -1172,11 +1185,16 @@
             
             // Check for custom photo first
             if (customPhotos[normalizedPhrase]) {
+                // Check if it's the new format with orientation or old format
+                const photoData = customPhotos[normalizedPhrase];
+                const isNewFormat = photoData.data !== undefined;
+                
                 return {
                     en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
                     icon: '📷',
                     isPhoto: true,
-                    photoData: customPhotos[normalizedPhrase],
+                    photoData: isNewFormat ? photoData.data : photoData,
+                    photoOrientation: isNewFormat ? photoData.orientation : 'landscape', // Default to landscape for old photos
                     pronunciation: MASTER_DATA[p]?.pronunciation,
                     g: MASTER_DATA[p]?.g
                 };
@@ -1333,9 +1351,10 @@ function renderList(list) {
             `;
 
             if (data.isPhoto) {
+                const orientationClass = data.photoOrientation === 'portrait' ? 'portrait' : '';
                 card.innerHTML = `
                     ${gIcon}
-                    <img src="${data.photoData}" class="card-photo" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                    <img src="${data.photoData}" class="card-photo ${orientationClass}" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
                     <span class="french-text">${p}</span>
                     ${pGuide}
                     <span class="english-text">${data.en}</span>
@@ -3078,6 +3097,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
