@@ -775,7 +775,7 @@
                 <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
-                <button onclick="openPrintSelection()" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
+                <button onclick="openPrintSelection(document.getElementById('hwInput').value, currentSetName)" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
                 <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
                 <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
                 <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
@@ -971,8 +971,9 @@
         // Play Loop
         let loopMode = false;              // Whether loop is enabled
 
-        let isPrinting = false; // Add this at the very top of your <script>
+        let isPrinting = false; 
         let tempWordsToPrint = "";
+        let tempPrintName = ""; 
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -2631,7 +2632,7 @@ async function translateOne(p) {
                 
                 // 🖨️ Print (NEW)
                 buttons[2].onclick = () => {
-                    openPrintSelection(hwData.words);
+                    openPrintSelection(hwData.words, name);
                 };
                 
                 // 📤 Share
@@ -2967,10 +2968,16 @@ function playLine(index) {
 }
 
 // This is the NEW function the buttons will call
-function openPrintSelection(words) {
+function openPrintSelection(words, homeworkName) {
     tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
-
+    if (!tempWordsToPrint) { 
+        alert("Please enter some phrases first!"); 
+        return; 
+    }
+    
+    // Store the name to use in printing
+    tempPrintName = homeworkName || currentSetName || "Français";
+    
     // RESET: Force counter to 2 AND header toggle to OFF
     document.getElementById('repeatCountInput').value = 2;
     document.getElementById('includeHeaderToggle').checked = false; 
@@ -2980,14 +2987,13 @@ function openPrintSelection(words) {
 
 function handlePrintChoice(choice) {
     const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
-    // READ the toggle state
     const showHeader = document.getElementById('includeHeaderToggle').checked;
     
     closeOverlay('printSelectionOverlay');
-    runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader);
+    runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName);
 }
 
-function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader = false) {
+function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader = false, printName = "Français") {
     if (isPrinting) return;
     isPrinting = true;
 
@@ -3003,12 +3009,12 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     
     let html = "";
 
-    // 1. CONDITIONALLY ADD THE HEADER
+    // 1. CONDITIONALLY ADD THE HEADER - USE THE PASSED NAME
     if (includeHeader) {
         html += `
             <div class="print-header-simple">
                 <div class="name-label">Nom:<span class="name-underline"></span></div>
-                <div class="set-name-center">${currentSetName || "Français"}</div>
+                <div class="set-name-center">${printName}</div>
                 <div class="date-label">Date: ${today}</div>
             </div>`;
     }
@@ -3072,6 +3078,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
