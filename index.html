@@ -2202,17 +2202,18 @@ function loadHomeworkForPractice(name, words, audio) {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
-function practiceNow() {
+async function practiceNow() {
     const words = document.getElementById('hwInput').value.trim();
     if (!words) {
         alert('Please enter some homework words first!');
         return;
     }
     
-    // --- FIX: Set currentIsDialogue based on checkbox BEFORE rendering ---
+    // AUTO-TRANSLATE before practicing
+    await translateIfNeeded(words, true);
+    
     currentIsDialogue = document.getElementById('hwIsDialogue').checked;
     
-    // If this is a new unsaved homework, clear the name
     if (!editingHomeworkName) {
         currentSetName = '';
         localStorage.removeItem('currentSetName');
@@ -2247,129 +2248,60 @@ function hasNote(homeworkName) {
     return homeworkNotes[homeworkName] ? '💬' : '';
 }
 
-        function magicTranslate() {
-            const msgDiv = document.getElementById('hwMessages');
-            const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
-            
-            if (list.length === 0) {
-                msgDiv.innerHTML = '<div class="error-message">⚠️ Please enter some words first!</div>';
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-                return;
-            }
-            
-            msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translating... Please wait</div>';
-            
-            let successCount = 0;
-            let failCount = 0;
-            
-            // Process translations with delay to avoid rate limiting
-            const processTranslation = async (index) => {
-                if (index >= list.length) {
-                    // All translations complete
-                    msgDiv.innerHTML = '';
-                    
-                    if (failCount === 0) {
-                        msgDiv.innerHTML = `<div class="success-message">✅ Successfully translated ${successCount} words!</div>`;
-                    } else {
-                        msgDiv.innerHTML = `<div class="error-message">⚠️ Translated ${successCount} words, ${failCount} failed. Check your internet connection.</div>`;
-                    }
-                    
-                    setTimeout(() => msgDiv.innerHTML = '', 5000);
-                    return;
-                }
-                
-                const word = list[index];
-                const result = await translateOne(word);
-                if (result) successCount++;
-                else failCount++;
-                
-                // Update progress
-                if (msgDiv.innerHTML.includes('Translating')) {
-                    msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translated ${index + 1}/${list.length} words...</div>`;
-                }
-                
-                // Process next word after delay
-                setTimeout(() => processTranslation(index + 1), 800);
-            };
-            
-            // Start translation process
-            processTranslation(0);
+function needsTranslation(words) {
+    const list = words.split('\n').filter(l => l.trim().length > 0);
+    for (let p of list) {
+        const n = norm(p);
+        if (!MASTER_DATA[p] && !(cache[n] && cache[n] !== "...")) {
+            return true; // Found a phrase that needs translation
         }
+    }
+    return false; // All phrases translated
+}
 
-        window.onload = () => {
-            console.log('App loading...');
-            
-            // FORCE RESET PRINT STATE ON STARTUP
-            const ghostPrint = document.getElementById('printArea');
-            if (ghostPrint) ghostPrint.innerHTML = '';
+async function translateIfNeeded(words, showProgress = true) {
+    if (!needsTranslation(words)) return words; // Nothing to translate
+    
+    const list = words.split('\n').filter(l => l.trim().length > 0);
+    let successCount = 0;
+    
+    if (showProgress) {
+        const msgDiv = document.getElementById('hwMessages');
+        msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">📝 Auto-translating... Please wait</div>';
+    }
+    
+    // Translate each untranslated phrase
+    for (let i = 0; i < list.length; i++) {
+        const phrase = list[i];
+        const n = norm(phrase);
         
-            const raw = localStorage.getItem('homeworkPhrases');
-            document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
-            lastLoadedHomework = raw || '';
+        if (!MASTER_DATA[phrase] && !(cache[n] && cache[n] !== "...")) {
+            const result = await translateOne(phrase);
+            if (result) successCount++;
             
-            // Load last homework on startup if exists
-            if (raw && raw.trim()) {
-                console.log('Loading last homework:', raw);
-                
-                // IMPORTANT: Find the homework in history AND load its dialogue flag
-                let foundName = '';
-                let foundIsDialogue = false;
-                
-                for (let name in history) {
-                    try {
-                        const hwData = JSON.parse(history[name]);
-                        if (hwData.words === raw) {
-                            foundName = name;
-                            foundIsDialogue = hwData.isDialogue || false;
-                            break;
-                        }
-                    } catch (e) {
-                        // Old format, skip
-                    }
-                }
-                
-                // If we found a matching homework name, use it
-                if (foundName) {
-                    currentSetName = foundName;
-                    localStorage.setItem('currentSetName', foundName);
-                    currentIsDialogue = foundIsDialogue;
-                } else {
-                    // This is unsaved homework or preset - clear the name
-                    currentSetName = '';
-                    localStorage.removeItem('currentSetName');
-                    currentIsDialogue = false;
-                }
-                
-                loadCurrentHomework();
-            } else {
-                console.log('No homework found in storage');
-                // No homework loaded, so clear the name
-                currentSetName = '';
-                localStorage.removeItem('currentSetName');
-                currentIsDialogue = false;
+            if (showProgress) {
+                const msgDiv = document.getElementById('hwMessages');
+                msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translated ${i + 1}/${list.length}...</div>`;
             }
             
-            initVoices();
-            initSpeechSpeed();
-            initAudioUpload();
-            checkForImport();
-            if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-            
-            const savedGap = localStorage.getItem('gapValue');
-            if (savedGap) {
-                document.getElementById('gapSlider').value = savedGap;
-                document.getElementById('gapValue').innerText = savedGap;
-            } else {
-                // Default to 1.0
-                document.getElementById('gapValue').innerText = '1.0';
-            }
-            
-            // Sync the view mode buttons
-            setTimeout(() => {
-                setViewMode(viewMode);
-            }, 100);
-            
-        };
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+    }
+    
+    if (showProgress) {
+        const msgDiv = document.getElementById('hwMessages');
+        msgDiv.innerHTML = `<div class="success-message">✅ Auto-translated ${successCount} phrase${successCount > 1 ? 's' : ''}!</div>`;
+        setTimeout(() => msgDiv.innerHTML = '', 2000);
+    }
+    
+    return words;
+}
+        
+async function magicTranslate() {
+    const words = document.getElementById('hwInput').value;
+    await translateIfNeeded(words, true);
+}
         
         function loadCurrentHomework() {
             const words = document.getElementById('hwInput').value.trim();
@@ -3030,68 +2962,68 @@ async function translateOne(p) {
         }
 
 
-        function saveHW() { 
-            const val = document.getElementById('hwInput').value.trim(); 
-            // 1. Capture the checkbox state
-            const isDiag = document.getElementById('hwIsDialogue').checked;
-        
-            if (!val) {
-                alert('Please enter some homework words first!');
-                return;
-            }
-            
-            localStorage.setItem('homeworkPhrases', val);
-            
-            if (currentWeekAudio) {
-                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
-            }
-            
-            // NEW: Pre-fill the name if editing
-            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
-            if (name) { 
-                if (name.length > 20) {
-                    name = name.substring(0, 20);
-                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
-                }
-                
-                const hwData = {
-                    words: val,
-                    audio: currentWeekAudio,
-                    isDialogue: isDiag,
-                    month: selectedBpMonth,
-                    isFavorite: false,
-                    date: new Date().toISOString()
-                };
-                
-                if (!history) history = {};
-                
-                history[name] = JSON.stringify(hwData);
-                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                
-                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
-                setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
-                
-                // Clear state
-                editingHomeworkName = null;
-                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-                document.getElementById('hwInput').value = "";
-                document.getElementById('hwIsDialogue').checked = false; // 3. Reset the checkbox for next time
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                displayAudioPlayer();
-                
-                openBP();
-                
-                if (currentSetName === name) {
-                    // Update the currentIsDialogue flag
-                    currentIsDialogue = isDiag;
-                    // Re-render the current list with the new dialogue setting
-                    renderList(currentScreenList);
-                }
-            } 
+async function saveHW() { 
+    const val = document.getElementById('hwInput').value.trim(); 
+    const isDiag = document.getElementById('hwIsDialogue').checked;
+
+    if (!val) {
+        alert('Please enter some homework words first!');
+        return;
+    }
+    
+    // AUTO-TRANSLATE before saving
+    await translateIfNeeded(val, true);
+    
+    localStorage.setItem('homeworkPhrases', val);
+    
+    if (currentWeekAudio) {
+        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+    } else {
+        localStorage.removeItem('currentWeekAudio');
+    }
+    
+    // NEW: Pre-fill the name if editing
+    let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
+    if (name) { 
+        if (name.length > 20) {
+            name = name.substring(0, 20);
+            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
         }
+        
+        const hwData = {
+            words: val,
+            audio: currentWeekAudio,
+            isDialogue: isDiag,
+            month: selectedBpMonth,
+            isFavorite: false,
+            date: new Date().toISOString()
+        };
+        
+        if (!history) history = {};
+        
+        history[name] = JSON.stringify(hwData);
+        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+        
+        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
+        setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
+        
+        // Clear state
+        editingHomeworkName = null;
+        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+        document.getElementById('hwInput').value = "";
+        document.getElementById('hwIsDialogue').checked = false;
+        currentWeekAudio = null;
+        localStorage.removeItem('currentWeekAudio');
+        displayAudioPlayer();
+        
+        openBP();
+        
+        if (currentSetName === name) {
+            currentIsDialogue = isDiag;
+            renderList(currentScreenList);
+        }
+    } 
+}
 
         function openBP() {
             const list = document.getElementById('bpList'); 
@@ -3650,6 +3582,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
