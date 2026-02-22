@@ -780,6 +780,49 @@
         right: 15px;
         font-size: 20pt; 
     }
+
+    /* Homewor Buttons */
+    .icon-btn {
+        background: none !important;
+        border: none !important;
+        font-size: 1.4rem !important;
+        padding: 8px !important;
+        margin: 0 2px !important;
+        cursor: pointer;
+        transition: transform 0.1s;
+        color: #4a5568 !important;
+        box-shadow: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+    }
+    
+    .icon-btn:active {
+        transform: scale(1.2);
+    }
+    
+    .icon-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #718096;
+        margin-top: 2px;
+    }
+    
+    .icon-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .icon-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }   
 }
        
    </style>
@@ -1153,6 +1196,7 @@
         let currentSetName = localStorage.getItem('currentSetName') || '';
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
+        let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -2186,6 +2230,23 @@ function practiceNow() {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
+function showNote(homeworkName) {
+    const note = homeworkNotes[homeworkName] || '';
+    const newNote = prompt(`Notes for "${homeworkName}":`, note);
+    if (newNote !== null) {
+        if (newNote.trim() === '') {
+            delete homeworkNotes[homeworkName];
+        } else {
+            homeworkNotes[homeworkName] = newNote.trim();
+        }
+        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+    }
+}
+
+function hasNote(homeworkName) {
+    return homeworkNotes[homeworkName] ? '💬' : '';
+}
+
         function magicTranslate() {
             const msgDiv = document.getElementById('hwMessages');
             const list = document.getElementById('hwInput').value.split('\n').filter(l => l.trim().length > 0);
@@ -3077,6 +3138,7 @@ async function translateOne(p) {
                     
                     const favIcon = hwData.isFavorite ? "⭐" : "☆";
                     const hasAudio = hwData.audio ? '🎤' : '';
+                    const hasNote = homeworkNotes && homeworkNotes[name] ? ' 💬' : '';
                     const safeName = name.replace(/'/g, "\\'");
         
                     div.innerHTML = `
@@ -3084,38 +3146,64 @@ async function translateOne(p) {
                             <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0;">${favIcon}</button>
                             <div onclick="renameHomework('${safeName}')" 
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center;">
-                                ${name} ${hasAudio}
+                                ${name} ${hasAudio} ${hasNote(name)}
                             </div>
                             <div></div>
                         </div>
-                        <!-- 3x2 Grid of Action Buttons -->
-                        <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; width:100%;">
-                            <button class="load-btn" style="background:#4cd964; color:white;">🎯 Pract.</button>
-                            <button class="load-btn" style="background:#ff9e6d; color:white;">✏️ Edit</button>
-                            <button class="load-btn" style="background:#f59e0b; color:white;">🖨️ Print</button>
-                            
-                            <button class="load-btn" style="background:#118AB2; color:white;">📂 Move</button>
-                            <button class="load-btn" style="background:#5a67d8; color:white;">📤 Share</button>
-                            <button class="del-btn">🗑️ Del.</button>
+                        
+                        <!-- BIG PRACTICE BUTTON -->
+                        <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; font-size:1.2rem; margin:10px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
+                            🎯 PRACTICE
+                        </button>
+                        
+                        <!-- ICON ROW -->
+                        <div class="icon-group" style="display:flex; justify-content:center; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;">
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">✏️</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
+                            </div>
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">🖨️</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
+                            </div>
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn share-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📤</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
+                            </div>
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📂</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
+                            </div>
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📝</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
+                            </div>
+                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
+                                <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">🗑️</button>
+                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
+                            </div>
                         </div>
                     `;
                     
-                    const buttons = div.querySelectorAll('.load-btn');
+                    // Practice button
+                    const practiceBtn = div.querySelector('.practice-big-btn');
+                    practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
                     
-                    // Row 1
-                    buttons[0].onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio); 
-                    buttons[1].onclick = () => editHomework(name); 
-                    buttons[2].onclick = () => openPrintSelection(hwData.words, name); 
+                    // Icon buttons
+                    const icons = div.querySelectorAll('.icon-btn');
                     
-                    // Row 2
-                    buttons[3].onclick = () => moveHomework(name); 
-                    buttons[4].onclick = () => shareWeek(name, hwData.words, hwData.audio); 
-        
-                    // Trash can
-                    div.querySelector('.del-btn').onclick = () => { 
+                    icons[0].onclick = () => editHomework(name);                          // Edit
+                    icons[1].onclick = () => openPrintSelection(hwData.words, name);      // Print
+                    icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio); // Share
+                    icons[3].onclick = () => moveHomework(name);                          // Move
+                    icons[4].onclick = () => showNote(name);                              // Notes
+                    icons[5].onclick = () => {                                            // Delete
                         if(confirm(`Delete "${name}"?`)){ 
                             delete history[name]; 
-                            localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                            if (homeworkNotes) delete homeworkNotes[name];
+                            localStorage.setItem('frenchHistory', JSON.stringify(history));
+                            if (homeworkNotes) localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            
                             if (currentSetName === name) {
                                 currentSetName = '';
                                 localStorage.removeItem('homeworkPhrases');
@@ -3562,6 +3650,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
