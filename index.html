@@ -1574,25 +1574,18 @@ function renderList(list) {
         }
     }
     
-    const statusInfo = document.getElementById('stCountText');
-    if (statusInfo) {
-        if (!list || list.length === 0) {
-            statusInfo.textContent = '🇫🇷 Ready to learn!';
+const statusInfo = document.getElementById('stCountText');
+if (statusInfo) {
+    if (!list || list.length === 0) {
+        statusInfo.textContent = '🇫🇷 Ready to learn!';
+    } else {
+        if (currentSetName) {
+            statusInfo.innerHTML = `📚 ${currentSetName}`;
         } else {
-            const translatedCount = list.filter(p => {
-                const n = norm(p);
-                return MASTER_DATA[p] || (cache[n] && cache[n] !== "...");
-            }).length;
-    
-            const statusIcon = (translatedCount === list.length) ? "✅" : "⚠️";
-            
-            if (currentSetName) {
-                statusInfo.innerHTML = `📚 ${currentSetName} (${list.length} phrases ${statusIcon})`;
-            } else {
-                statusInfo.innerHTML = `📚 List (${list.length} phrases ${statusIcon})`;
-            }
+            statusInfo.innerHTML = `📚 List`;
         }
     }
+}
     
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
@@ -3582,6 +3575,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
