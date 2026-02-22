@@ -3156,33 +3156,33 @@ async function translateOne(p) {
                             🎯 PRACTICE
                         </button>
                         
-                        <!-- ICON ROW -->
-                        <div class="icon-group" style="display:flex; justify-content:center; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;">
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">✏️</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
-                            </div>
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">🖨️</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
-                            </div>
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn share-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📤</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
-                            </div>
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📂</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
-                            </div>
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">📝</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
-                            </div>
-                            <div class="icon-wrapper" style="display:flex; flex-direction:column; align-items:center;">
-                                <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:5px; color:#4a5568;">🗑️</button>
-                                <span class="icon-label" style="font-size:0.6rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
-                            </div>
+                       <!-- ICON ROW - Single line, no wrapping -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px;">
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">✏️</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
                         </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">🖨️</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn share-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">📤</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">📂</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">📝</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+                            <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.4rem; cursor:pointer; padding:3px 0; color:#4a5568; width:100%;">🗑️</button>
+                            <span class="icon-label" style="font-size:0.55rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
+                        </div>
+                    </div>
                     `;
                     
                     // Practice button
@@ -3650,6 +3650,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
