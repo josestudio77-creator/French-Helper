@@ -3146,7 +3146,7 @@ async function translateOne(p) {
                             <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0;">${favIcon}</button>
                             <div onclick="renameHomework('${safeName}')" 
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center;">
-                                ${name} ${hasAudio} ${hasNote(name)}
+                                ${name} ${hasAudio} ${hasNote}
                             </div>
                             <div></div>
                         </div>
@@ -3650,6 +3650,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
