@@ -656,6 +656,49 @@
     .snail-corner {
         animation: snailPulse 2s infinite ease-in-out;
     }
+
+    /* Homewwork Buttons */
+    .icon-btn {
+        background: none !important;
+        border: none !important;
+        font-size: 1.4rem !important;
+        padding: 8px !important;
+        margin: 0 2px !important;
+        cursor: pointer;
+        transition: transform 0.1s;
+        color: #4a5568 !important;
+        box-shadow: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+    }
+    
+    .icon-btn:active {
+        transform: scale(1.2);
+    }
+    
+    .icon-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #718096;
+        margin-top: 2px;
+    }
+    
+    .icon-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .icon-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }   
        
     /* Container for the print-only content */
     #printArea { display: none; }
@@ -780,49 +823,6 @@
         right: 15px;
         font-size: 20pt; 
     }
-
-    /* Homewor Buttons */
-    .icon-btn {
-        background: none !important;
-        border: none !important;
-        font-size: 1.4rem !important;
-        padding: 8px !important;
-        margin: 0 2px !important;
-        cursor: pointer;
-        transition: transform 0.1s;
-        color: #4a5568 !important;
-        box-shadow: none !important;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: auto;
-    }
-    
-    .icon-btn:active {
-        transform: scale(1.2);
-    }
-    
-    .icon-label {
-        font-size: 0.6rem;
-        font-weight: 700;
-        color: #718096;
-        margin-top: 2px;
-    }
-    
-    .icon-group {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        flex-wrap: wrap;
-    }
-    
-    .icon-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }   
 }
        
    </style>
@@ -3650,6 +3650,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
