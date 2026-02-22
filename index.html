@@ -3142,19 +3142,19 @@ async function translateOne(p) {
                     const safeName = name.replace(/'/g, "\\'");
         
                     div.innerHTML = `
-                        <div style="display:grid; grid-template-columns: 40px 1fr 40px; width:100%; margin-bottom:12px; align-items:center;">
-                            <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0;">${favIcon}</button>
-                            <div onclick="renameHomework('${safeName}')" 
-                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center;">
-                                ${name} ${hasAudio} ${hasNote}
-                            </div>
-                            <div></div>
+                        <div style="display:grid; grid-template-columns: 40px 1fr 40px; width:100%; margin-bottom:8px; align-items:center;">
+                        <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0; width:40px;">${favIcon}</button>
+                        <div onclick="renameHomework('${safeName}')" 
+                             style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 5px;">
+                            ${name} ${hasAudio} ${hasNote}
                         </div>
-                        
-                        <!-- BIG PRACTICE BUTTON -->
-                        <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; font-size:1.2rem; margin:10px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
-                            🎯 PRACTICE
-                        </button>
+                        <div style="width:40px;"></div>
+                    </div>
+                    
+                    <!-- BIG PRACTICE BUTTON - COMPACT -->
+                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:12px; font-weight:900; font-size:1.2rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
+                        🎯 PRACTICE
+                    </button>
                         
                        <!-- ICON ROW - Single line, no wrapping with proper spacing -->
                     <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
@@ -3650,6 +3650,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
