@@ -3055,26 +3055,29 @@ async function saveHW() {
         localStorage.setItem('currentSetName', name);
         currentIsDialogue = isDiag;
         
-        // ✅ CRITICAL: If there's audio, switch to dialogue mode to see the recording player
-        if (currentWeekAudio) {
-            viewMode = 'dialogue';  // Switch to dialogue mode to show recording player
-            localStorage.setItem('viewMode', 'dialogue');
-            
-            // Update the button visuals
-            document.getElementById('btnViewCards').classList.remove('active');
-            document.getElementById('btnViewDialogue').classList.add('active');
-            document.getElementById('btnViewDialogue').innerHTML = "🎧 Recording";
-        }
+        // ✅ FIX: DON'T automatically switch viewMode based on audio here
+        // Let the existing viewMode preference determine the display
+        // But make sure the button label updates correctly
         
-        // Practice with audio
+        // Practice with audio - BUT KEEP CURRENT VIEW MODE PREFERENCE
         renderList(val.split('\n').filter(w => w.trim()));
+        
+        // ✅ ADD THIS: Force update the dialogue button label
+        const diagBtn = document.getElementById('btnViewDialogue');
+        if (diagBtn) {
+            if (currentWeekAudio) {
+                diagBtn.innerHTML = "🎧 Recording";
+            } else {
+                diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+            }
+        }
         
         // Clear audio for NEXT new homework (but keep it for current practice)
         setTimeout(() => {
             if (!editingHomeworkName) {
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                displayAudioPlayer();
+                // BUT DON'T clear currentWeekAudio yet - we need it for the current view
+                // Just clear the file input
+                document.getElementById('teacherAudioFile').value = '';
             }
         }, 500);
         
@@ -3772,6 +3775,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
