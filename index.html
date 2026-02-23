@@ -259,20 +259,17 @@
     /* Container for the title */
     #hwDrawerTitle {
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: inline-block;
+        text-align: center;
         margin-bottom: 5px;
-        width: 100%;
-        font-size: 1.2rem; /* Slightly smaller to accommodate long names */
+        width: 100%; /* Ensures it centers in the drawer */
     }
     
+    /* The floating pencil icon */
     .hw-title-emoji {
         position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.2rem;
+        left: 10px; /* Anchors it to the far left so it doesn't push the center */
+        top: 0;
     }
 
     .hw-title-text {
@@ -289,9 +286,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px; /* Reduced from 15px */
-        margin-top: 2px; /* Reduced from 5px */
-        margin-bottom: 0; /* Add this to reduce space below */
+        gap: 15px; /* Space between arrows and text */
+        margin-top: 5px;
     }
     
     .hw-nav-btn {
@@ -3765,6 +3761,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
