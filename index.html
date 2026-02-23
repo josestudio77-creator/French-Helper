@@ -1254,8 +1254,15 @@
         function setViewMode(mode) {
             viewMode = mode;
             localStorage.setItem('viewMode', mode);
+            
+            // Update button visuals
             document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
-            document.getElementById('btnViewDialogue').classList.toggle('active', mode === 'dialogue');
+            
+            const diagBtn = document.getElementById('btnViewDialogue');
+            if (diagBtn) {
+                // Don't toggle active for recording mode - it's still a "mode"
+                diagBtn.classList.toggle('active', mode === 'dialogue');
+            }
             
             // STOP AUTO-PLAY when switching modes
             if (isAutoPlaying) {
@@ -1549,7 +1556,7 @@
             return { en: cache[n] || "...", icon: smartIcon };
         }
 
-// ===== UPDATED renderList WITH SNAIL BUTTON & CUSTOM ICONS/PHOTOS =====
+
 function renderList(list) {
     console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
     currentScreenList = list; 
@@ -1560,11 +1567,13 @@ function renderList(list) {
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
 
+    // ✅ FIX 1: Auto-play visibility - only in dialogue mode WITHOUT teacher audio
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
         autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
+    // ✅ FIX 2: Dialogue button label - shows "Recording" when teacher audio present
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -1574,21 +1583,23 @@ function renderList(list) {
         }
     }
     
-const statusInfo = document.getElementById('stCountText');
-if (statusInfo) {
-    if (!list || list.length === 0) {
-        statusInfo.textContent = '🇫🇷 Ready to learn!';
-    } else {
-        if (currentSetName) {
-            statusInfo.innerHTML = `📚 ${currentSetName}`;
+    // Status info - simplified
+    const statusInfo = document.getElementById('stCountText');
+    if (statusInfo) {
+        if (!list || list.length === 0) {
+            statusInfo.textContent = '🇫🇷 Ready to learn!';
         } else {
-            statusInfo.innerHTML = `📚 List`;
+            if (currentSetName) {
+                statusInfo.innerHTML = `📚 ${currentSetName}`;
+            } else {
+                statusInfo.innerHTML = `📚 List`;
+            }
         }
     }
-}
     
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
+    // ✅ FIX 3: TEACHER RECORDING MODE - This was accidentally removed!
     if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
@@ -1608,35 +1619,38 @@ if (statusInfo) {
         `;
         container.appendChild(card);
         
-} else if (viewMode === 'dialogue') {
-
-    // Reset loop button when entering dialogue mode
-    if (loopMode) {
-        loopMode = false;
-        const loopBtn = document.getElementById('loopBtn');
-        if (loopBtn) {
-            loopBtn.style.background = '#ff9e6d';
-            loopBtn.style.border = '2px solid transparent';
-        }
-    }
+    } else if (viewMode === 'dialogue' && !hasTeacherAudio) {
+        // Regular dialogue/list mode (only when no teacher audio)
         
-    const diagCard = document.createElement('div');
-    diagCard.className = 'condensed-card';
-    diagCard.style.display = 'flex';
-    diagCard.style.flexDirection = 'column';
+        // Reset loop button when entering dialogue mode
+        if (loopMode) {
+            loopMode = false;
+            const loopBtn = document.getElementById('loopBtn');
+            if (loopBtn) {
+                loopBtn.style.background = '#ff9e6d';
+                loopBtn.style.border = '2px solid transparent';
+            }
+        }
+        
+        const diagCard = document.createElement('div');
+        diagCard.className = 'condensed-card';
+        diagCard.style.display = 'flex';
+        diagCard.style.flexDirection = 'column';
 
-    list.forEach((p, index) => {
-        const line = document.createElement('div');
-        const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
-        line.className = `dialogue-line ${sideClass}`;
-        line.id = `line-${index}`;
-        const cleanText = p.split('|')[0].trim();
-        line.textContent = cleanText;
-        line.onclick = () => spk(cleanText, 'fr-FR', true);
-        diagCard.appendChild(line);
-    });
-    container.appendChild(diagCard);
-} else {
+        list.forEach((p, index) => {
+            const line = document.createElement('div');
+            const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
+            line.className = `dialogue-line ${sideClass}`;
+            line.id = `line-${index}`;
+            const cleanText = p.split('|')[0].trim();
+            line.textContent = cleanText;
+            line.onclick = () => spk(cleanText, 'fr-FR', true);
+            diagCard.appendChild(line);
+        });
+        container.appendChild(diagCard);
+        
+    } else {
+        // STANDARD CARDS MODE
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
@@ -1645,7 +1659,6 @@ if (statusInfo) {
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
-            // Replace the buttonHTML with this cleaner version:
             const buttonHTML = `
                 <div class="card-btns">
                     <button class="card-btn spk-fr" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1656,22 +1669,17 @@ if (statusInfo) {
                 </div>
             `;
 
-if (data.isPhoto) {
+            if (data.isPhoto) {
                 let orientationClass = data.photoOrientation || 'landscape';
                 let inlineStyle = '';
                 
-                // If it's a free crop, we ignore the classes and set dimensions manually
                 if (data.isFreeCrop && data.customRatio) {
-                    const baseHeight = 7; // rem units (standard height for your cards)
+                    const baseHeight = 7;
                     const calculatedWidth = baseHeight * data.customRatio;
-                    
-                    // We cap the width at 12rem so it doesn't break the card on super-wide crops
                     const finalWidth = Math.min(calculatedWidth, 12); 
-                    
                     inlineStyle = `style="height: ${baseHeight}rem; width: ${finalWidth.toFixed(2)}rem; object-fit: cover;"`;
-                    orientationClass = ''; // Clear standard classes
+                    orientationClass = '';
                 } else {
-                    // It's a preset crop, use standard classes
                     orientationClass = data.photoOrientation;
                 }
                 
@@ -1694,23 +1702,16 @@ if (data.isPhoto) {
                 `;
             }
 
-            // French button (normal speed)
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
-            
-            // Snail corner - use the slider's minimum speed
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
                 const slowestSpeed = parseFloat(document.getElementById('speedSlider').min);
                 spk(p, 'fr-FR', true, slowestSpeed);
             };
             
-            // English button
-            card.querySelector('.spk-en').onclick = () => spk(data.en, 'en-US', true);
-            
             const tB = card.querySelector('.spk-en');
             tB.onclick = () => spk(data.en, 'en-US', true);
 
-            // Double tap/Double click to fix translation
             let lastTap = 0;
             tB.addEventListener('touchstart', (e) => {
                 const now = Date.now();
@@ -3595,6 +3596,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
