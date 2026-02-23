@@ -1579,7 +1579,7 @@ function renderList(list) {
         autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
-    // ✅ FIX 2: Dialogue button label - shows "Recording" when teacher audio present
+    // ✅ FIX 2: Dialogue button label - FIXED to always check for audio
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -3772,6 +3772,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
