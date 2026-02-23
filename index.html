@@ -2171,7 +2171,7 @@ function loadHomeworkForPractice(name, words, audio) {
     localStorage.setItem('currentSetName', name);
     console.log('Loading for practice:', name, 'Audio present:', !!audio);
     
-    // --- Load homework data including audio ---
+    // Load homework data
     let hwData = { isDialogue: false, audio: null };
     try {
         const parsed = JSON.parse(history[name]);
@@ -2182,7 +2182,7 @@ function loadHomeworkForPractice(name, words, audio) {
     
     currentIsDialogue = !!hwData.isDialogue;
     
-    // ✅ CRITICAL: Set currentWeekAudio from the homework data
+    // ✅ CRITICAL: Set audio from homework data
     currentWeekAudio = hwData.audio || null;
     
     // Update text input
@@ -2190,7 +2190,35 @@ function loadHomeworkForPractice(name, words, audio) {
     localStorage.setItem('homeworkPhrases', words);
     lastLoadedHomework = words;
     
+    if (currentWeekAudio) {
+        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+    } else {
+        localStorage.removeItem('currentWeekAudio');
+    }
+    
     displayAudioPlayer();
+    
+    // ✅ FIX: Set view mode based on audio presence
+    if (currentWeekAudio) {
+        viewMode = 'dialogue'; // Recording mode
+    } else {
+        viewMode = hwData.isDialogue ? 'dialogue' : 'cards'; // Use saved preference
+    }
+    localStorage.setItem('viewMode', viewMode);
+    
+    // ✅ FIX: Update button states
+    document.getElementById('btnViewCards').classList.toggle('active', viewMode === 'cards');
+    document.getElementById('btnViewDialogue').classList.toggle('active', viewMode === 'dialogue');
+    
+    // Update button label
+    const diagBtn = document.getElementById('btnViewDialogue');
+    if (diagBtn) {
+        if (currentWeekAudio) {
+            diagBtn.innerHTML = "🎧 Recording";
+        } else {
+            diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+        }
+    }
     
     closeOverlay('bpModal');
     renderList(words.split('\n').filter(w => w.trim()));
@@ -2207,23 +2235,17 @@ async function practiceNow() {
     
     currentIsDialogue = document.getElementById('hwIsDialogue').checked;
     
-    // If we're editing an existing homework, load its audio
+    // ✅ CRITICAL: If we're editing an existing homework, load its audio
     if (editingHomeworkName) {
         try {
             const hwData = JSON.parse(history[editingHomeworkName]);
             if (hwData.audio) {
                 currentWeekAudio = hwData.audio;
-            } else {
-                currentWeekAudio = null;
             }
-        } catch (e) {
-            currentWeekAudio = null;
-        }
-    } else {
-        // New homework - no audio yet
-        currentWeekAudio = null;
+        } catch (e) {}
     }
     
+    // If this is a new unsaved homework, clear the name
     if (!editingHomeworkName) {
         currentSetName = '';
         localStorage.removeItem('currentSetName');
@@ -2233,6 +2255,17 @@ async function practiceNow() {
     lastLoadedHomework = words;
     
     closeOverlay('hwDrawer');
+    
+    // ✅ If there's audio, switch to dialogue mode to show recording player
+    if (currentWeekAudio) {
+        viewMode = 'dialogue';
+        localStorage.setItem('viewMode', 'dialogue');
+        
+        document.getElementById('btnViewCards').classList.remove('active');
+        document.getElementById('btnViewDialogue').classList.add('active');
+        document.getElementById('btnViewDialogue').innerHTML = "🎧 Recording";
+    }
+    
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
@@ -2969,7 +3002,7 @@ async function translateOne(p) {
         }
 
 
-      async function saveHW() { 
+async function saveHW() { 
     const val = document.getElementById('hwInput').value.trim(); 
     const isDiag = document.getElementById('hwIsDialogue').checked;
 
@@ -2991,7 +3024,7 @@ async function translateOne(p) {
         
         const hwData = {
             words: val,
-            audio: currentWeekAudio,  // Save whatever audio is in the editor
+            audio: currentWeekAudio,  // Save the audio from editor
             isDialogue: isDiag,
             month: selectedBpMonth,
             isFavorite: false,
@@ -3009,20 +3042,35 @@ async function translateOne(p) {
         document.getElementById('hwInput').value = "";
         document.getElementById('hwIsDialogue').checked = false;
         
-        // ✅ DON'T clear audio here - keep it for practice
-        
         closeOverlay('hwDrawer');
+        
+        // ✅ CRITICAL: Set up for practice mode
         currentSetName = name;
         localStorage.setItem('currentSetName', name);
         currentIsDialogue = isDiag;
         
-        // Practice with the audio we just saved
+        // ✅ CRITICAL: If there's audio, switch to dialogue mode to see the recording player
+        if (currentWeekAudio) {
+            viewMode = 'dialogue';  // Switch to dialogue mode to show recording player
+            localStorage.setItem('viewMode', 'dialogue');
+            
+            // Update the button visuals
+            document.getElementById('btnViewCards').classList.remove('active');
+            document.getElementById('btnViewDialogue').classList.add('active');
+            document.getElementById('btnViewDialogue').innerHTML = "🎧 Recording";
+        }
+        
+        // Practice with audio
         renderList(val.split('\n').filter(w => w.trim()));
         
-        // ✅ NOW clear audio for NEXT new homework
-        currentWeekAudio = null;
-        localStorage.removeItem('currentWeekAudio');
-        displayAudioPlayer();
+        // Clear audio for NEXT new homework (but keep it for current practice)
+        setTimeout(() => {
+            if (!editingHomeworkName) {
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
+            }
+        }, 500);
         
         editingHomeworkName = null;
         document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
@@ -3593,6 +3641,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
