@@ -990,7 +990,6 @@
             </div>
             
             <div class="hw-buttons-grid">
-                <button onclick="magicTranslate()" style="background:#118AB2; color:white;" class="hw-btn">✨ Magic Translate</button>
                 <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
                 <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
                 <button onclick="openPrintSelection(document.getElementById('hwInput').value, currentSetName)" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
@@ -1197,6 +1196,7 @@
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
+        let victoryTimeouts = [];
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -2368,11 +2368,7 @@ async function translateIfNeeded(words, showProgress = true) {
     
     return words;
 }
-        
-async function magicTranslate() {
-    const words = document.getElementById('hwInput').value;
-    await translateIfNeeded(words, true);
-}
+
         
         function loadCurrentHomework() {
             const words = document.getElementById('hwInput').value.trim();
@@ -2855,15 +2851,31 @@ async function translateOne(p) {
         }
 
         function celebrate() { 
+            // Clear any previous animations
+            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
+            victoryTimeouts = [];
+            
             for (let i = 0; i < 20; i++) { 
-                setTimeout(() => { 
+                const timeout = setTimeout(() => { 
+                    // Don't create if game is no longer active
+                    if (!gameActive && document.getElementById('gameDrawer').style.display !== 'block') {
+                        return;
+                    }
+                    
                     const el = document.createElement('div'); 
                     el.className = 'victory-item'; 
                     el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)]; 
                     el.style.left = Math.random() * 100 + "vw"; 
                     document.body.appendChild(el); 
-                    setTimeout(() => el.remove(), 3000); 
+                    
+                    const removeTimeout = setTimeout(() => {
+                        if (el.parentNode) el.remove();
+                    }, 3000);
+                    
+                    victoryTimeouts.push(removeTimeout);
                 }, i * 150); 
+                
+                victoryTimeouts.push(timeout);
             } 
         }
         
@@ -3005,6 +3017,14 @@ async function translateOne(p) {
 
         function exitGame() { 
             gameActive = false; 
+            
+            // Clear any victory animations
+            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
+            victoryTimeouts = [];
+            
+            // Remove any leftover victory elements from DOM
+            document.querySelectorAll('.victory-item').forEach(el => el.remove());
+            
             if (musicNode) { 
                 musicNode.stop(); 
                 musicNode = null; 
@@ -3809,6 +3829,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
