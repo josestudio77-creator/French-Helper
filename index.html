@@ -1987,12 +1987,21 @@ function openBackpackFromHW() {
 function addNewHomework() {
     editingHomeworkName = null; 
     
-    refreshHwTitle('add'); // Call our new engine
+    // Clear all previous homework data
+    currentWeekAudio = null;
+    localStorage.removeItem('currentWeekAudio');
+    
+    // Clear audio input
+    const audioInput = document.getElementById('teacherAudioFile');
+    if (audioInput) audioInput.value = '';
+    
+    document.getElementById('audioPlayerContainer').style.display = 'none';
+    
+    refreshHwTitle('add');
     
     document.getElementById('hwInput').value = "";
     document.getElementById('hwIsDialogue').checked = false;
-    currentWeekAudio = null;
-    displayAudioPlayer();      
+    displayAudioPlayer();
     
     closeOverlay('bpModal');
     openOverlay('hwDrawer'); 
@@ -2202,7 +2211,6 @@ async function practiceNow() {
         return;
     }
     
-    // AUTO-TRANSLATE before practicing
     await translateIfNeeded(words, true);
     
     currentIsDialogue = document.getElementById('hwIsDialogue').checked;
@@ -2215,16 +2223,15 @@ async function practiceNow() {
     localStorage.setItem('homeworkPhrases', words);
     lastLoadedHomework = words;
     
-    if (!currentWeekAudio) {
-        localStorage.removeItem('currentWeekAudio');
-        currentWeekAudio = null;
-    }
+    // ✅ Note: currentWeekAudio already has the correct audio from edit/add
+    // Don't clear it here - it was set properly
     
     closeOverlay('hwDrawer');
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
 function showNote(homeworkName) {
+    // Get note specific to this homework only
     const note = homeworkNotes[homeworkName] || '';
     const newNote = prompt(`Notes for "${homeworkName}":`, note);
     if (newNote !== null) {
@@ -2234,6 +2241,7 @@ function showNote(homeworkName) {
             homeworkNotes[homeworkName] = newNote.trim();
         }
         localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+        openBP(); // Refresh to show note indicator
     }
 }
 
@@ -2955,68 +2963,68 @@ async function translateOne(p) {
         }
 
 
-async function saveHW() { 
-    const val = document.getElementById('hwInput').value.trim(); 
-    const isDiag = document.getElementById('hwIsDialogue').checked;
-
-    if (!val) {
-        alert('Please enter some homework words first!');
-        return;
-    }
-    
-    // AUTO-TRANSLATE before saving
-    await translateIfNeeded(val, true);
-    
-    localStorage.setItem('homeworkPhrases', val);
-    
-    if (currentWeekAudio) {
-        localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-    } else {
-        localStorage.removeItem('currentWeekAudio');
-    }
-    
-    // NEW: Pre-fill the name if editing
-    let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
-    if (name) { 
-        if (name.length > 20) {
-            name = name.substring(0, 20);
-            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+        async function saveHW() { 
+            const val = document.getElementById('hwInput').value.trim(); 
+            const isDiag = document.getElementById('hwIsDialogue').checked;
+        
+            if (!val) {
+                alert('Please enter some homework words first!');
+                return;
+            }
+            
+            await translateIfNeeded(val, true);
+            
+            localStorage.setItem('homeworkPhrases', val);
+            
+            // Save current audio (which is correctly set for this homework)
+            if (currentWeekAudio) {
+                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+            } else {
+                localStorage.removeItem('currentWeekAudio');
+            }
+            
+            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
+            if (name) { 
+                if (name.length > 20) {
+                    name = name.substring(0, 20);
+                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+                }
+                
+                const hwData = {
+                    words: val,
+                    audio: currentWeekAudio,  // Save the current audio
+                    isDialogue: isDiag,
+                    month: selectedBpMonth,
+                    isFavorite: false,
+                    date: new Date().toISOString()
+                };
+                
+                if (!history) history = {};
+                
+                history[name] = JSON.stringify(hwData);
+                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                
+                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
+                
+                // Clear state for NEXT homework
+                editingHomeworkName = null;
+                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+                document.getElementById('hwInput').value = "";
+                document.getElementById('hwIsDialogue').checked = false;
+                
+                // ✅ Clear audio for next homework
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer();
+                
+                // GO DIRECTLY TO PRACTICE with current homework
+                closeOverlay('hwDrawer');
+                currentSetName = name;
+                localStorage.setItem('currentSetName', name);
+                currentIsDialogue = isDiag;
+                renderList(val.split('\n').filter(w => w.trim()));
+            } 
         }
-        
-        const hwData = {
-            words: val,
-            audio: currentWeekAudio,
-            isDialogue: isDiag,
-            month: selectedBpMonth,
-            isFavorite: false,
-            date: new Date().toISOString()
-        };
-        
-        if (!history) history = {};
-        
-        history[name] = JSON.stringify(hwData);
-        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-        
-        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved to backpack' + (currentWeekAudio ? ' with recording!' : '!') + '</div>';
-        setTimeout(() => document.getElementById('hwMessages').innerHTML = '', 3000);
-        
-        // Clear state
-        editingHomeworkName = null;
-        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-        document.getElementById('hwInput').value = "";
-        document.getElementById('hwIsDialogue').checked = false;
-        currentWeekAudio = null;
-        localStorage.removeItem('currentWeekAudio');
-        displayAudioPlayer();
-        
-        openBP();
-        
-        if (currentSetName === name) {
-            currentIsDialogue = isDiag;
-            renderList(currentScreenList);
-        }
-    } 
-}
 
         function openBP() {
             const list = document.getElementById('bpList'); 
@@ -3208,12 +3216,19 @@ async function saveHW() {
         
             editingHomeworkName = name;
             
-            refreshHwTitle('edit', name); // Call our new engine
+            refreshHwTitle('edit', name);
             
             document.getElementById('hwInput').value = hwData.words;
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
             currentIsDialogue = !!hwData.isDialogue;
+            
+            // ✅ FIX: Load the correct audio for this homework
             currentWeekAudio = hwData.audio || null;
+            if (currentWeekAudio) {
+                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
+            } else {
+                localStorage.removeItem('currentWeekAudio');
+            }
             displayAudioPlayer();
         
             closeOverlay('bpModal');
@@ -3575,6 +3590,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
