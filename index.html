@@ -2543,18 +2543,21 @@ async function magicTranslate() {
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
             if (forceInterrupt) {
                 window.speechSynthesis.cancel();
-            }
-            
-            setTimeout(() => {
+                // Small delay to ensure cancel completes
+                setTimeout(() => {
+                    const u = new SpeechSynthesisUtterance(t); 
+                    u.lang = lang; 
+                    u.rate = speedOverride || speechSpeed;
+                    u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
+                    window.speechSynthesis.speak(u);
+                }, 50);
+            } else {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
-                
-                // Simple - just use the slider value directly
                 u.rate = speedOverride || speechSpeed;
-                
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                 window.speechSynthesis.speak(u);
-            }, forceInterrupt ? 150 : 50);
+            }
         }
         
         function spellWord() {
@@ -3806,6 +3809,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
