@@ -3636,11 +3636,86 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
             deferredPrompt = e; 
             document.getElementById('installBtn').style.display = 'block'; 
         });
+
+        window.onload = () => {
+    console.log('App loading...');
+    
+    // FORCE RESET PRINT STATE ON STARTUP
+    const ghostPrint = document.getElementById('printArea');
+    if (ghostPrint) ghostPrint.innerHTML = '';
+
+    const raw = localStorage.getItem('homeworkPhrases');
+    document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
+    lastLoadedHomework = raw || '';
+    
+    // Load last homework on startup if exists
+    if (raw && raw.trim()) {
+        console.log('Loading last homework:', raw);
         
+        // IMPORTANT: Find the homework in history AND load its dialogue flag
+        let foundName = '';
+        let foundIsDialogue = false;
+        
+        for (let name in history) {
+            try {
+                const hwData = JSON.parse(history[name]);
+                if (hwData.words === raw) {
+                    foundName = name;
+                    foundIsDialogue = hwData.isDialogue || false;
+                    break;
+                }
+            } catch (e) {
+                // Old format, skip
+            }
+        }
+        
+        // If we found a matching homework name, use it
+        if (foundName) {
+            currentSetName = foundName;
+            localStorage.setItem('currentSetName', foundName);
+            currentIsDialogue = foundIsDialogue;
+        } else {
+            // This is unsaved homework or preset - clear the name
+            currentSetName = '';
+            localStorage.removeItem('currentSetName');
+            currentIsDialogue = false;
+        }
+        
+        loadCurrentHomework();
+    } else {
+        console.log('No homework found in storage');
+        // No homework loaded, so clear the name
+        currentSetName = '';
+        localStorage.removeItem('currentSetName');
+        currentIsDialogue = false;
+    }
+    
+    initVoices();
+    initSpeechSpeed();
+    initAudioUpload();
+    checkForImport();
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+    
+    const savedGap = localStorage.getItem('gapValue');
+    if (savedGap) {
+        document.getElementById('gapSlider').value = savedGap;
+        document.getElementById('gapValue').innerText = savedGap;
+    } else {
+        // Default to 1.0
+        document.getElementById('gapValue').innerText = '1.0';
+    }
+    
+    // Sync the view mode buttons
+    setTimeout(() => {
+        setViewMode(viewMode);
+    }, 100);
+    
+};
     </script>
         
 </body>
 </html>
+
 
 
 
