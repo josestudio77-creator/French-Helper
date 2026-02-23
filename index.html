@@ -1229,6 +1229,19 @@
                 stopAutoPlay();
             }
             
+            // ✅ FIX: Pause teacher audio if it's playing
+            const teacherPlayer = document.getElementById('teacherAudioPlayer');
+            if (teacherPlayer && !teacherPlayer.paused) {
+                teacherPlayer.pause();
+            }
+            
+            // Also pause any other audio elements that might be playing
+            document.querySelectorAll('audio').forEach(audio => {
+                if (!audio.paused) {
+                    audio.pause();
+                }
+            });
+            
             document.getElementById(id).style.display = 'block'; 
             
             if(id === 'gameDrawer') { 
@@ -1249,6 +1262,18 @@
 
         function closeOverlay(id) { 
             document.getElementById(id).style.display = 'none'; 
+            
+            // ✅ FIX: Also pause audio when closing overlays (in case something was playing)
+            const teacherPlayer = document.getElementById('teacherAudioPlayer');
+            if (teacherPlayer && !teacherPlayer.paused) {
+                teacherPlayer.pause();
+            }
+            
+            document.querySelectorAll('audio').forEach(audio => {
+                if (!audio.paused) {
+                    audio.pause();
+                }
+            });
         }
 
         function setViewMode(mode) {
@@ -3282,7 +3307,13 @@ async function saveHW() {
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
             currentIsDialogue = !!hwData.isDialogue;
             
-            // ✅ FIX: Load the correct audio for this homework
+            // ✅ FIX: Clear any leftover messages from previous saves
+            const msgDiv = document.getElementById('hwMessages');
+            if (msgDiv) {
+                msgDiv.innerHTML = '';
+            }
+            
+            // Load the correct audio for this homework
             currentWeekAudio = hwData.audio || null;
             if (currentWeekAudio) {
                 localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
@@ -3775,6 +3806,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
