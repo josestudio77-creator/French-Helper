@@ -275,7 +275,7 @@
         transform: translateY(-50%);  /* Center vertically */
     }
 
-    /* Title text
+    /* Title text */
     .hw-title-text {
         display: inline-block;
         max-width: 140px;
@@ -283,7 +283,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         margin: 0 5px;
-        font-size: 0.8rem;        /* Just make text smaller */
+        font-size: 0.8rem;
         font-weight: 900;
     }
         
@@ -2189,7 +2189,16 @@ function changeHwFolder(direction) {
 
 function refreshHwTitle(type, name = "") {
     const targetMonth = monthNames[selectedBpMonth];
-    const displayTitle = (type === 'edit') ? `Edit: ${name}` : "Add Homework";
+    
+    // Truncate long names in the function too
+    let displayName = name;
+    if (displayName && displayName.length > 15) {
+        displayName = displayName.substring(0, 12) + "...";
+    }
+    
+    const displayTitle = (type === 'edit') ? 
+        `<span class="hw-title-text">Edit: ${displayName}</span>` : 
+        `<span class="hw-title-text">Add Homework</span>`;
     
     document.getElementById('hwDrawerTitle').innerHTML = `
         <span class="hw-title-emoji">✏️</span>
@@ -3767,6 +3776,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
