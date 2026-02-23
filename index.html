@@ -2255,44 +2255,6 @@ function loadHomeworkForPractice(name, words, audio) {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
-    await translateIfNeeded(words, true);
-    
-    currentIsDialogue = document.getElementById('hwIsDialogue').checked;
-    
-    // ✅ CRITICAL: If we're editing an existing homework, load its audio
-    if (editingHomeworkName) {
-        try {
-            const hwData = JSON.parse(history[editingHomeworkName]);
-            if (hwData.audio) {
-                currentWeekAudio = hwData.audio;
-            }
-        } catch (e) {}
-    }
-    
-    // If this is a new unsaved homework, clear the name
-    if (!editingHomeworkName) {
-        currentSetName = '';
-        localStorage.removeItem('currentSetName');
-    }
-    
-    localStorage.setItem('homeworkPhrases', words);
-    lastLoadedHomework = words;
-    
-    closeOverlay('hwDrawer');
-    
-    // ✅ If there's audio, switch to dialogue mode to show recording player
-    if (currentWeekAudio) {
-        viewMode = 'dialogue';
-        localStorage.setItem('viewMode', 'dialogue');
-        
-        document.getElementById('btnViewCards').classList.remove('active');
-        document.getElementById('btnViewDialogue').classList.add('active');
-        document.getElementById('btnViewDialogue').innerHTML = "🎧 Recording";
-    }
-    
-    renderList(words.split('\n').filter(w => w.trim()));
-}
-
 function showNote(homeworkName) {
     // Get note specific to this homework only
     const note = homeworkNotes[homeworkName] || '';
@@ -3781,6 +3743,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
