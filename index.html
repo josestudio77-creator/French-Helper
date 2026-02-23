@@ -3637,7 +3637,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
             document.getElementById('installBtn').style.display = 'block'; 
         });
 
-        window.onload = () => {
+window.onload = () => {
     console.log('App loading...');
     
     // FORCE RESET PRINT STATE ON STARTUP
@@ -3652,9 +3652,10 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     if (raw && raw.trim()) {
         console.log('Loading last homework:', raw);
         
-        // IMPORTANT: Find the homework in history AND load its dialogue flag
+        // IMPORTANT: Find the homework in history AND load its dialogue flag AND AUDIO
         let foundName = '';
         let foundIsDialogue = false;
+        let foundAudio = null;  // <-- ADD THIS
         
         for (let name in history) {
             try {
@@ -3662,6 +3663,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
                 if (hwData.words === raw) {
                     foundName = name;
                     foundIsDialogue = hwData.isDialogue || false;
+                    foundAudio = hwData.audio || null;  // <-- GET THE AUDIO
                     break;
                 }
             } catch (e) {
@@ -3674,20 +3676,45 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
             currentSetName = foundName;
             localStorage.setItem('currentSetName', foundName);
             currentIsDialogue = foundIsDialogue;
+            
+            // <-- ADD THIS: Load the audio
+            if (foundAudio) {
+                currentWeekAudio = foundAudio;
+                localStorage.setItem('currentWeekAudio', JSON.stringify(foundAudio));
+                
+                // Force dialogue mode for audio homeworks
+                if (viewMode !== 'dialogue') {
+                    viewMode = 'dialogue';
+                    localStorage.setItem('viewMode', 'dialogue');
+                }
+            } else {
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+            }
+            
         } else {
-            // This is unsaved homework or preset - clear the name
+            // This is unsaved homework or preset - clear the name and audio
             currentSetName = '';
             localStorage.removeItem('currentSetName');
             currentIsDialogue = false;
+            currentWeekAudio = null;  // <-- CLEAR AUDIO
+            localStorage.removeItem('currentWeekAudio');
         }
         
         loadCurrentHomework();
+        
+        // <-- ADD THIS: Update the audio player display
+        displayAudioPlayer();
+        
     } else {
         console.log('No homework found in storage');
-        // No homework loaded, so clear the name
+        // No homework loaded, so clear the name and audio
         currentSetName = '';
         localStorage.removeItem('currentSetName');
         currentIsDialogue = false;
+        currentWeekAudio = null;  // <-- CLEAR AUDIO
+        localStorage.removeItem('currentWeekAudio');
+        displayAudioPlayer();  // <-- UPDATE DISPLAY
     }
     
     initVoices();
@@ -3705,9 +3732,33 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         document.getElementById('gapValue').innerText = '1.0';
     }
     
+    // Load saved music volume
+    const savedVolume = localStorage.getItem('musicVolume');
+    if (savedVolume) {
+        musicVolume = parseInt(savedVolume);
+    }
+    
+    // Load homework notes
+    const savedNotes = localStorage.getItem('homeworkNotes');
+    if (savedNotes) {
+        try {
+            homeworkNotes = JSON.parse(savedNotes);
+        } catch(e) {
+            homeworkNotes = {};
+        }
+    }
+    
     // Sync the view mode buttons
     setTimeout(() => {
         setViewMode(viewMode);
+        
+        // <-- ADD THIS: Double-check the audio display after view mode is set
+        displayAudioPlayer();
+        
+        // If we have audio but somehow ended up in cards mode, fix it
+        if (currentWeekAudio && viewMode !== 'dialogue') {
+            setViewMode('dialogue');
+        }
     }, 100);
     
 };
@@ -3715,6 +3766,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
