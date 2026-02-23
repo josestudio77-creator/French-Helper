@@ -1260,8 +1260,14 @@
             
             const diagBtn = document.getElementById('btnViewDialogue');
             if (diagBtn) {
-                // Don't toggle active for recording mode - it's still a "mode"
                 diagBtn.classList.toggle('active', mode === 'dialogue');
+                
+                // FIX: Always check for audio when setting the button label
+                if (currentWeekAudio) {
+                    diagBtn.innerHTML = "🎧 Recording";
+                } else {
+                    diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+                }
             }
             
             // STOP AUTO-PLAY when switching modes
@@ -3766,6 +3772,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
