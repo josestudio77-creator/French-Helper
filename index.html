@@ -966,41 +966,46 @@
     </div>
 
     <!-- Homework Drawer -->
-    <div id="hwDrawer" class="overlay">
-        <div class="overlay-content">
-            <h2 id="hwDrawerTitle" style="color:#9d4edd">✏️ Add Homework</h2>
-            
-            <div id="hwMessages"></div>
-            <textarea id="hwInput" placeholder="Enter French words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
-            
-            <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
-                <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
-                <input type="file" id="teacherAudioFile" accept="audio/*,.oga,.ogg,.mp3,.wav,.m4a" style="width:100%; margin-top:5px; font-size:0.8rem;">
-                <div id="audioPlayerContainer" style="display:none; margin-top:10px;">
-                    <p style="font-size:0.7rem; color:#856404; margin-bottom:5px;">📻 Saved Recording:</p>
-                    <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
-                    <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
-                </div>
+<!-- Homework Drawer -->
+<div id="hwDrawer" class="overlay">
+    <div class="overlay-content">
+        <!-- Header with title and X close button -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 id="hwDrawerTitle" style="color:#9d4edd; margin:0;">✏️ Add Homework</h2>
+            <button onclick="closeOverlay('hwDrawer')" style="background:none; border:none; font-size:1.8rem; cursor:pointer; padding:10px; color:#64748b;">✖️</button>
+        </div>
+        
+        <div id="hwMessages"></div>
+        
+        <textarea id="hwInput" placeholder="Enter French words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
+        
+        <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
+            <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
+            <input type="file" id="teacherAudioFile" accept="audio/*,.oga,.ogg,.mp3,.wav,.m4a" style="width:100%; margin-top:5px; font-size:0.8rem;">
+            <div id="audioPlayerContainer" style="display:none; margin-top:10px;">
+                <p style="font-size:0.7rem; color:#856404; margin-bottom:5px;">📻 Saved Recording:</p>
+                <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
+                <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
             </div>
+        </div>
 
-            <div style="margin: 10px 0; text-align: left; background: #fdf2ff; padding: 10px; border-radius: 12px; border: 2px solid #9d4edd;">
-                <label style="font-weight: 900; color: #9d4edd; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="hwIsDialogue" style="transform: scale(1.5);"> 💬 This is a Dialogue
-                </label>
-            </div>
-            
-            <div class="hw-buttons-grid">
-                <button onclick="saveHW()" style="background:#4cd964; color:white;" class="hw-btn">💾 Save</button>
-                <button onclick="practiceNow()" style="background:#ff6b8b; color:white;" class="hw-btn">🎯 Practice Now</button>
-                <button onclick="openPrintSelection(document.getElementById('hwInput').value, currentSetName)" style="background:#f59e0b; color:white;" class="hw-btn">🖨️ Print Sheet</button>
-                <button onclick="shareCurrentHW()" style="background:#5a67d8; color:white;" class="hw-btn">📤 Share</button>
-                <button onclick="clearHW()" style="background:#ff4d4d; color:white;" class="hw-btn">🗑️ Clear</button>
-                <button onclick="openBackpackFromHW()" style="background:#9d4edd; color:white;" class="hw-btn">🎒 Backpack</button>
-            </div>
-            
-            <button onclick="closeOverlay('hwDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+        <div style="margin: 10px 0; text-align: left; background: #fdf2ff; padding: 10px; border-radius: 12px; border: 2px solid #9d4edd;">
+            <label style="font-weight: 900; color: #9d4edd; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="hwIsDialogue" style="transform: scale(1.5);"> 💬 This is a Dialogue
+            </label>
+        </div>
+        
+        <!-- Simple Save/Cancel buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+            <button onclick="saveHW()" style="background:#4cd964; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
+                💾 Save
+            </button>
+            <button onclick="closeOverlay('hwDrawer')" style="background:#ff6b8b; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #d6335c;">
+                ✖️ Cancel
+            </button>
         </div>
     </div>
+</div>
 
     <!-- Game Drawer - UPDATED with volume slider -->
     <div id="gameDrawer" class="overlay">
@@ -2011,11 +2016,6 @@ function checkForImport() {
     }
 }
 
-function openBackpackFromHW() {
-            closeOverlay('hwDrawer');
-            openOverlay('bpModal'); // Instant switch
-}
-
 function addNewHomework() {
     editingHomeworkName = null; 
     
@@ -2255,13 +2255,6 @@ function loadHomeworkForPractice(name, words, audio) {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
-async function practiceNow() {
-    const words = document.getElementById('hwInput').value.trim();
-    if (!words) {
-        alert('Please enter some homework words first!');
-        return;
-    }
-    
     await translateIfNeeded(words, true);
     
     currentIsDialogue = document.getElementById('hwIsDialogue').checked;
@@ -3349,18 +3342,6 @@ async function saveHW() {
             openOverlay('hwDrawer');
         }
 
-        function shareCurrentHW() {
-            const words = document.getElementById('hwInput').value.trim();
-            if (!words) {
-                alert('No homework to share! Add some words first.');
-                return;
-            }
-            
-            const weekName = editingHomeworkName || "Shared Homework";
-            shareWeek(weekName, words, currentWeekAudio);
-        }
-
-
         // 3. The Core Sharing Engine (UPDATED to use native share for files)
         function attemptFileShare(jsonString, fileName, title) {
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -3464,36 +3445,7 @@ async function saveHW() {
             } 
         }
 
-        function clearHW() { 
-            if(confirm("Clear current homework?")) { 
-                // Optional: Ask if they want to clear custom icons too
-                if (confirm("Also clear custom icons/photos for these phrases?")) {
-                    const words = document.getElementById('hwInput').value.split('\n').map(w => w.trim());
-                    words.forEach(word => {
-                        const normalized = norm(word);
-                        if (customIcons[normalized]) delete customIcons[normalized];
-                        if (customPhotos[normalized]) delete customPhotos[normalized];
-                    });
-                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
-                    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                }
-                
-                document.getElementById('hwInput').value = ""; 
-                localStorage.setItem('homeworkPhrases', ""); 
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                currentSetName = '';
-                localStorage.removeItem('currentSetName');
-                displayAudioPlayer();
-                document.getElementById('phrasesList').innerHTML = '';
-                
-                const statusInfo = document.getElementById('stCountText');
-                if (statusInfo) {
-                    statusInfo.textContent = '🇫🇷 Ready to learn!';
-                }
-            } 
-        }
-        
+       
         function manualFixTranslation(p, currentEn) {
             if(confirm(`Fix translation for "${p}"?`)){ 
                 const fix = prompt("Enter correct English:", currentEn); 
@@ -3829,6 +3781,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
