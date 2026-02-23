@@ -259,9 +259,9 @@
     /* Container for the title */
     #hwDrawerTitle {
         position: relative;
-        display: flex;           /* CHANGE from inline-block to flex */
-        flex-direction: column;  /* Stack children vertically */
-        align-items: center;     /* Center horizontally */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
         margin-bottom: 5px;
         width: 100%;
@@ -270,9 +270,10 @@
     /* The floating pencil icon */
     .hw-title-emoji {
         position: absolute;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);  /* Center vertically */
+        left: 5px;
+        top: 0;                    
+        font-size: 1.2rem;
+        line-height: 1;
     }
 
     /* Title text */
@@ -292,26 +293,30 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 15px; /* Space between arrows and text */
+        gap: 15px;
         margin-top: 5px;
+        width: 100%;
     }
     
     .hw-nav-btn {
         background: #f0f4f8;
         border: 1px solid #cbd5e0;
-        border-radius: 6px; /* Slightly smaller */
-        font-size: 0.8rem; /* Smaller */
-        padding: 2px 6px; /* Smaller padding */
+        border-radius: 6px;
+        font-size: 1rem;          /* Increased from 0.8rem */
+        padding: 4px 10px;         /* Slightly larger padding for bigger buttons */
         cursor: pointer;
         color: #9d4edd;
+        font-weight: 900;          /* Make arrows bold too */
     }
     
     .hw-month-subtitle {
-        font-size: 0.8rem; /* Smaller */
+        font-size: 1rem;          /* Increased from 0.8rem */
         color: #9d4edd;
         opacity: 0.8;
-        font-weight: 700;
+        font-weight: 900;         /* Made bolder */
         white-space: nowrap;
+        min-width: 70px;          /* Ensures consistent width for month names */
+        text-align: center;
     }
 
     .folder-card {
@@ -3776,6 +3781,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
