@@ -2976,11 +2976,9 @@ async function translateOne(p) {
             
             localStorage.setItem('homeworkPhrases', val);
             
-            // Save current audio (which is correctly set for this homework)
+            // Save current audio
             if (currentWeekAudio) {
                 localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
             }
             
             let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
@@ -2992,7 +2990,7 @@ async function translateOne(p) {
                 
                 const hwData = {
                     words: val,
-                    audio: currentWeekAudio,  // Save the current audio
+                    audio: currentWeekAudio,  // Save the audio
                     isDialogue: isDiag,
                     month: selectedBpMonth,
                     isFavorite: false,
@@ -3006,23 +3004,30 @@ async function translateOne(p) {
                 
                 document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
                 
-                // Clear state for NEXT homework
-                editingHomeworkName = null;
-                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+                // Clear form fields for NEXT homework
                 document.getElementById('hwInput').value = "";
                 document.getElementById('hwIsDialogue').checked = false;
                 
-                // ✅ Clear audio for next homework
-                currentWeekAudio = null;
-                localStorage.removeItem('currentWeekAudio');
-                displayAudioPlayer();
+                // ✅ FIX: Don't clear audio yet! We need it for practice
+                // Keep currentWeekAudio for practice
                 
-                // GO DIRECTLY TO PRACTICE with current homework
+                // Close drawer and practice
                 closeOverlay('hwDrawer');
                 currentSetName = name;
                 localStorage.setItem('currentSetName', name);
                 currentIsDialogue = isDiag;
+                
+                // Practice with audio
                 renderList(val.split('\n').filter(w => w.trim()));
+                
+                // ✅ NOW clear audio for next homework (after practice started)
+                currentWeekAudio = null;
+                localStorage.removeItem('currentWeekAudio');
+                displayAudioPlayer(); // Hide player for next time
+                
+                // Clear the editing state
+                editingHomeworkName = null;
+                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
             } 
         }
 
@@ -3590,6 +3595,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         
 </body>
 </html>
+
 
 
 
