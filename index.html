@@ -2590,16 +2590,15 @@ async function translateIfNeeded(words, showProgress = true) {
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
             if (forceInterrupt) {
                 window.speechSynthesis.cancel();
-                // 50ms delay ensures the browser has cleared the audio buffer 
-                // before starting the new phrase (improves snappiness)
+                // INCREASED DELAY: from 50ms to 200ms to prevent the start of words being cut off.
+                // This gives the system voice engine time to reset completely.
                 setTimeout(() => {
                     const u = new SpeechSynthesisUtterance(t); 
                     u.lang = lang; 
-                    // Use the snail speed (0.05) if provided, otherwise the slider speed
                     u.rate = speedOverride || speechSpeed;
                     u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                     window.speechSynthesis.speak(u);
-                }, 50);
+                }, 200); 
             } else {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
@@ -3863,6 +3862,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
