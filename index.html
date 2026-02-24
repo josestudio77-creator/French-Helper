@@ -1786,8 +1786,22 @@ function renderList(list) {
             };
             
             const tB = card.querySelector('.spk-en');
-            tB.onclick = () => spk(data.en, 'en-US', true);
-
+            
+            // Single click - speak English
+            tB.addEventListener('click', (e) => {
+                // Only speak if it's not a double-click
+                if (e.detail === 1) {
+                    spk(data.en, 'en-US', true);
+                }
+            });
+            
+            // Double-click for desktop
+            tB.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                manualFixTranslation(p, data.en);
+            });
+            
+            // Double-tap for mobile
             let lastTap = 0;
             tB.addEventListener('touchstart', (e) => {
                 const now = Date.now();
@@ -1797,15 +1811,8 @@ function renderList(list) {
                 }
                 lastTap = now;
             });
-
-            tB.addEventListener('dblclick', () => {
-                manualFixTranslation(p, data.en);
-            });
             
             container.appendChild(card);
-        });
-    }
-}
 
 function shareWeek(weekName, wordsText, audioData = null) {
     const phraseList = wordsText.split('\n').map(w => w.trim());
@@ -3806,6 +3813,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
