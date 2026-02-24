@@ -1695,7 +1695,17 @@ function renderList(list) {
             line.id = `line-${index}`;
             const cleanText = p.split('|')[0].trim();
             line.textContent = cleanText;
-            line.onclick = () => spk(cleanText, 'fr-FR', true);
+            line.onclick = () => {
+                if (isAutoPlaying) {
+                    // Clear the pending timeout and speak the clicked phrase
+                    clearTimeout(autoPlayTimeout);
+                    spk(cleanText, 'fr-FR', true);
+                    // auto-play will continue naturally when this phrase ends
+                } else {
+                    spk(cleanText, 'fr-FR', true);
+                }
+            };
+            
             diagCard.appendChild(line);
         });
         container.appendChild(diagCard);
@@ -3781,6 +3791,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
