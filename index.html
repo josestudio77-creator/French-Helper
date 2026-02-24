@@ -1813,8 +1813,8 @@ function renderList(list) {
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
-                const slowestSpeed = parseFloat(document.getElementById('speedSlider').min);
-                spk(p, 'fr-FR', true, slowestSpeed);
+                // ULTRA-SLOW FIX: Changed from 0.1 to 0.05
+                spk(p, 'fr-FR', true, 0.05); 
             };
             
             // B. Define our targets
@@ -2583,10 +2583,12 @@ async function translateIfNeeded(words, showProgress = true) {
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
             if (forceInterrupt) {
                 window.speechSynthesis.cancel();
-                // Small delay to ensure cancel completes
+                // 50ms delay ensures the browser has cleared the audio buffer 
+                // before starting the new phrase (improves snappiness)
                 setTimeout(() => {
                     const u = new SpeechSynthesisUtterance(t); 
                     u.lang = lang; 
+                    // Use the snail speed (0.05) if provided, otherwise the slider speed
                     u.rate = speedOverride || speechSpeed;
                     u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                     window.speechSynthesis.speak(u);
@@ -3646,13 +3648,15 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         printArea.id = 'printArea';
         document.body.prepend(printArea);
     }
+    
+    // 1. PRE-PRINT CLEANUP: Wipe old data before building the new sheet
     printArea.innerHTML = ''; 
 
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     
     let html = "";
 
-    // 1. CONDITIONALLY ADD THE HEADER - USE THE PASSED NAME
+    // 2. BUILD THE OPTIONAL HEADER
     if (includeHeader) {
         html += `
             <div class="print-header-simple">
@@ -3665,6 +3669,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     const phrases = words.split('\n').filter(p => p.trim() !== "");
     const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
 
+    // 3. BUILD THE PHRASE BLOCKS
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
         const fontClass = isCursive ? 'cursive-font' : '';
@@ -3683,11 +3688,20 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     });
 
     printArea.innerHTML = html;
+    
+    // Stop any background loading
     window.stop();
 
+    // 4. TRIGGER PRINT DIALOG
     setTimeout(() => {
         window.print();
-        setTimeout(() => { isPrinting = false; }, 1000);
+        
+        // 5. POST-PRINT CLEANUP: 
+        // Clear the printArea after the dialog is handled to prevent height issues
+        setTimeout(() => {
+            printArea.innerHTML = '';
+            isPrinting = false;
+        }, 1000);
     }, 400);
 }
         
@@ -3720,10 +3734,6 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
 window.onload = () => {
     console.log('App loading...');
     
-    // FORCE RESET PRINT STATE ON STARTUP
-    const ghostPrint = document.getElementById('printArea');
-    if (ghostPrint) ghostPrint.innerHTML = '';
-
     const raw = localStorage.getItem('homeworkPhrases');
     document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
     lastLoadedHomework = raw || '';
@@ -3846,6 +3856,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
