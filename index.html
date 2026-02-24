@@ -694,138 +694,65 @@
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
        
-
-/* 1. Homework Icon Buttons - Fixed Overlap */
-    .icon-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex: 1;
-        min-width: 0; /* Allows buttons to shrink to fit the row */
-    }
-
+/* --- SCREEN STYLES (Visible on Phone/PC) --- */
     .icon-btn {
         background: none !important;
         border: none !important;
         font-size: 1.4rem !important;
         padding: 4px !important;
+        margin: 0 2px !important;
         cursor: pointer;
+        transition: transform 0.1s;
         color: #4a5568 !important;
         box-shadow: none !important;
-    }
-    
-    .icon-label {
-        font-size: 0.4rem;
-        font-weight: 800;
-        color: #718096;
-        margin-top: 2px;
-        white-space: nowrap; /* Prevents text from wrapping to 2 lines */
-    }
-
-    /* 2. Snail Style: Floating Top-Left & Larger */
-    .snail-corner {
-        position: absolute;
-        top: -18px;
-        left: -18px;
-        width: 44px;
-        height: 44px;
-        background: #5bc0de;
-        border-radius: 50%;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.4);
-        z-index: 10;
-        font-size: 1.6rem; 
-        border: 2px solid white; 
-        cursor: pointer;
-        transition: transform 0.1s, background-color 0.2s;
-        animation: snailPulse 2s infinite ease-in-out;
+        width: auto;
     }
+    .icon-btn:active { transform: scale(1.2); }
+    .icon-label { font-size: 0.6rem; font-weight: 700; color: #718096; margin-top: 2px; }
+    .icon-group { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .icon-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; }
 
-    .snail-corner:active {
-        transform: scale(1.2);
-        background-color: #ff6b8b !important;
-    }
-
-    @keyframes snailPulse {
-        0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-        50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
-        100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-    }
-
-    /* 3. Universal App Modal Styles - V10.8 */
     #appModal { z-index: 8000; }
     .modal-box {
-        background: white;
-        border-radius: 30px;
-        padding: 25px;
-        border: 5px solid #9d4edd;
-        max-width: 400px;
-        margin: 15vh auto;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        position: relative;
+        background: white; border-radius: 30px; padding: 25px; border: 5px solid #9d4edd;
+        max-width: 400px; margin: 15vh auto; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
     }
     .modal-title { color: #9d4edd; margin-bottom: 15px; font-size: 1.3rem; font-weight: 900; }
     .modal-display {
-        background: #fdf2ff;
-        padding: 20px;
-        border-radius: 20px;
-        margin-bottom: 20px;
-        border: 2px solid #e2e8f0;
-        font-weight: 700;
-        color: #2d3748;
-        line-height: 1.5;
-        min-height: 60px;
-        word-break: break-word;
+        background: #fdf2ff; padding: 20px; border-radius: 20px; margin-bottom: 20px;
+        border: 2px solid #e2e8f0; font-weight: 700; color: #2d3748; line-height: 1.5; min-height: 60px; word-break: break-word;
     }
     .modal-input {
-        width: 100%;
-        padding: 15px;
-        border-radius: 15px;
-        border: 3px solid #9d4edd;
-        font-family: inherit;
-        font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 20px;
-        outline: none;
-        resize: none;
+        width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #9d4edd;
+        font-family: inherit; font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; outline: none; resize: none;
     }
     .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
+    .modal-btn:active { transform: scale(0.95); }
+
+    /* Hide the print area on screen ALWAYS */
+    #printArea { display: none !important; }
     
+/* --- PRINT ONLY STYLES --- */
 @media print {
     @page { 
-        margin: 0.5in 0.5in 0.4in 0.5in;  /* top, right, bottom, left */
+        margin: 0.5in 0.5in 0.4in 0.5in;
         size: auto;
-        
-        /* THE MAGIC KEY: Keep these exactly as they are */
         @top-center { content: "" !important; }
-        @top-left { content: "" !important; }
-        @top-right { content: "" !important; }
         @bottom-center { content: "" !important; }
-        @bottom-left { content: "" !important; }
-        @bottom-right { content: "" !important; }
     }
-    
     @page :first { margin-top: 1.5cm; }
     @page :left { margin: 1.5cm; }
     @page :right { margin: 1.5cm; }
     
-    html, body { 
-        background: white !important; 
-        margin: 0 !important; 
-        padding: 0 !important;
-        height: auto;
-    }
+    html, body { background: white !important; margin: 0 !important; padding: 0 !important; height: auto; }
 
-    /* Hide App UI */
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
-    .nav-item, .overlay-content {
-        display: none !important; 
-    }
+    .nav-item, .overlay-content { display: none !important; }
 
     #printArea { 
         display: block !important; 
@@ -834,87 +761,33 @@
         box-sizing: border-box;
     }
 
-    /* Page Header */
-    .print-header-simple {
-        width: 100%;
-        border-bottom: 2px solid black;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 10px;
-        margin-bottom: 30px; /* Increased space before first box */
-    }
+    #printArea * { visibility: visible !important; }
 
+    .print-header-simple {
+        width: 100%; border-bottom: 2px solid black; display: flex;
+        justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 30px;
+    }
     .name-label { font-size: 13pt; font-weight: 900; }
     .name-underline { border-bottom: 1.5px solid black; width: 220px; display: inline-block; margin-left: 5px; height: 14pt; }
     .set-name-center { font-weight: 900; font-size: 11pt; }
     .date-label { font-size: 11pt; font-weight: 700; }
 
-    /* THE UPDATED ROUNDED BOX */
     .print-phrase-block { 
-        margin-bottom: 28px;       /* INCREASED SPACE between boxes */
-        padding: 15px 20px;
-        border: 2.5px solid #333;  /* DARKER & THICKER outline for B&W printing */
-        border-radius: 20px;       
-        page-break-inside: avoid; 
-        break-inside: avoid;
-        position: relative;
-        background: white !important;
-        -webkit-print-color-adjust: exact !important;
+        margin-bottom: 28px; padding: 15px 20px; border: 2.5px solid #333;
+        border-radius: 20px; page-break-inside: avoid; break-inside: avoid;
+        position: relative; background: white !important; -webkit-print-color-adjust: exact !important;
     }
-
-    .print-phrase-block:last-child {
-        margin-bottom: 0 !important;
-    }
-
-    .print-phrase-text { 
-        font-size: 24pt;
-        font-weight: 700; 
-        margin-bottom: 15px; 
-        color: #000; /* Force black for text */
-        text-align: left; 
-        display: block;
-        padding-right: 40px; 
-    }
-
-    /* CURSIVE STYLE */
-    .cursive-font {
-        font-family: 'Dancing Script', cursive !important;
-        font-size: 28pt !important; 
-        font-weight: 700 !important;
-        letter-spacing: 1px;
-    }
+    .print-phrase-block:last-child { margin-bottom: 0 !important; }
+    .print-phrase-text { font-size: 24pt; font-weight: 700; margin-bottom: 15px; color: #000; text-align: left; display: block; padding-right: 40px; }
+    .cursive-font { font-family: 'Dancing Script', cursive !important; font-size: 28pt !important; font-weight: 700 !important; }
     
-    /* Guidelines */
     .calligraphy-row {
-        height: 38px;
-        width: 100%; 
-        margin-bottom: 25px; /* Tail room */
-        border-bottom: 2px solid black; 
-        border-top: 1px solid #aaa;    
-        position: relative;
+        height: 38px; width: 100%; margin-bottom: 25px; border-bottom: 2px solid black;
+        border-top: 1px solid #aaa; position: relative;
     }
-
-    .calligraphy-row::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        border-top: 1.2px dashed #999;
-        height: 0;
-    }
-
-    .calligraphy-row:last-child {
-        margin-bottom: 5px; 
-    }
-
-    .cute-decoration { 
-        position: absolute;
-        top: 12px;
-        right: 15px;
-        font-size: 20pt; 
-    }
+    .calligraphy-row::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; border-top: 1.2px dashed #999; }
+    .calligraphy-row:last-child { margin-bottom: 5px; }
+    .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
 }
        
    </style>
@@ -3848,10 +3721,9 @@ function openAppModal(config) {
         closeOverlay('appModal');
     };
     
-    // ✅ SURGICAL FIX: Handle Cancel correctly
     document.getElementById('appModalBtnCancel').onclick = () => {
-        // If the modal was opened in edit mode originally (Rename, Save, Fix), just close it.
-        // If it was opened in view mode (Notes) and we switched to edit, go back to view.
+        // If we started in Edit mode (Rename/Fix/Save), just close.
+        // If we were in View mode (Notes) and clicked edit, go back to View.
         if (config.mode === 'edit') {
             closeOverlay('appModal');
         } else {
@@ -4027,6 +3899,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
