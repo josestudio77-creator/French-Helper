@@ -694,11 +694,39 @@
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
        
-    /* Consolidated Snail Style: Floating, Top-Left, Larger */
+
+/* 1. Homework Icon Buttons - Fixed Overlap */
+    .icon-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        min-width: 0; /* Allows buttons to shrink to fit the row */
+    }
+
+    .icon-btn {
+        background: none !important;
+        border: none !important;
+        font-size: 1.4rem !important;
+        padding: 4px !important;
+        cursor: pointer;
+        color: #4a5568 !important;
+        box-shadow: none !important;
+    }
+    
+    .icon-label {
+        font-size: 0.55rem;
+        font-weight: 800;
+        color: #718096;
+        margin-top: 2px;
+        white-space: nowrap; /* Prevents text from wrapping to 2 lines */
+    }
+
+    /* 2. Snail Style: Floating Top-Left & Larger */
     .snail-corner {
         position: absolute;
-        top: -18px;      /* Hangs off the top edge */
-        left: -18px;     /* Hangs off the left edge */
+        top: -18px;
+        left: -18px;
         width: 44px;
         height: 44px;
         background: #5bc0de;
@@ -706,7 +734,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        /* Floating 3D effect */
         box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.4);
         z-index: 10;
         font-size: 1.6rem; 
@@ -718,61 +745,55 @@
 
     .snail-corner:active {
         transform: scale(1.2);
-        background-color: #ff6b8b !important; /* Turns pink when tapped */
+        background-color: #ff6b8b !important;
     }
 
-    /* Single, high-quality pulse animation */
     @keyframes snailPulse {
         0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
         50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
         100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
     }
 
-    /* Homewwork Buttons */
-    .icon-btn {
-        background: none !important;
-        border: none !important;
-        font-size: 1.4rem !important;
-        padding: 8px !important;
-        margin: 0 2px !important;
-        cursor: pointer;
-        transition: transform 0.1s;
-        color: #4a5568 !important;
-        box-shadow: none !important;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: auto;
+    /* 3. Universal App Modal Styles - V10.8 */
+    #appModal { z-index: 8000; }
+    .modal-box {
+        background: white;
+        border-radius: 30px;
+        padding: 25px;
+        border: 5px solid #9d4edd;
+        max-width: 400px;
+        margin: 15vh auto;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        position: relative;
     }
-    
-    .icon-btn:active {
-        transform: scale(1.2);
-    }
-    
-    .icon-label {
-        font-size: 0.6rem;
+    .modal-title { color: #9d4edd; margin-bottom: 15px; font-size: 1.3rem; font-weight: 900; }
+    .modal-display {
+        background: #fdf2ff;
+        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        border: 2px solid #e2e8f0;
         font-weight: 700;
-        color: #718096;
-        margin-top: 2px;
+        color: #2d3748;
+        line-height: 1.5;
+        min-height: 60px;
+        word-break: break-word;
     }
-    
-    .icon-group {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        flex-wrap: wrap;
+    .modal-input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 15px;
+        border: 3px solid #9d4edd;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        outline: none;
+        resize: none;
     }
-    
-    .icon-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }   
-       
-    /* Container for the print-only content */
-    #printArea { display: none; }
+    .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
     
 @media print {
     @page { 
@@ -895,48 +916,6 @@
         font-size: 20pt; 
     }
 }
-
-    /* Universal App Modal Styles - V10.8 */
-    #appModal { z-index: 8000; }
-    .modal-box {
-        background: white;
-        border-radius: 30px;
-        padding: 25px;
-        border: 5px solid #9d4edd;
-        max-width: 400px;
-        margin: 15vh auto;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        position: relative;
-    }
-    .modal-title { color: #9d4edd; margin-bottom: 15px; font-size: 1.3rem; font-weight: 900; }
-    .modal-display {
-        background: #fdf2ff;
-        padding: 20px;
-        border-radius: 20px;
-        margin-bottom: 20px;
-        border: 2px solid #e2e8f0;
-        font-weight: 700;
-        color: #2d3748;
-        line-height: 1.5;
-        min-height: 60px;
-        word-break: break-word;
-    }
-    .modal-input {
-        width: 100%;
-        padding: 15px;
-        border-radius: 15px;
-        border: 3px solid #9d4edd;
-        font-family: inherit;
-        font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 20px;
-        outline: none;
-        resize: none;
-    }
-    .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
-    .modal-btn:active { transform: scale(0.95); }    
        
    </style>
 </head>
@@ -3846,7 +3825,6 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
 }
 
 function openAppModal(config) {
-    // config: { title, text, mode, onSave, onDelete, placeholder }
     document.getElementById('appModalTitle').textContent = config.title;
     const input = document.getElementById('appModalInput');
     const display = document.getElementById('appModalTextDisplay');
@@ -3870,7 +3848,7 @@ function openAppModal(config) {
     const btnDelete = document.getElementById('appModalBtnDelete');
     if (config.onDelete) {
         btnDelete.style.display = "block";
-        btnDelete.onclick = () => { config.onDelete(); closeOverlay('appModal'); };
+        btnDelete.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
         document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
     } else {
         btnDelete.style.display = "none";
@@ -3882,9 +3860,17 @@ function openAppModal(config) {
         closeOverlay('appModal');
     };
     
+    // ✅ SURGICAL FIX: Handle Cancel correctly
     document.getElementById('appModalBtnCancel').onclick = () => {
-        if (config.mode === 'edit' && (!config.text || config.text === "")) closeOverlay('appModal'); 
-        else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
+        // If the modal was opened in edit mode originally (Rename, Save, Fix), just close it.
+        // If it was opened in view mode (Notes) and we switched to edit, go back to view.
+        if (config.mode === 'edit') {
+            closeOverlay('appModal');
+        } else {
+            viewSection.style.display = "block";
+            editSection.style.display = "none";
+            closeBtn.style.display = "block";
+        }
     };
 
     document.getElementById('appModalBtnEdit').onclick = () => {
@@ -4053,6 +4039,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
