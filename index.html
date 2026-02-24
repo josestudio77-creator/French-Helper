@@ -656,7 +656,21 @@
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
        
+    /* Update only this class to move and resize the snail */
     .snail-corner {
+        position: absolute;
+        top: -15px;      /* Move up off the button edge */
+        left: -15px;     /* Move left off the button edge */
+        width: 40px;     /* Increased size */
+        height: 40px;    /* Increased size */
+        background: #5bc0de;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        z-index: 10;
+        font-size: 1.5rem; /* Bigger snail emoji */
         transition: transform 0.2s, background-color 0.2s;
         animation: snailPulse 2s infinite ease-in-out;
     }
@@ -1754,9 +1768,9 @@ function renderList(list) {
 
             const buttonHTML = `
                 <div class="card-btns">
-                    <button class="card-btn spk-fr" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <button class="card-btn spk-fr" style="position: relative; display: flex; align-items: center; justify-content: center;">
+                        <span class="snail-corner">🐌</span>
                         <span>🎤 French</span>
-                        <span class="snail-corner" style="font-size: 1.2rem; background: #5bc0de; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-left: 4px;">🐌</span>
                     </button>
                     <button class="card-btn spk-en">🎯 English</button>
                 </div>
@@ -3832,6 +3846,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
