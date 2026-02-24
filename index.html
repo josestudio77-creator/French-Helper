@@ -3767,15 +3767,13 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         printArea.id = 'printArea';
         document.body.prepend(printArea);
     }
-    
-    // 1. PRE-PRINT CLEANUP: Wipe old data before building the new sheet
     printArea.innerHTML = ''; 
 
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     
     let html = "";
 
-    // 2. BUILD THE OPTIONAL HEADER
+    // 1. CONDITIONALLY ADD THE HEADER - USE THE PASSED NAME
     if (includeHeader) {
         html += `
             <div class="print-header-simple">
@@ -3788,7 +3786,6 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     const phrases = words.split('\n').filter(p => p.trim() !== "");
     const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
 
-    // 3. BUILD THE PHRASE BLOCKS
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
         const fontClass = isCursive ? 'cursive-font' : '';
@@ -3807,14 +3804,13 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     });
 
     printArea.innerHTML = html;
-    
-    // Stop any background loading
     window.stop();
 
-   setTimeout(() => {
-    window.print();
-    setTimeout(() => { isPrinting = false; }, 1000);
-}, 400);
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => { isPrinting = false; }, 1000);
+    }, 400);
+}
 
 function openAppModal(config) {
     document.getElementById('appModalTitle').textContent = config.title;
@@ -4031,6 +4027,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
