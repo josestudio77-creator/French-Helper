@@ -2590,15 +2590,13 @@ async function translateIfNeeded(words, showProgress = true) {
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
             if (forceInterrupt) {
                 window.speechSynthesis.cancel();
-                // INCREASED DELAY: from 50ms to 200ms to prevent the start of words being cut off.
-                // This gives the system voice engine time to reset completely.
                 setTimeout(() => {
                     const u = new SpeechSynthesisUtterance(t); 
                     u.lang = lang; 
                     u.rate = speedOverride || speechSpeed;
                     u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
                     window.speechSynthesis.speak(u);
-                }, 200); 
+                }, 150); 
             } else {
                 const u = new SpeechSynthesisUtterance(t); 
                 u.lang = lang; 
@@ -3862,6 +3860,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
