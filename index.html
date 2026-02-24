@@ -1703,11 +1703,11 @@ function renderList(list) {
         }
     }
     
-// 1. UPDATE STATUS BAR & BADGES
+    // 1. UPDATE STATUS BAR & BADGES
     const statusInfo = document.getElementById('stCountText');
     const controlPanel = document.querySelector('.app-control-panel');
     
-    // Remove existing badges from the control panel first to prevent duplicates
+    // Remove existing badges from the control panel to refresh them
     controlPanel.querySelectorAll('.corner-badge').forEach(b => b.remove());
 
     if (statusInfo) {
@@ -1716,31 +1716,12 @@ function renderList(list) {
         } else {
             statusInfo.innerHTML = currentSetName ? `📚 ${currentSetName}` : `📚 List`;
             
-            // If we have a saved homework set, add the floating badges
+            // Inject badges into the Practice Screen header
             if (currentSetName && history[currentSetName]) {
-                const hwData = JSON.parse(history[currentSetName]);
-                const safeName = currentSetName.replace(/'/g, "\\'");
-                
-                // Favorite Star Badge (Top-Left)
-                const favIcon = hwData.isFavorite ? "⭐" : "☆";
-                const starBadge = document.createElement('div');
-                starBadge.className = 'corner-badge badge-left';
-                starBadge.onclick = () => toggleFavorite(safeName);
-                starBadge.innerHTML = `<span style="font-size: 1.5rem;">${favIcon}</span>`;
-                controlPanel.appendChild(starBadge);
-
-                // Notes Badge (Top-Right - Only if note exists)
-                if (homeworkNotes && homeworkNotes[currentSetName]) {
-                    const noteBadge = document.createElement('div');
-                    noteBadge.className = 'corner-badge badge-right';
-                    noteBadge.onclick = () => showNote(safeName);
-                    noteBadge.innerHTML = `<span style="font-size: 1.2rem;">💬</span>`;
-                    controlPanel.appendChild(noteBadge);
-                }
+                controlPanel.insertAdjacentHTML('afterbegin', getCornerBadgesHTML(currentSetName));
             }
         }
     }
-    
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
     // ✅ FIX 3: TEACHER RECORDING MODE - This was accidentally removed!
@@ -2208,13 +2189,38 @@ function toggleFavFilter() {
     openBP();
 }
 
+function getCornerBadgesHTML(name) {
+    if (!name || !history[name]) return "";
+    let hwData;
+    try {
+        hwData = JSON.parse(history[name]);
+    } catch(e) { return ""; }
+    
+    const safeName = name.replace(/'/g, "\\'");
+    const favIcon = hwData.isFavorite ? "⭐" : "☆";
+    const noteExists = homeworkNotes && homeworkNotes[name] && homeworkNotes[name].trim() !== '';
+
+    let html = `
+        <div class="corner-badge badge-left" onclick="toggleFavorite('${safeName}')">
+            <span style="font-size: 1.5rem;">${favIcon}</span>
+        </div>`;
+        
+    if (noteExists) {
+        html += `
+            <div class="corner-badge badge-right" onclick="showNote('${safeName}')">
+                <span style="font-size: 1.2rem;">💬</span>
+            </div>`;
+    }
+    return html;
+}
+        
 function toggleFavorite(name) {
     let d = JSON.parse(history[name]);
     d.isFavorite = !d.isFavorite;
     history[name] = JSON.stringify(d);
     localStorage.setItem('frenchHistory', JSON.stringify(history));
     
-    // Refresh the UI based on where we are
+    // UI Refresh Logic
     if (document.getElementById('bpModal').style.display === 'block') {
         openBP();
     } else {
@@ -2425,17 +2431,12 @@ function showNote(homeworkName) {
         }
         localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
         
-        // Refresh the UI based on where we are
         if (document.getElementById('bpModal').style.display === 'block') {
             openBP();
         } else {
             renderList(currentScreenList);
         }
     }
-}
-
-function hasNote(homeworkName) {
-    return homeworkNotes[homeworkName] ? '💬' : '';
 }
 
 function needsTranslation(words) {
@@ -3311,24 +3312,11 @@ async function translateOne(p) {
                     div.className = 'history-item';
                     div.style.position = "relative"; // Required for absolute corner badges
         
-                    const favIcon = hwData.isFavorite ? "⭐" : "☆";
                     const hasAudio = hwData.audio ? '🎤' : '';
-                    // We only show the badge if a note actually exists
-                    const noteExists = homeworkNotes && homeworkNotes[name] && homeworkNotes[name].trim() !== '';
                     const safeName = name.replace(/'/g, "\\'");
         
                     div.innerHTML = `
-                        <!-- Top Left: Favorite Star Badge -->
-                        <div class="corner-badge badge-left" onclick="toggleFavorite('${safeName}')">
-                            <span style="font-size: 1.5rem;">${favIcon}</span>
-                        </div>
-        
-                        <!-- Top Right: Notes Badge (Floating and Clickable) -->
-                        ${noteExists ? `
-                            <div class="corner-badge badge-right" onclick="showNote('${safeName}')">
-                                <span style="font-size: 1.2rem;">💬</span>
-                            </div>
-                        ` : ''}
+                        ${getCornerBadgesHTML(name)} 
         
                         <!-- Centered Title Area -->
                         <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
@@ -3942,6 +3930,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
