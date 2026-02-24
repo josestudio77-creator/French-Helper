@@ -51,6 +51,11 @@
         font-size: 1rem; 
         box-shadow: 0 4px 0 rgba(0,0,0,0.15); 
         transition: transform 0.1s; 
+        /* Approved Optimization: Global Centering */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px; /* Space between icon and text */
     }
 
     .spk-fr { background: #4cd964; }
@@ -1768,11 +1773,13 @@ function renderList(list) {
 
             const buttonHTML = `
                 <div class="card-btns">
-                    <button class="card-btn spk-fr" style="position: relative; display: flex; align-items: center; justify-content: center;">
+                    <button class="card-btn spk-fr" style="position: relative;">
                         <span class="snail-corner">🐌</span>
                         <span>🎤 French</span>
                     </button>
-                    <button class="card-btn spk-en">🎯 English</button>
+                    <button class="card-btn spk-en">
+                        <span>🎯 English</span>
+                    </button>
                 </div>
             `;
 
@@ -3856,6 +3863,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
