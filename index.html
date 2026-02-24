@@ -100,7 +100,7 @@
     @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
     
-    /* History items */
+/* History items */
     .history-item { 
         padding: 15px; 
         border: 3px solid #9d4edd;
@@ -113,9 +113,6 @@
         box-shadow: 0 6px 15px rgba(0,0,0,0.15);
     }
     
-    .history-item span { color: #2d3748 !important; font-weight: 900; font-size: 1.1rem; text-align: left; }
-    .load-btn { background: #b5e6ff; color: #0369a1; padding: 10px 15px; border-radius: 10px; border: none; font-weight: 900; cursor: pointer; margin-right: 5px; }
-    .del-btn { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
     .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 0.9rem; font-weight: 900; cursor: pointer; color: #2d3748; position: relative; }
     .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
@@ -710,10 +707,33 @@
         justify-content: center;
         width: auto;
     }
+.icon-btn {
+        background: none !important;
+        border: none !important;
+        font-size: 1.2rem !important; /* Forces icons to stay small */
+        padding: 4px !important;
+        cursor: pointer;
+        color: #4a5568 !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
     .icon-btn:active { transform: scale(1.2); }
-    .icon-label { font-size: 0.6rem; font-weight: 700; color: #718096; margin-top: 2px; }
+    .icon-label { 
+        font-size: 0.5rem; /* Makes labels smaller */
+        font-weight: 800; 
+        color: #718096; 
+        margin-top: 2px; 
+        white-space: nowrap; /* Prevents text from overlapping */
+    }
     .icon-group { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-    .icon-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .icon-wrapper { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        flex: 1; 
+        min-width: 0; /* Important for the 6-icon row */
+    }
 
     #appModal { z-index: 8000; }
     .modal-box {
@@ -3900,6 +3920,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
