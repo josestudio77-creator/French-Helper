@@ -198,6 +198,7 @@
         margin-bottom: 15px;
         border: 3px solid #118AB2;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        position: relative;
     }
     
     .status-info {
@@ -1702,16 +1703,40 @@ function renderList(list) {
         }
     }
     
-    // Status info - simplified
+// 1. UPDATE STATUS BAR & BADGES
     const statusInfo = document.getElementById('stCountText');
+    const controlPanel = document.querySelector('.app-control-panel');
+    
+    // Remove existing badges from the control panel first to prevent duplicates
+    controlPanel.querySelectorAll('.corner-badge').forEach(b => b.remove());
+
     if (statusInfo) {
         if (!list || list.length === 0) {
             statusInfo.textContent = '🇫🇷 Ready to learn!';
         } else {
-            if (currentSetName) {
-                statusInfo.innerHTML = `📚 ${currentSetName}`;
-            } else {
-                statusInfo.innerHTML = `📚 List`;
+            statusInfo.innerHTML = currentSetName ? `📚 ${currentSetName}` : `📚 List`;
+            
+            // If we have a saved homework set, add the floating badges
+            if (currentSetName && history[currentSetName]) {
+                const hwData = JSON.parse(history[currentSetName]);
+                const safeName = currentSetName.replace(/'/g, "\\'");
+                
+                // Favorite Star Badge (Top-Left)
+                const favIcon = hwData.isFavorite ? "⭐" : "☆";
+                const starBadge = document.createElement('div');
+                starBadge.className = 'corner-badge badge-left';
+                starBadge.onclick = () => toggleFavorite(safeName);
+                starBadge.innerHTML = `<span style="font-size: 1.5rem;">${favIcon}</span>`;
+                controlPanel.appendChild(starBadge);
+
+                // Notes Badge (Top-Right - Only if note exists)
+                if (homeworkNotes && homeworkNotes[currentSetName]) {
+                    const noteBadge = document.createElement('div');
+                    noteBadge.className = 'corner-badge badge-right';
+                    noteBadge.onclick = () => showNote(safeName);
+                    noteBadge.innerHTML = `<span style="font-size: 1.2rem;">💬</span>`;
+                    controlPanel.appendChild(noteBadge);
+                }
             }
         }
     }
@@ -2184,11 +2209,17 @@ function toggleFavFilter() {
 }
 
 function toggleFavorite(name) {
-    let hwData = JSON.parse(history[name]);
-    hwData.isFavorite = !hwData.isFavorite;
-    history[name] = JSON.stringify(hwData);
+    let d = JSON.parse(history[name]);
+    d.isFavorite = !d.isFavorite;
+    history[name] = JSON.stringify(d);
     localStorage.setItem('frenchHistory', JSON.stringify(history));
-    openBP();
+    
+    // Refresh the UI based on where we are
+    if (document.getElementById('bpModal').style.display === 'block') {
+        openBP();
+    } else {
+        renderList(currentScreenList);
+    }
 }
 
 // 1. Triggered when clicking the 📁 icon (to move an item)
@@ -2384,7 +2415,6 @@ function loadHomeworkForPractice(name, words, audio) {
 }
 
 function showNote(homeworkName) {
-    // Get note specific to this homework only
     const note = homeworkNotes[homeworkName] || '';
     const newNote = prompt(`Notes for "${homeworkName}":`, note);
     if (newNote !== null) {
@@ -2394,7 +2424,13 @@ function showNote(homeworkName) {
             homeworkNotes[homeworkName] = newNote.trim();
         }
         localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-        openBP(); // Refresh to show note indicator
+        
+        // Refresh the UI based on where we are
+        if (document.getElementById('bpModal').style.display === 'block') {
+            openBP();
+        } else {
+            renderList(currentScreenList);
+        }
     }
 }
 
@@ -3906,6 +3942,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
