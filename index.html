@@ -1549,63 +1549,80 @@
             else if (ratio < 1) document.getElementById('ratio-portrait').classList.add('active');
         }
         
-        // ===== UPDATED getCardData WITH CUSTOM ICONS/PHOTOS =====
-        function getCardData(p) {
-            const normalizedPhrase = norm(p);
-            
-            // Check for custom photo first
-            if (customPhotos[normalizedPhrase]) {
-                const photoData = customPhotos[normalizedPhrase];
-                const isNewFormat = photoData.data !== undefined;
-                
-                return {
-                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
-                    icon: '📷',
-                    isPhoto: true,
-                    photoData: isNewFormat ? photoData.data : photoData,
-                    photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
-                    isFreeCrop: isNewFormat ? photoData.isFreeCrop || false : false, // Add this
-                    customRatio: isNewFormat ? photoData.customRatio : null,  // Add this
-                    pronunciation: MASTER_DATA[p]?.pronunciation,
-                    g: MASTER_DATA[p]?.g
-                };
-            }
-            
-            // Check for custom emoji
-            if (customIcons[normalizedPhrase]) {
-                return {
-                    en: cache[normalizedPhrase] || MASTER_DATA[p]?.en || "...",
-                    icon: customIcons[normalizedPhrase],
-                    pronunciation: MASTER_DATA[p]?.pronunciation,
-                    g: MASTER_DATA[p]?.g,
-                    isCustom: true
-                };
-            }
-            
-            // Fall back to MASTER_DATA
-            if (MASTER_DATA[p]) return MASTER_DATA[p];
-            const n = norm(p);
-            for (let key in MASTER_DATA) { 
-                if (norm(key) === n) return MASTER_DATA[key]; 
-            }
-            
-            // Smart icon logic
-            const word = p.toLowerCase();
-            let smartIcon = "✨";
-            
-            if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
-            else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
-            else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
-            else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
-            else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
-            else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
-            else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
-            else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
-            else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
-            else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
-            
-            return { en: cache[n] || "...", icon: smartIcon };
+// ===== UPDATED getCardData (V10.7) - ALL FEATURES PRESERVED + CACHE PRIORITY =====
+function getCardData(p) {
+    const normalizedPhrase = norm(p);
+
+    // 1. FIRST: Find the base data from dictionary (if it exists) 
+    // We need this for the pronunciation and gender, but we won't return it yet.
+    let baseData = MASTER_DATA[p];
+    if (!baseData) {
+        for (let key in MASTER_DATA) { 
+            if (norm(key) === normalizedPhrase) { baseData = MASTER_DATA[key]; break; } 
         }
+    }
+
+    // 2. SECOND: Determine the English text. 
+    // We prioritize the USER CACHE (your manual fix) over the MASTER_DATA.
+    const finalEn = cache[normalizedPhrase] || baseData?.en || "...";
+
+    // 3. THIRD: Check for custom photo (Preserving all your specific parameters)
+    if (customPhotos[normalizedPhrase]) {
+        const photoData = customPhotos[normalizedPhrase];
+        const isNewFormat = photoData.data !== undefined;
+        
+        return {
+            en: finalEn, // <--- Using the prioritized translation
+            icon: '📷',
+            isPhoto: true,
+            photoData: isNewFormat ? photoData.data : photoData,
+            photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
+            isFreeCrop: isNewFormat ? photoData.isFreeCrop || false : false,
+            customRatio: isNewFormat ? photoData.customRatio : null,
+            pronunciation: baseData?.pronunciation,
+            g: baseData?.g
+        };
+    }
+    
+    // 4. FOURTH: Check for custom emoji
+    if (customIcons[normalizedPhrase]) {
+        return {
+            en: finalEn, // <--- Using the prioritized translation
+            icon: customIcons[normalizedPhrase],
+            pronunciation: baseData?.pronunciation,
+            g: baseData?.g,
+            isCustom: true
+        };
+    }
+    
+    // 5. FIFTH: Fallback to MASTER_DATA (if it exists)
+    // We rebuild the object to ensure your CACHED English is used
+    if (baseData) {
+        return {
+            en: finalEn,
+            icon: baseData.icon,
+            pronunciation: baseData.pronunciation,
+            g: baseData.g
+        };
+    }
+
+    // 6. SIXTH: Smart icon logic (Preserving all your regex logic)
+    const word = p.toLowerCase();
+    let smartIcon = "✨";
+    
+    if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
+    else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
+    else if (word.match(/un|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|vingt|cent/)) smartIcon = "🔢";
+    else if (word.match(/pomme|banane|pain|lait|pizza|gateau|fromage|orange|eau|chocolat|fraise/)) smartIcon = "🍴";
+    else if (word.match(/tete|nez|bouche|yeux|main|pied|oreille|bras|doigt|jambe/)) smartIcon = "👤";
+    else if (word.match(/livre|crayon|sac|ecole|bureau|professeur|cahier|regle|stylo/)) smartIcon = "📚";
+    else if (word.match(/maman|papa|mere|pere|frere|soeur|grand/)) smartIcon = "👨‍👩‍👧";
+    else if (word.match(/chaise|table|lit|fenetre|porte|maison/)) smartIcon = "🏠";
+    else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
+    else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
+    
+    return { en: finalEn, icon: smartIcon };
+}
 
 
 function renderList(list) {
@@ -1778,6 +1795,7 @@ function renderList(list) {
                 `;
             }
 
+            // A. Handle the French Speech & Snail
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
@@ -1785,29 +1803,27 @@ function renderList(list) {
                 spk(p, 'fr-FR', true, slowestSpeed);
             };
             
-            const tB = card.querySelector('.spk-en');
+            // B. Define our targets
+            const engTextEl = card.querySelector('.english-text');
+            const engBtnEl = card.querySelector('.spk-en');
             
-            // Single click - speak English
-            tB.addEventListener('click', (e) => {
-                // Only speak if it's not a double-click
-                if (e.detail === 1) {
-                    spk(data.en, 'en-US', true);
-                }
-            });
-            
-            // Double-click for desktop
-            tB.addEventListener('dblclick', (e) => {
+            // C. The "Fix" logic (extracted for reuse)
+            const triggerFix = (e) => {
                 e.preventDefault();
                 manualFixTranslation(p, data.en);
-            });
+            };
             
-            // Double-tap for mobile
+            // D. English Button: Speech only
+            engBtnEl.onclick = () => spk(data.en, 'en-US', true);
+            
+            // E. English Text: Fix only (Double Click for computer, Double Tap for phone)
+            engTextEl.ondblclick = triggerFix;
+            
             let lastTap = 0;
-            tB.addEventListener('touchstart', (e) => {
+            engTextEl.addEventListener('touchstart', (e) => {
                 const now = Date.now();
                 if (now - lastTap < 300) {
-                    e.preventDefault();
-                    manualFixTranslation(p, data.en);
+                    triggerFix(e);
                 }
                 lastTap = now;
             });
@@ -3816,6 +3832,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
