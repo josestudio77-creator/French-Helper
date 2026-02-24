@@ -2198,9 +2198,9 @@ function getCornerBadgesHTML(name) {
     
     const safeName = name.replace(/'/g, "\\'");
     
-    // THE FIX: Force font-weight to 400 and use a very light gray (#ccc)
-    // We use !important to make sure the app's global Bold 900 doesn't win.
-    const favIcon = hwData.isFavorite ? "⭐" : '<span style="color: #ccc !important; font-weight: 400 !important; font-family: sans-serif;">☆</span>';
+    // THE FIX: We use a larger font-size (2rem) and a slight scale to match the yellow star's size.
+    // We keep the light color (#ccc) and normal weight (400).
+    const favIcon = hwData.isFavorite ? "⭐" : '<span style="color: #ccc !important; font-weight: 400 !important; font-size: 2rem; line-height: 1; display: inline-block; transform: translateY(-1px);">☆</span>';
     
     const noteExists = homeworkNotes && homeworkNotes[name] && homeworkNotes[name].trim() !== '';
 
@@ -3934,6 +3934,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
