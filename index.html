@@ -894,6 +894,7 @@
         right: 15px;
         font-size: 20pt; 
     }
+}
 
     /* Universal App Modal Styles - V10.8 */
     #appModal { z-index: 8000; }
@@ -936,7 +937,6 @@
     .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
     .modal-btn:active { transform: scale(0.95); }    
-}
        
    </style>
 </head>
@@ -3259,13 +3259,13 @@ async function translateOne(p) {
                 return;
             }
             
-            // YOUR ORIGINAL LOGIC: Auto-translate
+            // 1. YOUR ORIGINAL LOGIC: Auto-translate before saving
             await translateIfNeeded(val, true);
             
-            // YOUR ORIGINAL LOGIC: Update persistent session
+            // 2. YOUR ORIGINAL LOGIC: Update the persistent session
             localStorage.setItem('homeworkPhrases', val);
             
-            // REPLACING PROMPT WITH CUSTOM MODAL
+            // 3. SURGICAL REPLACEMENT: prompt -> openAppModal
             openAppModal({
                 title: "💾 Save Homework",
                 text: editingHomeworkName || "Week " + (Object.keys(history).length + 1),
@@ -3273,7 +3273,7 @@ async function translateOne(p) {
                 placeholder: "Week Name (max 20 characters)",
                 onSave: (name) => {
                     if (name) { 
-                        // YOUR ORIGINAL LOGIC: Name length check
+                        // 4. YOUR ORIGINAL LOGIC: Name length check
                         if (name.length > 20) {
                             name = name.substring(0, 20);
                             alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
@@ -3290,26 +3290,27 @@ async function translateOne(p) {
                         
                         if (!history) history = {};
                         
+                        // 5. YOUR ORIGINAL LOGIC: Save to Backpack
                         history[name] = JSON.stringify(hwData);
                         localStorage.setItem('frenchHistory', JSON.stringify(history)); 
                         
                         document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
                         
-                        // YOUR ORIGINAL LOGIC: Clear form fields
+                        // 6. YOUR ORIGINAL LOGIC: Clear form fields for next entry
                         document.getElementById('hwInput').value = "";
                         document.getElementById('hwIsDialogue').checked = false;
                         
                         closeOverlay('hwDrawer');
                         
-                        // YOUR ORIGINAL LOGIC: Set up for practice mode
+                        // 7. YOUR ORIGINAL LOGIC: Set up for practice mode
                         currentSetName = name;
                         localStorage.setItem('currentSetName', name);
                         currentIsDialogue = isDiag;
                         
-                        // Practice with audio - BUT KEEP CURRENT VIEW MODE PREFERENCE
+                        // 8. YOUR ORIGINAL LOGIC: Render practice screen (maintaining viewMode preference)
                         renderList(val.split('\n').filter(w => w.trim()));
                         
-                        // YOUR ORIGINAL LOGIC: Force update the dialogue button label
+                        // 9. YOUR ORIGINAL LOGIC: Force update the dialogue button label
                         const diagBtn = document.getElementById('btnViewDialogue');
                         if (diagBtn) {
                             if (currentWeekAudio) {
@@ -3319,7 +3320,7 @@ async function translateOne(p) {
                             }
                         }
                         
-                        // YOUR ORIGINAL LOGIC: Clear audio for NEXT new homework
+                        // 10. YOUR ORIGINAL LOGIC: Clear audio input for NEXT new homework
                         setTimeout(() => {
                             if (!editingHomeworkName) {
                                 document.getElementById('teacherAudioFile').value = '';
@@ -3329,7 +3330,7 @@ async function translateOne(p) {
                         editingHomeworkName = null;
                         document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
                         
-                        // Refresh backpack to show the new item
+                        // 11. Refresh Backpack UI to show new item
                         openBP();
                     }
                 }
@@ -3393,15 +3394,15 @@ async function translateOne(p) {
                     visibleCount++;
                     const div = document.createElement('div'); 
                     div.className = 'history-item';
-                    div.style.position = "relative"; // Required for absolute corner badges
+                    div.style.position = "relative"; // Ensure badges anchor correctly
         
                     const hasAudio = hwData.audio ? '🎤' : '';
                     const safeName = name.replace(/'/g, "\\'");
         
+                    // USING YOUR APPROVED BADGE LOGIC
                     div.innerHTML = `
                         ${getCornerBadgesHTML(name)} 
         
-                        <!-- Centered Title Area -->
                         <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
                             <div onclick="renameHomework('${safeName}')" 
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -3409,7 +3410,6 @@ async function translateOne(p) {
                             </div>
                         </div>
                         
-                        <!-- BIG PRACTICE BUTTON - COMPACT -->
                         <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:12px; padding:5px 0; font-weight:900; font-size:1.1rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 3px 0 #2e8b57; line-height:1;">
                             PRACTICE<br>
                             <span style="font-size: 0.6rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">
@@ -3417,59 +3417,36 @@ async function translateOne(p) {
                             </span>
                         </button>
                             
-                        <!-- ICON ROW - Single line -->
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">✏️</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
+                                <button class="icon-btn edit-icon" onclick="editHomework('${safeName}')">✏️</button>
+                                <span class="icon-label">Edit</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🖨️</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
+                                <button class="icon-btn print-icon" onclick="openPrintSelection(null, '${safeName}')">🖨️</button>
+                                <span class="icon-label">Print</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn" onclick="shareWeek('${safeName}', \`${hwData.words.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\', ${hwData.audio ? 'currentWeekAudio' : 'null'})">📤</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
+                                <button class="icon-btn share-icon" onclick="shareWeek('${safeName}', \`${hwData.words.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, currentWeekAudio)">📤</button>
+                                <span class="icon-label">Share</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📂</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
+                                <button class="icon-btn move-icon" onclick="moveHomework('${safeName}')">📂</button>
+                                <span class="icon-label">Move</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📝</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
+                                <button class="icon-btn note-icon" onclick="showNote('${safeName}')">📝</button>
+                                <span class="icon-label">Notes</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🗑️</button>
-                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
+                                <button class="icon-btn delete-icon" onclick="deleteHomeworkItem('${safeName}')">🗑️</button>
+                                <span class="icon-label">Delete</span>
                             </div>
                         </div>
                     `;
                     
-                    // Re-bind all existing button logic
                     const practiceBtn = div.querySelector('.practice-big-btn');
                     practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
-                    
-                    const icons = div.querySelectorAll('.icon-btn');
-                    icons[0].onclick = () => editHomework(name);
-                    icons[1].onclick = () => openPrintSelection(hwData.words, name);
-                    icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio);
-                    icons[3].onclick = () => moveHomework(name);
-                    icons[4].onclick = () => showNote(name);
-                    icons[5].onclick = () => {
-                        if(confirm(`Delete "${name}"?`)){ 
-                            delete history[name]; 
-                            if (homeworkNotes) delete homeworkNotes[name];
-                            localStorage.setItem('frenchHistory', JSON.stringify(history));
-                            if (homeworkNotes) localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            if (currentSetName === name) {
-                                currentSetName = '';
-                                localStorage.removeItem('homeworkPhrases');
-                                renderList([]);
-                            }
-                            openBP(); 
-                        } 
-                    };
                     
                     list.appendChild(div);
                 }
@@ -3486,6 +3463,20 @@ async function translateOne(p) {
             }
         }
 
+        function deleteHomeworkItem(name) {
+            if(confirm(`Delete "${name}"?`)){ 
+                delete history[name]; 
+                if (homeworkNotes) delete homeworkNotes[name];
+                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                if (currentSetName === name) {
+                    currentSetName = '';
+                    localStorage.removeItem('homeworkPhrases');
+                    renderList([]);
+                }
+                openBP(); 
+            } 
+        }
+        
         function renameHomework(oldName) {
             openAppModal({
                 title: "🏷️ Rename Homework",
@@ -4062,6 +4053,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
