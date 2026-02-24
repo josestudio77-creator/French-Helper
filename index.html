@@ -370,6 +370,38 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
+    /* Corner Badges for Backpack Cards */
+    .corner-badge {
+        position: absolute;
+        width: 38px;
+        height: 38px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+        cursor: pointer;
+        border: 2px solid #fdf2ff;
+        transition: transform 0.1s;
+    }
+    
+    .corner-badge:active {
+        transform: scale(1.2);
+    }
+    
+    .badge-left {
+        top: -12px;
+        left: -12px;
+    }
+    
+    .badge-right {
+        top: -12px;
+        right: -12px;
+        border-color: #e0f2fe;
+    }
+
         /* Optimized for 6 buttons in the Backpack */
     .history-item .load-btn, .history-item .del-btn {
         flex: 1 1 calc(33.33% - 10px); /* Forces 3 buttons per row */
@@ -3241,78 +3273,88 @@ async function translateOne(p) {
                     visibleCount++;
                     const div = document.createElement('div'); 
                     div.className = 'history-item';
-                    
+                    div.style.position = "relative"; // Required for absolute corner badges
+        
                     const favIcon = hwData.isFavorite ? "⭐" : "☆";
                     const hasAudio = hwData.audio ? '🎤' : '';
-                    const hasNote = homeworkNotes && homeworkNotes[name] ? ' 💬' : '';
+                    // We only show the badge if a note actually exists
+                    const noteExists = homeworkNotes && homeworkNotes[name] && homeworkNotes[name].trim() !== '';
                     const safeName = name.replace(/'/g, "\\'");
         
                     div.innerHTML = `
-                        <div style="display:grid; grid-template-columns: 40px 1fr 40px; width:100%; margin-bottom:8px; align-items:center;">
-                        <button onclick="toggleFavorite('${safeName}')" style="background:none; border:none; font-size:1.6rem; cursor:pointer; text-align:left; padding:0; width:40px;">${favIcon}</button>
-                        <div onclick="renameHomework('${safeName}')" 
-                             style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 5px;">
-                            ${name} ${hasAudio} ${hasNote}
+                        <!-- Top Left: Favorite Star Badge -->
+                        <div class="corner-badge badge-left" onclick="toggleFavorite('${safeName}')">
+                            <span style="font-size: 1.5rem;">${favIcon}</span>
                         </div>
-                        <div style="width:40px;"></div>
-                    </div>
-                    
-                    <!-- BIG PRACTICE BUTTON - COMPACT -->
-                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:12px; padding:5px 0; font-weight:900; font-size:1.1rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 3px 0 #2e8b57; line-height:1;">
-                        PRACTICE<br>
-                        <span style="font-size: 0.6rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">
-                            ${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}
-                        </span>
-                    </button>
+        
+                        <!-- Top Right: Notes Badge (Floating and Clickable) -->
+                        ${noteExists ? `
+                            <div class="corner-badge badge-right" onclick="showNote('${safeName}')">
+                                <span style="font-size: 1.2rem;">💬</span>
+                            </div>
+                        ` : ''}
+        
+                        <!-- Centered Title Area -->
+                        <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
+                            <div onclick="renameHomework('${safeName}')" 
+                                 style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${name} ${hasAudio}
+                            </div>
+                        </div>
                         
-                       <!-- ICON ROW - Single line, no wrapping with proper spacing -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">✏️</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
+                        <!-- BIG PRACTICE BUTTON - COMPACT -->
+                        <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:12px; padding:5px 0; font-weight:900; font-size:1.1rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 3px 0 #2e8b57; line-height:1;">
+                            PRACTICE<br>
+                            <span style="font-size: 0.6rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">
+                                ${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}
+                            </span>
+                        </button>
+                            
+                        <!-- ICON ROW - Single line -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn edit-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">✏️</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Edit</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🖨️</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn" onclick="shareWeek('${safeName}', \`${hwData.words.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\', ${hwData.audio ? 'currentWeekAudio' : 'null'})">📤</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📂</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📝</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
+                                <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🗑️</button>
+                                <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
+                            </div>
                         </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn print-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🖨️</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Print</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn share-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📤</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Share</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn move-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📂</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Move</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn note-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">📝</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Notes</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                            <button class="icon-btn delete-icon" style="background:none; border:none; font-size:1.3rem; cursor:pointer; padding:2px 0; color:#4a5568; width:100%;">🗑️</button>
-                            <span class="icon-label" style="font-size:0.5rem; font-weight:700; color:#718096; margin-top:2px;">Delete</span>
-                        </div>
-                    </div>
                     `;
                     
-                    // Practice button
+                    // Re-bind all existing button logic
                     const practiceBtn = div.querySelector('.practice-big-btn');
                     practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
                     
-                    // Icon buttons
                     const icons = div.querySelectorAll('.icon-btn');
-                    
-                    icons[0].onclick = () => editHomework(name);                          // Edit
-                    icons[1].onclick = () => openPrintSelection(hwData.words, name);      // Print
-                    icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio); // Share
-                    icons[3].onclick = () => moveHomework(name);                          // Move
-                    icons[4].onclick = () => showNote(name);                              // Notes
-                    icons[5].onclick = () => {                                            // Delete
+                    icons[0].onclick = () => editHomework(name);
+                    icons[1].onclick = () => openPrintSelection(hwData.words, name);
+                    icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio);
+                    icons[3].onclick = () => moveHomework(name);
+                    icons[4].onclick = () => showNote(name);
+                    icons[5].onclick = () => {
                         if(confirm(`Delete "${name}"?`)){ 
                             delete history[name]; 
                             if (homeworkNotes) delete homeworkNotes[name];
                             localStorage.setItem('frenchHistory', JSON.stringify(history));
                             if (homeworkNotes) localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            
                             if (currentSetName === name) {
                                 currentSetName = '';
                                 localStorage.removeItem('homeworkPhrases');
@@ -3864,6 +3906,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
