@@ -894,6 +894,48 @@
         right: 15px;
         font-size: 20pt; 
     }
+
+    /* Universal App Modal Styles - V10.8 */
+    #appModal { z-index: 8000; }
+    .modal-box {
+        background: white;
+        border-radius: 30px;
+        padding: 25px;
+        border: 5px solid #9d4edd;
+        max-width: 400px;
+        margin: 15vh auto;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        position: relative;
+    }
+    .modal-title { color: #9d4edd; margin-bottom: 15px; font-size: 1.3rem; font-weight: 900; }
+    .modal-display {
+        background: #fdf2ff;
+        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        border: 2px solid #e2e8f0;
+        font-weight: 700;
+        color: #2d3748;
+        line-height: 1.5;
+        min-height: 60px;
+        word-break: break-word;
+    }
+    .modal-input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 15px;
+        border: 3px solid #9d4edd;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        outline: none;
+        resize: none;
+    }
+    .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
+    .modal-btn:active { transform: scale(0.95); }    
 }
        
    </style>
@@ -947,6 +989,31 @@
         <button onclick="closeOverlay('folderSelectionOverlay')" style="background: #eee; color: #666; padding: 15px; width: 100%; border-radius: 15px; border: none; font-weight: 900; cursor: pointer;">Cancel</button>
     </div>
 </div>
+
+        <!-- Unified App Modal Structure -->
+    <div id="appModal" class="overlay">
+        <div class="modal-box">
+            <h2 id="appModalTitle" class="modal-title"></h2>
+            
+            <div id="appModalView">
+                <div id="appModalTextDisplay" class="modal-display"></div>
+                <div class="modal-btn-grid" id="appModalViewBtns">
+                    <button id="appModalBtnEdit" class="modal-btn" style="background:#118AB2; color:white;">✏️ Edit</button>
+                    <button id="appModalBtnDelete" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Delete</button>
+                </div>
+            </div>
+    
+            <div id="appModalEdit" style="display:none;">
+                <textarea id="appModalInput" class="modal-input"></textarea>
+                <div class="modal-btn-grid">
+                    <button id="appModalBtnSave" class="modal-btn" style="background:#4cd964; color:white;">💾 Save</button>
+                    <button id="appModalBtnCancel" class="modal-btn" style="background:#eee; color:#666;">Cancel</button>
+                </div>
+            </div>
+    
+            <button onclick="closeOverlay('appModal')" id="appModalBtnClose" class="modal-btn" style="width:100%; background:#2d3748; color:white; margin-top:5px;">Close</button>
+        </div>
+    </div>
     
     <div id="printArea"></div>
     
@@ -2424,23 +2491,27 @@ function loadHomeworkForPractice(name, words, audio) {
     renderList(words.split('\n').filter(w => w.trim()));
 }
 
-function showNote(homeworkName) {
-    const note = homeworkNotes[homeworkName] || '';
-    const newNote = prompt(`Notes for "${homeworkName}":`, note);
-    if (newNote !== null) {
-        if (newNote.trim() === '') {
-            delete homeworkNotes[homeworkName];
-        } else {
-            homeworkNotes[homeworkName] = newNote.trim();
+function showNote(name) {
+    const note = homeworkNotes[name] || '';
+    openAppModal({
+        title: `📝 Notes: ${name}`,
+        text: note,
+        mode: note.trim() === '' ? 'edit' : 'view',
+        placeholder: "Write a note...",
+        onSave: (val) => {
+            if (val === '') delete homeworkNotes[name];
+            else homeworkNotes[name] = val;
+            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+            refreshAppUI();
+        },
+        onDelete: () => {
+            if(confirm("Delete this note?")) {
+                delete homeworkNotes[name];
+                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                refreshAppUI();
+            }
         }
-        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-        
-        if (document.getElementById('bpModal').style.display === 'block') {
-            openBP();
-        } else {
-            renderList(currentScreenList);
-        }
-    }
+    });
 }
 
 function needsTranslation(words) {
@@ -3188,73 +3259,81 @@ async function translateOne(p) {
                 return;
             }
             
+            // YOUR ORIGINAL LOGIC: Auto-translate
             await translateIfNeeded(val, true);
             
+            // YOUR ORIGINAL LOGIC: Update persistent session
             localStorage.setItem('homeworkPhrases', val);
             
-            let name = prompt("Week Name (max 20 characters):", editingHomeworkName || "Week " + (Object.keys(history).length + 1)); 
-            if (name) { 
-                if (name.length > 20) {
-                    name = name.substring(0, 20);
-                    alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
-                }
-                
-                const hwData = {
-                    words: val,
-                    audio: currentWeekAudio,  // Save the audio from editor
-                    isDialogue: isDiag,
-                    month: selectedBpMonth,
-                    isFavorite: false,
-                    date: new Date().toISOString()
-                };
-                
-                if (!history) history = {};
-                
-                history[name] = JSON.stringify(hwData);
-                localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                
-                document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
-                
-                // Clear form fields
-                document.getElementById('hwInput').value = "";
-                document.getElementById('hwIsDialogue').checked = false;
-                
-                closeOverlay('hwDrawer');
-                
-                // ✅ CRITICAL: Set up for practice mode
-                currentSetName = name;
-                localStorage.setItem('currentSetName', name);
-                currentIsDialogue = isDiag;
-                
-                // ✅ FIX: DON'T automatically switch viewMode based on audio here
-                // Let the existing viewMode preference determine the display
-                // But make sure the button label updates correctly
-                
-                // Practice with audio - BUT KEEP CURRENT VIEW MODE PREFERENCE
-                renderList(val.split('\n').filter(w => w.trim()));
-                
-                // ✅ ADD THIS: Force update the dialogue button label
-                const diagBtn = document.getElementById('btnViewDialogue');
-                if (diagBtn) {
-                    if (currentWeekAudio) {
-                        diagBtn.innerHTML = "🎧 Recording";
-                    } else {
-                        diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+            // REPLACING PROMPT WITH CUSTOM MODAL
+            openAppModal({
+                title: "💾 Save Homework",
+                text: editingHomeworkName || "Week " + (Object.keys(history).length + 1),
+                mode: 'edit',
+                placeholder: "Week Name (max 20 characters)",
+                onSave: (name) => {
+                    if (name) { 
+                        // YOUR ORIGINAL LOGIC: Name length check
+                        if (name.length > 20) {
+                            name = name.substring(0, 20);
+                            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+                        }
+                        
+                        const hwData = {
+                            words: val,
+                            audio: currentWeekAudio,  // Save the audio from editor
+                            isDialogue: isDiag,
+                            month: selectedBpMonth,
+                            isFavorite: false,
+                            date: new Date().toISOString()
+                        };
+                        
+                        if (!history) history = {};
+                        
+                        history[name] = JSON.stringify(hwData);
+                        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
+                        
+                        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
+                        
+                        // YOUR ORIGINAL LOGIC: Clear form fields
+                        document.getElementById('hwInput').value = "";
+                        document.getElementById('hwIsDialogue').checked = false;
+                        
+                        closeOverlay('hwDrawer');
+                        
+                        // YOUR ORIGINAL LOGIC: Set up for practice mode
+                        currentSetName = name;
+                        localStorage.setItem('currentSetName', name);
+                        currentIsDialogue = isDiag;
+                        
+                        // Practice with audio - BUT KEEP CURRENT VIEW MODE PREFERENCE
+                        renderList(val.split('\n').filter(w => w.trim()));
+                        
+                        // YOUR ORIGINAL LOGIC: Force update the dialogue button label
+                        const diagBtn = document.getElementById('btnViewDialogue');
+                        if (diagBtn) {
+                            if (currentWeekAudio) {
+                                diagBtn.innerHTML = "🎧 Recording";
+                            } else {
+                                diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
+                            }
+                        }
+                        
+                        // YOUR ORIGINAL LOGIC: Clear audio for NEXT new homework
+                        setTimeout(() => {
+                            if (!editingHomeworkName) {
+                                document.getElementById('teacherAudioFile').value = '';
+                            }
+                        }, 500);
+                        
+                        editingHomeworkName = null;
+                        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
+                        
+                        // Refresh backpack to show the new item
+                        openBP();
                     }
                 }
-                
-                // Clear audio for NEXT new homework (but keep it for current practice)
-                setTimeout(() => {
-                    if (!editingHomeworkName) {
-                        // BUT DON'T clear currentWeekAudio yet - we need it for the current view
-                        // Just clear the file input
-                        document.getElementById('teacherAudioFile').value = '';
-                    }
-                }, 500);
-                
-                editingHomeworkName = null;
-                document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-            } 
+            });
         }
         
         function cancelEdit() {
@@ -3408,39 +3487,28 @@ async function translateOne(p) {
         }
 
         function renameHomework(oldName) {
-            const newName = prompt("Rename this homework set:", oldName);
-            
-            // 1. Check if user cancelled or name didn't change
-            if (!newName || newName.trim() === "" || newName === oldName) return;
-        
-            // 2. Validate length
-            if (newName.length > 20) {
-                alert("⚠️ Name is too long! Max 20 characters.");
-                return;
-            }
-        
-            // 3. Check for duplicates
-            if (history[newName]) {
-                alert("⚠️ A homework set with that name already exists!");
-                return;
-            }
-        
-            // 4. Move the data
-            history[newName] = history[oldName]; // Copy to new name
-            delete history[oldName];             // Remove old name entry
-        
-            // 5. Update state if we are currently editing this specific set
-            if (editingHomeworkName === oldName) {
-                editingHomeworkName = newName;
-                document.getElementById('hwDrawerTitle').textContent = "✏️ Edit: " + newName;
-            }
-        
-            // 6. Save and Refresh Backpack
-            localStorage.setItem('frenchHistory', JSON.stringify(history));
-            openBP();
-            
-            // Small success feedback
-            console.log(`Renamed "${oldName}" to "${newName}"`);
+            openAppModal({
+                title: "🏷️ Rename Homework",
+                text: oldName,
+                mode: 'edit',
+                onSave: (newName) => {
+                    if (!newName || newName === oldName) return;
+                    if (history[newName]) return alert("Name already exists!");
+                    history[newName] = history[oldName];
+                    delete history[oldName];
+                    if (homeworkNotes[oldName]) {
+                        homeworkNotes[newName] = homeworkNotes[oldName];
+                        delete homeworkNotes[oldName];
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                    }
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    if (currentSetName === oldName) {
+                        currentSetName = newName;
+                        localStorage.setItem('currentSetName', newName);
+                    }
+                    openBP();
+                }
+            });
         }
         
         function editHomework(name) {
@@ -3592,15 +3660,18 @@ async function translateOne(p) {
 
        
         function manualFixTranslation(p, currentEn) {
-            if(confirm(`Fix translation for "${p}"?`)){ 
-                const fix = prompt("Enter correct English:", currentEn); 
-                if(fix){ 
-                    cache[norm(p)] = fix; 
-                    localStorage.setItem('phraseTranslations', JSON.stringify(cache)); 
-                    // Re-draw the screen to show the new word
-                    renderList(currentScreenList); 
-                } 
-            }
+            openAppModal({
+                title: `🔧 Fix Translation: ${p}`,
+                text: currentEn,
+                mode: 'edit',
+                onSave: (fix) => {
+                    if (fix) {
+                        cache[norm(p)] = fix;
+                        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                        renderList(currentScreenList);
+                    }
+                }
+            });
         }
 
         function toggleAutoPlay() {
@@ -3782,6 +3853,63 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
         }, 1000);
     }, 400);
 }
+
+function openAppModal(config) {
+    // config: { title, text, mode, onSave, onDelete, placeholder }
+    document.getElementById('appModalTitle').textContent = config.title;
+    const input = document.getElementById('appModalInput');
+    const display = document.getElementById('appModalTextDisplay');
+    const viewSection = document.getElementById('appModalView');
+    const editSection = document.getElementById('appModalEdit');
+    const closeBtn = document.getElementById('appModalBtnClose');
+
+    if (config.mode === 'edit') {
+        viewSection.style.display = "none";
+        editSection.style.display = "block";
+        closeBtn.style.display = "none";
+        input.value = config.text || "";
+        input.placeholder = config.placeholder || "";
+    } else {
+        viewSection.style.display = "block";
+        editSection.style.display = "none";
+        closeBtn.style.display = "block";
+        display.textContent = config.text || "";
+    }
+
+    const btnDelete = document.getElementById('appModalBtnDelete');
+    if (config.onDelete) {
+        btnDelete.style.display = "block";
+        btnDelete.onclick = () => { config.onDelete(); closeOverlay('appModal'); };
+        document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
+    } else {
+        btnDelete.style.display = "none";
+        document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+    }
+
+    document.getElementById('appModalBtnSave').onclick = () => {
+        if (config.onSave) config.onSave(input.value.trim());
+        closeOverlay('appModal');
+    };
+    
+    document.getElementById('appModalBtnCancel').onclick = () => {
+        if (config.mode === 'edit' && (!config.text || config.text === "")) closeOverlay('appModal'); 
+        else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
+    };
+
+    document.getElementById('appModalBtnEdit').onclick = () => {
+        viewSection.style.display = "none";
+        editSection.style.display = "block";
+        input.value = config.text;
+        closeBtn.style.display = "none";
+    };
+
+    openOverlay('appModal');
+}
+
+function refreshAppUI() {
+    if (document.getElementById('bpModal').style.display === 'block') openBP();
+    else renderList(currentScreenList);
+}
         
         function shareApp() { 
             if (navigator.share) { 
@@ -3934,6 +4062,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
