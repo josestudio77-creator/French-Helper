@@ -1697,10 +1697,25 @@ function renderList(list) {
             line.textContent = cleanText;
             line.onclick = () => {
                 if (isAutoPlaying) {
-                    // Clear the pending timeout and speak the clicked phrase
+                    // Clear the pending timeout
                     clearTimeout(autoPlayTimeout);
-                    spk(cleanText, 'fr-FR', true);
-                    // auto-play will continue naturally when this phrase ends
+                    
+                    // Cancel any current speech
+                    window.speechSynthesis.cancel();
+                    
+                    // Speak the clicked phrase
+                    const utterance = new SpeechSynthesisUtterance(cleanText);
+                    utterance.lang = 'fr-FR';
+                    utterance.rate = speechSpeed;
+                    
+                    // When done, resume auto-play from current index
+                    utterance.onend = () => {
+                        if (isAutoPlaying) {
+                            playLine(index); // Resume from this same position
+                        }
+                    };
+                    
+                    window.speechSynthesis.speak(utterance);
                 } else {
                     spk(cleanText, 'fr-FR', true);
                 }
@@ -3791,6 +3806,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
