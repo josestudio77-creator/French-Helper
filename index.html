@@ -3811,18 +3811,10 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     // Stop any background loading
     window.stop();
 
-    // 4. TRIGGER PRINT DIALOG
-    setTimeout(() => {
-        window.print();
-        
-        // 5. POST-PRINT CLEANUP: 
-        // Clear the printArea after the dialog is handled to prevent height issues
-        setTimeout(() => {
-            printArea.innerHTML = '';
-            isPrinting = false;
-        }, 1000);
-    }, 400);
-}
+   setTimeout(() => {
+    window.print();
+    setTimeout(() => { isPrinting = false; }, 1000);
+}, 400);
 
 function openAppModal(config) {
     document.getElementById('appModalTitle').textContent = config.title;
@@ -4039,6 +4031,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
