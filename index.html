@@ -3232,7 +3232,8 @@ async function translateOne(p) {
                         localStorage.setItem('frenchHistory', JSON.stringify(history));
                     }
                 } catch (e) { return; }
-        
+                
+                const phraseCount = hwData.words.split('\n').filter(w => w.trim()).length;
                 const matchesMonth = hwData.month === selectedBpMonth;
                 const matchesFav = hwData.isFavorite === true;
                 
@@ -3257,8 +3258,9 @@ async function translateOne(p) {
                     </div>
                     
                     <!-- BIG PRACTICE BUTTON - COMPACT -->
-                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:12px; font-weight:900; font-size:1.2rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
-                        🎯 PRACTICE
+                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:12px; font-weight:900; font-size:1.2rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57; line-height:1.2;">
+                        🎯 PRACTICE<br>
+                        <span style="font-size: 0.75rem; font-weight: 700; opacity: 0.9;">(${phraseCount} Phrases)</span>
                     </button>
                         
                        <!-- ICON ROW - Single line, no wrapping with proper spacing -->
@@ -3860,6 +3862,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
