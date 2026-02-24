@@ -2197,12 +2197,15 @@ function getCornerBadgesHTML(name) {
     } catch(e) { return ""; }
     
     const safeName = name.replace(/'/g, "\\'");
-    const favIcon = hwData.isFavorite ? "⭐" : "☆";
+    
+    // THE SIMPLE FIX: Wrap the hollow star in a span with a grey color
+    const favIcon = hwData.isFavorite ? "⭐" : '<span style="color: #bbb; font-weight: normal;">☆</span>';
+    
     const noteExists = homeworkNotes && homeworkNotes[name] && homeworkNotes[name].trim() !== '';
 
     let html = `
         <div class="corner-badge badge-left" onclick="toggleFavorite('${safeName}')">
-            <span style="font-size: 1.5rem;">${favIcon}</span>
+            <span style="font-size: 1.5rem; display: flex; align-items: center; justify-content: center;">${favIcon}</span>
         </div>`;
         
     if (noteExists) {
@@ -3930,6 +3933,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
