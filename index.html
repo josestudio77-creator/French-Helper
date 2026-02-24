@@ -1778,7 +1778,7 @@ function renderList(list) {
                         <span>🎤 French</span>
                     </button>
                     <button class="card-btn spk-en">
-                        <span>🎯 English</span>
+                        <span>English</span>
                     </button>
                 </div>
             `;
@@ -3258,9 +3258,11 @@ async function translateOne(p) {
                     </div>
                     
                     <!-- BIG PRACTICE BUTTON - COMPACT -->
-                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:15px; padding:12px; font-weight:900; font-size:1.2rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57; line-height:1.2;">
-                        🎯 PRACTICE<br>
-                        <span style="font-size: 0.75rem; font-weight: 700; opacity: 0.9;">(${phraseCount} Phrases)</span>
+                    <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:12px; padding:5px 0; font-weight:900; font-size:1.1rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 3px 0 #2e8b57; line-height:1;">
+                        PRACTICE<br>
+                        <span style="font-size: 0.6rem; font-weight: 800; opacity: 0.9; text-transform: uppercase;">
+                            ${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}
+                        </span>
                     </button>
                         
                        <!-- ICON ROW - Single line, no wrapping with proper spacing -->
@@ -3862,6 +3864,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
