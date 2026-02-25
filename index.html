@@ -3679,6 +3679,7 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
 
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     let html = "";
+
     if (includeHeader) {
         html += `<div class="print-header-simple">
             <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -3693,22 +3694,27 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
         const fontClass = isCursive ? 'cursive-font' : '';
-        let rows = "";
-        for (let i = 0; i < repetitions; i++) { rows += `<div class="calligraphy-row"></div>`; }
+        let calligraphyRows = "";
+        for (let i = 0; i < repetitions; i++) {
+            calligraphyRows += `<div class="calligraphy-row"></div>`;
+        }
         html += `<div class="print-phrase-block">
             <span class="cute-decoration">${icons[index % icons.length]}</span>
             <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
-            ${rows}
+            ${calligraphyRows}
         </div>`;
     });
 
     printArea.innerHTML = html;
     window.stop();
 
+    // 800ms is the "Sweet Spot" for Pixel/Android and iOS rendering
     setTimeout(() => {
         window.print();
-        // Just release the lock - DON'T clear the content
+        
+        // Final cleanup after dialog opens
         setTimeout(() => {
+            printArea.innerHTML = '';
             isPrinting = false;
         }, 2000);
     }, 800);
@@ -3932,6 +3938,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
