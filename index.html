@@ -1946,6 +1946,72 @@ function renderList(list) {
             });
         }
 
+        function executeImportProcess(finalName, weekData) {
+            currentWeekAudio = null; 
+            localStorage.removeItem('currentWeekAudio');
+            displayAudioPlayer();
+        
+            const hwData = {
+                words: weekData.words,
+                audio: null, 
+                isDialogue: weekData.isDialogue || false,
+                month: (weekData.month !== undefined) ? weekData.month : new Date().getMonth(), 
+                isFavorite: false,
+                date: new Date().toISOString()
+            };
+            
+            history[finalName] = JSON.stringify(hwData);
+            localStorage.setItem('frenchHistory', JSON.stringify(history));
+        
+            if (weekData.note) {
+                if (!homeworkNotes) homeworkNotes = {};
+                homeworkNotes[finalName] = weekData.note;
+                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+            }
+            
+            document.getElementById('hwInput').value = weekData.words;
+            localStorage.setItem('homeworkPhrases', weekData.words);
+            
+            if (weekData.customIcons) {
+                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                Object.keys(weekData.customIcons).forEach(key => {
+                    if (phraseList.includes(key) || phraseList.some(p => p === key)) {
+                        customIcons[key] = weekData.customIcons[key];
+                    }
+                });
+                localStorage.setItem('customIcons', JSON.stringify(customIcons));
+            }
+        
+            if (weekData.cache) {
+                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                Object.keys(weekData.cache).forEach(key => {
+                    if (phraseList.includes(key)) cache[key] = weekData.cache[key];
+                });
+                localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+            }
+            
+            if (weekData.customPhotos) {
+                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                Object.keys(weekData.customPhotos).forEach(key => {
+                    if (phraseList.includes(key) || phraseList.some(p => p === key)) {
+                        customPhotos[key] = weekData.customPhotos[key];
+                    }
+                });
+                localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+            }
+            
+            currentSetName = finalName;
+            localStorage.setItem('currentSetName', finalName);
+            
+            translateIfNeeded(weekData.words, false).then(() => {
+                renderList(weekData.words.split('\n').filter(w => w.trim()));
+            });
+            
+            alert(`✅ Imported successfully as "${finalName}"!`);
+            window.location.hash = '';
+            openBP();
+        }
+        
         // Update importBackup to handle custom icons/photos
         function importBackup() {
             const input = document.createElement('input');
@@ -2015,22 +2081,15 @@ function renderList(list) {
             if (hash.startsWith('#import=')) {
                 try {
                     const encodedData = hash.substring(8);
-                    
-                    if (encodedData.length > 2000) {
-                        alert('⚠️ This link is too long. The homework probably contains photos.\n\nPlease use the "Import Backpack/Backup" option in Parent Settings instead.');
-                        window.location.hash = '';
-                        return;
-                    }
-                    
                     const decodedData = decodeURIComponent(atob(encodedData));
                     const weekData = JSON.parse(decodedData);
+                    
                     const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
                     const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
                     
-                    // PRESERVED: Your exact summary message
                     let importInfo = `📝 ${weekData.words.split('\n').length} phrases`;
-                    if (iconCount > 0) importInfo += `\n😊 ${iconCount} custom emoji${iconCount > 1 ? 's' : ''}`;
-                    if (photoCount > 0) importInfo += `\n📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}`;
+                    if (iconCount > 0) importInfo += `\n😊 ${iconCount} custom icons`;
+                    if (photoCount > 0) importInfo += `\n📷 ${photoCount} custom photos`;
         
                     openAppModal({
                         title: "📥 Import Homework",
@@ -2040,90 +2099,37 @@ function renderList(list) {
                         onSave: (nameChoice) => {
                             if (!nameChoice) return false;
         
-                            let finalName = nameChoice;
-        
-                            if (history[finalName]) {
-                                const existingData = JSON.parse(history[finalName]);
+                            // CHECK FOR DUPLICATE
+                            if (history[nameChoice]) {
+                                const existingData = JSON.parse(history[nameChoice]);
                                 const existingMonth = monthNames[existingData.month || 0];
-                                const choice = confirm(`"${finalName}" already exists in your ${existingMonth} folder.\n\n• Click OK to REPLACE it\n• Click CANCEL to keep both (renames the new one)`);
-                                
-                                if (!choice) {
-                                    // PRESERVED: Your exact automated renaming loop
-                                    finalName = finalName + " - Imported";
-                                    let counter = 1;
-                                    while (history[finalName]) {
-                                        counter++;
-                                        finalName = `${nameChoice} - Imported ${counter}`;
-                                    }
-                                }
-                            }
         
-                            currentWeekAudio = null; 
-                            localStorage.removeItem('currentWeekAudio');
-                            displayAudioPlayer();
-                        
-                            const hwData = {
-                                words: weekData.words,
-                                audio: null, 
-                                isDialogue: weekData.isDialogue || false,
-                                month: (weekData.month !== undefined) ? weekData.month : new Date().getMonth(), 
-                                isFavorite: false,
-                                date: new Date().toISOString()
-                            };
-                            
-                            history[finalName] = JSON.stringify(hwData);
-                            localStorage.setItem('frenchHistory', JSON.stringify(history));
-        
-                            if (weekData.note) {
-                                if (!homeworkNotes) homeworkNotes = {};
-                                homeworkNotes[finalName] = weekData.note;
-                                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            }
-                            
-                            document.getElementById('hwInput').value = weekData.words;
-                            localStorage.setItem('homeworkPhrases', weekData.words);
-                            
-                            if (weekData.customIcons) {
-                                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                                Object.keys(weekData.customIcons).forEach(key => {
-                                    if (phraseList.includes(key) || phraseList.some(p => p === key)) {
-                                        customIcons[key] = weekData.customIcons[key];
+                                // Open a SECOND modal for the choice (Replace vs Keep Both)
+                                openAppModal({
+                                    title: "⚠️ Name Already Exists",
+                                    text: `"${nameChoice}" is already in your ${existingMonth} folder. What would you like to do?`,
+                                    mode: 'view',
+                                    saveText: "🔄 Replace Old",
+                                    cancelText: "➕ Keep Both",
+                                    onSave: () => {
+                                        executeImportProcess(nameChoice, weekData);
+                                    },
+                                    onCancel: () => {
+                                        // Logic to find a new name automatically
+                                        let finalName = nameChoice + " - Imported";
+                                        let counter = 1;
+                                        while (history[finalName]) {
+                                            counter++;
+                                            finalName = `${nameChoice} - Imported ${counter}`;
+                                        }
+                                        executeImportProcess(finalName, weekData);
                                     }
                                 });
-                                localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                                return true; // Closes the first naming modal
                             }
         
-                            if (weekData.cache) {
-                                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                                Object.keys(weekData.cache).forEach(key => {
-                                    if (phraseList.includes(key)) cache[key] = weekData.cache[key];
-                                });
-                                localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                            }
-        
-                            if (weekData.customPhotos) {
-                                const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                                let importedPhotoCount = 0;
-                                Object.keys(weekData.customPhotos).forEach(key => {
-                                    if (phraseList.includes(key) || phraseList.some(p => p === key)) {
-                                        customPhotos[key] = weekData.customPhotos[key];
-                                        importedPhotoCount++;
-                                    }
-                                });
-                                localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                                if (importedPhotoCount > 0) console.log(`📸 Imported ${importedPhotoCount} photos`);
-                            }
-                            
-                            currentSetName = finalName;
-                            localStorage.setItem('currentSetName', finalName);
-        
-                            translateIfNeeded(weekData.words, false).then(() => {
-                                renderList(weekData.words.split('\n').filter(w => w.trim()));
-                            });
-                            
-                            alert(`✅ Imported successfully as "${finalName}"!`);
-                            window.location.hash = '';
-                            openBP(); 
+                            // No duplicate? Just import normally
+                            executeImportProcess(nameChoice, weekData);
                             return true;
                         }
                     });
@@ -2132,11 +2138,6 @@ function renderList(list) {
         
                 } catch (e) {
                     console.error('Import error:', e);
-                    if (e.message.includes('Unexpected token')) {
-                        alert('❌ The import link appears to be corrupted.');
-                    } else {
-                        alert('❌ Could not import homework. Link may be corrupted.');
-                    }
                     window.location.hash = '';
                 }
             }
@@ -3809,8 +3810,16 @@ async function translateOne(p) {
             };
             
             document.getElementById('appModalBtnCancel').onclick = () => {
-                if (config.mode === 'edit') closeOverlay('appModal');
-                else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
+                if (config.onCancel) {
+                    config.onCancel();
+                    closeOverlay('appModal');
+                } else if (config.mode === 'edit') {
+                    closeOverlay('appModal');
+                } else {
+                    viewSection.style.display = "block";
+                    editSection.style.display = "none";
+                    closeBtn.style.display = "block";
+                }
             };
         
             document.getElementById('appModalBtnEdit').onclick = () => {
@@ -4075,6 +4084,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
