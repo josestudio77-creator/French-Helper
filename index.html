@@ -3807,16 +3807,17 @@ async function translateOne(p) {
                 display.textContent = config.text || "";
                 
                 if (config.onAction && config.onSecondaryAction) {
-                    // CASE: DUPLICATE WARNING (Two choices: Replace / Keep Both)
+                    // CASE: DUPLICATE WARNING (Two choices: Replace / Edit Name)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Replace";
                     actionBtn.style.background = "#4cd964"; // Green for replace
                     actionBtn.style.fontSize = "0.9rem";
                     actionBtn.style.whiteSpace = "nowrap";
+                    actionBtn.style.gridColumn = "";  // ← ADD THIS LINE
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
                 
                     editBtn.style.display = "block";
-                    editBtn.textContent = config.cancelText || "Edit Name"; // Changed from "Keep Both" to "Edit Name"
+                    editBtn.textContent = config.cancelText || "Edit Name";
                     editBtn.style.background = "#ff9e6d"; // Orange
                     editBtn.style.fontSize = "0.9rem";
                     editBtn.style.whiteSpace = "nowrap";
@@ -3865,9 +3866,12 @@ async function translateOne(p) {
             // Logic for the Cancel button (Edit Mode)
             document.getElementById('appModalBtnCancel').onclick = () => {
                 const title = document.getElementById('appModalTitle').textContent;
-                if (config.mode === 'edit' && (title.includes("Rename") || title.includes("Fix") || title.includes("Save") || title.includes("Import"))) {
-                    closeOverlay('appModal');
+                
+                // If this was a new note being added (empty text) OR a standard edit operation
+                if (config.mode === 'edit' && (config.text === '' || title.includes("Rename") || title.includes("Fix") || title.includes("Save") || title.includes("Import"))) {
+                    closeOverlay('appModal'); // Just close the modal
                 } else {
+                    // For editing existing notes, go back to view mode
                     viewSection.style.display = "block";
                     editSection.style.display = "none";
                     closeBtn.style.display = "block";
@@ -4127,6 +4131,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
