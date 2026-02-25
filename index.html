@@ -69,6 +69,40 @@
     .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
     .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 5px 0; outline: none; }
+
+/* Snail Badge: Floating Top-Left with 3D Effect */
+.snail-corner {
+    position: absolute;
+    top: -18px;      /* Move up off the edge */
+    left: -18px;     /* Move left off the edge */
+    width: 44px;     /* Match corner-badge size */
+    height: 44px;
+    background: #5bc0de;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Floating shadow to match Star/Notes */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.4);
+    z-index: 10;
+    font-size: 1.6rem; 
+    border: 2px solid white; 
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+    animation: snailPulse 2s infinite ease-in-out;
+}
+
+.snail-corner:active {
+    transform: scale(1.2);
+    background-color: #ff6b8b !important;
+}
+
+@keyframes snailPulse {
+    0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
+    100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+}
+       
    /* Keyboard key styles - UPDATED */
 .key { 
     width: 34px; 
@@ -3280,17 +3314,17 @@ async function translateOne(p) {
                     visibleCount++;
                     const div = document.createElement('div'); 
                     div.className = 'history-item';
-                    div.style.position = "relative"; // Ensure badges anchor correctly
+                    div.style.position = "relative"; 
         
                     const hasAudio = hwData.audio ? '🎤' : '';
                     const safeName = name.replace(/'/g, "\\'");
         
-                    // USING YOUR APPROVED BADGE LOGIC
                     div.innerHTML = `
                         ${getCornerBadgesHTML(name)} 
         
                         <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
-                            <div onclick="renameHomework('${safeName}')" 
+                            <!-- ADDED CLASS: hw-clickable-title / REMOVED: inline onclick -->
+                            <div class="hw-clickable-title" 
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                 ${name} ${hasAudio}
                             </div>
@@ -3304,49 +3338,29 @@ async function translateOne(p) {
                         </button>
                             
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn edit-icon">✏️</button>
-                                <span class="icon-label">Edit</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn print-icon">🖨️</button>
-                                <span class="icon-label">Print</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn share-icon">📤</button>
-                                <span class="icon-label">Share</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn move-icon">📂</button>
-                                <span class="icon-label">Move</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn note-icon">📝</button>
-                                <span class="icon-label">Notes</span>
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn delete-icon">🗑️</button>
-                                <span class="icon-label">Delete</span>
-                            </div>
+                            <div class="icon-wrapper"><button class="icon-btn edit-icon">✏️</button><span class="icon-label">Edit</span></div>
+                            <div class="icon-wrapper"><button class="icon-btn print-icon">🖨️</button><span class="icon-label">Print</span></div>
+                            <div class="icon-wrapper"><button class="icon-btn share-icon">📤</button><span class="icon-label">Share</span></div>
+                            <div class="icon-wrapper"><button class="icon-btn move-icon">📂</button><span class="icon-label">Move</span></div>
+                            <div class="icon-wrapper"><button class="icon-btn note-icon">📝</button><span class="icon-label">Notes</span></div>
+                            <div class="icon-wrapper"><button class="icon-btn delete-icon">🗑️</button><span class="icon-label">Delete</span></div>
                         </div>
                     `;
                     
+                    // LOGIC BINDING (Surgical Fixes here)
+                    const titleEl = div.querySelector('.hw-clickable-title');
+                    if (titleEl) titleEl.onclick = () => renameHomework(name);
+        
                     const practiceBtn = div.querySelector('.practice-big-btn');
                     practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
-
-                    const editBtn = div.querySelector('.edit-icon');
-                    const printBtn = div.querySelector('.print-icon');
-                    const shareBtn = div.querySelector('.share-icon');
-                    const moveBtn = div.querySelector('.move-icon');
-                    const noteBtn = div.querySelector('.note-icon');
-                    const deleteBtn = div.querySelector('.delete-icon');
-                    
-                    if (editBtn) editBtn.onclick = () => editHomework(name);
-                    if (printBtn) printBtn.onclick = () => openPrintSelection(hwData.words, name);
-                    if (shareBtn) shareBtn.onclick = () => shareWeek(name, hwData.words, hwData.audio);
-                    if (moveBtn) moveBtn.onclick = () => moveHomework(name);
-                    if (noteBtn) noteBtn.onclick = () => showNote(name);
-                    if (deleteBtn) deleteBtn.onclick = () => deleteHomeworkItem(name);
+        
+                    const icons = div.querySelectorAll('.icon-btn');
+                    if (icons[0]) icons[0].onclick = () => editHomework(name);
+                    if (icons[1]) icons[1].onclick = () => openPrintSelection(hwData.words, name);
+                    if (icons[2]) icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio);
+                    if (icons[3]) icons[3].onclick = () => moveHomework(name);
+                    if (icons[4]) icons[4].onclick = () => showNote(name);
+                    if (icons[5]) icons[5].onclick = () => deleteHomeworkItem(name);
                     
                     list.appendChild(div);
                 }
@@ -3949,6 +3963,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
