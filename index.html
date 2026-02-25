@@ -918,6 +918,7 @@
             <div id="appModalView">
                 <div id="appModalTextDisplay" class="modal-display"></div>
                 <div class="modal-btn-grid" id="appModalViewBtns">
+                    <button id="appModalBtnAction" class="modal-btn" style="display:none; background:#4cd964; color:white; grid-column: span 2;">Confirm</button>
                     <button id="appModalBtnEdit" class="modal-btn" style="background:#118AB2; color:white;">✏️ Edit</button>
                     <button id="appModalBtnDelete" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Delete</button>
                 </div>
@@ -1879,92 +1880,70 @@ function renderList(list) {
     } 
 } 
 
-function shareWeek(weekName, wordsText, audioData = null) {
-    const phraseList = wordsText.split('\n').map(w => w.trim());
+    function shareWeek(weekName, wordsText, audioData = null) {
+        const phraseList = wordsText.split('\n').filter(p => p.trim() !== "");
+        let existingData = { month: selectedBpMonth, isDialogue: false };
+        try { existingData = JSON.parse(history[weekName]); } catch(e) {}
     
-    // Get the existing data from history to find the month and dialogue settings
-    let existingData = { month: selectedBpMonth, isDialogue: false };
-    try {
-        existingData = JSON.parse(history[weekName]);
-    } catch(e) {}
-
-    const homeworkIcons = {};
-    const homeworkPhotos = {};
-    
-    phraseList.forEach(phrase => {
-        const normalized = norm(phrase);
-        if (customIcons[normalized]) homeworkIcons[normalized] = customIcons[normalized];
-        if (customPhotos[normalized]) homeworkPhotos[normalized] = customPhotos[normalized];
-    });
-
-    // Extract the note for this specific week
-    const specificNote = (homeworkNotes && homeworkNotes[weekName]) ? homeworkNotes[weekName] : "";
-
-    if (audioData || Object.keys(homeworkPhotos).length > 0) {
-        // Build a mini-cache with ONLY the translations for this homework
-        const miniCache = {};
-        phraseList.forEach(p => {
-            const n = norm(p);
-            if (cache[n]) miniCache[n] = cache[n];
+        const specificNote = (homeworkNotes && homeworkNotes[weekName]) ? homeworkNotes[weekName] : "";
+        const hIcons = {}, hPhotos = {};
+        phraseList.forEach(phrase => {
+            const n = norm(phrase);
+            if (customIcons[n]) hIcons[n] = customIcons[n];
+            if (customPhotos[n]) hPhotos[n] = customPhotos[n];
         });
-
-        const singleWeekData = {
-            history: { [weekName]: JSON.stringify({ 
-                words: wordsText, 
-                audio: audioData, 
-                month: existingData.month, 
-                isDialogue: existingData.isDialogue, 
-                isFavorite: false, 
-                date: new Date().toISOString() 
-            })},
-            homeworkNotes: { [weekName]: specificNote },
-            cache: miniCache, // ✅ Only send what is needed
-            customIcons: homeworkIcons,
-            customPhotos: homeworkPhotos,
-            appVersion: "French Fun V10.0"
-        };
-        const jsonString = JSON.stringify(singleWeekData);
-        attemptFileShare(jsonString, `${weekName.replace(/\s+/g, '_')}.json`, `🇫🇷 Homework: ${weekName}`);
-    } else {
-        const weekData = { 
-            name: weekName, 
-            words: wordsText, 
-            month: existingData.month, 
-            isDialogue: existingData.isDialogue, 
-            note: specificNote,
-            hasAudio: false,
-            customIcons: homeworkIcons
-        };
-        const encodedData = btoa(encodeURIComponent(JSON.stringify(weekData)));
-        const importURL = `https://josestudio77-creator.github.io/French-Helper/#import=${encodedData}`;
-        if (navigator.share) { 
-            navigator.share({ title: weekName, text: `🇫🇷 French Fun - ${weekName}\n\n✨ Import: ${importURL}` }); 
-        } else { 
-            prompt('Copy link:', importURL); 
-        }
-    }
-}
-        
-    function shareAllWeeks() {
-            if (!history || Object.keys(history).length === 0) { 
-                alert('No saved weeks to share yet!'); 
-                return; 
+    
+        // ✅ BUILD SUMMARY
+        let summary = `📝 ${phraseList.length} phrases`;
+        if (Object.keys(hIcons).length > 0) summary += `\n😊 ${Object.keys(hIcons).length} icons`;
+        if (Object.keys(hPhotos).length > 0) summary += `\n📷 ${Object.keys(hPhotos).length} photos`;
+        if (specificNote) summary += `\n💬 Includes personal note`;
+        if (audioData) summary += `\n🎤 Includes teacher recording`;
+    
+        openAppModal({
+            title: `📤 Share: ${weekName}`,
+            text: summary,
+            mode: 'view', // View mode shows the summary text
+            saveText: "📤 Share Now",
+            onSave: () => {
+                if (audioData || Object.keys(hPhotos).length > 0) {
+                    const data = {
+                        history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, month: existingData.month, isDialogue: existingData.isDialogue, isFavorite: false, date: new Date().toISOString() })},
+                        homeworkNotes: { [weekName]: specificNote },
+                        cache: cache, customIcons: hIcons, customPhotos: hPhotos
+                    };
+                    attemptFileShare(JSON.stringify(data), `${weekName.replace(/\s+/g, '_')}.json`, `🇫🇷 Homework: ${weekName}`);
+                } else {
+                    const weekData = { name: weekName, words: wordsText, month: existingData.month, isDialogue: existingData.isDialogue, note: specificNote, isFavorite: false, hasAudio: false, customIcons: hIcons };
+                    const encoded = btoa(encodeURIComponent(JSON.stringify(weekData)));
+                    const url = `https://josestudio77-creator.github.io/French-Helper/#import=${encoded}`;
+                    if (navigator.share) navigator.share({ title: weekName, text: `🇫🇷 French Fun - ${weekName}\n\n✨ Import: ${url}` });
+                    else prompt('Copy link:', url);
+                }
             }
-            const data = { 
-                history, 
-                cache, 
-                customIcons,
-                customPhotos,
-                wins, 
-                losses, 
-                speechSpeed, 
-                lastHomework: lastLoadedHomework, 
-                exportDate: new Date().toISOString(), 
-                appVersion: "French Fun V9.0" 
-            };
-            const jsonString = JSON.stringify(data);
-            const fileName = `french-fun-backup-${new Date().toISOString().split('T')[0]}.json`;
-            attemptFileShare(jsonString, fileName, '🇫🇷 French Fun Backpack/Backup');
+        });
+    }
+        
+        function shareAllWeeks() {
+            if (!history || Object.keys(history).length === 0) return alert('No weeks to share!');
+            
+            const hwCount = Object.keys(history).length;
+            const photoCount = Object.keys(customPhotos).length;
+            const noteCount = Object.keys(homeworkNotes).length;
+        
+            // ✅ BUILD SUMMARY
+            let summary = `🎒 Full Backpack Backup\n📚 ${hwCount} homework sets\n📷 ${photoCount} custom photos\n📝 ${noteCount} notes`;
+        
+            openAppModal({
+                title: "📦 Create Full Backup",
+                text: summary,
+                mode: 'view',
+                saveText: "💾 Save Backup",
+                onSave: () => {
+                    const data = { history, cache, customIcons, customPhotos, wins, losses, speechSpeed, homeworkNotes, appVersion: "French Fun V10.0" };
+                    attemptFileShare(JSON.stringify(data), `french-fun-full-backup.json`, '🇫🇷 French Fun Full Backup');
+                }
+            });
         }
 
         // Update importBackup to handle custom icons/photos
@@ -2037,127 +2016,122 @@ function checkForImport() {
         try {
             const encodedData = hash.substring(8);
             
-            // URLs can only handle so much data
             if (encodedData.length > 2000) {
-                alert('⚠️ This link is too long. The homework probably contains photos.\n\nPlease use the "Import Backpack/Backup" option in Parent Settings instead.');
+                alert('⚠️ This link is too long. Please use the "Import Backup" option in Parent Settings instead.');
                 window.location.hash = '';
                 return;
             }
             
             const decodedData = decodeURIComponent(atob(encodedData));
             const weekData = JSON.parse(decodedData);
+            
+            // 1. Calculate counts for the description
             const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
             const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
             
-            // Descriptive Duplicate check for Links
-            let finalName = weekData.name;
+            // 2. Check for duplicate name to provide a warning in the modal
+            let duplicateWarning = "";
             if (history[weekData.name]) {
                 const existingData = JSON.parse(history[weekData.name]);
                 const existingMonth = monthNames[existingData.month || 0];
-                
-                const choice = confirm(`"${weekData.name}" already exists in your ${existingMonth} folder.\n\n• Click OK to REPLACE it.\n• Click CANCEL to keep both (renames to "${weekData.name} - Imported")`);
-                
-                if (!choice) {
-                    finalName = weekData.name + " - Imported";
-                    let counter = 1;
-                    while (history[finalName]) {
-                        counter++;
-                        finalName = `${weekData.name} - Imported ${counter}`;
-                    }
-                }
+                duplicateWarning = `\n\n⚠️ Note: You already have a set named this in your ${existingMonth} folder.`;
             }
-            
-            let message = `📥 Import "${finalName}"?\n\n`;
-            message += `📝 ${weekData.words.split('\n').length} words\n`;
-            if (iconCount > 0) message += `😊 ${iconCount} custom emoji${iconCount > 1 ? 's' : ''}\n`;
-            if (photoCount > 0) message += `📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}\n`;
-            
-            if (confirm(message)) {
+
+            // 3. Build the descriptive text for the modal
+            let importInfo = `📝 ${weekData.words.split('\n').length} phrases`;
+            if (iconCount > 0) importInfo += `\n😊 ${iconCount} custom icons`;
+            if (photoCount > 0) importInfo += `\n📷 ${photoCount} custom photos`;
+            importInfo += duplicateWarning;
+
+            // 4. Trigger the Custom Modal
+            openAppModal({
+                title: "📥 Import Homework",
+                text: weekData.name, // Pre-fill with the shared name
+                mode: 'edit',
+                placeholder: "Name this homework",
+                // We use the display area to show the stats
+                onSave: (finalName) => {
+                    if (!finalName) return;
+
+                    // Handle internal reset
                     currentWeekAudio = null; 
                     localStorage.removeItem('currentWeekAudio');
                     displayAudioPlayer();
                 
-                const hwData = {
-                    words: weekData.words,
-                    audio: null, // Links can't include audio
-                    isDialogue: weekData.isDialogue || false,
-                    month: weekData.month !== undefined ? weekData.month : new Date().getMonth(), 
-                    isFavorite: false,
-                    date: new Date().toISOString()
-                };
-                
-                history[finalName] = JSON.stringify(hwData);
-                localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    const hwData = {
+                        words: weekData.words,
+                        audio: null, 
+                        isDialogue: weekData.isDialogue || false,
+                        month: (weekData.month !== undefined) ? weekData.month : new Date().getMonth(), 
+                        isFavorite: false,
+                        date: new Date().toISOString()
+                    };
+                    
+                    history[finalName] = JSON.stringify(hwData);
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
 
-                if (weekData.note) {
-                    if (!homeworkNotes) homeworkNotes = {};
-                    homeworkNotes[finalName] = weekData.note;
-                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                }
-                
-                document.getElementById('hwInput').value = weekData.words;
-                localStorage.setItem('homeworkPhrases', weekData.words);
-                
-                if (weekData.customIcons) {
-                    const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                    Object.keys(weekData.customIcons).forEach(key => {
-                        if (phraseList.includes(key) || phraseList.some(p => p === key)) {
-                            customIcons[key] = weekData.customIcons[key];
-                        }
-                    });
-                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
-                }
-
-                // ➕ ADDED (Surgical): Import shared translations if they exist in the file
-                if (weekData.cache) {
-                    const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                    Object.keys(weekData.cache).forEach(key => {
-                        if (phraseList.includes(key)) cache[key] = weekData.cache[key];
-                    });
-                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                }
-                
-                if (weekData.customPhotos) {
-                    const photoKeys = Object.keys(weekData.customPhotos);
-                    if (photoKeys.length > 0) {
+                    // Import Note
+                    if (weekData.note) {
+                        if (!homeworkNotes) homeworkNotes = {};
+                        homeworkNotes[finalName] = weekData.note;
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                    }
+                    
+                    // Sync editor and session
+                    document.getElementById('hwInput').value = weekData.words;
+                    localStorage.setItem('homeworkPhrases', weekData.words);
+                    
+                    // Import Icons
+                    if (weekData.customIcons) {
                         const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
-                        let importedPhotoCount = 0;
-                        
-                        photoKeys.forEach(key => {
+                        Object.keys(weekData.customIcons).forEach(key => {
                             if (phraseList.includes(key) || phraseList.some(p => p === key)) {
-                                customPhotos[key] = weekData.customPhotos[key];
-                                importedPhotoCount++;
+                                customIcons[key] = weekData.customIcons[key];
                             }
                         });
-                        
-                        localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-
-                        if (importedPhotoCount > 0) {
-                            console.log(`📸 Imported ${importedPhotoCount} photos`);
-                        }
+                        localStorage.setItem('customIcons', JSON.stringify(customIcons));
                     }
+
+                    // Import Cache (Translations)
+                    if (weekData.cache) {
+                        const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                        Object.keys(weekData.cache).forEach(key => {
+                            if (phraseList.includes(key)) cache[key] = weekData.cache[key];
+                        });
+                        localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                    }
+                    
+                    // Import Photos
+                    if (weekData.customPhotos) {
+                        const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                        Object.keys(weekData.customPhotos).forEach(key => {
+                            if (phraseList.includes(key) || phraseList.some(p => p === key)) {
+                                customPhotos[key] = weekData.customPhotos[key];
+                            }
+                        });
+                        localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                    }
+                    
+                    currentSetName = finalName;
+                    localStorage.setItem('currentSetName', finalName);
+                    
+                    // Final Translation Healing and Render
+                    translateIfNeeded(weekData.words, false).then(() => {
+                        renderList(weekData.words.split('\n').filter(w => w.trim()));
+                    });
+                    
+                    alert(`✅ Successfully imported "${finalName}"!`);
+                    window.location.hash = '';
+                    openBP(); // Refresh backpack
                 }
-                
-                currentSetName = finalName;
-                localStorage.setItem('currentSetName', finalName);
-                
-                // ➕ ADDED (Surgical): Silent healing for missing "..." translations
-                translateIfNeeded(weekData.words, false).then(() => {
-                    renderList(weekData.words.split('\n').filter(w => w.trim()));
-                });
-                
-                alert(`✅ Imported successfully as "${finalName}"!`);
-                window.location.hash = '';
-            } else {
-                window.location.hash = '';
-            }
+            });
+
+            // 5. Use the modal's display area to show the import stats
+            document.getElementById('appModalTextDisplay').innerText = importInfo;
+
         } catch (e) {
             console.error('Import error:', e);
-            if (e.message.includes('Unexpected token')) {
-                alert('❌ The import link appears to be corrupted. Try using the "Import Backup" option in Parent Settings.');
-            } else {
-                alert('❌ Could not import homework. Link may be corrupted.');
-            }
+            alert('❌ Could not import homework. Link may be corrupted.');
             window.location.hash = '';
         }
     }
@@ -3779,6 +3753,10 @@ async function translateOne(p) {
             const viewSection = document.getElementById('appModalView');
             const editSection = document.getElementById('appModalEdit');
             const closeBtn = document.getElementById('appModalBtnClose');
+            
+            // Setup labels for the Edit Mode buttons
+            document.getElementById('appModalBtnSave').textContent = config.saveText || "💾 Save";
+            document.getElementById('appModalBtnCancel').textContent = config.cancelText || "Cancel";
         
             if (config.mode === 'edit') {
                 viewSection.style.display = "none";
@@ -3791,33 +3769,40 @@ async function translateOne(p) {
                 editSection.style.display = "none";
                 closeBtn.style.display = "block";
                 display.textContent = config.text || "";
+                
+                // --- LOGIC FOR SHARE/DOWNLOAD SUMMARIES ---
+                const actionBtn = document.getElementById('appModalBtnAction');
+                const editBtn = document.getElementById('appModalBtnEdit');
+                const delBtn = document.getElementById('appModalBtnDelete');
+        
+                if (config.onSave) { 
+                    // We are in "Summary Mode" (Share/Download)
+                    actionBtn.style.display = "block";
+                    actionBtn.textContent = config.saveText || "Confirm";
+                    actionBtn.onclick = () => { config.onSave(); closeOverlay('appModal'); };
+                    
+                    // Hide standard Note tools
+                    editBtn.style.display = "none";
+                    delBtn.style.display = "none";
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+                } else {
+                    // We are in standard "Notes View Mode"
+                    actionBtn.style.display = "none";
+                    editBtn.style.display = "block";
+                    delBtn.style.display = config.onDelete ? "block" : "none";
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
+                }
             }
         
-            const btnDelete = document.getElementById('appModalBtnDelete');
-            if (config.onDelete) {
-                btnDelete.style.display = "block";
-                btnDelete.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
-                document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
-            } else {
-                btnDelete.style.display = "none";
-                document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
-            }
-        
+            // Standard button assignments
             document.getElementById('appModalBtnSave').onclick = () => {
                 if (config.onSave) config.onSave(input.value.trim());
                 closeOverlay('appModal');
             };
             
             document.getElementById('appModalBtnCancel').onclick = () => {
-                // If we started in Edit mode (Rename/Fix/Save), just close.
-                // If we were in View mode (Notes) and clicked edit, go back to View.
-                if (config.mode === 'edit') {
-                    closeOverlay('appModal');
-                } else {
-                    viewSection.style.display = "block";
-                    editSection.style.display = "none";
-                    closeBtn.style.display = "block";
-                }
+                if (config.mode === 'edit') closeOverlay('appModal');
+                else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
             };
         
             document.getElementById('appModalBtnEdit').onclick = () => {
@@ -3826,6 +3811,12 @@ async function translateOne(p) {
                 input.value = config.text;
                 closeBtn.style.display = "none";
             };
+        
+            if (config.onDelete) {
+                document.getElementById('appModalBtnDelete').onclick = () => {
+                    if (confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); }
+                };
+            }
         
             openOverlay('appModal');
         }
@@ -3837,23 +3828,18 @@ async function translateOne(p) {
 
         function shareMonth() {
             const currentMonthName = monthNames[selectedBpMonth];
-            const monthHistory = {};
-            const monthNotes = {};
-            const monthIcons = {};
-            const monthPhotos = {};
+            const monthHistory = {}, monthNotes = {}, monthIcons = {}, monthPhotos = {};
+            let hwCount = 0, totalPhrases = 0;
             
-            // 1. Filter history for only the current month
             Object.keys(history).forEach(name => {
                 try {
                     const hwData = JSON.parse(history[name]);
                     if (hwData.month === selectedBpMonth) {
+                        hwCount++;
                         monthHistory[name] = history[name];
-                        
-                        // Include related note
                         if (homeworkNotes[name]) monthNotes[name] = homeworkNotes[name];
-                        
-                        // Collect icons/photos used in these specific phrases
-                        const phrases = hwData.words.split('\n');
+                        const phrases = hwData.words.split('\n').filter(p => p.trim());
+                        totalPhrases += phrases.length;
                         phrases.forEach(p => {
                             const n = norm(p);
                             if (customIcons[n]) monthIcons[n] = customIcons[n];
@@ -3863,24 +3849,22 @@ async function translateOne(p) {
                 } catch(e) {}
             });
         
-            if (Object.keys(monthHistory).length === 0) {
-                alert(`No homework found in ${currentMonthName} to share!`);
-                return;
-            }
+            if (hwCount === 0) return alert(`No homework in ${currentMonthName}!`);
         
-            // 2. Package data
-            const data = { 
-                history: monthHistory, 
-                homeworkNotes: monthNotes,
-                customIcons: monthIcons,
-                customPhotos: monthPhotos,
-                exportDate: new Date().toISOString(), 
-                appVersion: "French Fun V10.0" 
-            };
+            // ✅ BUILD SUMMARY
+            let summary = `📁 Folder: ${currentMonthName}\n📚 ${hwCount} homework sets\n📝 ${totalPhrases} total phrases`;
+            if (Object.keys(monthPhotos).length > 0) summary += `\n📷 ${Object.keys(monthPhotos).length} photos included`;
         
-            const jsonString = JSON.stringify(data);
-            const fileName = `french-fun-${currentMonthName.toLowerCase()}.json`;
-            attemptFileShare(jsonString, fileName, `🇫🇷 Homework Folder: ${currentMonthName}`);
+            openAppModal({
+                title: `📤 Export ${currentMonthName}`,
+                text: summary,
+                mode: 'view',
+                saveText: "💾 Download File",
+                onSave: () => {
+                    const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Fun V10.0" };
+                    attemptFileShare(JSON.stringify(data), `french-fun-${currentMonthName.toLowerCase()}.json`, `🇫🇷 Folder: ${currentMonthName}`);
+                }
+            });
         }
         
         function resetMonth() {
@@ -4083,6 +4067,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
