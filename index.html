@@ -1901,12 +1901,12 @@ function renderList(list) {
         if (specificNote) summary += `\n💬 Includes personal note`;
         if (audioData) summary += `\n🎤 Includes teacher recording`;
     
-        openAppModal({
+openAppModal({
             title: `📤 Share: ${weekName}`,
             text: summary,
-            mode: 'view', // View mode shows the summary text
-            saveText: "📤 Share Now",
-            onSave: () => {
+            mode: 'view', 
+            actionText: "📤 Share Now",
+            onAction: () => {
                 if (audioData || Object.keys(hPhotos).length > 0) {
                     const data = {
                         history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, month: existingData.month, isDialogue: existingData.isDialogue, isFavorite: false, date: new Date().toISOString() })},
@@ -1936,15 +1936,15 @@ function renderList(list) {
             let summary = `🎒 Full Backpack Backup\n📚 ${hwCount} homework sets\n📷 ${photoCount} custom photos\n📝 ${noteCount} notes`;
         
             openAppModal({
-                title: "📦 Create Full Backup",
-                text: summary,
-                mode: 'view',
-                saveText: "💾 Save Backup",
-                onSave: () => {
-                    const data = { history, cache, customIcons, customPhotos, wins, losses, speechSpeed, homeworkNotes, appVersion: "French Fun V10.0" };
-                    attemptFileShare(JSON.stringify(data), `french-fun-full-backup.json`, '🇫🇷 French Fun Full Backup');
-                }
-            });
+                    title: "📦 Create Full Backup",
+                    text: summary,
+                    mode: 'view',
+                    actionText: "💾 Save Backup",
+                    onAction: () => {
+                        const data = { history, cache, customIcons, customPhotos, wins, losses, speechSpeed, homeworkNotes, appVersion: "French Fun V10.0" };
+                        attemptFileShare(JSON.stringify(data), `french-fun-full-backup.json`, '🇫🇷 French Fun Full Backup');
+                    }
+                });
         }
 
         function executeImportProcess(finalName, weekData) {
@@ -3763,20 +3763,17 @@ async function translateOne(p) {
         
         function openAppModal(config) {
             document.getElementById('appModalTitle').textContent = config.title;
-            document.getElementById('appModalStats').textContent = ""; 
+            if (document.getElementById('appModalStats')) document.getElementById('appModalStats').textContent = "";
+            
             const input = document.getElementById('appModalInput');
             const display = document.getElementById('appModalTextDisplay');
             const viewSection = document.getElementById('appModalView');
             const editSection = document.getElementById('appModalEdit');
             const closeBtn = document.getElementById('appModalBtnClose');
             
-            // Ensure standard view buttons are reset
             const actionBtn = document.getElementById('appModalBtnAction');
             const editBtn = document.getElementById('appModalBtnEdit');
             const delBtn = document.getElementById('appModalBtnDelete');
-        
-            document.getElementById('appModalBtnSave').textContent = config.saveText || "💾 Save";
-            document.getElementById('appModalBtnCancel').textContent = config.cancelText || "Cancel";
         
             if (config.mode === 'edit') {
                 viewSection.style.display = "none";
@@ -3784,38 +3781,40 @@ async function translateOne(p) {
                 closeBtn.style.display = "none";
                 input.value = config.text || "";
                 input.placeholder = config.placeholder || "";
+                document.getElementById('appModalBtnSave').textContent = config.saveText || "💾 Save";
+                document.getElementById('appModalBtnCancel').textContent = config.cancelText || "Cancel";
             } else {
                 viewSection.style.display = "block";
                 editSection.style.display = "none";
                 closeBtn.style.display = "block";
                 display.textContent = config.text || "";
                 
-                if (config.onSave) { 
+                if (config.onAction) { 
+                    // This is a Share/Download Summary
                     actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "Confirm";
-                    actionBtn.onclick = () => { config.onSave(); closeOverlay('appModal'); };
+                    actionBtn.textContent = config.actionText || "Confirm";
+                    actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 } else {
-                    // Pure Information/Success Mode
+                    // This is a Note View
                     actionBtn.style.display = "none";
-                    editBtn.style.display = "none"; // ✅ Hidden for success messages
-                    delBtn.style.display = "none";  // ✅ Hidden for success messages
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+                    editBtn.style.display = "block";
+                    delBtn.style.display = config.onDelete ? "block" : "none";
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
             }
         
+            // Save logic for the Edit screen
             document.getElementById('appModalBtnSave').onclick = () => {
-                const val = input.value.trim();
-                // If onSave returns false, we keep the modal open (for duplicate checks)
-                if (config.onSave && config.onSave(val) === false) return;
+                if (config.onSave && config.onSave(input.value.trim()) === false) return;
                 closeOverlay('appModal');
             };
             
             document.getElementById('appModalBtnCancel').onclick = () => {
-                if (config.onCancel) config.onCancel();
-                if (config.mode === 'edit') closeOverlay('appModal');
+                if (config.mode === 'edit' && (!config.text || config.text === "")) closeOverlay('appModal'); 
+                else if (config.title.includes("Rename") || config.title.includes("Fix") || config.title.includes("Save")) closeOverlay('appModal');
                 else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
             };
         
@@ -3825,6 +3824,10 @@ async function translateOne(p) {
                 input.value = config.text;
                 closeBtn.style.display = "none";
             };
+        
+            if (config.onDelete) {
+                delBtn.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
+            }
         
             openOverlay('appModal');
         }
@@ -3864,15 +3867,15 @@ async function translateOne(p) {
             if (Object.keys(monthPhotos).length > 0) summary += `\n📷 ${Object.keys(monthPhotos).length} photos included`;
         
             openAppModal({
-                title: `📤 Export ${currentMonthName}`,
-                text: summary,
-                mode: 'view',
-                saveText: "💾 Download File",
-                onSave: () => {
-                    const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Fun V10.0" };
-                    attemptFileShare(JSON.stringify(data), `french-fun-${currentMonthName.toLowerCase()}.json`, `🇫🇷 Folder: ${currentMonthName}`);
-                }
-            });
+                    title: `📤 Export ${currentMonthName}`,
+                    text: summary,
+                    mode: 'view',
+                    actionText: "💾 Download File", // Changed
+                    onAction: () => {               // Changed
+                        const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Fun V10.0" };
+                        attemptFileShare(JSON.stringify(data), `french-fun-${currentMonthName.toLowerCase()}.json`, `🇫🇷 Folder: ${currentMonthName}`);
+                    }
+                });
         }
         
         function resetMonth() {
@@ -4075,6 +4078,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
