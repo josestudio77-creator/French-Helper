@@ -1981,39 +1981,51 @@ function shareWeek(weekName, wordsText, audioData = null) {
                     const text = await file.text();
                     const data = JSON.parse(text);
                     if (!data.history) throw new Error('Invalid file format');
-
+        
                     const incomingKeys = Object.keys(data.history);
                     let importedCount = 0;
-
+        
                     for (const name of incomingKeys) {
                         let finalName = name;
                         
+                        // ✅ SURGICAL ADDITION: Descriptive duplicate check
                         if (history[name]) {
-                            const choice = confirm(`" ${name} " already exists in your backpack.\n\nClick OK to REPLACE it.\nClick CANCEL to keep both (renames incoming to "${name} - New").`);
+                            const existingData = JSON.parse(history[name]);
+                            const existingMonth = monthNames[existingData.month || 0];
+                            const choice = confirm(`"${name}" already exists in your ${existingMonth} folder.\n\n• Click OK to REPLACE it.\n• Click CANCEL to keep both (Incoming will be renamed).`);
+                            
                             if (!choice) {
+                                let counter = 1;
                                 finalName = name + " - New";
+                                while (history[finalName]) {
+                                    counter++;
+                                    finalName = `${name} - New ${counter}`;
+                                }
                             }
                         }
                         
                         history[finalName] = data.history[name];
                         importedCount++;
                     }
-
+        
+                    // Merge all other data types preserved in your logic
                     if (data.cache) Object.assign(cache, data.cache);
                     if (data.customIcons) Object.assign(customIcons, data.customIcons);
                     if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
-
+                    if (data.homeworkNotes) Object.assign(homeworkNotes, data.homeworkNotes);
+        
                     localStorage.setItem('frenchHistory', JSON.stringify(history));
                     localStorage.setItem('phraseTranslations', JSON.stringify(cache));
                     localStorage.setItem('customIcons', JSON.stringify(customIcons));
                     localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                     
-                    alert(`✅ Successfully imported ${importedCount} week(s) with custom icons!`);
+                    alert(`✅ Successfully imported ${importedCount} items!`);
                     location.reload(); 
-
+        
                 } catch (error) {
                     console.error('Import error:', error);
-                    alert('❌ Failed to import. Ensure it is a valid French Fun backup file.');
+                    alert('❌ Failed to import. Ensure it is a valid French Fun file.');
                 }
             };
             input.click();
@@ -2037,10 +2049,13 @@ function checkForImport() {
             const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
             const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
             
-            // CHECK FOR DUPLICATE NAME
+            // Descriptive Duplicate check for Links
             let finalName = weekData.name;
             if (history[weekData.name]) {
-                const choice = confirm(`"${weekData.name}" already exists in your backpack.\n\n• Click OK to REPLACE it\n• Click CANCEL to keep both (renames to "${weekData.name} - Imported")`);
+                const existingData = JSON.parse(history[weekData.name]);
+                const existingMonth = monthNames[existingData.month || 0];
+                
+                const choice = confirm(`"${weekData.name}" already exists in your ${existingMonth} folder.\n\n• Click OK to REPLACE it.\n• Click CANCEL to keep both (renames to "${weekData.name} - Imported")`);
                 
                 if (!choice) {
                     finalName = weekData.name + " - Imported";
@@ -3193,29 +3208,38 @@ async function translateOne(p) {
                 return;
             }
             
-            // 1. YOUR ORIGINAL LOGIC: Auto-translate before saving
             await translateIfNeeded(val, true);
-            
-            // 2. YOUR ORIGINAL LOGIC: Update the persistent session
             localStorage.setItem('homeworkPhrases', val);
             
-            // 3. SURGICAL REPLACEMENT: prompt -> openAppModal
+            // ✅ NEW SURGICAL ADDITION: Extract the first line to use as a suggested name
+            const firstLine = val.split('\n')[0].split('|')[0].trim();
+            // Truncate to 20 chars for the suggestion to match your limit
+            const suggestedName = firstLine.length > 20 ? firstLine.substring(0, 20) : firstLine;
+        
             openAppModal({
                 title: "💾 Save Homework",
-                text: editingHomeworkName || "Week " + (Object.keys(history).length + 1),
+                // ✅ UPDATED: Use the existing name if editing, otherwise suggest the first line
+                text: editingHomeworkName || suggestedName,
                 mode: 'edit',
                 placeholder: "Week Name (max 20 characters)",
                 onSave: (name) => {
                     if (name) { 
-                        // 4. YOUR ORIGINAL LOGIC: Name length check
                         if (name.length > 20) {
                             name = name.substring(0, 20);
                             alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
                         }
+        
+                        // Check if name exists in a different folder
+                        if (history[name] && name !== editingHomeworkName) {
+                            const existingData = JSON.parse(history[name]);
+                            const existingMonth = monthNames[existingData.month || 0];
+                            const proceed = confirm(`"${name}" already exists in your ${existingMonth} folder.\n\nClick OK to OVERWRITE it.\nClick CANCEL to go back and choose a different name.`);
+                            if (!proceed) return; 
+                        }
                         
                         const hwData = {
                             words: val,
-                            audio: currentWeekAudio,  // Save the audio from editor
+                            audio: currentWeekAudio,
                             isDialogue: isDiag,
                             month: selectedBpMonth,
                             isFavorite: false,
@@ -3224,27 +3248,22 @@ async function translateOne(p) {
                         
                         if (!history) history = {};
                         
-                        // 5. YOUR ORIGINAL LOGIC: Save to Backpack
                         history[name] = JSON.stringify(hwData);
                         localStorage.setItem('frenchHistory', JSON.stringify(history)); 
                         
                         document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
                         
-                        // 6. YOUR ORIGINAL LOGIC: Clear form fields for next entry
                         document.getElementById('hwInput').value = "";
                         document.getElementById('hwIsDialogue').checked = false;
                         
                         closeOverlay('hwDrawer');
                         
-                        // 7. YOUR ORIGINAL LOGIC: Set up for practice mode
                         currentSetName = name;
                         localStorage.setItem('currentSetName', name);
                         currentIsDialogue = isDiag;
                         
-                        // 8. YOUR ORIGINAL LOGIC: Render practice screen (maintaining viewMode preference)
                         renderList(val.split('\n').filter(w => w.trim()));
                         
-                        // 9. YOUR ORIGINAL LOGIC: Force update the dialogue button label
                         const diagBtn = document.getElementById('btnViewDialogue');
                         if (diagBtn) {
                             if (currentWeekAudio) {
@@ -3254,7 +3273,6 @@ async function translateOne(p) {
                             }
                         }
                         
-                        // 10. YOUR ORIGINAL LOGIC: Clear audio input for NEXT new homework
                         setTimeout(() => {
                             if (!editingHomeworkName) {
                                 document.getElementById('teacherAudioFile').value = '';
@@ -3263,8 +3281,6 @@ async function translateOne(p) {
                         
                         editingHomeworkName = null;
                         document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-                        
-                        // 11. Refresh Backpack UI to show new item
                         openBP();
                     }
                 }
@@ -4067,6 +4083,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
