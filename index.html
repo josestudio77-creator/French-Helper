@@ -2038,35 +2038,30 @@ openAppModal({
         
                     const incomingKeys = Object.keys(data.history);
                     let importedCount = 0;
+                    let skippedCount = 0;
         
                     for (const name of incomingKeys) {
-                        let finalName = name;
-                        
-                        // ✅ SURGICAL ADDITION: Descriptive duplicate check
+                        // ✅ BULK LOGIC: If the homework name already exists, skip it
                         if (history[name]) {
-                            const existingData = JSON.parse(history[name]);
-                            const existingMonth = monthNames[existingData.month || 0];
-                            const choice = confirm(`"${name}" already exists in your ${existingMonth} folder.\n\n• Click OK to REPLACE it.\n• Click CANCEL to keep both (Incoming will be renamed).`);
-                            
-                            if (!choice) {
-                                let counter = 1;
-                                finalName = name + " - New";
-                                while (history[finalName]) {
-                                    counter++;
-                                    finalName = `${name} - New ${counter}`;
-                                }
-                            }
+                            skippedCount++;
+                            continue; 
                         }
                         
-                        history[finalName] = data.history[name];
+                        // Save the homework data
+                        history[name] = data.history[name];
+                        
+                        // Save the associated note if it exists in the file
+                        if (data.homeworkNotes && data.homeworkNotes[name]) {
+                            homeworkNotes[name] = data.homeworkNotes[name];
+                        }
                         importedCount++;
                     }
         
-                    // Merge all other data types preserved in your logic
+                    // Merge global assets (Translations, Icons, Photos) 
+                    // These are merged because they are word-based, not homework-based
                     if (data.cache) Object.assign(cache, data.cache);
                     if (data.customIcons) Object.assign(customIcons, data.customIcons);
                     if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
-                    if (data.homeworkNotes) Object.assign(homeworkNotes, data.homeworkNotes);
         
                     localStorage.setItem('frenchHistory', JSON.stringify(history));
                     localStorage.setItem('phraseTranslations', JSON.stringify(cache));
@@ -2074,12 +2069,27 @@ openAppModal({
                     localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
                     localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                     
-                    alert(`✅ Successfully imported ${importedCount} items!`);
-                    location.reload(); 
+                    // Build a helpful success message
+                    let successMsg = `Imported ${importedCount} new items.`;
+                    if (skippedCount > 0) {
+                        successMsg += `\n(${skippedCount} duplicates were skipped).`;
+                    }
+        
+                    openAppModal({
+                        title: "✅ Import Complete",
+                        text: successMsg,
+                        mode: 'view'
+                    });
+        
+                    // Refresh backpack UI after modal closes
+                    const originalClose = document.getElementById('appModalBtnClose').onclick;
+                    document.getElementById('appModalBtnClose').onclick = () => {
+                        location.reload(); 
+                    };
         
                 } catch (error) {
                     console.error('Import error:', error);
-                    alert('❌ Failed to import. Ensure it is a valid French Fun file.');
+                    alert('❌ Failed to import file.');
                 }
             };
             input.click();
@@ -2118,19 +2128,18 @@ openAppModal({
                                 setTimeout(() => {
                                     openAppModal({
                                         title: "⚠️ Name Already Exists",
-                                        text: `"${nameChoice}" is already in your ${existingMonth} folder. What would you like to do?`,
+                                        text: `"${nameChoice}" is already in your ${existingMonth} folder.`,
                                         mode: 'view',
-                                        saveText: "🔄 Replace Old",
-                                        cancelText: "➕ Keep Both",
-                                        onAction: () => executeImportProcess(nameChoice, weekData), // ✅ Changed to onAction
-                                        onSecondaryAction: () => { // ✅ Changed to onSecondaryAction
-                                            let finalName = nameChoice + " - Imported";
-                                            let counter = 1;
-                                            while (history[finalName]) {
-                                                counter++;
-                                                finalName = `${nameChoice} - Imported ${counter}`;
-                                            }
-                                            executeImportProcess(finalName, weekData);
+                                        saveText: "🔄 Replace",
+                                        cancelText: "✏️ Edit Name", // ✅ Updated Label
+                                        onAction: () => executeImportProcess(nameChoice, weekData),
+                                        onSecondaryAction: () => { 
+                                            // ✅ FIX: Go back to the naming modal instead of auto-renaming
+                                            closeOverlay('appModal');
+                                            setTimeout(() => {
+                                                // Re-run the naming part of checkForImport
+                                                checkForImport(); 
+                                            }, 300);
                                         }
                                     });
                                 }, 300); 
@@ -4099,6 +4108,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
