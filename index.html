@@ -2010,12 +2010,16 @@ function renderList(list) {
             
             window.location.hash = '';
             openBP();
-
-            openAppModal({
-                title: "✅ Import Complete",
-                text: `"${finalName}" has been added to your backpack!`,
-                mode: 'view'
-            });
+        
+            // ✅ THE SURGICAL FIX: 
+            // Wait 500ms for the previous dialog to clear before showing success
+            setTimeout(() => {
+                openAppModal({
+                    title: "✅ Import Complete",
+                    text: `"${finalName}" has been added to your backpack!`,
+                    mode: 'view'
+                });
+            }, 500);
         }
         
         function importBackup() {
@@ -4071,6 +4075,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
