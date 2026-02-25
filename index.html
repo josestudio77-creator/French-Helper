@@ -3810,14 +3810,23 @@ async function translateOne(p) {
                     // CASE: DUPLICATE WARNING (Two choices: Replace / Keep Both)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Replace";
+                    actionBtn.style.background = "#4cd964"; // Green for replace
+                    actionBtn.style.fontSize = "0.9rem";
+                    actionBtn.style.whiteSpace = "nowrap";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-            
+                
                     editBtn.style.display = "block";
-                    editBtn.textContent = config.cancelText || "Keep Both";
+                    editBtn.textContent = config.cancelText || "Edit Name"; // Changed from "Keep Both" to "Edit Name"
                     editBtn.style.background = "#ff9e6d"; // Orange
+                    editBtn.style.fontSize = "0.9rem";
+                    editBtn.style.whiteSpace = "nowrap";
                     editBtn.onclick = () => { config.onSecondaryAction(); closeOverlay('appModal'); };
                     
+                    // Make both buttons equal size in a 2-column grid
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
+                    
+                    // Hide the delete button since we're using action/edit buttons
+                    delBtn.style.display = "none";
                 } else if (config.onAction) { 
                     // CASE: SHARE/DOWNLOAD SUMMARY (One big action button)
                     actionBtn.style.display = "block";
@@ -4118,6 +4127,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
