@@ -1897,15 +1897,19 @@ function shareWeek(weekName, wordsText, audioData = null) {
         if (customPhotos[normalized]) homeworkPhotos[normalized] = customPhotos[normalized];
     });
 
+    // Extract the note for this specific week
+    const specificNote = (homeworkNotes && homeworkNotes[weekName]) ? homeworkNotes[weekName] : "";
+
     if (audioData || Object.keys(homeworkPhotos).length > 0) {
         const singleWeekData = {
             history: { [weekName]: JSON.stringify({ 
                 words: wordsText, 
-                audio: audioData, 
-                month: existingData.month, // <--- ADD THIS
-                isDialogue: existingData.isDialogue, // <--- ADD THIS
+                audio: audioData,
+                month: existingData.month,
+                isDialogue: existingData.isDialogue,
                 date: new Date().toISOString() 
             })},
+            homeworkNotes: { [weekName]: specificNote },
             cache: cache,
             customIcons: homeworkIcons,
             customPhotos: homeworkPhotos,
@@ -1914,12 +1918,12 @@ function shareWeek(weekName, wordsText, audioData = null) {
         const jsonString = JSON.stringify(singleWeekData);
         attemptFileShare(jsonString, `${weekName.replace(/\s+/g, '_')}.json`, `🇫🇷 Homework: ${weekName}`);
     } else {
-        // For URL sharing
         const weekData = { 
             name: weekName, 
             words: wordsText, 
-            month: existingData.month, // <--- ADD THIS
-            isDialogue: existingData.isDialogue, // <--- ADD THIS
+            month: existingData.month, 
+            isDialogue: existingData.isDialogue, 
+            note: specificNote,
             hasAudio: false,
             customIcons: homeworkIcons
         };
@@ -2051,7 +2055,10 @@ function checkForImport() {
             if (photoCount > 0) message += `📷 ${photoCount} custom photo${photoCount > 1 ? 's' : ''}\n`;
             
             if (confirm(message)) {
-                // FIXED: Create hwData using weekData values, not undefined variables
+                    currentWeekAudio = null; 
+                    localStorage.removeItem('currentWeekAudio');
+                    displayAudioPlayer();
+                
                 const hwData = {
                     words: weekData.words,
                     audio: null, // Links can't include audio
@@ -2063,6 +2070,12 @@ function checkForImport() {
                 
                 history[finalName] = JSON.stringify(hwData);
                 localStorage.setItem('frenchHistory', JSON.stringify(history));
+
+                if (weekData.note) {
+                    if (!homeworkNotes) homeworkNotes = {};
+                    homeworkNotes[finalName] = weekData.note;
+                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                }
                 
                 // Load the homework for practice
                 document.getElementById('hwInput').value = weekData.words;
@@ -3963,6 +3976,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
