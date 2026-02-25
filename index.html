@@ -2010,9 +2010,7 @@ openAppModal({
             
             window.location.hash = '';
             openBP();
-        
-            // ✅ THE SURGICAL FIX: 
-            // Wait 500ms for the previous dialog to clear before showing success
+
             setTimeout(() => {
                 openAppModal({
                     title: "✅ Import Complete",
@@ -2114,11 +2112,14 @@ openAppModal({
         
                     openAppModal({
                         title: "📥 Import Homework",
-                        text: weekData.name, 
+                        text: weekData.name,
                         mode: 'edit',
                         placeholder: "Name this homework",
                         onSave: (nameChoice) => {
-                            if (!nameChoice) return false;
+                            if (!nameChoice) {
+                                window.location.hash = ''; // ← CLEAR HASH ON CANCEL
+                                return false;
+                            }
         
                             if (history[nameChoice]) {
                                 const existingData = JSON.parse(history[nameChoice]);
@@ -4131,6 +4132,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
