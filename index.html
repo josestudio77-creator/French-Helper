@@ -3305,27 +3305,27 @@ async function translateOne(p) {
                             
                         <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn edit-icon" onclick="editHomework('${safeName}')">✏️</button>
+                                <button class="icon-btn edit-icon">✏️</button>
                                 <span class="icon-label">Edit</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn print-icon" onclick="openPrintSelection(null, '${safeName}')">🖨️</button>
+                                <button class="icon-btn print-icon">🖨️</button>
                                 <span class="icon-label">Print</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn share-icon" onclick="shareWeek('${safeName}', \`${hwData.words.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, currentWeekAudio)">📤</button>
+                                <button class="icon-btn share-icon">📤</button>
                                 <span class="icon-label">Share</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn move-icon" onclick="moveHomework('${safeName}')">📂</button>
+                                <button class="icon-btn move-icon">📂</button>
                                 <span class="icon-label">Move</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn note-icon" onclick="showNote('${safeName}')">📝</button>
+                                <button class="icon-btn note-icon">📝</button>
                                 <span class="icon-label">Notes</span>
                             </div>
                             <div style="display:flex; flex-direction:column; align-items:center; flex:1; min-width:0;">
-                                <button class="icon-btn delete-icon" onclick="deleteHomeworkItem('${safeName}')">🗑️</button>
+                                <button class="icon-btn delete-icon">🗑️</button>
                                 <span class="icon-label">Delete</span>
                             </div>
                         </div>
@@ -3679,7 +3679,6 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
 
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     let html = "";
-
     if (includeHeader) {
         html += `<div class="print-header-simple">
             <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -3694,27 +3693,22 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     phrases.forEach((phrase, index) => {
         const cleanPhrase = phrase.split('|')[0].trim();
         const fontClass = isCursive ? 'cursive-font' : '';
-        let calligraphyRows = "";
-        for (let i = 0; i < repetitions; i++) {
-            calligraphyRows += `<div class="calligraphy-row"></div>`;
-        }
+        let rows = "";
+        for (let i = 0; i < repetitions; i++) { rows += `<div class="calligraphy-row"></div>`; }
         html += `<div class="print-phrase-block">
             <span class="cute-decoration">${icons[index % icons.length]}</span>
             <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
-            ${calligraphyRows}
+            ${rows}
         </div>`;
     });
 
     printArea.innerHTML = html;
     window.stop();
 
-    // 800ms is the "Sweet Spot" for Pixel/Android and iOS rendering
     setTimeout(() => {
         window.print();
-        
-        // Final cleanup after dialog opens
+        // Just release the lock - DON'T clear the content
         setTimeout(() => {
-            printArea.innerHTML = '';
             isPrinting = false;
         }, 2000);
     }, 800);
@@ -3811,6 +3805,13 @@ function refreshAppUI() {
 
 window.onload = () => {
     console.log('App loading...');
+
+    / ✅ THE SAFETY RESET: Clear any "ghost" print data from the last time the app was used
+    const ghostPrint = document.getElementById('printArea');
+    if (ghostPrint) {
+        ghostPrint.innerHTML = '';
+    }
+    isPrinting = false; // Ensure the print button is "unlocked" on startup
 
     const ghostPrint = document.getElementById('printArea');
     if (ghostPrint) ghostPrint.innerHTML = '';
@@ -3938,6 +3939,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
