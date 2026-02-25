@@ -2439,78 +2439,79 @@ async function loadHomeworkForPractice(name, words, audio) {
     closeOverlay('bpModal');
     renderList(words.split('\n').filter(w => w.trim()));
 }
-function showNote(name) {
-        const note = homeworkNotes[name] || '';
         
-        if (note.trim() === '') {
-            // No note exists - open in edit mode directly
-            openAppModal({
-                title: `📝 Add Note: ${name}`,
-                text: '',
-                mode: 'edit',
-                placeholder: "Write a note...",
-                onSave: (val) => {
-                    if (val && val.trim() !== '') {
-                        homeworkNotes[name] = val.trim();
-                    } else {
-                        delete homeworkNotes[name];
-                    }
-                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                    refreshAppUI();
+function showNote(name) {
+    const note = homeworkNotes[name] || '';
+    
+    if (note.trim() === '') {
+        // No note exists - open in edit mode directly
+        openAppModal({
+            title: `📝 Add Note: ${name}`,
+            text: '',
+            mode: 'edit',
+            placeholder: "Write a note...",
+            onSave: (val) => {
+                if (val && val.trim() !== '') {
+                    homeworkNotes[name] = val.trim();
+                } else {
+                    delete homeworkNotes[name];
                 }
-            });
-        } else {
-            // Note exists - show in view mode with Edit/Delete options
-            openAppModal({
-                title: `📝 Note: ${name}`,
-                text: note,
-                mode: 'view',
-                onEdit: () => {
-                    // Switch to edit mode
-                    openAppModal({
-                        title: `📝 Edit Note: ${name}`,
-                        text: note,
-                        mode: 'edit',
-                        placeholder: "Write a note...",
-                        onSave: (val) => {
-                            if (val && val.trim() !== '') {
-                                homeworkNotes[name] = val.trim();
-                            } else {
-                                delete homeworkNotes[name];
-                            }
-                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            refreshAppUI();
-                        }
-                    });
-                },
-                onDelete: () => {
-                    // Confirm delete with modal
-                    openAppModal({
-                        title: "🗑️ Delete Note",
-                        text: `Are you sure you want to delete this note?`,
-                        mode: 'view',
-                        saveText: "Yes, Delete",
-                        cancelText: "Cancel",
-                        onAction: () => {
+                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                refreshAppUI();
+            }
+        });
+    } else {
+        // Note exists - show in view mode with Edit/Delete options
+        openAppModal({
+            title: `📝 Note: ${name}`,
+            text: note,
+            mode: 'view',
+            onEdit: () => {
+                // Switch to edit mode
+                openAppModal({
+                    title: `📝 Edit Note: ${name}`,
+                    text: note,
+                    mode: 'edit',
+                    placeholder: "Write a note...",
+                    onSave: (val) => {
+                        if (val && val.trim() !== '') {
+                            homeworkNotes[name] = val.trim();
+                        } else {
                             delete homeworkNotes[name];
-                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            refreshAppUI();
-                            
-                            // Show success message
-                            setTimeout(() => {
-                                openAppModal({
-                                    title: "✅ Note Deleted",
-                                    text: "The note has been removed.",
-                                    mode: 'view',
-                                    simpleSuccess: true
-                                });
-                            }, 300);
                         }
-                    });
-                }
-            });
-        }
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                        refreshAppUI();
+                    }
+                });
+            },
+            onDelete: () => {
+                // Use modal for delete confirmation instead of system confirm
+                openAppModal({
+                    title: "🗑️ Delete Note",
+                    text: `Are you sure you want to delete this note?`,
+                    mode: 'view',
+                    saveText: "Yes, Delete",
+                    cancelText: "Cancel",
+                    onAction: () => {
+                        delete homeworkNotes[name];
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                        refreshAppUI();
+                        
+                        // Show success message
+                        setTimeout(() => {
+                            openAppModal({
+                                title: "✅ Note Deleted",
+                                text: "The note has been removed.",
+                                mode: 'view',
+                                simpleSuccess: true
+                            });
+                        }, 300);
+                    }
+                });
+            }
+        });
     }
+}
 
 function needsTranslation(words) {
     const list = words.split('\n').filter(l => l.trim().length > 0);
@@ -4239,6 +4240,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
