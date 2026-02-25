@@ -914,6 +914,7 @@
     <div id="appModal" class="overlay">
         <div class="modal-box">
             <h2 id="appModalTitle" class="modal-title"></h2>
+            <div id="appModalStats" style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; white-space: pre-wrap;"></div>
             
             <div id="appModalView">
                 <div id="appModalTextDisplay" class="modal-display"></div>
@@ -2010,9 +2011,14 @@ function renderList(list) {
             alert(`✅ Imported successfully as "${finalName}"!`);
             window.location.hash = '';
             openBP();
+
+            openAppModal({
+                title: "✅ Import Complete",
+                text: `"${finalName}" has been added to your backpack!`,
+                mode: 'view'
+            });
         }
         
-        // Update importBackup to handle custom icons/photos
         function importBackup() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2087,9 +2093,10 @@ function renderList(list) {
                     const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
                     const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
                     
+                    // Build the stats string
                     let importInfo = `📝 ${weekData.words.split('\n').length} phrases`;
-                    if (iconCount > 0) importInfo += `\n😊 ${iconCount} custom icons`;
-                    if (photoCount > 0) importInfo += `\n📷 ${photoCount} custom photos`;
+                    if (iconCount > 0) importInfo += ` | 😊 ${iconCount} icons`;
+                    if (photoCount > 0) importInfo += ` | 📷 ${photoCount} photos`;
         
                     openAppModal({
                         title: "📥 Import Homework",
@@ -2099,42 +2106,41 @@ function renderList(list) {
                         onSave: (nameChoice) => {
                             if (!nameChoice) return false;
         
-                            // CHECK FOR DUPLICATE
                             if (history[nameChoice]) {
                                 const existingData = JSON.parse(history[nameChoice]);
                                 const existingMonth = monthNames[existingData.month || 0];
         
-                                // Open a SECOND modal for the choice (Replace vs Keep Both)
-                                openAppModal({
-                                    title: "⚠️ Name Already Exists",
-                                    text: `"${nameChoice}" is already in your ${existingMonth} folder. What would you like to do?`,
-                                    mode: 'view',
-                                    saveText: "🔄 Replace Old",
-                                    cancelText: "➕ Keep Both",
-                                    onSave: () => {
-                                        executeImportProcess(nameChoice, weekData);
-                                    },
-                                    onCancel: () => {
-                                        // Logic to find a new name automatically
-                                        let finalName = nameChoice + " - Imported";
-                                        let counter = 1;
-                                        while (history[finalName]) {
-                                            counter++;
-                                            finalName = `${nameChoice} - Imported ${counter}`;
+                                closeOverlay('appModal');
+        
+                                setTimeout(() => {
+                                    openAppModal({
+                                        title: "⚠️ Name Already Exists",
+                                        text: `"${nameChoice}" is already in your ${existingMonth} folder.`,
+                                        mode: 'view',
+                                        saveText: "🔄 Replace Old",
+                                        cancelText: "➕ Keep Both",
+                                        onSave: () => executeImportProcess(nameChoice, weekData),
+                                        onCancel: () => {
+                                            let finalName = nameChoice + " - Imported";
+                                            let counter = 1;
+                                            while (history[finalName]) {
+                                                counter++;
+                                                finalName = `${nameChoice} - Imported ${counter}`;
+                                            }
+                                            executeImportProcess(finalName, weekData);
                                         }
-                                        executeImportProcess(finalName, weekData);
-                                    }
-                                });
-                                return true; // Closes the first naming modal
+                                    });
+                                }, 300); 
+                                return false; 
                             }
         
-                            // No duplicate? Just import normally
                             executeImportProcess(nameChoice, weekData);
                             return true;
                         }
                     });
         
-                    document.getElementById('appModalTextDisplay').innerText = importInfo;
+                    // ✅ THE FIX: Put the info in the Stats area so it stays visible during Edit mode
+                    document.getElementById('appModalStats').innerText = importInfo;
         
                 } catch (e) {
                     console.error('Import error:', e);
@@ -3754,13 +3760,18 @@ async function translateOne(p) {
         
         function openAppModal(config) {
             document.getElementById('appModalTitle').textContent = config.title;
+            document.getElementById('appModalStats').textContent = ""; 
             const input = document.getElementById('appModalInput');
             const display = document.getElementById('appModalTextDisplay');
             const viewSection = document.getElementById('appModalView');
             const editSection = document.getElementById('appModalEdit');
             const closeBtn = document.getElementById('appModalBtnClose');
             
-            // Setup labels for the Edit Mode buttons
+            // Ensure standard view buttons are reset
+            const actionBtn = document.getElementById('appModalBtnAction');
+            const editBtn = document.getElementById('appModalBtnEdit');
+            const delBtn = document.getElementById('appModalBtnDelete');
+        
             document.getElementById('appModalBtnSave').textContent = config.saveText || "💾 Save";
             document.getElementById('appModalBtnCancel').textContent = config.cancelText || "Cancel";
         
@@ -3776,50 +3787,33 @@ async function translateOne(p) {
                 closeBtn.style.display = "block";
                 display.textContent = config.text || "";
                 
-                // --- LOGIC FOR SHARE/DOWNLOAD SUMMARIES ---
-                const actionBtn = document.getElementById('appModalBtnAction');
-                const editBtn = document.getElementById('appModalBtnEdit');
-                const delBtn = document.getElementById('appModalBtnDelete');
-        
                 if (config.onSave) { 
-                    // We are in "Summary Mode" (Share/Download)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Confirm";
                     actionBtn.onclick = () => { config.onSave(); closeOverlay('appModal'); };
-                    
-                    // Hide standard Note tools
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 } else {
-                    // We are in standard "Notes View Mode"
+                    // Pure Information/Success Mode
                     actionBtn.style.display = "none";
-                    editBtn.style.display = "block";
-                    delBtn.style.display = config.onDelete ? "block" : "none";
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
+                    editBtn.style.display = "none"; // ✅ Hidden for success messages
+                    delBtn.style.display = "none";  // ✅ Hidden for success messages
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 }
             }
         
-            // Standard button assignments
             document.getElementById('appModalBtnSave').onclick = () => {
-                if (config.onSave) {
-                    const result = config.onSave(input.value.trim());
-                    if (result === false) return; 
-                }
+                const val = input.value.trim();
+                // If onSave returns false, we keep the modal open (for duplicate checks)
+                if (config.onSave && config.onSave(val) === false) return;
                 closeOverlay('appModal');
             };
             
             document.getElementById('appModalBtnCancel').onclick = () => {
-                if (config.onCancel) {
-                    config.onCancel();
-                    closeOverlay('appModal');
-                } else if (config.mode === 'edit') {
-                    closeOverlay('appModal');
-                } else {
-                    viewSection.style.display = "block";
-                    editSection.style.display = "none";
-                    closeBtn.style.display = "block";
-                }
+                if (config.onCancel) config.onCancel();
+                if (config.mode === 'edit') closeOverlay('appModal');
+                else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
             };
         
             document.getElementById('appModalBtnEdit').onclick = () => {
@@ -3828,12 +3822,6 @@ async function translateOne(p) {
                 input.value = config.text;
                 closeBtn.style.display = "none";
             };
-        
-            if (config.onDelete) {
-                document.getElementById('appModalBtnDelete').onclick = () => {
-                    if (confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); }
-                };
-            }
         
             openOverlay('appModal');
         }
@@ -4084,6 +4072,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
