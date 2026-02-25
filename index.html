@@ -1121,8 +1121,8 @@
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
                 <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">📤 Share Month</button>
                 <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">➕ Add New</button>
-                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">⚙️ Settings</button>
                 <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">🗑️ Reset Month</button>
+                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">⚙️ Settings</button>
             </div>
             
             <button onclick="closeOverlay('bpModal')" style="margin-top:15px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Close</button>
@@ -1901,16 +1901,24 @@ function shareWeek(weekName, wordsText, audioData = null) {
     const specificNote = (homeworkNotes && homeworkNotes[weekName]) ? homeworkNotes[weekName] : "";
 
     if (audioData || Object.keys(homeworkPhotos).length > 0) {
+        // Build a mini-cache with ONLY the translations for this homework
+        const miniCache = {};
+        phraseList.forEach(p => {
+            const n = norm(p);
+            if (cache[n]) miniCache[n] = cache[n];
+        });
+
         const singleWeekData = {
             history: { [weekName]: JSON.stringify({ 
                 words: wordsText, 
-                audio: audioData,
-                month: existingData.month,
-                isDialogue: existingData.isDialogue,
+                audio: audioData, 
+                month: existingData.month, 
+                isDialogue: existingData.isDialogue, 
+                isFavorite: false, 
                 date: new Date().toISOString() 
             })},
             homeworkNotes: { [weekName]: specificNote },
-            cache: cache,
+            cache: miniCache, // ✅ Only send what is needed
             customIcons: homeworkIcons,
             customPhotos: homeworkPhotos,
             appVersion: "French Fun V10.0"
@@ -1937,7 +1945,7 @@ function shareWeek(weekName, wordsText, audioData = null) {
     }
 }
         
-        function shareAllWeeks() {
+    function shareAllWeeks() {
             if (!history || Object.keys(history).length === 0) { 
                 alert('No saved weeks to share yet!'); 
                 return; 
@@ -2026,8 +2034,6 @@ function checkForImport() {
             
             const decodedData = decodeURIComponent(atob(encodedData));
             const weekData = JSON.parse(decodedData);
-            
-            // Count how many customizations are in this import
             const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
             const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
             
@@ -2037,10 +2043,7 @@ function checkForImport() {
                 const choice = confirm(`"${weekData.name}" already exists in your backpack.\n\n• Click OK to REPLACE it\n• Click CANCEL to keep both (renames to "${weekData.name} - Imported")`);
                 
                 if (!choice) {
-                    // User wants to keep both - rename the incoming one
                     finalName = weekData.name + " - Imported";
-                    
-                    // If that name also exists, add a number
                     let counter = 1;
                     while (history[finalName]) {
                         counter++;
@@ -2063,7 +2066,7 @@ function checkForImport() {
                     words: weekData.words,
                     audio: null, // Links can't include audio
                     isDialogue: weekData.isDialogue || false,
-                    month: weekData.month !== undefined ? weekData.month : new Date().getMonth(), // Use imported month or default to current
+                    month: weekData.month !== undefined ? weekData.month : new Date().getMonth(), 
                     isFavorite: false,
                     date: new Date().toISOString()
                 };
@@ -2077,13 +2080,10 @@ function checkForImport() {
                     localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                 }
                 
-                // Load the homework for practice
                 document.getElementById('hwInput').value = weekData.words;
                 localStorage.setItem('homeworkPhrases', weekData.words);
                 
-                // Import custom icons if they exist (MERGE, don't replace)
                 if (weekData.customIcons) {
-                    // Only import icons for phrases that exist in this homework
                     const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
                     Object.keys(weekData.customIcons).forEach(key => {
                         if (phraseList.includes(key) || phraseList.some(p => p === key)) {
@@ -2092,8 +2092,16 @@ function checkForImport() {
                     });
                     localStorage.setItem('customIcons', JSON.stringify(customIcons));
                 }
+
+                // ➕ ADDED (Surgical): Import shared translations if they exist in the file
+                if (weekData.cache) {
+                    const phraseList = weekData.words.split('\n').map(w => norm(w.trim()));
+                    Object.keys(weekData.cache).forEach(key => {
+                        if (phraseList.includes(key)) cache[key] = weekData.cache[key];
+                    });
+                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                }
                 
-                // Import custom photos if they exist
                 if (weekData.customPhotos) {
                     const photoKeys = Object.keys(weekData.customPhotos);
                     if (photoKeys.length > 0) {
@@ -2108,19 +2116,20 @@ function checkForImport() {
                         });
                         
                         localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                        
+
                         if (importedPhotoCount > 0) {
                             console.log(`📸 Imported ${importedPhotoCount} photos`);
                         }
                     }
                 }
                 
-                // Set the current set name
                 currentSetName = finalName;
                 localStorage.setItem('currentSetName', finalName);
                 
-                // Render the list
-                renderList(weekData.words.split('\n').filter(w => w.trim()));
+                // ➕ ADDED (Surgical): Silent healing for missing "..." translations
+                translateIfNeeded(weekData.words, false).then(() => {
+                    renderList(weekData.words.split('\n').filter(w => w.trim()));
+                });
                 
                 alert(`✅ Imported successfully as "${finalName}"!`);
                 window.location.hash = '';
@@ -2129,13 +2138,11 @@ function checkForImport() {
             }
         } catch (e) {
             console.error('Import error:', e);
-            
             if (e.message.includes('Unexpected token')) {
-                alert('❌ The import link appears to be corrupted. This can happen if the link was truncated when shared.\n\nTry using the "Import Backpack/Backup" option in Parent Settings instead.');
+                alert('❌ The import link appears to be corrupted. Try using the "Import Backup" option in Parent Settings.');
             } else {
-                alert('❌ Could not import homework. Link may be corrupted.\n\nTry using the "Import Backpack/Backup" option in Parent Settings.');
+                alert('❌ Could not import homework. Link may be corrupted.');
             }
-            
             window.location.hash = '';
         }
     }
@@ -2361,17 +2368,17 @@ function refreshHwTitle(type, name = "") {
     `;
 }
         
-function loadHomeworkForPractice(name, words, audio) {
+async function loadHomeworkForPractice(name, words, audio) {
     // STOP AUTO-PLAY when loading homework
     if (isAutoPlaying) {
         stopAutoPlay();
     }
     
+    await translateIfNeeded(words, false);
+    
     currentSetName = name;
     localStorage.setItem('currentSetName', name);
-    console.log('Loading for practice:', name, 'Audio present:', !!audio);
     
-    // Load homework data
     let hwData = { isDialogue: false, audio: null };
     try {
         const parsed = JSON.parse(history[name]);
@@ -2381,11 +2388,8 @@ function loadHomeworkForPractice(name, words, audio) {
     } catch (e) {}
     
     currentIsDialogue = !!hwData.isDialogue;
-    
-    // ✅ CRITICAL: Set audio from homework data
     currentWeekAudio = hwData.audio || null;
     
-    // Update text input
     document.getElementById('hwInput').value = words;
     localStorage.setItem('homeworkPhrases', words);
     lastLoadedHomework = words;
@@ -2398,19 +2402,16 @@ function loadHomeworkForPractice(name, words, audio) {
     
     displayAudioPlayer();
     
-    // ✅ FIX: Set view mode based on audio presence
     if (currentWeekAudio) {
-        viewMode = 'dialogue'; // Recording mode
+        viewMode = 'dialogue'; 
     } else {
-        viewMode = hwData.isDialogue ? 'dialogue' : 'cards'; // Use saved preference
+        viewMode = hwData.isDialogue ? 'dialogue' : 'cards'; 
     }
     localStorage.setItem('viewMode', viewMode);
     
-    // ✅ FIX: Update button states
     document.getElementById('btnViewCards').classList.toggle('active', viewMode === 'cards');
     document.getElementById('btnViewDialogue').classList.toggle('active', viewMode === 'dialogue');
     
-    // Update button label
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -4066,6 +4067,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
