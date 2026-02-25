@@ -3958,7 +3958,24 @@ async function translateOne(p) {
             };
         
             if (config.onDelete) {
-                delBtn.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
+                delBtn.onclick = () => {
+                    // Close the current note modal
+                    closeOverlay('appModal');
+                    
+                    // Open delete confirmation modal
+                    setTimeout(() => {
+                        openAppModal({
+                            title: "🗑️ Confirm Delete",
+                            text: "Are you sure you want to delete this note?",
+                            mode: 'view',
+                            saveText: "Yes, Delete",
+                            cancelText: "Cancel",
+                            onAction: () => {
+                                config.onDelete(); // This will delete the note
+                            }
+                        });
+                    }, 300);
+                };
             }
         
             openOverlay('appModal');
@@ -4240,6 +4257,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
