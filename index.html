@@ -753,9 +753,9 @@
     .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
     .modal-btn:active { transform: scale(0.95); }
 
-    /* Hide the print area on screen ALWAYS */
+/* Hide the print area on screen ALWAYS to prevent it appearing during practice */
     #printArea { display: none !important; }
-    
+
 /* --- PRINT ONLY STYLES --- */
 @media print {
     @page { 
@@ -765,10 +765,15 @@
         @bottom-center { content: "" !important; }
     }
     @page :first { margin-top: 1.5cm; }
-    @page :left { margin: 1.5cm; }
-    @page :right { margin: 1.5cm; }
     
-    html, body { background: white !important; margin: 0 !important; padding: 0 !important; height: auto; }
+    html, body { 
+        background: white !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        height: auto; 
+        /* Hide the app UI while printing */
+        visibility: hidden !important;
+    }
 
     .container, .overlay, .bottom-nav, .header, button, 
     .app-control-panel, .gap-control, .view-switcher, 
@@ -776,11 +781,17 @@
 
     #printArea { 
         display: block !important; 
+        /* THE MOBILE FIX: Force visibility to override the hidden body */
+        visibility: visible !important; 
         background: white !important;
         width: 100%;
         box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
+    /* THE MOBILE FIX: Ensure every element inside the print area is also visible */
     #printArea * { visibility: visible !important; }
 
     .print-header-simple {
@@ -805,7 +816,10 @@
         height: 38px; width: 100%; margin-bottom: 25px; border-bottom: 2px solid black;
         border-top: 1px solid #aaa; position: relative;
     }
-    .calligraphy-row::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; border-top: 1.2px dashed #999; }
+    .calligraphy-row::after { 
+        content: ""; position: absolute; top: 50%; left: 0; width: 100%; 
+        border-top: 1.2px dashed #999; height: 0;
+    }
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
 }
@@ -3920,6 +3934,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
