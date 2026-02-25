@@ -2439,29 +2439,78 @@ async function loadHomeworkForPractice(name, words, audio) {
     closeOverlay('bpModal');
     renderList(words.split('\n').filter(w => w.trim()));
 }
-
 function showNote(name) {
-    const note = homeworkNotes[name] || '';
-    openAppModal({
-        title: `📝 Notes: ${name}`,
-        text: note,
-        mode: note.trim() === '' ? 'edit' : 'view',
-        placeholder: "Write a note...",
-        onSave: (val) => {
-            if (val === '') delete homeworkNotes[name];
-            else homeworkNotes[name] = val;
-            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-            refreshAppUI();
-        },
-        onDelete: () => {
-            if(confirm("Delete this note?")) {
-                delete homeworkNotes[name];
-                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                refreshAppUI();
-            }
+        const note = homeworkNotes[name] || '';
+        
+        if (note.trim() === '') {
+            // No note exists - open in edit mode directly
+            openAppModal({
+                title: `📝 Add Note: ${name}`,
+                text: '',
+                mode: 'edit',
+                placeholder: "Write a note...",
+                onSave: (val) => {
+                    if (val && val.trim() !== '') {
+                        homeworkNotes[name] = val.trim();
+                    } else {
+                        delete homeworkNotes[name];
+                    }
+                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                    refreshAppUI();
+                }
+            });
+        } else {
+            // Note exists - show in view mode with Edit/Delete options
+            openAppModal({
+                title: `📝 Note: ${name}`,
+                text: note,
+                mode: 'view',
+                onEdit: () => {
+                    // Switch to edit mode
+                    openAppModal({
+                        title: `📝 Edit Note: ${name}`,
+                        text: note,
+                        mode: 'edit',
+                        placeholder: "Write a note...",
+                        onSave: (val) => {
+                            if (val && val.trim() !== '') {
+                                homeworkNotes[name] = val.trim();
+                            } else {
+                                delete homeworkNotes[name];
+                            }
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
+                        }
+                    });
+                },
+                onDelete: () => {
+                    // Confirm delete with modal
+                    openAppModal({
+                        title: "🗑️ Delete Note",
+                        text: `Are you sure you want to delete this note?`,
+                        mode: 'view',
+                        saveText: "Yes, Delete",
+                        cancelText: "Cancel",
+                        onAction: () => {
+                            delete homeworkNotes[name];
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
+                            
+                            // Show success message
+                            setTimeout(() => {
+                                openAppModal({
+                                    title: "✅ Note Deleted",
+                                    text: "The note has been removed.",
+                                    mode: 'view',
+                                    simpleSuccess: true
+                                });
+                            }, 300);
+                        }
+                    });
+                }
+            });
         }
-    });
-}
+    }
 
 function needsTranslation(words) {
     const list = words.split('\n').filter(l => l.trim().length > 0);
@@ -2586,11 +2635,18 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function removeTeacherAudio() {
-            if (confirm('Remove teacher recording?')) {
-                currentWeekAudio = null;
-                document.getElementById('teacherAudioFile').value = '';
-                document.getElementById('audioPlayerContainer').style.display = 'none';
-            }
+            openAppModal({
+                title: "🎤 Remove Recording",
+                text: "Remove teacher recording?",
+                mode: 'view',
+                saveText: "Yes, Remove",
+                cancelText: "Cancel",
+                onAction: () => {
+                    currentWeekAudio = null;
+                    document.getElementById('teacherAudioFile').value = '';
+                    document.getElementById('audioPlayerContainer').style.display = 'none';
+                }
+            });
         }
 
         function initSpeechSpeed() {
@@ -3408,17 +3464,24 @@ async function translateOne(p) {
         }
 
         function deleteHomeworkItem(name) {
-            if(confirm(`Delete "${name}"?`)){ 
-                delete history[name]; 
-                if (homeworkNotes) delete homeworkNotes[name];
-                localStorage.setItem('frenchHistory', JSON.stringify(history));
-                if (currentSetName === name) {
-                    currentSetName = '';
-                    localStorage.removeItem('homeworkPhrases');
-                    renderList([]);
+            openAppModal({
+                title: "🗑️ Delete Homework",
+                text: `Are you sure you want to delete "${name}"?`,
+                mode: 'view',
+                saveText: "🗑️ Delete",
+                cancelText: "Cancel",
+                onAction: () => {
+                    delete history[name]; 
+                    if (homeworkNotes) delete homeworkNotes[name];
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    if (currentSetName === name) {
+                        currentSetName = '';
+                        localStorage.removeItem('homeworkPhrases');
+                        renderList([]);
+                    }
+                    openBP();
                 }
-                openBP(); 
-            } 
+            });
         }
         
         function renameHomework(oldName) {
@@ -3585,12 +3648,26 @@ async function translateOne(p) {
         }
 
         function nukeStorage() { 
-            if(confirm("⚠️ This will delete ALL homework, recordings, and progress. Are you absolutely sure?")) { 
-                if(confirm("Last chance! This cannot be undone!")) {
-                    localStorage.clear(); 
-                    location.reload(); 
+            openAppModal({
+                title: "⚠️ RESET EVERYTHING",
+                text: "This will delete ALL homework, recordings, and progress. Are you absolutely sure?",
+                mode: 'view',
+                saveText: "Yes, Reset All",
+                cancelText: "Cancel",
+                onAction: () => {
+                    openAppModal({
+                        title: "⚠️ LAST CHANCE",
+                        text: "This cannot be undone!",
+                        mode: 'view',
+                        saveText: "I Understand, Reset",
+                        cancelText: "Go Back",
+                        onAction: () => {
+                            localStorage.clear(); 
+                            location.reload(); 
+                        }
+                    });
                 }
-            } 
+            });
         }
 
        
@@ -3941,37 +4018,67 @@ async function translateOne(p) {
             }).length;
         
             if (count === 0) {
-                alert(`The ${currentMonthName} folder is already empty!`);
+                openAppModal({
+                    title: "📁 Folder Empty",
+                    text: `The ${currentMonthName} folder is already empty!`,
+                    mode: 'view',
+                    simpleSuccess: true
+                });
                 return;
             }
         
-            if (confirm(`⚠️ DELETE ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`)) {
-                if (confirm(`Are you absolutely sure? This cannot be undone.`)) {
-                    
-                    // Filter out items belonging to this month
-                    Object.keys(history).forEach(name => {
-                        try {
-                            const hwData = JSON.parse(history[name]);
-                            if (hwData.month === selectedBpMonth) {
-                                delete history[name];
-                                if (homeworkNotes[name]) delete homeworkNotes[name];
-                                
-                                // If we are currently practicing one of these, clear the session
-                                if (currentSetName === name) {
-                                    currentSetName = '';
-                                    localStorage.removeItem('homeworkPhrases');
-                                    renderList([]);
-                                }
-                            }
-                        } catch(e) {}
-                    });
+            // First confirmation
+            openAppModal({
+                title: "⚠️ Reset Month",
+                text: `Delete ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`,
+                mode: 'view',
+                saveText: "🗑️ Delete All",
+                cancelText: "Cancel",
+                onAction: () => {
+                    // Second confirmation (last chance)
+                    openAppModal({
+                        title: "⚠️ FINAL WARNING",
+                        text: `Are you absolutely sure? This cannot be undone.`,
+                        mode: 'view',
+                        saveText: "Yes, Delete All",
+                        cancelText: "Go Back",
+                        onAction: () => {
+                            // Filter out items belonging to this month
+                            Object.keys(history).forEach(name => {
+                                try {
+                                    const hwData = JSON.parse(history[name]);
+                                    if (hwData.month === selectedBpMonth) {
+                                        delete history[name];
+                                        if (homeworkNotes[name]) delete homeworkNotes[name];
+                                        
+                                        // If we are currently practicing one of these, clear the session
+                                        if (currentSetName === name) {
+                                            currentSetName = '';
+                                            localStorage.removeItem('homeworkPhrases');
+                                            renderList([]);
+                                        }
+                                    }
+                                } catch(e) {}
+                            });
         
-                    localStorage.setItem('frenchHistory', JSON.stringify(history));
-                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                    
-                    openBP(); // Refresh the backpack view
+                            localStorage.setItem('frenchHistory', JSON.stringify(history));
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            
+                            openBP(); // Refresh the backpack view
+                            
+                            // Show success message
+                            setTimeout(() => {
+                                openAppModal({
+                                    title: "✅ Month Reset",
+                                    text: `The ${currentMonthName} folder has been cleared.`,
+                                    mode: 'view',
+                                    simpleSuccess: true
+                                });
+                            }, 300);
+                        }
+                    });
                 }
-            }
+            });
         }
         
         function shareApp() { 
@@ -4132,6 +4239,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
