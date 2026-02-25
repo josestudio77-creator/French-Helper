@@ -2018,6 +2018,7 @@ openAppModal({
                     title: "✅ Import Complete",
                     text: `"${finalName}" has been added to your backpack!`,
                     mode: 'view'
+                    simpleSuccess: true
                 });
             }, 500);
         }
@@ -3810,7 +3811,7 @@ async function translateOne(p) {
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Replace";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-        
+            
                     editBtn.style.display = "block";
                     editBtn.textContent = config.cancelText || "Keep Both";
                     editBtn.style.background = "#ff9e6d"; // Orange
@@ -3822,6 +3823,15 @@ async function translateOne(p) {
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.actionText || "Confirm";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+                } else if (config.simpleSuccess) {
+                    // CASE: SIMPLE SUCCESS MESSAGE - Just an OK button
+                    actionBtn.style.display = "block";
+                    actionBtn.textContent = "OK";
+                    actionBtn.style.background = "#4cd964"; // Green
+                    actionBtn.onclick = () => closeOverlay('appModal');
+                    editBtn.style.display = "none";
+                    delBtn.style.display = "none";
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 } else {
                     // CASE: NOTE VIEW (Standard Edit/Delete)
@@ -4108,6 +4118,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
