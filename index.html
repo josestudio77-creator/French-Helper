@@ -3806,16 +3806,12 @@ function refreshAppUI() {
 window.onload = () => {
     console.log('App loading...');
 
-    / ✅ THE SAFETY RESET: Clear any "ghost" print data from the last time the app was used
+    // ✅ THE SAFETY RESET: Clear any "ghost" print data from the last time the app was used
     const ghostPrint = document.getElementById('printArea');
     if (ghostPrint) {
         ghostPrint.innerHTML = '';
     }
     isPrinting = false; // Ensure the print button is "unlocked" on startup
-
-    const ghostPrint = document.getElementById('printArea');
-    if (ghostPrint) ghostPrint.innerHTML = '';
-    isPrinting = false; // Ensure the "lock" is off when app starts
 
     const raw = localStorage.getItem('homeworkPhrases');
     document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
@@ -3828,7 +3824,7 @@ window.onload = () => {
         // IMPORTANT: Find the homework in history AND load its dialogue flag AND AUDIO
         let foundName = '';
         let foundIsDialogue = false;
-        let foundAudio = null;  // <-- ADD THIS
+        let foundAudio = null;
         
         for (let name in history) {
             try {
@@ -3836,7 +3832,7 @@ window.onload = () => {
                 if (hwData.words === raw) {
                     foundName = name;
                     foundIsDialogue = hwData.isDialogue || false;
-                    foundAudio = hwData.audio || null;  // <-- GET THE AUDIO
+                    foundAudio = hwData.audio || null;
                     break;
                 }
             } catch (e) {
@@ -3850,7 +3846,7 @@ window.onload = () => {
             localStorage.setItem('currentSetName', foundName);
             currentIsDialogue = foundIsDialogue;
             
-            // <-- ADD THIS: Load the audio
+            // Load the audio
             if (foundAudio) {
                 currentWeekAudio = foundAudio;
                 localStorage.setItem('currentWeekAudio', JSON.stringify(foundAudio));
@@ -3870,13 +3866,13 @@ window.onload = () => {
             currentSetName = '';
             localStorage.removeItem('currentSetName');
             currentIsDialogue = false;
-            currentWeekAudio = null;  // <-- CLEAR AUDIO
+            currentWeekAudio = null;
             localStorage.removeItem('currentWeekAudio');
         }
         
         loadCurrentHomework();
         
-        // <-- ADD THIS: Update the audio player display
+        // Update the audio player display
         displayAudioPlayer();
         
     } else {
@@ -3885,9 +3881,9 @@ window.onload = () => {
         currentSetName = '';
         localStorage.removeItem('currentSetName');
         currentIsDialogue = false;
-        currentWeekAudio = null;  // <-- CLEAR AUDIO
+        currentWeekAudio = null;
         localStorage.removeItem('currentWeekAudio');
-        displayAudioPlayer();  // <-- UPDATE DISPLAY
+        displayAudioPlayer();
     }
     
     initVoices();
@@ -3925,7 +3921,7 @@ window.onload = () => {
     setTimeout(() => {
         setViewMode(viewMode);
         
-        // <-- ADD THIS: Double-check the audio display after view mode is set
+        // Double-check the audio display after view mode is set
         displayAudioPlayer();
         
         // If we have audio but somehow ended up in cards mode, fix it
@@ -3939,6 +3935,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
