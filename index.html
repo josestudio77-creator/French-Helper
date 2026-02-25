@@ -2118,12 +2118,12 @@ openAppModal({
                                 setTimeout(() => {
                                     openAppModal({
                                         title: "⚠️ Name Already Exists",
-                                        text: `"${nameChoice}" is already in your ${existingMonth} folder.`,
+                                        text: `"${nameChoice}" is already in your ${existingMonth} folder. What would you like to do?`,
                                         mode: 'view',
                                         saveText: "🔄 Replace Old",
                                         cancelText: "➕ Keep Both",
-                                        onSave: () => executeImportProcess(nameChoice, weekData),
-                                        onCancel: () => {
+                                        onAction: () => executeImportProcess(nameChoice, weekData), // ✅ Changed to onAction
+                                        onSecondaryAction: () => { // ✅ Changed to onSecondaryAction
                                             let finalName = nameChoice + " - Imported";
                                             let counter = 1;
                                             while (history[finalName]) {
@@ -3775,6 +3775,13 @@ async function translateOne(p) {
             const editBtn = document.getElementById('appModalBtnEdit');
             const delBtn = document.getElementById('appModalBtnDelete');
         
+            // Reset button appearances
+            actionBtn.style.display = "none";
+            editBtn.style.display = "none";
+            delBtn.style.display = "none";
+            editBtn.textContent = "✏️ Edit";
+            editBtn.style.background = "#118AB2";
+        
             if (config.mode === 'edit') {
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
@@ -3789,40 +3796,54 @@ async function translateOne(p) {
                 closeBtn.style.display = "block";
                 display.textContent = config.text || "";
                 
-                if (config.onAction) { 
-                    // This is a Share/Download Summary
+                if (config.onAction && config.onSecondaryAction) {
+                    // CASE: DUPLICATE WARNING (Two choices: Replace / Keep Both)
+                    actionBtn.style.display = "block";
+                    actionBtn.textContent = config.saveText || "Replace";
+                    actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
+        
+                    editBtn.style.display = "block";
+                    editBtn.textContent = config.cancelText || "Keep Both";
+                    editBtn.style.background = "#ff9e6d"; // Orange
+                    editBtn.onclick = () => { config.onSecondaryAction(); closeOverlay('appModal'); };
+                    
+                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
+                } else if (config.onAction) { 
+                    // CASE: SHARE/DOWNLOAD SUMMARY (One big action button)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.actionText || "Confirm";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-                    editBtn.style.display = "none";
-                    delBtn.style.display = "none";
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 } else {
-                    // This is a Note View
-                    actionBtn.style.display = "none";
+                    // CASE: NOTE VIEW (Standard Edit/Delete)
                     editBtn.style.display = "block";
+                    editBtn.onclick = () => {
+                        viewSection.style.display = "none";
+                        editSection.style.display = "block";
+                        input.value = config.text;
+                        closeBtn.style.display = "none";
+                    };
                     delBtn.style.display = config.onDelete ? "block" : "none";
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
             }
         
-            // Save logic for the Edit screen
+            // Logic for the Save button (Edit Mode)
             document.getElementById('appModalBtnSave').onclick = () => {
                 if (config.onSave && config.onSave(input.value.trim()) === false) return;
                 closeOverlay('appModal');
             };
             
+            // Logic for the Cancel button (Edit Mode)
             document.getElementById('appModalBtnCancel').onclick = () => {
-                if (config.mode === 'edit' && (!config.text || config.text === "")) closeOverlay('appModal'); 
-                else if (config.title.includes("Rename") || config.title.includes("Fix") || config.title.includes("Save")) closeOverlay('appModal');
-                else { viewSection.style.display = "block"; editSection.style.display = "none"; closeBtn.style.display = "block"; }
-            };
-        
-            document.getElementById('appModalBtnEdit').onclick = () => {
-                viewSection.style.display = "none";
-                editSection.style.display = "block";
-                input.value = config.text;
-                closeBtn.style.display = "none";
+                const title = document.getElementById('appModalTitle').textContent;
+                if (config.mode === 'edit' && (title.includes("Rename") || title.includes("Fix") || title.includes("Save") || title.includes("Import"))) {
+                    closeOverlay('appModal');
+                } else {
+                    viewSection.style.display = "block";
+                    editSection.style.display = "none";
+                    closeBtn.style.display = "block";
+                }
             };
         
             if (config.onDelete) {
@@ -4078,6 +4099,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
