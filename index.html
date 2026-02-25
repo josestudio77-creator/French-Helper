@@ -1119,10 +1119,10 @@
             <div id="bpList"></div>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
-                <button onclick="shareAllWeeks()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">📤 Share All</button>
-                <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">➕ Add New</button>
-                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚙️ Settings</button>
-                <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900">⚠️ RESET</button>
+                <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">📤 Share Month</button>
+                <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">➕ Add New</button>
+                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">⚙️ Settings</button>
+                <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">🗑️ Reset Month</button>
             </div>
             
             <button onclick="closeOverlay('bpModal')" style="margin-top:15px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Close</button>
@@ -3636,187 +3636,277 @@ async function translateOne(p) {
             }
         }
         
-function playLine(index) {
-    if (!isAutoPlaying) return;
-    
-    if (index >= currentScreenList.length) {
-        if (loopMode) {
-            playLine(0);
-        } else {
-            stopAutoPlay();
+        function playLine(index) {
+            if (!isAutoPlaying) return;
+            
+            if (index >= currentScreenList.length) {
+                if (loopMode) {
+                    playLine(0);
+                } else {
+                    stopAutoPlay();
+                }
+                return;
+            }
+            
+            const text = currentScreenList[index].split('|')[0].trim();
+            const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
+            
+            // Highlight current line
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            const currentEl = document.getElementById(`line-${index}`);
+            if (currentEl) {
+                currentEl.classList.add('playing-now');
+                currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            // Create and speak the utterance
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = speechSpeed;
+            
+            // When speech ends, wait for the gap then play next
+            utterance.onend = () => {
+                if (isAutoPlaying) {
+                    autoPlayTimeout = setTimeout(() => {
+                        playLine(index + 1);
+                    }, userGap);
+                }
+            };
+            
+            window.speechSynthesis.speak(utterance);
         }
-        return;
-    }
-    
-    const text = currentScreenList[index].split('|')[0].trim();
-    const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
-    
-    // Highlight current line
-    document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-    const currentEl = document.getElementById(`line-${index}`);
-    if (currentEl) {
-        currentEl.classList.add('playing-now');
-        currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    // Create and speak the utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = speechSpeed;
-    
-    // When speech ends, wait for the gap then play next
-    utterance.onend = () => {
-        if (isAutoPlaying) {
-            autoPlayTimeout = setTimeout(() => {
-                playLine(index + 1);
-            }, userGap);
+        
+        // This is the NEW function the buttons will call
+        function openPrintSelection(words, homeworkName) {
+            tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
+            if (!tempWordsToPrint) { 
+                alert("Please enter some phrases first!"); 
+                return; 
+            }
+            
+            // Store the name to use in printing
+            tempPrintName = homeworkName || currentSetName || "Français";
+            
+            // RESET: Force counter to 2 AND header toggle to OFF
+            document.getElementById('repeatCountInput').value = 2;
+            document.getElementById('includeHeaderToggle').checked = false; 
+            
+            openOverlay('printSelectionOverlay');
         }
-    };
-    
-    window.speechSynthesis.speak(utterance);
-}
-
-// This is the NEW function the buttons will call
-function openPrintSelection(words, homeworkName) {
-    tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!tempWordsToPrint) { 
-        alert("Please enter some phrases first!"); 
-        return; 
-    }
-    
-    // Store the name to use in printing
-    tempPrintName = homeworkName || currentSetName || "Français";
-    
-    // RESET: Force counter to 2 AND header toggle to OFF
-    document.getElementById('repeatCountInput').value = 2;
-    document.getElementById('includeHeaderToggle').checked = false; 
-    
-    openOverlay('printSelectionOverlay');
-}
-
-function handlePrintChoice(choice) {
-    const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
-    const showHeader = document.getElementById('includeHeaderToggle').checked;
-    
-    closeOverlay('printSelectionOverlay');
-    runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName);
-}
-
-function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader = false, printName = "Français") {
-    if (isPrinting) return;
-    isPrinting = true;
-
-    let printArea = document.getElementById('printArea');
-    if (!printArea) {
-        printArea = document.createElement('div');
-        printArea.id = 'printArea';
-        document.body.prepend(printArea);
-    }
-    
-    printArea.innerHTML = ''; 
-
-    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    let html = "";
-    if (includeHeader) {
-        html += `<div class="print-header-simple">
-            <div class="name-label">Nom:<span class="name-underline"></span></div>
-            <div class="set-name-center">${printName}</div>
-            <div class="date-label">Date: ${today}</div>
-        </div>`;
-    }
-
-    const phrases = words.split('\n').filter(p => p.trim() !== "");
-    const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
-
-    phrases.forEach((phrase, index) => {
-        const cleanPhrase = phrase.split('|')[0].trim();
-        const fontClass = isCursive ? 'cursive-font' : '';
-        let rows = "";
-        for (let i = 0; i < repetitions; i++) { rows += `<div class="calligraphy-row"></div>`; }
-        html += `<div class="print-phrase-block">
-            <span class="cute-decoration">${icons[index % icons.length]}</span>
-            <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
-            ${rows}
-        </div>`;
-    });
-
-    printArea.innerHTML = html;
-    window.stop();
-
-    setTimeout(() => {
-        window.print();
-        // Just release the lock - DON'T clear the content
-        setTimeout(() => {
-            isPrinting = false;
-        }, 2000);
-    }, 800);
-}
-
-function openAppModal(config) {
-    document.getElementById('appModalTitle').textContent = config.title;
-    const input = document.getElementById('appModalInput');
-    const display = document.getElementById('appModalTextDisplay');
-    const viewSection = document.getElementById('appModalView');
-    const editSection = document.getElementById('appModalEdit');
-    const closeBtn = document.getElementById('appModalBtnClose');
-
-    if (config.mode === 'edit') {
-        viewSection.style.display = "none";
-        editSection.style.display = "block";
-        closeBtn.style.display = "none";
-        input.value = config.text || "";
-        input.placeholder = config.placeholder || "";
-    } else {
-        viewSection.style.display = "block";
-        editSection.style.display = "none";
-        closeBtn.style.display = "block";
-        display.textContent = config.text || "";
-    }
-
-    const btnDelete = document.getElementById('appModalBtnDelete');
-    if (config.onDelete) {
-        btnDelete.style.display = "block";
-        btnDelete.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
-        document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
-    } else {
-        btnDelete.style.display = "none";
-        document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
-    }
-
-    document.getElementById('appModalBtnSave').onclick = () => {
-        if (config.onSave) config.onSave(input.value.trim());
-        closeOverlay('appModal');
-    };
-    
-    document.getElementById('appModalBtnCancel').onclick = () => {
-        // If we started in Edit mode (Rename/Fix/Save), just close.
-        // If we were in View mode (Notes) and clicked edit, go back to View.
-        if (config.mode === 'edit') {
-            closeOverlay('appModal');
-        } else {
-            viewSection.style.display = "block";
-            editSection.style.display = "none";
-            closeBtn.style.display = "block";
+        
+        function handlePrintChoice(choice) {
+            const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
+            const showHeader = document.getElementById('includeHeaderToggle').checked;
+            
+            closeOverlay('printSelectionOverlay');
+            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName);
         }
-    };
+        
+        function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader = false, printName = "Français") {
+            if (isPrinting) return;
+            isPrinting = true;
+        
+            let printArea = document.getElementById('printArea');
+            if (!printArea) {
+                printArea = document.createElement('div');
+                printArea.id = 'printArea';
+                document.body.prepend(printArea);
+            }
+            
+            printArea.innerHTML = ''; 
+        
+            const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            let html = "";
+            if (includeHeader) {
+                html += `<div class="print-header-simple">
+                    <div class="name-label">Nom:<span class="name-underline"></span></div>
+                    <div class="set-name-center">${printName}</div>
+                    <div class="date-label">Date: ${today}</div>
+                </div>`;
+            }
+        
+            const phrases = words.split('\n').filter(p => p.trim() !== "");
+            const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
+        
+            phrases.forEach((phrase, index) => {
+                const cleanPhrase = phrase.split('|')[0].trim();
+                const fontClass = isCursive ? 'cursive-font' : '';
+                let rows = "";
+                for (let i = 0; i < repetitions; i++) { rows += `<div class="calligraphy-row"></div>`; }
+                html += `<div class="print-phrase-block">
+                    <span class="cute-decoration">${icons[index % icons.length]}</span>
+                    <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
+                    ${rows}
+                </div>`;
+            });
+        
+            printArea.innerHTML = html;
+            window.stop();
+        
+            setTimeout(() => {
+                window.print();
+                // Just release the lock - DON'T clear the content
+                setTimeout(() => {
+                    isPrinting = false;
+                }, 2000);
+            }, 800);
+        }
+        
+        function openAppModal(config) {
+            document.getElementById('appModalTitle').textContent = config.title;
+            const input = document.getElementById('appModalInput');
+            const display = document.getElementById('appModalTextDisplay');
+            const viewSection = document.getElementById('appModalView');
+            const editSection = document.getElementById('appModalEdit');
+            const closeBtn = document.getElementById('appModalBtnClose');
+        
+            if (config.mode === 'edit') {
+                viewSection.style.display = "none";
+                editSection.style.display = "block";
+                closeBtn.style.display = "none";
+                input.value = config.text || "";
+                input.placeholder = config.placeholder || "";
+            } else {
+                viewSection.style.display = "block";
+                editSection.style.display = "none";
+                closeBtn.style.display = "block";
+                display.textContent = config.text || "";
+            }
+        
+            const btnDelete = document.getElementById('appModalBtnDelete');
+            if (config.onDelete) {
+                btnDelete.style.display = "block";
+                btnDelete.onclick = () => { if(confirm("Are you sure?")) { config.onDelete(); closeOverlay('appModal'); } };
+                document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
+            } else {
+                btnDelete.style.display = "none";
+                document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+            }
+        
+            document.getElementById('appModalBtnSave').onclick = () => {
+                if (config.onSave) config.onSave(input.value.trim());
+                closeOverlay('appModal');
+            };
+            
+            document.getElementById('appModalBtnCancel').onclick = () => {
+                // If we started in Edit mode (Rename/Fix/Save), just close.
+                // If we were in View mode (Notes) and clicked edit, go back to View.
+                if (config.mode === 'edit') {
+                    closeOverlay('appModal');
+                } else {
+                    viewSection.style.display = "block";
+                    editSection.style.display = "none";
+                    closeBtn.style.display = "block";
+                }
+            };
+        
+            document.getElementById('appModalBtnEdit').onclick = () => {
+                viewSection.style.display = "none";
+                editSection.style.display = "block";
+                input.value = config.text;
+                closeBtn.style.display = "none";
+            };
+        
+            openOverlay('appModal');
+        }
+        
+        function refreshAppUI() {
+            if (document.getElementById('bpModal').style.display === 'block') openBP();
+            else renderList(currentScreenList);
+        }
 
-    document.getElementById('appModalBtnEdit').onclick = () => {
-        viewSection.style.display = "none";
-        editSection.style.display = "block";
-        input.value = config.text;
-        closeBtn.style.display = "none";
-    };
-
-    openOverlay('appModal');
-}
-
-function refreshAppUI() {
-    if (document.getElementById('bpModal').style.display === 'block') openBP();
-    else renderList(currentScreenList);
-}
+        function shareMonth() {
+            const currentMonthName = monthNames[selectedBpMonth];
+            const monthHistory = {};
+            const monthNotes = {};
+            const monthIcons = {};
+            const monthPhotos = {};
+            
+            // 1. Filter history for only the current month
+            Object.keys(history).forEach(name => {
+                try {
+                    const hwData = JSON.parse(history[name]);
+                    if (hwData.month === selectedBpMonth) {
+                        monthHistory[name] = history[name];
+                        
+                        // Include related note
+                        if (homeworkNotes[name]) monthNotes[name] = homeworkNotes[name];
+                        
+                        // Collect icons/photos used in these specific phrases
+                        const phrases = hwData.words.split('\n');
+                        phrases.forEach(p => {
+                            const n = norm(p);
+                            if (customIcons[n]) monthIcons[n] = customIcons[n];
+                            if (customPhotos[n]) monthPhotos[n] = customPhotos[n];
+                        });
+                    }
+                } catch(e) {}
+            });
+        
+            if (Object.keys(monthHistory).length === 0) {
+                alert(`No homework found in ${currentMonthName} to share!`);
+                return;
+            }
+        
+            // 2. Package data
+            const data = { 
+                history: monthHistory, 
+                homeworkNotes: monthNotes,
+                customIcons: monthIcons,
+                customPhotos: monthPhotos,
+                exportDate: new Date().toISOString(), 
+                appVersion: "French Fun V10.0" 
+            };
+        
+            const jsonString = JSON.stringify(data);
+            const fileName = `french-fun-${currentMonthName.toLowerCase()}.json`;
+            attemptFileShare(jsonString, fileName, `🇫🇷 Homework Folder: ${currentMonthName}`);
+        }
+        
+        function resetMonth() {
+            const currentMonthName = monthNames[selectedBpMonth];
+            
+            // Safety check
+            const count = Object.values(history).filter(val => {
+                try { return JSON.parse(val).month === selectedBpMonth; } catch(e) { return false; }
+            }).length;
+        
+            if (count === 0) {
+                alert(`The ${currentMonthName} folder is already empty!`);
+                return;
+            }
+        
+            if (confirm(`⚠️ DELETE ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`)) {
+                if (confirm(`Are you absolutely sure? This cannot be undone.`)) {
+                    
+                    // Filter out items belonging to this month
+                    Object.keys(history).forEach(name => {
+                        try {
+                            const hwData = JSON.parse(history[name]);
+                            if (hwData.month === selectedBpMonth) {
+                                delete history[name];
+                                if (homeworkNotes[name]) delete homeworkNotes[name];
+                                
+                                // If we are currently practicing one of these, clear the session
+                                if (currentSetName === name) {
+                                    currentSetName = '';
+                                    localStorage.removeItem('homeworkPhrases');
+                                    renderList([]);
+                                }
+                            }
+                        } catch(e) {}
+                    });
+        
+                    localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                    
+                    openBP(); // Refresh the backpack view
+                }
+            }
+        }
         
         function shareApp() { 
             if (navigator.share) { 
@@ -3976,6 +4066,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
