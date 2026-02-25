@@ -3333,6 +3333,20 @@ async function translateOne(p) {
                     
                     const practiceBtn = div.querySelector('.practice-big-btn');
                     practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
+
+                    const editBtn = div.querySelector('.edit-icon');
+                    const printBtn = div.querySelector('.print-icon');
+                    const shareBtn = div.querySelector('.share-icon');
+                    const moveBtn = div.querySelector('.move-icon');
+                    const noteBtn = div.querySelector('.note-icon');
+                    const deleteBtn = div.querySelector('.delete-icon');
+                    
+                    if (editBtn) editBtn.onclick = () => editHomework(name);
+                    if (printBtn) printBtn.onclick = () => openPrintSelection(hwData.words, name);
+                    if (shareBtn) shareBtn.onclick = () => shareWeek(name, hwData.words, hwData.audio);
+                    if (moveBtn) moveBtn.onclick = () => moveHomework(name);
+                    if (noteBtn) noteBtn.onclick = () => showNote(name);
+                    if (deleteBtn) deleteBtn.onclick = () => deleteHomeworkItem(name);
                     
                     list.appendChild(div);
                 }
@@ -3935,6 +3949,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
