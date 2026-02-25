@@ -3705,15 +3705,13 @@ function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader 
     printArea.innerHTML = html;
     window.stop();
 
-    // INCREASED DELAY: 800ms gives the mobile engine enough time to render Teal boxes/icons
     setTimeout(() => {
         window.print();
-        // Wait 2 seconds before clearing memory to ensure the spooler is done
+        // Just release the lock - DON'T clear the content
         setTimeout(() => {
-            printArea.innerHTML = '';
             isPrinting = false;
         }, 2000);
-    }, 800); 
+    }, 800);
 }
 
 function openAppModal(config) {
@@ -3934,6 +3932,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
