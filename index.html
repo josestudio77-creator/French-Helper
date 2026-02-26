@@ -1297,31 +1297,34 @@
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
-            // STOP AUTO-PLAY when opening any overlay
+            // 1. PRESERVED: STOP AUTO-PLAY when opening any overlay
             if (isAutoPlaying) {
                 stopAutoPlay();
             }
             
-            // ✅ FIX: Pause teacher audio if it's playing
+            // 2. PRESERVED: Pause teacher audio if it's playing
             const teacherPlayer = document.getElementById('teacherAudioPlayer');
             if (teacherPlayer && !teacherPlayer.paused) {
                 teacherPlayer.pause();
             }
             
-            // Also pause any other audio elements that might be playing
+            // 3. PRESERVED: Pause any other audio elements
             document.querySelectorAll('audio').forEach(audio => {
                 if (!audio.paused) {
                     audio.pause();
                 }
             });
             
+            // 4. SHOW THE OVERLAY
             document.getElementById(id).style.display = 'block'; 
             
+            // 5. SPECIFIC LOGIC FOR EACH DRAWER
             if(id === 'gameDrawer') { 
                 wins = 0;
                 losses = 0;
                 updateScoreUI();
-                startHangman(); 
+                // FIX: Added a tiny delay (50ms) so the game starts AFTER the drawer is visible
+                setTimeout(startHangman, 50); 
             } else if (id === 'bpModal') {
                 openBP();
             } else if (id === 'presetsOverlay') {
@@ -2233,9 +2236,9 @@ function autoPopulateName() {
 }
         
 function openSettingsFromBP() {
-    // 1. Hide the backpack first
+    // 1. Close the backpack
     closeOverlay('bpModal');
-    // 2. Open the parent settings immediately after
+    // 2. Open the parent settings immediately
     openOverlay('parentDrawer');
 }
 
@@ -2663,22 +2666,23 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function removeTeacherAudio() {
-            // 1. Ask for confirmation so it's not deleted by accident
-            if (!confirm("Remove this teacher recording?")) return;
-        
-            // 2. Clear the data
+            // 1. Clear the data (Step 2 in your version)
             currentWeekAudio = null;
             
-            // 3. Reset the file input so the user can re-select the same file if they want
-            document.getElementById('teacherAudioFile').value = '';
+            // 2. Reset the file input (Step 3 in your version)
+            const fileInput = document.getElementById('teacherAudioFile');
+            if (fileInput) fileInput.value = '';
             
-            // 4. Hide the player container
+            // 3. Hide the player container (Step 4 in your version)
             document.getElementById('audioPlayerContainer').style.display = 'none';
             
-            // 5. Stop the actual audio player if it was playing
+            // 4. Stop and reset the player (Step 5 in your version)
             const player = document.getElementById('teacherAudioPlayer');
-            player.pause();
-            player.src = '';
+            if (player) {
+                player.pause();
+                player.src = '';
+                player.load(); // Forces reset
+            }
         }
 
         function initSpeechSpeed() {
@@ -3035,43 +3039,60 @@ async function translateOne(p) {
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
         const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
+        function openOverlay(id) { 
+    console.log('Opening overlay:', id);
+    
+    if (isAutoPlaying) stopAutoPlay();
+    
+    // Pause any playing audio
+    document.querySelectorAll('audio').forEach(audio => audio.pause());
+    
+    // SHOW THE DRAWER FIRST (This fixes the "Game not opening" freezing)
+    document.getElementById(id).style.display = 'block'; 
+    
+    if(id === 'gameDrawer') { 
+        wins = 0;
+        losses = 0;
+        updateScoreUI();
+        // Small delay to let the drawer animate open before starting logic
+        setTimeout(startHangman, 50); 
+    } else if (id === 'bpModal') {
+        openBP();
+    }
+}
+
         function startHangman() {
             gameActive = true; 
             isSpelling = false;
-
             document.addEventListener('keydown', handleKeyPress);
             
-            // Clean words by removing punctuation and special characters
-            const cleanWord = (w) => {
-                return w.replace(/[!?.,\-;:'"()]/g, '').trim();
-            };
+            const cleanWord = (w) => w.replace(/[!?.,\-;:'"()]/g, '').trim();
             
+            // Pool current homework
             const hwWords = document.getElementById('hwInput').value.split('\n')
                 .map(w => cleanWord(w.trim()))
-                .filter(w => w.length > 1 && !w.includes(' ') && getCardData(w).icon !== "✨");
+                .filter(w => w.length > 1 && !w.includes(' '));
                 
+            // Pool presets
             const presetWords = Object.keys(MASTER_DATA)
                 .map(w => cleanWord(w))
                 .filter(w => !w.includes(' ') && w.length > 1);
                 
-            const pool = (hwWords.length > 0 && Math.random() > 0.4) ? hwWords : presetWords;
+            // Choose pool
+            let pool = (hwWords.length > 0) ? hwWords : presetWords;
             
             if (pool.length === 0) {
-                alert("No suitable words found! Add some single-word homework first.");
+                alert("Add some single words to your homework to play!");
+                closeOverlay('gameDrawer');
                 return;
             }
             
-            let pick; 
-            do { 
-                pick = pool[Math.floor(Math.random() * pool.length)]; 
-            } while (pick === lastWord && pool.length > 1);
-            
+            let pick = pool[Math.floor(Math.random() * pool.length)];
             lastWord = pick; 
             targetWord = pick.toUpperCase();
             
-            // Get the original word with proper icon from MASTER_DATA if available
             const originalWord = Object.keys(MASTER_DATA).find(key => cleanWord(key).toLowerCase() === pick.toLowerCase()) || pick;
-            document.getElementById('clueEmoji').textContent = getCardData(originalWord).icon;
+            document.getElementById('clueEmoji').textContent = getCardData(originalWord).icon || "💡";
             
             guessed = [targetWord[0]]; 
             mistakes = 0; 
@@ -4241,6 +4262,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
