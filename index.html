@@ -3876,14 +3876,13 @@ async function translateOne(p) {
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
                     document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
                 } else if (config.simpleSuccess) {
-                    // CASE: SIMPLE SUCCESS MESSAGE - Just an OK button
-                    actionBtn.style.display = "block";
-                    actionBtn.textContent = "OK";
-                    actionBtn.style.background = "#4cd964"; // Green
-                    actionBtn.onclick = () => closeOverlay('appModal');
+                    // CASE: SIMPLE SUCCESS MESSAGE - Just a Close button
+                    actionBtn.style.display = "none";  // Hide the OK button
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+                    closeBtn.style.display = "block";  // Show only the Close button
+                    closeBtn.textContent = "OK";       // Optional: change text from "Close" to "OK"
+                    document.getElementById('appModalViewBtns').style.display = "none"; // Hide the button grid entirely
                 } else {
                     // CASE: NOTE VIEW (Standard Edit/Delete)
                     editBtn.style.display = "block";
@@ -4205,6 +4204,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
