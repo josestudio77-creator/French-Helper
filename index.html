@@ -4051,6 +4051,9 @@ async function translateOne(p) {
                 saveText: "🗑️ Delete All",
                 cancelText: "Cancel",
                 onAction: () => {
+                    // Don't close the first modal yet - let it stay while we open the second
+                    // The first modal will be closed by the second modal's flow
+                    
                     // Second confirmation (last chance)
                     openAppModal({
                         title: "⚠️ FINAL WARNING",
@@ -4091,6 +4094,10 @@ async function translateOne(p) {
                                     simpleSuccess: true
                                 });
                             }, 300);
+                        },
+                        onSecondaryAction: () => {
+                            // If user clicks "Go Back", just close the second modal
+                            closeOverlay('appModal');
                         }
                     });
                 }
@@ -4255,6 +4262,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
