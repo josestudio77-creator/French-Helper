@@ -4053,95 +4053,92 @@ async function translateOne(p) {
                 });
         }
         
-      function resetMonth() {
-    const currentMonthName = monthNames[selectedBpMonth];
-    console.log('resetMonth called for:', currentMonthName); // Add this
-    
-    // Safety check
-    const count = Object.values(history).filter(val => {
-        try { return JSON.parse(val).month === selectedBpMonth; } catch(e) { return false; }
-    }).length;
-    
-    console.log('Items in folder:', count); // Add this
-
-    if (count === 0) {
-        console.log('Folder empty, showing empty message'); // Add this
-        openAppModal({
-            title: "📁 Folder Empty",
-            text: `The ${currentMonthName} folder is already empty!`,
-            mode: 'view',
-            simpleSuccess: true
-        });
-        return;
-    }
-
-    console.log('Showing first confirmation modal'); // Add this
-    
-    // First confirmation
-    openAppModal({
-        title: "⚠️ Reset Month",
-        text: `Delete ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`,
-        mode: 'view',
-        saveText: "🗑️ Delete All",
-        cancelText: "Cancel",
-        onAction: () => {
-            console.log('First modal - Delete All clicked'); // Add this
+    function resetMonth() {
+            const currentMonthName = monthNames[selectedBpMonth];
+            console.log('resetMonth called for:', currentMonthName);
             
-            // Second confirmation (last chance)
+            // Safety check
+            const count = Object.values(history).filter(val => {
+                try { return JSON.parse(val).month === selectedBpMonth; } catch(e) { return false; }
+            }).length;
+            
+            console.log('Items in folder:', count);
+        
+            if (count === 0) {
+                console.log('Folder empty, showing empty message');
+                openAppModal({
+                    title: "📁 Folder Empty",
+                    text: `The ${currentMonthName} folder is already empty!`,
+                    mode: 'view',
+                    simpleSuccess: true
+                });
+                return;
+            }
+        
+            console.log('Showing first confirmation modal');
+            
+            // First confirmation
             openAppModal({
-                title: "⚠️ FINAL WARNING",
-                text: `Are you absolutely sure? This cannot be undone.`,
+                title: "⚠️ Reset Month",
+                text: `Delete ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`,
                 mode: 'view',
-                saveText: "Yes, Delete All",
-                cancelText: "Go Back",
+                saveText: "🗑️ Delete All",
+                cancelText: "Cancel",
                 onAction: () => {
-                    console.log('Second modal - Yes, Delete All clicked - executing deletion'); // Add this
+                    console.log('First modal - Delete All clicked');
                     
-                    // Filter out items belonging to this month
-                    Object.keys(history).forEach(name => {
-                        try {
-                            const hwData = JSON.parse(history[name]);
-                            if (hwData.month === selectedBpMonth) {
-                                console.log('Deleting:', name); // Add this
-                                delete history[name];
-                                if (homeworkNotes[name]) delete homeworkNotes[name];
-                                
-                                // If we are currently practicing one of these, clear the session
-                                if (currentSetName === name) {
-                                    currentSetName = '';
-                                    localStorage.removeItem('homeworkPhrases');
-                                    renderList([]);
+                    // Second confirmation (last chance)
+                    openAppModal({
+                        title: "⚠️ FINAL WARNING",
+                        text: `Are you absolutely sure? This cannot be undone.`,
+                        mode: 'view',
+                        saveText: "Yes, Delete All",
+                        cancelText: "Go Back",
+                        onAction: () => {
+                            console.log('SECOND MODAL - Yes, Delete All clicked - starting deletion');
+                            // Filter out items belonging to this month
+                            Object.keys(history).forEach(name => {
+                                try {
+                                    const hwData = JSON.parse(history[name]);
+                                    if (hwData.month === selectedBpMonth) {
+                                        console.log('Deleting:', name);
+                                        delete history[name];
+                                        if (homeworkNotes[name]) delete homeworkNotes[name];
+                                        
+                                        if (currentSetName === name) {
+                                            currentSetName = '';
+                                            localStorage.removeItem('homeworkPhrases');
+                                            renderList([]);
+                                        }
+                                    }
+                                } catch(e) {
+                                    console.error('Error deleting:', name, e);
                                 }
-                            }
-                        } catch(e) {
-                            console.error('Error deleting:', name, e); // Add this
+                            });
+                        
+                            localStorage.setItem('frenchHistory', JSON.stringify(history));
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            
+                            console.log('Deletion complete, refreshing backpack');
+                            openBP();
+                            
+                            setTimeout(() => {
+                                openAppModal({
+                                    title: "✅ Month Reset",
+                                    text: `The ${currentMonthName} folder has been cleared.`,
+                                    mode: 'view',
+                                    simpleSuccess: true
+                                });
+                            }, 300);
+                        }, // ← Added missing comma here
+                        onSecondaryAction: () => {
+                            console.log('Second modal - Go Back clicked');
+                            closeOverlay('appModal');
                         }
                     });
-
-                    localStorage.setItem('frenchHistory', JSON.stringify(history));
-                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                    
-                    console.log('Deletion complete, refreshing backpack'); // Add this
-                    openBP(); // Refresh the backpack view
-                    
-                    // Show success message
-                    setTimeout(() => {
-                        openAppModal({
-                            title: "✅ Month Reset",
-                            text: `The ${currentMonthName} folder has been cleared.`,
-                            mode: 'view',
-                            simpleSuccess: true
-                        });
-                    }, 300);
-                },
-                onSecondaryAction: () => {
-                    console.log('Second modal - Go Back clicked'); // Add this
-                    closeOverlay('appModal');
                 }
             });
         }
-    });
-}
         
         function shareApp() { 
             if (navigator.share) { 
@@ -4301,6 +4298,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
