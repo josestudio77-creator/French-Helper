@@ -3841,47 +3841,43 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
-            // Reset all button states at the beginning
-            const actionBtn = document.getElementById('appModalBtnAction');
-            const editBtn = document.getElementById('appModalBtnEdit');
-            const delBtn = document.getElementById('appModalBtnDelete');
-            const closeBtn = document.getElementById('appModalBtnClose');
-            
-            // Reset all buttons to default state
-            actionBtn.style.display = "none";
-            editBtn.style.display = "none";
-            delBtn.style.display = "none";
-            closeBtn.style.display = "block"; // Close button is usually visible
-            
-            // Reset button styles
-            editBtn.textContent = "✏️ Edit";
-            editBtn.style.background = "#118AB2";
-            actionBtn.style.background = ""; // Remove any custom colors
-            
-            // Reset the button grid
-            document.getElementById('appModalViewBtns').style.display = "grid";
-            document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
-            
-            document.getElementById('appModalTitle').textContent = config.title;
-            if (document.getElementById('appModalStats')) document.getElementById('appModalStats').textContent = "";
-            
+            // Get all modal elements once
+            const titleEl = document.getElementById('appModalTitle');
+            const statsEl = document.getElementById('appModalStats');
             const input = document.getElementById('appModalInput');
             const display = document.getElementById('appModalTextDisplay');
             const viewSection = document.getElementById('appModalView');
             const editSection = document.getElementById('appModalEdit');
             const closeBtn = document.getElementById('appModalBtnClose');
-            
             const actionBtn = document.getElementById('appModalBtnAction');
             const editBtn = document.getElementById('appModalBtnEdit');
             const delBtn = document.getElementById('appModalBtnDelete');
-        
-            // Reset button appearances
+            const viewBtns = document.getElementById('appModalViewBtns');
+            
+            // Reset all buttons to default state
             actionBtn.style.display = "none";
             editBtn.style.display = "none";
             delBtn.style.display = "none";
+            closeBtn.style.display = "block";
+            
+            // Reset button styles
             editBtn.textContent = "✏️ Edit";
             editBtn.style.background = "#118AB2";
-        
+            editBtn.style.fontSize = ""; // Reset any custom font sizes
+            editBtn.style.whiteSpace = ""; // Reset white-space
+            actionBtn.style.background = "";
+            actionBtn.style.fontSize = "";
+            actionBtn.style.whiteSpace = "";
+            actionBtn.style.gridColumn = "";
+            
+            // Reset the button grid
+            viewBtns.style.display = "grid";
+            viewBtns.style.gridTemplateColumns = "1fr";
+            
+            // Set title and stats
+            titleEl.textContent = config.title;
+            if (statsEl) statsEl.textContent = "";
+            
             if (config.mode === 'edit') {
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
@@ -3900,38 +3896,34 @@ async function translateOne(p) {
                     // CASE: DUPLICATE WARNING (Two choices: Replace / Edit Name)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Replace";
-                    actionBtn.style.background = "#4cd964"; // Green for replace
+                    actionBtn.style.background = "#4cd964";
                     actionBtn.style.fontSize = "0.9rem";
                     actionBtn.style.whiteSpace = "nowrap";
-                    actionBtn.style.gridColumn = "";  // ← ADD THIS LINE
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
                 
                     editBtn.style.display = "block";
                     editBtn.textContent = config.cancelText || "Edit Name";
-                    editBtn.style.background = "#ff9e6d"; // Orange
+                    editBtn.style.background = "#ff9e6d";
                     editBtn.style.fontSize = "0.9rem";
                     editBtn.style.whiteSpace = "nowrap";
                     editBtn.onclick = () => { config.onSecondaryAction(); closeOverlay('appModal'); };
                     
-                    // Make both buttons equal size in a 2-column grid
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr 1fr";
-                    
-                    // Hide the delete button since we're using action/edit buttons
+                    viewBtns.style.gridTemplateColumns = "1fr 1fr";
                     delBtn.style.display = "none";
                 } else if (config.onAction) { 
                     // CASE: SHARE/DOWNLOAD SUMMARY (One big action button)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.actionText || "Confirm";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+                    viewBtns.style.gridTemplateColumns = "1fr";
                 } else if (config.simpleSuccess) {
                     // CASE: SIMPLE SUCCESS MESSAGE - Just a Close button
-                    actionBtn.style.display = "none";  // Hide the OK button
+                    actionBtn.style.display = "none";
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
-                    closeBtn.style.display = "block";  // Show only the Close button
-                    closeBtn.textContent = "OK";       // Optional: change text from "Close" to "OK"
-                    document.getElementById('appModalViewBtns').style.display = "none"; // Hide the button grid entirely
+                    closeBtn.style.display = "block";
+                    closeBtn.textContent = "OK";
+                    viewBtns.style.display = "none";
                 } else {
                     // CASE: NOTE VIEW (Standard Edit/Delete)
                     editBtn.style.display = "block";
@@ -3942,7 +3934,7 @@ async function translateOne(p) {
                         closeBtn.style.display = "none";
                     };
                     delBtn.style.display = config.onDelete ? "block" : "none";
-                    document.getElementById('appModalViewBtns').style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
+                    viewBtns.style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
             }
         
@@ -3954,13 +3946,11 @@ async function translateOne(p) {
             
             // Logic for the Cancel button (Edit Mode)
             document.getElementById('appModalBtnCancel').onclick = () => {
-                const title = document.getElementById('appModalTitle').textContent;
+                const title = titleEl.textContent;
                 
-                // If this was a new note being added (empty text) OR a standard edit operation
                 if (config.mode === 'edit' && (config.text === '' || title.includes("Rename") || title.includes("Fix") || title.includes("Save") || title.includes("Import"))) {
-                    closeOverlay('appModal'); // Just close the modal
+                    closeOverlay('appModal');
                 } else {
-                    // For editing existing notes, go back to view mode
                     viewSection.style.display = "block";
                     editSection.style.display = "none";
                     closeBtn.style.display = "block";
@@ -4253,6 +4243,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
