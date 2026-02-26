@@ -3908,6 +3908,13 @@ async function translateOne(p) {
                 editSection.style.display = "none";
                 closeBtn.style.display = "block";
                 display.textContent = config.text || "";
+
+                console.log('Modal config:', { 
+                    hasAction: !!config.onAction, 
+                    hasSecondary: !!config.onSecondaryAction,
+                    mode: config.mode,
+                    title: config.title
+                });
                 
                 if (config.onAction && config.onSecondaryAction) {
                     // CASE 1: DUPLICATE WARNING (Replace / Edit Name)
@@ -4288,6 +4295,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
