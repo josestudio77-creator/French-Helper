@@ -2467,24 +2467,28 @@ function showNote(name) {
             text: note,
             mode: 'view',
             onEdit: () => {
-                // For editing, we open a new modal
-                openAppModal({
-                    title: `📝 Edit Note: ${name}`,
-                    text: note,  // Pass the current note text
-                    mode: 'edit',
-                    placeholder: "Edit your note...",
-                    onSave: (updatedNote) => {
-                        // This is the critical part - update the note
-                        if (updatedNote && updatedNote.trim() !== '') {
-                            homeworkNotes[name] = updatedNote.trim();
-                        } else {
-                            delete homeworkNotes[name];
+                // Close the current note view modal first
+                closeOverlay('appModal');
+                
+                // Then open the edit modal
+                setTimeout(() => {
+                    openAppModal({
+                        title: `📝 Edit Note: ${name}`,
+                        text: note,
+                        mode: 'edit',
+                        placeholder: "Edit your note...",
+                        onSave: (updatedNote) => {
+                            if (updatedNote && updatedNote.trim() !== '') {
+                                homeworkNotes[name] = updatedNote.trim();
+                            } else {
+                                delete homeworkNotes[name];
+                            }
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
                         }
-                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                        refreshAppUI();
-                    }
-                });
-            },
+                    });
+                }, 300);
+            }, // ← Added missing comma here
             onDelete: () => {
                 // Delete immediately - no confirmation needed
                 delete homeworkNotes[name];
@@ -3934,10 +3938,10 @@ async function translateOne(p) {
                     // CASE: NOTE VIEW (Standard Edit/Delete)
                     editBtn.style.display = "block";
                     editBtn.onclick = () => {
-                        // Just call onEdit - don't try to handle it here
+                        // Don't close the modal here - let onEdit handle it
                         if (config.onEdit) {
-                            config.onEdit();
-                            closeOverlay('appModal');
+                            config.onEdit(); // This will open the edit modal
+                            // The current modal will be closed by onEdit
                         }
                     };
                     
@@ -3951,7 +3955,7 @@ async function translateOne(p) {
                     
                     viewBtns.style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
-            } // ← THIS BRACE WAS MISSING - closes the main else block
+            }
         
             // Logic for the Save button (Edit Mode)
             document.getElementById('appModalBtnSave').onclick = () => {
@@ -4251,6 +4255,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
