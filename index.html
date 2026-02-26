@@ -3841,6 +3841,27 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
+            // Reset all button states at the beginning
+            const actionBtn = document.getElementById('appModalBtnAction');
+            const editBtn = document.getElementById('appModalBtnEdit');
+            const delBtn = document.getElementById('appModalBtnDelete');
+            const closeBtn = document.getElementById('appModalBtnClose');
+            
+            // Reset all buttons to default state
+            actionBtn.style.display = "none";
+            editBtn.style.display = "none";
+            delBtn.style.display = "none";
+            closeBtn.style.display = "block"; // Close button is usually visible
+            
+            // Reset button styles
+            editBtn.textContent = "✏️ Edit";
+            editBtn.style.background = "#118AB2";
+            actionBtn.style.background = ""; // Remove any custom colors
+            
+            // Reset the button grid
+            document.getElementById('appModalViewBtns').style.display = "grid";
+            document.getElementById('appModalViewBtns').style.gridTemplateColumns = "1fr";
+            
             document.getElementById('appModalTitle').textContent = config.title;
             if (document.getElementById('appModalStats')) document.getElementById('appModalStats').textContent = "";
             
@@ -4232,6 +4253,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
