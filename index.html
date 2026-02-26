@@ -2443,36 +2443,64 @@ async function loadHomeworkForPractice(name, words, audio) {
 function showNote(name) {
     const note = homeworkNotes[name] || '';
     
-    openAppModal({
-        title: note ? `📝 Note: ${name}` : `📝 Add Note: ${name}`,
-        text: note,
-        mode: note ? 'view' : 'edit',
-        placeholder: "Write a note...",
-        onSave: (val) => {
-            if (val && val.trim() !== '') {
-                homeworkNotes[name] = val.trim();
-            } else {
-                delete homeworkNotes[name];
+    if (note.trim() === '') {
+        // No note exists - open in edit mode directly
+        openAppModal({
+            title: `📝 Add Note: ${name}`,
+            text: '',
+            mode: 'edit',
+            placeholder: "Write a note...",
+            onSave: (val) => {
+                if (val && val.trim() !== '') {
+                    homeworkNotes[name] = val.trim();
+                } else {
+                    delete homeworkNotes[name];
+                }
+                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                refreshAppUI();
             }
-            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-            refreshAppUI();
-        },
-        onDelete: note ? () => {
-            delete homeworkNotes[name];
-            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-            refreshAppUI();
-            
-            // Optional success message
-            setTimeout(() => {
+        });
+    } else {
+        // Note exists - show in view mode with Edit/Delete options
+        // IMPORTANT: Do NOT set simpleSuccess: true here!
+        openAppModal({
+            title: `📝 Note: ${name}`,
+            text: note,
+            mode: 'view',  // This should show Edit/Delete buttons
+            onEdit: () => {
                 openAppModal({
-                    title: "✅ Note Deleted",
-                    text: "The note has been removed.",
-                    mode: 'view',
-                    simpleSuccess: true
+                    title: `📝 Edit Note: ${name}`,
+                    text: note,
+                    mode: 'edit',
+                    placeholder: "Write a note...",
+                    onSave: (updatedNote) => {
+                        if (updatedNote && updatedNote.trim() !== '') {
+                            homeworkNotes[name] = updatedNote.trim();
+                        } else {
+                            delete homeworkNotes[name];
+                        }
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                        refreshAppUI();
+                    }
                 });
-            }, 300);
-        } : null
-    });
+            },
+            onDelete: () => {
+                delete homeworkNotes[name];
+                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                refreshAppUI();
+                
+                // Success message after delete
+                setTimeout(() => {
+                    openAppModal({
+                        title: "✅ Note Deleted",
+                        text: "The note has been removed.",
+                        mode: 'view',
+                        simpleSuccess: true  // Only here for the success message
+                    });
+                }, 300);
+            }
+        });
+    }
 }
         
 function needsTranslation(words) {
@@ -4204,6 +4232,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
