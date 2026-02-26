@@ -980,9 +980,9 @@
         <div id="phrasesList" class="phrases-container"></div>
              <div class="bottom-nav">
             <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-            <div class="nav-item nav-game" onclick="openOverlay('game')"><span>🎮</span><br>Game</div>
+            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
             <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-            <div class="nav-item nav-parent" onclick="openOverlay('parent')"><span>⚙️</span><br>Parent</div>
+            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
         </div>
     </div>
         
@@ -2051,74 +2051,85 @@ openAppModal({
                     if (!data.history) throw new Error('Invalid file format');
         
                     const incomingKeys = Object.keys(data.history);
-                    let importedCount = 0;
-                    let skippedCount = 0;
+                    const count = incomingKeys.length;
         
-                    for (const name of incomingKeys) {
-                        // ✅ BULK LOGIC: If the homework name already exists, skip it
-                        if (history[name]) {
-                            skippedCount++;
-                            continue; 
-                        }
-                        
-                        // Save the homework data
-                        history[name] = data.history[name];
-                        
-                        // Save the associated note if it exists in the file
-                        if (data.homeworkNotes && data.homeworkNotes[name]) {
-                            homeworkNotes[name] = data.homeworkNotes[name];
-                        }
-                        importedCount++;
-                    }
-        
-                    // Merge global assets (Translations, Icons, Photos) 
-                    // These are merged because they are word-based, not homework-based
-                    if (data.cache) Object.assign(cache, data.cache);
-                    if (data.customIcons) Object.assign(customIcons, data.customIcons);
-                    if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
-        
-                    localStorage.setItem('frenchHistory', JSON.stringify(history));
-                    localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                    localStorage.setItem('customIcons', JSON.stringify(customIcons));
-                    localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                    
-                    // Build a helpful success message
-                    let successMsg = `Imported ${importedCount} new items.`;
-                    if (skippedCount > 0) {
-                        successMsg += `\n(${skippedCount} duplicates were skipped).`;
-                    }
-        
+                    // --- NEW: THE CONFIRMATION STEP YOU REQUESTED ---
                     openAppModal({
-                        title: "✅ Import Complete",
-                        text: successMsg,
+                        title: "📥 Confirm Import",
+                        text: `This file contains ${count} homework sets. Do you want to add them to your backpack?`,
                         mode: 'view',
-                        saveText: "📂 View in Backpack",
+                        saveText: "Yes, Import Now",
+                        cancelText: "Cancel",
                         onAction: () => {
-                            // Set the selected month to the imported month
-                            if (incomingKeys.length > 0) {
-                                try {
-                                    const firstItem = JSON.parse(data.history[incomingKeys[0]]);
-                                    if (firstItem.month !== undefined) {
-                                        selectedBpMonth = firstItem.month;
-                                    }
-                                } catch(e) {
-                                    console.error('Error parsing month:', e);
-                                }
-                            }
-                            openBP();
-                        }
-                    });
+                            // --- START OF YOUR ORIGINAL BULK LOGIC (PRESERVED) ---
+                            let importedCount = 0;
+                            let skippedCount = 0;
         
-                    // Refresh backpack UI after modal closes
-                    const originalClose = document.getElementById('appModalBtnClose').onclick;
-                    document.getElementById('appModalBtnClose').onclick = () => {
-                        location.reload(); 
-                    };
+                            for (const name of incomingKeys) {
+                                // ✅ BULK LOGIC: If the homework name already exists, skip it
+                                if (history[name]) {
+                                    skippedCount++;
+                                    continue; 
+                                }
+                                
+                                // Save the homework data
+                                history[name] = data.history[name];
+                                
+                                // Save the associated note if it exists in the file
+                                if (data.homeworkNotes && data.homeworkNotes[name]) {
+                                    homeworkNotes[name] = data.homeworkNotes[name];
+                                }
+                                importedCount++;
+                            }
+        
+                            // Merge global assets (Translations, Icons, Photos) 
+                            if (data.cache) Object.assign(cache, data.cache);
+                            if (data.customIcons) Object.assign(customIcons, data.customIcons);
+                            if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
+        
+                            localStorage.setItem('frenchHistory', JSON.stringify(history));
+                            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+                            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+                            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            
+                            // Build the success message
+                            let successMsg = `Imported ${importedCount} new items.`;
+                            if (skippedCount > 0) {
+                                successMsg += `\n(${skippedCount} duplicates were skipped).`;
+                            }
+        
+                            // Show success modal (Your original success modal logic)
+                            openAppModal({
+                                title: "✅ Import Complete",
+                                text: successMsg,
+                                mode: 'view',
+                                saveText: "📂 View in Backpack",
+                                onAction: () => {
+                                    // YOUR ORIGINAL MONTH-SWITCHING LOGIC
+                                    if (incomingKeys.length > 0) {
+                                        try {
+                                            const firstItem = JSON.parse(data.history[incomingKeys[0]]);
+                                            if (firstItem.month !== undefined) {
+                                                selectedBpMonth = firstItem.month;
+                                            }
+                                        } catch(e) {
+                                            console.error('Error parsing month:', e);
+                                        }
+                                    }
+                                    openBP();
+                                    // Force reload to ensure assets sync
+                                    setTimeout(() => location.reload(), 100);
+                                }
+                            });
+                            // --- END OF YOUR PRESERVED LOGIC ---
+                        },
+                        onSecondaryAction: () => closeOverlay('appModal')
+                    });
         
                 } catch (error) {
                     console.error('Import error:', error);
-                    alert('❌ Failed to import file.');
+                    alert('❌ Failed to read backup file.');
                 }
             };
             input.click();
@@ -3038,28 +3049,6 @@ async function translateOne(p) {
         let targetWord = "", guessed = [], mistakes = 0;
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
         const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
-
-        function openOverlay(id) { 
-    console.log('Opening overlay:', id);
-    
-    if (isAutoPlaying) stopAutoPlay();
-    
-    // Pause any playing audio
-    document.querySelectorAll('audio').forEach(audio => audio.pause());
-    
-    // SHOW THE DRAWER FIRST (This fixes the "Game not opening" freezing)
-    document.getElementById(id).style.display = 'block'; 
-    
-    if(id === 'gameDrawer') { 
-        wins = 0;
-        losses = 0;
-        updateScoreUI();
-        // Small delay to let the drawer animate open before starting logic
-        setTimeout(startHangman, 50); 
-    } else if (id === 'bpModal') {
-        openBP();
-    }
-}
 
         function startHangman() {
             gameActive = true; 
@@ -4262,6 +4251,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
