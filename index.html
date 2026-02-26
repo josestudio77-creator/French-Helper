@@ -3851,7 +3851,7 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
-            // Get all modal elements once
+            // Get all modal elements
             const titleEl = document.getElementById('appModalTitle');
             const statsEl = document.getElementById('appModalStats');
             const input = document.getElementById('appModalInput');
@@ -3863,98 +3863,66 @@ async function translateOne(p) {
             const editBtn = document.getElementById('appModalBtnEdit');
             const delBtn = document.getElementById('appModalBtnDelete');
             const viewBtns = document.getElementById('appModalViewBtns');
+            const saveBtn = document.getElementById('appModalBtnSave');
+            const cancelBtn = document.getElementById('appModalBtnCancel');
             
-            // Reset all buttons to default state
+            // Reset everything to default
             actionBtn.style.display = "none";
             editBtn.style.display = "none";
             delBtn.style.display = "none";
             closeBtn.style.display = "block";
-            closeBtn.textContent = "Close"; // Reset to default
+            closeBtn.textContent = "Close";
+            viewBtns.style.display = "grid";
+            viewBtns.style.gridTemplateColumns = "1fr";
+            statsEl.textContent = "";
             
             // Reset button styles
             editBtn.textContent = "✏️ Edit";
             editBtn.style.background = "#118AB2";
             editBtn.style.color = "white";
-            editBtn.style.fontSize = ""; 
-            editBtn.style.whiteSpace = ""; 
-            
             actionBtn.style.background = "";
             actionBtn.style.color = "white";
-            actionBtn.style.fontSize = "";
-            actionBtn.style.whiteSpace = "";
-            actionBtn.style.gridColumn = "";
-            
             delBtn.style.background = "#fee2e2";
             delBtn.style.color = "#ef4444";
             
-            // Reset the button grid
-            viewBtns.style.display = "grid";
-            viewBtns.style.gridTemplateColumns = "1fr";
+            // Set title and content
+            titleEl.textContent = config.title || "";
+            display.textContent = config.text || "";
             
-            // Set title and stats
-            titleEl.textContent = config.title;
-            if (statsEl) statsEl.textContent = "";
-            
+            // Handle different modal types based on config
             if (config.mode === 'edit') {
+                // EDIT MODE - for adding/editing notes, renaming, etc.
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
                 closeBtn.style.display = "none";
                 input.value = config.text || "";
                 input.placeholder = config.placeholder || "";
-                document.getElementById('appModalBtnSave').textContent = config.saveText || "💾 Save";
-                document.getElementById('appModalBtnCancel').textContent = config.cancelText || "Cancel";
+                saveBtn.textContent = config.saveText || "💾 Save";
+                cancelBtn.textContent = config.cancelText || "Cancel";
+                
+                saveBtn.onclick = () => {
+                    if (config.onSave) {
+                        const result = config.onSave(input.value.trim());
+                        if (result !== false) closeOverlay('appModal');
+                    } else {
+                        closeOverlay('appModal');
+                    }
+                };
+                
+                cancelBtn.onclick = () => {
+                    if (config.onCancel) {
+                        config.onCancel();
+                    }
+                    closeOverlay('appModal');
+                };
+                
             } else {
+                // VIEW MODE - all non-edit modals
                 viewSection.style.display = "block";
                 editSection.style.display = "none";
-                closeBtn.style.display = "block";
-                display.textContent = config.text || "";
-
-                console.log('Modal config:', { 
-                    hasAction: !!config.onAction, 
-                    hasSecondary: !!config.onSecondaryAction,
-                    mode: config.mode,
-                    title: config.title
-                });
                 
-                if (config.onAction && config.onSecondaryAction) {
-                    // CASE 1: TWO BUTTONS (Replace/Edit Name OR Yes Delete/Go Back)
-                    actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "Confirm";
-                    actionBtn.style.background = "#4cd964"; // Green for confirm
-                    actionBtn.style.fontSize = "0.9rem";
-                    actionBtn.style.whiteSpace = "nowrap";
-                    actionBtn.onclick = () => { 
-                        config.onAction(); 
-                        closeOverlay('appModal'); 
-                    };
-                
-                    editBtn.style.display = "block";
-                    editBtn.textContent = config.cancelText || "Cancel";
-                    editBtn.style.background = "#ff9e6d"; // Orange
-                    editBtn.style.fontSize = "0.9rem";
-                    editBtn.style.whiteSpace = "nowrap";
-                    editBtn.onclick = () => { 
-                        config.onSecondaryAction(); 
-                        closeOverlay('appModal'); 
-                    };
-                    
-                    viewBtns.style.gridTemplateColumns = "1fr 1fr";
-                    delBtn.style.display = "none";
-                    
-                } else if (config.onAction && !config.onSecondaryAction) {
-                    // CASE 2: SINGLE ACTION BUTTON (View in Backpack, Confirm, etc.)
-                    actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "Confirm";
-                    actionBtn.style.background = "#4cd964"; // Green
-                    actionBtn.style.fontSize = "1rem";
-                    actionBtn.onclick = () => { 
-                        config.onAction(); 
-                        closeOverlay('appModal'); 
-                    };
-                    viewBtns.style.gridTemplateColumns = "1fr";
-                    
-                } else if (config.simpleSuccess) {
-                    // CASE 3: SUCCESS MESSAGE - Just a Close button
+                // SIMPLE SUCCESS MESSAGE
+                if (config.simpleSuccess) {
                     actionBtn.style.display = "none";
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
@@ -3962,48 +3930,69 @@ async function translateOne(p) {
                     closeBtn.textContent = "OK";
                     viewBtns.style.display = "none";
                     
-                } else {
-                    // CASE: NOTE VIEW (Standard Edit/Delete)
-                    editBtn.style.display = "block";
-                    editBtn.onclick = () => {
-                        // Don't close the modal here - let onEdit handle it
-                        if (config.onEdit) {
-                            config.onEdit(); // This will open the edit modal
-                            // The current modal will be closed by onEdit
-                        }
+                // TWO-BUTTON CONFIRMATION (Replace/Edit Name, Yes Delete/Go Back)
+                } else if (config.onAction && config.onSecondaryAction) {
+                    actionBtn.style.display = "block";
+                    actionBtn.textContent = config.saveText || "Confirm";
+                    actionBtn.style.background = config.saveText === "🗑️ Delete All" ? "#ff4d4d" : "#4cd964";
+                    actionBtn.onclick = () => {
+                        config.onAction();
+                        // Don't close here - let onAction handle it if needed
                     };
+                    
+                    editBtn.style.display = "block";
+                    editBtn.textContent = config.cancelText || "Cancel";
+                    editBtn.style.background = "#ff9e6d";
+                    editBtn.onclick = () => {
+                        if (config.onSecondaryAction) {
+                            config.onSecondaryAction();
+                        }
+                        closeOverlay('appModal');
+                    };
+                    
+                    viewBtns.style.gridTemplateColumns = "1fr 1fr";
+                    delBtn.style.display = "none";
+                    
+                // SINGLE ACTION BUTTON (View in Backpack, Confirm Delete)
+                } else if (config.onAction) {
+                    actionBtn.style.display = "block";
+                    actionBtn.textContent = config.saveText || "OK";
+                    actionBtn.style.background = "#4cd964";
+                    actionBtn.onclick = () => {
+                        config.onAction();
+                        closeOverlay('appModal');
+                    };
+                    viewBtns.style.gridTemplateColumns = "1fr";
+                    
+                // NOTE VIEW with Edit/Delete
+                } else if (config.onEdit || config.onDelete) {
+                    editBtn.style.display = config.onEdit ? "block" : "none";
+                    if (config.onEdit) {
+                        editBtn.onclick = () => {
+                            config.onEdit();
+                            // The edit function will handle closing
+                        };
+                    }
                     
                     delBtn.style.display = config.onDelete ? "block" : "none";
                     if (config.onDelete) {
                         delBtn.onclick = () => {
-                            config.onDelete(); // Just call onDelete directly
+                            config.onDelete();
                             closeOverlay('appModal');
                         };
                     }
                     
-                    viewBtns.style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
+                    viewBtns.style.gridTemplateColumns = 
+                        (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
                 }
             }
-        
-            // Logic for the Save button (Edit Mode)
-            document.getElementById('appModalBtnSave').onclick = () => {
-                if (config.onSave && config.onSave(input.value.trim()) === false) return;
+            
+            // Close button behavior
+            closeBtn.onclick = () => {
+                if (config.onClose) config.onClose();
                 closeOverlay('appModal');
             };
             
-            // Logic for the Cancel button (Edit Mode)
-            document.getElementById('appModalBtnCancel').onclick = () => {
-                const title = titleEl.textContent;
-                
-                if (config.mode === 'edit' && (config.text === '' || title.includes("Rename") || title.includes("Fix") || title.includes("Save") || title.includes("Import"))) {
-                    closeOverlay('appModal');
-                } else {
-                    viewSection.style.display = "block";
-                    editSection.style.display = "none";
-                    closeBtn.style.display = "block";
-                }
-            };
-        
             openOverlay('appModal');
         }
         
@@ -4298,6 +4287,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
