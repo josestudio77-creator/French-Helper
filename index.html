@@ -2077,7 +2077,22 @@ openAppModal({
                     openAppModal({
                         title: "✅ Import Complete",
                         text: successMsg,
-                        mode: 'view'
+                        mode: 'view',
+                        saveText: "📂 View in Backpack",
+                        onAction: () => {
+                            // Set the selected month to the imported month
+                            if (incomingKeys.length > 0) {
+                                try {
+                                    const firstItem = JSON.parse(data.history[incomingKeys[0]]);
+                                    if (firstItem.month !== undefined) {
+                                        selectedBpMonth = firstItem.month;
+                                    }
+                                } catch(e) {
+                                    console.error('Error parsing month:', e);
+                                }
+                            }
+                            openBP();
+                        }
                     });
         
                     // Refresh backpack UI after modal closes
@@ -3913,14 +3928,15 @@ async function translateOne(p) {
                     viewBtns.style.gridTemplateColumns = "1fr 1fr";
                     delBtn.style.display = "none";
                     
-                } else if (config.onAction) { 
-                    // CASE 2: CONFIRMATION (Delete Homework, etc.) - One action button
+                } else if (config.onAction && !config.onSecondaryAction) {
+                    // CASE 2: SINGLE ACTION BUTTON (View in Backpack, Confirm, etc.)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Confirm";
-                    actionBtn.style.background = "#4cd964"; // Green for confirm
+                    actionBtn.style.background = "#4cd964"; // Green
                     actionBtn.style.fontSize = "1rem";
                     actionBtn.onclick = () => { 
-                    config.onAction(); 
+                        config.onAction(); 
+                        closeOverlay('appModal'); 
                     };
                     viewBtns.style.gridTemplateColumns = "1fr";
                     
@@ -4272,6 +4288,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
