@@ -980,14 +980,14 @@
         <div id="phrasesList" class="phrases-container"></div>
              <div class="bottom-nav">
             <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
+            <div class="nav-item nav-game" onclick="openOverlay('game')"><span>🎮</span><br>Game</div>
             <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
+            <div class="nav-item nav-parent" onclick="openOverlay('parent')"><span>⚙️</span><br>Parent</div>
         </div>
     </div>
         
-    <!-- Parent Settings Drawer -->
-    <div id="parentDrawer" class="overlay">
+    <!-- Parent Settings  -->
+    <div id="parent" class="overlay">
         <div class="overlay-content">
             <h2 style="color:#118AB2; margin-bottom:20px">⚙️ Parent Settings</h2>
             
@@ -1021,7 +1021,7 @@
                 </button>
             </div>
             
-            <button onclick="closeOverlay('parentDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
+            <button onclick="closeOverlay('parent')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -1033,33 +1033,45 @@
         <!-- This clears the "ghost" saved messages -->
         <div id="hwMessages"></div>
         
-        <!-- NEW: Name input field right on the screen -->
+        <!-- Name input field -->
         <div style="margin-bottom: 15px; text-align: left;">
             <label style="font-weight: 900; color: #9d4edd; font-size: 0.9rem; margin-left: 5px;">Homework Name:</label>
-            <input type="text" id="hwNameInput" oninput="handleNameManualEdit()" placeholder="e.g. March Week 1" ...>
+            <input type="text" id="hwNameInput" oninput="handleNameManualEdit()" placeholder="e.g. March Week 1" 
                    style="width: 100%; padding: 12px; border-radius: 12px; border: 3px solid #9d4edd; font-family: inherit; font-weight: 700; outline: none; margin-top: 5px;">
         </div>
-    
-        <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here..."></textarea>
+
+        <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here... (one per line)"></textarea>
         
         <!-- Teacher Recording Section -->
         <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
             <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
-            
-            <!-- The File Picker -->
             <input type="file" id="teacherAudioFile" accept="audio/*" style="width:100%; margin-top:5px; font-size:0.8rem;">
             
-            <!-- The Player & Remove Button -->
             <div id="audioPlayerContainer" style="display:none; margin-top:10px; padding:10px; background:rgba(255,255,255,0.5); border-radius:10px;">
                 <p style="font-size:0.7rem; color:#856404; margin-bottom:5px; font-weight:bold;">📻 Current Recording:</p>
                 <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
-                
-                <!-- NEW/RESTORED: The Remove Button -->
                 <button onclick="removeTeacherAudio()" style="background:#ff4d4d; color:white; border:none; border-radius:8px; padding:8px; font-size:0.75rem; margin-top:8px; font-weight:900; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
                     🗑️ Remove Recording
                 </button>
             </div>
         </div>
+
+        <div style="margin: 10px 0; text-align: left; background: #fdf2ff; padding: 10px; border-radius: 12px; border: 2px solid #9d4edd;">
+            <label style="font-weight: 900; color: #9d4edd; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="hwIsDialogue" style="transform: scale(1.5);"> 💬 This is a Dialogue
+            </label>
+        </div>
+        
+        <!-- RESTORED: Save/Cancel Buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+            <button onclick="saveHW()" style="background:#4cd964; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
+                💾 Save
+            </button>
+            <button onclick="cancelEdit()" style="background:#ff6b8b; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #d6335c;">
+                ✖️ Cancel
+            </button>
+        </div>
+    </div>
 </div>
 
     <!-- Game Drawer - UPDATED with volume slider -->
@@ -2594,10 +2606,11 @@ async function translateIfNeeded(words, showProgress = true) {
             setViewMode(viewMode);
         }
 
-
- function initAudioUpload() {
+        function initAudioUpload() {
             const fileInput = document.getElementById('teacherAudioFile');
-            fileInput.addEventListener('change', handleAudioUpload);
+            if (fileInput) {
+                fileInput.addEventListener('change', handleAudioUpload);
+            }
         }
 
         function handleAudioUpload(event) {
@@ -4228,6 +4241,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
