@@ -2462,40 +2462,44 @@ function showNote(name) {
         });
     } else {
         // Note exists - show in view mode with Edit/Delete options
-        // IMPORTANT: Do NOT set simpleSuccess: true here!
         openAppModal({
             title: `📝 Note: ${name}`,
             text: note,
-            mode: 'view',  // This should show Edit/Delete buttons
+            mode: 'view',
             onEdit: () => {
-                openAppModal({
-                    title: `📝 Edit Note: ${name}`,
-                    text: note,
-                    mode: 'edit',
-                    placeholder: "Write a note...",
-                    onSave: (updatedNote) => {
-                        if (updatedNote && updatedNote.trim() !== '') {
-                            homeworkNotes[name] = updatedNote.trim();
-                        } else {
-                            delete homeworkNotes[name];
+                // Close current modal and open edit modal
+                closeOverlay('appModal');
+                setTimeout(() => {
+                    openAppModal({
+                        title: `📝 Edit Note: ${name}`,
+                        text: note,
+                        mode: 'edit',
+                        placeholder: "Edit your note...",
+                        onSave: (updatedNote) => {
+                            if (updatedNote && updatedNote.trim() !== '') {
+                                homeworkNotes[name] = updatedNote.trim();
+                            } else {
+                                delete homeworkNotes[name];
+                            }
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
                         }
-                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                        refreshAppUI();
-                    }
-                });
+                    });
+                }, 300);
             },
             onDelete: () => {
+                // Delete immediately - no confirmation needed
                 delete homeworkNotes[name];
                 localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                 refreshAppUI();
                 
-                // Success message after delete
+                // Optional success message
                 setTimeout(() => {
                     openAppModal({
                         title: "✅ Note Deleted",
                         text: "The note has been removed.",
                         mode: 'view',
-                        simpleSuccess: true  // Only here for the success message
+                        simpleSuccess: true
                     });
                 }, 300);
             }
@@ -3948,28 +3952,17 @@ async function translateOne(p) {
                         closeBtn.style.display = "none";
                     };
                     
+                    delBtn.style.display = config.onDelete ? "block" : "none";
                     if (config.onDelete) {
-                        delBtn.style.display = "block";
                         delBtn.onclick = () => {
-                            // For note deletion, we want a confirmation modal
+                            config.onDelete(); // Just call onDelete directly
                             closeOverlay('appModal');
-                            setTimeout(() => {
-                                openAppModal({
-                                    title: "🗑️ Confirm Delete",
-                                    text: "Are you sure you want to delete this note?",
-                                    mode: 'view',
-                                    saveText: "Yes, Delete",
-                                    onAction: () => {
-                                        config.onDelete();
-                                    }
-                                });
-                            }, 300);
                         };
                     }
                     
                     viewBtns.style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
-            }
+            } // ← THIS BRACE WAS MISSING - closes the main else block
         
             // Logic for the Save button (Edit Mode)
             document.getElementById('appModalBtnSave').onclick = () => {
@@ -4269,6 +4262,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
