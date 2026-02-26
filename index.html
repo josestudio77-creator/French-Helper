@@ -1028,35 +1028,40 @@
 <!-- Homework Drawer -->
 <div id="hwDrawer" class="overlay">
     <div class="overlay-content">
-        <!-- Simple title - NO X button -->
         <h2 id="hwDrawerTitle" style="color:#9d4edd; margin-bottom:15px;">✏️ Add Homework</h2>
         
+        <!-- This clears the "ghost" saved messages -->
         <div id="hwMessages"></div>
         
-        <textarea id="hwInput" placeholder="Enter French words here... (one per line)&#x0A;&#x0A;Example:&#x0A;Bonjour&#x0A;Merci&#x0A;Chat"></textarea>
+        <!-- NEW: Name input field right on the screen -->
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label style="font-weight: 900; color: #9d4edd; font-size: 0.9rem; margin-left: 5px;">Homework Name:</label>
+            <input type="text" id="hwNameInput" placeholder="e.g. March Week 1" 
+                   style="width: 100%; padding: 12px; border-radius: 12px; border: 3px solid #9d4edd; font-family: inherit; font-weight: 700; outline: none; margin-top: 5px;">
+        </div>
+    
+        <textarea id="hwInput" placeholder="Enter French words here... (one per line)"></textarea>
         
+        <!-- Teacher Recording (Keep your existing code here) -->
         <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
             <p style="font-size:0.75rem; font-weight:900; color:#856404;">🎤 Teacher's Recording (Optional)</p>
-            <input type="file" id="teacherAudioFile" accept="audio/*,.oga,.ogg,.mp3,.wav,.m4a" style="width:100%; margin-top:5px; font-size:0.8rem;">
+            <input type="file" id="teacherAudioFile" accept="audio/*" style="width:100%; margin-top:5px; font-size:0.8rem;">
             <div id="audioPlayerContainer" style="display:none; margin-top:10px;">
-                <p style="font-size:0.7rem; color:#856404; margin-bottom:5px;">📻 Saved Recording:</p>
                 <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
-                <button onclick="removeTeacherAudio()" style="background:#dc3545; color:white; border:none; border-radius:8px; padding:5px 10px; font-size:0.7rem; margin-top:5px; font-weight:900; cursor:pointer;">🗑️ Remove Recording</button>
             </div>
         </div>
-
+    
         <div style="margin: 10px 0; text-align: left; background: #fdf2ff; padding: 10px; border-radius: 12px; border: 2px solid #9d4edd;">
             <label style="font-weight: 900; color: #9d4edd; cursor: pointer; display: flex; align-items: center; gap: 10px;">
                 <input type="checkbox" id="hwIsDialogue" style="transform: scale(1.5);"> 💬 This is a Dialogue
             </label>
         </div>
         
-        <!-- Simple Save/Cancel buttons -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
-            <button onclick="saveHW()" style="background:#4cd964; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #2e8b57;">
+            <button onclick="saveHW()" style="background:#4cd964; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer;">
                 💾 Save
             </button>
-            <button onclick="cancelEdit()" style="background:#ff6b8b; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer; box-shadow:0 4px 0 #d6335c;">
+            <button onclick="cancelEdit()" style="background:#ff6b8b; color:white; padding:18px; border:none; border-radius:20px; font-weight:900; font-size:1.2rem; cursor:pointer;">
                 ✖️ Cancel
             </button>
         </div>
@@ -2180,23 +2185,17 @@ openAppModal({
 
 function addNewHomework() {
     editingHomeworkName = null; 
-    
-    // ✅ Start completely fresh - no audio
     currentWeekAudio = null;
-    localStorage.removeItem('currentWeekAudio');
     
-    // Clear audio input
-    const audioInput = document.getElementById('teacherAudioFile');
-    if (audioInput) audioInput.value = '';
-    
+    // 1. CLEAR everything so it's fresh
+    document.getElementById('hwMessages').innerHTML = ''; // Fixes the "Already saved" bug
+    document.getElementById('hwNameInput').value = '';
+    document.getElementById('hwInput').value = '';
+    document.getElementById('hwIsDialogue').checked = false;
+    document.getElementById('teacherAudioFile').value = '';
     document.getElementById('audioPlayerContainer').style.display = 'none';
     
     refreshHwTitle('add');
-    
-    document.getElementById('hwInput').value = "";
-    document.getElementById('hwIsDialogue').checked = false;
-    displayAudioPlayer();
-    
     closeOverlay('bpModal');
     openOverlay('hwDrawer'); 
 }
@@ -3245,92 +3244,110 @@ async function translateOne(p) {
         }
 
 
-        async function saveHW() { 
-            const val = document.getElementById('hwInput').value.trim(); 
+        async function saveHW() {
+            let name = document.getElementById('hwNameInput').value.trim();
+            const words = document.getElementById('hwInput').value.trim();
             const isDiag = document.getElementById('hwIsDialogue').checked;
         
-            if (!val) {
-                alert('Please enter some homework words first!');
-                return;
+            // 1. Validation: Name and Words are required
+            if (!name) { 
+                alert("Please give your homework a name!"); 
+                return; 
             }
-            
-            await translateIfNeeded(val, true);
-            localStorage.setItem('homeworkPhrases', val);
-            
-            // ✅ NEW SURGICAL ADDITION: Extract the first line to use as a suggested name
-            const firstLine = val.split('\n')[0].split('|')[0].trim();
-            // Truncate to 20 chars for the suggestion to match your limit
-            const suggestedName = firstLine.length > 20 ? firstLine.substring(0, 20) : firstLine;
+            if (!words) { 
+                alert("Please enter some French phrases!"); 
+                return; 
+            }
         
-            openAppModal({
-                title: "💾 Save Homework",
-                // ✅ UPDATED: Use the existing name if editing, otherwise suggest the first line
-                text: editingHomeworkName || suggestedName,
-                mode: 'edit',
-                placeholder: "Week Name (max 20 characters)",
-                onSave: (name) => {
-                    if (name) { 
-                        if (name.length > 20) {
-                            name = name.substring(0, 20);
-                            alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
-                        }
+            // 2. Character Limit: Ensure name isn't too long for the Backpack UI
+            if (name.length > 20) {
+                name = name.substring(0, 20);
+                alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+            }
         
-                        // Check if name exists in a different folder
-                        if (history[name] && name !== editingHomeworkName) {
-                            const existingData = JSON.parse(history[name]);
-                            const existingMonth = monthNames[existingData.month || 0];
-                            const proceed = confirm(`"${name}" already exists in your ${existingMonth} folder.\n\nClick OK to OVERWRITE it.\nClick CANCEL to go back and choose a different name.`);
-                            if (!proceed) return; 
-                        }
-                        
-                        const hwData = {
-                            words: val,
-                            audio: currentWeekAudio,
-                            isDialogue: isDiag,
-                            month: selectedBpMonth,
-                            isFavorite: false,
-                            date: new Date().toISOString()
-                        };
-                        
-                        if (!history) history = {};
-                        
-                        history[name] = JSON.stringify(hwData);
-                        localStorage.setItem('frenchHistory', JSON.stringify(history)); 
-                        
-                        document.getElementById('hwMessages').innerHTML = '<div class="success-message">✅ Saved! Starting practice...</div>';
-                        
-                        document.getElementById('hwInput').value = "";
-                        document.getElementById('hwIsDialogue').checked = false;
-                        
-                        closeOverlay('hwDrawer');
-                        
-                        currentSetName = name;
-                        localStorage.setItem('currentSetName', name);
-                        currentIsDialogue = isDiag;
-                        
-                        renderList(val.split('\n').filter(w => w.trim()));
-                        
-                        const diagBtn = document.getElementById('btnViewDialogue');
-                        if (diagBtn) {
-                            if (currentWeekAudio) {
-                                diagBtn.innerHTML = "🎧 Recording";
-                            } else {
-                                diagBtn.innerHTML = currentIsDialogue ? "💬 Dialogue" : "📝 List";
-                            }
-                        }
-                        
-                        setTimeout(() => {
-                            if (!editingHomeworkName) {
-                                document.getElementById('teacherAudioFile').value = '';
-                            }
-                        }, 500);
-                        
-                        editingHomeworkName = null;
-                        document.getElementById('hwDrawerTitle').textContent = "✏️ Add Homework";
-                        openBP();
-                    }
+            // 3. Metadata Preservation: Don't lose the "Star" or "Folder" if editing
+            let isFav = false;
+            let targetMonth = selectedBpMonth; // Default to current folder viewed
+            
+            if (editingHomeworkName && history[editingHomeworkName]) {
+                try {
+                    const oldData = JSON.parse(history[editingHomeworkName]);
+                    isFav = oldData.isFavorite || false;
+                    targetMonth = oldData.month ?? selectedBpMonth;
+                } catch(e) { 
+                    console.error("Error recovering meta-data", e); 
                 }
-            });
+            }
+        
+            // 4. Overwrite Protection: Check if the new name clashes with another homework
+            if (history[name] && name !== editingHomeworkName) {
+                const proceed = confirm(`"${name}" already exists in your backpack. Overwrite it?`);
+                if (!proceed) return;
+            }
+        
+            // 5. Processing UI: Show user that translation is happening
+            const msgDiv = document.getElementById('hwMessages');
+            msgDiv.innerHTML = '<div class="loading-spinner"></div><p style="font-weight:900; color:#9d4edd;">Auto-translating phrases...</p>';
+        
+            // 6. Translation: Runs your auto-translate engine
+            await translateIfNeeded(words, true);
+        
+            // 7. Construct Data Object: Bundle everything together
+            const hwData = {
+                words: words,
+                audio: currentWeekAudio,
+                isDialogue: isDiag,
+                month: targetMonth,
+                isFavorite: isFav,
+                date: new Date().toISOString()
+            };
+            
+            // 8. Save Logic: Write to the history object
+            history[name] = JSON.stringify(hwData);
+            
+            // 9. Renaming Logic: If the name changed, clean up the old name and transfer notes
+            if (editingHomeworkName && editingHomeworkName !== name) {
+                // Delete the old homework entry
+                delete history[editingHomeworkName];
+        
+                // Transfer personal notes to the new name
+                if (homeworkNotes && homeworkNotes[editingHomeworkName]) {
+                    homeworkNotes[name] = homeworkNotes[editingHomeworkName];
+                    delete homeworkNotes[editingHomeworkName];
+                    localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                }
+            }
+        
+            // 10. Update Storage: Sync everything to the browser memory
+            localStorage.setItem('frenchHistory', JSON.stringify(history));
+            localStorage.setItem('homeworkPhrases', words);
+            
+            // 11. Update App State
+            currentSetName = name;
+            localStorage.setItem('currentSetName', name);
+            currentIsDialogue = isDiag;
+        
+            // 12. Success Message & Exit
+            msgDiv.innerHTML = '<div class="success-message">✅ Saved Successfully!</div>';
+            
+            setTimeout(() => {
+                closeOverlay('hwDrawer');
+                
+                // Reset the edit tracker for next time
+                editingHomeworkName = null;
+                
+                // Force the app to use the correct view mode (Dialogue or Cards)
+                viewMode = isDiag ? 'dialogue' : 'cards';
+                localStorage.setItem('viewMode', viewMode);
+                
+                // Update the practice screen immediately
+                renderList(words.split('\n').filter(w => w.trim()));
+                
+                // Refresh Backpack UI if it happens to be open in the background
+                if (document.getElementById('bpModal').style.display === 'block') {
+                    openBP();
+                }
+            }, 800);
         }
         
         function cancelEdit() {
@@ -3488,20 +3505,34 @@ async function translateOne(p) {
                 mode: 'edit',
                 onSave: (newName) => {
                     if (!newName || newName === oldName) return;
-                    if (history[newName]) return alert("Name already exists!");
+                    
+                    // 1. Prevent overwriting another existing homework
+                    if (history[newName]) {
+                        alert("A homework with that name already exists!");
+                        return false; 
+                    }
+                    
+                    // 2. Move the Homework Data
                     history[newName] = history[oldName];
                     delete history[oldName];
-                    if (homeworkNotes[oldName]) {
+                    
+                    // 3. Move the Note (Crucial Fix!)
+                    if (homeworkNotes && homeworkNotes[oldName]) {
                         homeworkNotes[newName] = homeworkNotes[oldName];
                         delete homeworkNotes[oldName];
                         localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                     }
+                    
                     localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    
+                    // 4. Update the current screen if you are currently practicing this set
                     if (currentSetName === oldName) {
                         currentSetName = newName;
                         localStorage.setItem('currentSetName', newName);
                     }
-                    openBP();
+                    
+                    openBP(); // Refresh the backpack UI
+                    return true;
                 }
             });
         }
@@ -3510,42 +3541,21 @@ async function translateOne(p) {
             let hwData = { words: '', audio: null, isDialogue: false, month: selectedBpMonth };
             try {
                 const raw = history[name];
-                if (typeof raw === 'string' && raw.trim().startsWith('{')) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed.words !== undefined) hwData = parsed;
-                } else {
-                    hwData.words = raw;
-                }
-            } catch (e) {
-                hwData.words = history[name];
-            }
-        
-            // Set the global month tracker to match the homework being edited
-            if (hwData.month !== undefined) selectedBpMonth = hwData.month;
+                hwData = JSON.parse(raw);
+            } catch (e) { hwData.words = history[name]; }
         
             editingHomeworkName = name;
             
-            refreshHwTitle('edit', name);
-            
+            // 1. Setup the UI
+            document.getElementById('hwMessages').innerHTML = ''; 
+            document.getElementById('hwNameInput').value = name;
             document.getElementById('hwInput').value = hwData.words;
             document.getElementById('hwIsDialogue').checked = !!hwData.isDialogue;
-            currentIsDialogue = !!hwData.isDialogue;
             
-            // ✅ FIX: Clear any leftover messages from previous saves
-            const msgDiv = document.getElementById('hwMessages');
-            if (msgDiv) {
-                msgDiv.innerHTML = '';
-            }
-            
-            // Load the correct audio for this homework
             currentWeekAudio = hwData.audio || null;
-            if (currentWeekAudio) {
-                localStorage.setItem('currentWeekAudio', JSON.stringify(currentWeekAudio));
-            } else {
-                localStorage.removeItem('currentWeekAudio');
-            }
             displayAudioPlayer();
         
+            refreshHwTitle('edit', name);
             closeOverlay('bpModal');
             openOverlay('hwDrawer');
         }
@@ -4188,5 +4198,6 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
