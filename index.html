@@ -3937,7 +3937,7 @@ async function translateOne(p) {
                     actionBtn.style.background = config.saveText === "🗑️ Delete All" ? "#ff4d4d" : "#4cd964";
                     actionBtn.onclick = () => {
                         config.onAction();
-                        // Don't close here - let onAction handle it if needed
+                        closeOverlay('appModal'); // Close this modal before opening the next one
                     };
                     
                     editBtn.style.display = "block";
@@ -4287,6 +4287,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
