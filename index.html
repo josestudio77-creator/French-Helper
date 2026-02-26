@@ -3460,7 +3460,6 @@ async function translateOne(p) {
                 text: `Are you sure you want to delete "${name}"?`,
                 mode: 'view',
                 saveText: "🗑️ Delete",
-                cancelText: "Cancel",
                 onAction: () => {
                     delete history[name]; 
                     if (homeworkNotes) delete homeworkNotes[name];
@@ -3859,16 +3858,23 @@ async function translateOne(p) {
             editBtn.style.display = "none";
             delBtn.style.display = "none";
             closeBtn.style.display = "block";
+            closeBtn.textContent = "Close"; // Reset to default
             
             // Reset button styles
             editBtn.textContent = "✏️ Edit";
             editBtn.style.background = "#118AB2";
-            editBtn.style.fontSize = ""; // Reset any custom font sizes
-            editBtn.style.whiteSpace = ""; // Reset white-space
+            editBtn.style.color = "white";
+            editBtn.style.fontSize = ""; 
+            editBtn.style.whiteSpace = ""; 
+            
             actionBtn.style.background = "";
+            actionBtn.style.color = "white";
             actionBtn.style.fontSize = "";
             actionBtn.style.whiteSpace = "";
             actionBtn.style.gridColumn = "";
+            
+            delBtn.style.background = "#fee2e2";
+            delBtn.style.color = "#ef4444";
             
             // Reset the button grid
             viewBtns.style.display = "grid";
@@ -3893,39 +3899,47 @@ async function translateOne(p) {
                 display.textContent = config.text || "";
                 
                 if (config.onAction && config.onSecondaryAction) {
-                    // CASE: DUPLICATE WARNING (Two choices: Replace / Edit Name)
+                    // CASE 1: DUPLICATE WARNING (Replace / Edit Name)
                     actionBtn.style.display = "block";
                     actionBtn.textContent = config.saveText || "Replace";
-                    actionBtn.style.background = "#4cd964";
+                    actionBtn.style.background = "#4cd964"; // Green
                     actionBtn.style.fontSize = "0.9rem";
                     actionBtn.style.whiteSpace = "nowrap";
                     actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
                 
                     editBtn.style.display = "block";
                     editBtn.textContent = config.cancelText || "Edit Name";
-                    editBtn.style.background = "#ff9e6d";
+                    editBtn.style.background = "#ff9e6d"; // Orange
                     editBtn.style.fontSize = "0.9rem";
                     editBtn.style.whiteSpace = "nowrap";
                     editBtn.onclick = () => { config.onSecondaryAction(); closeOverlay('appModal'); };
                     
                     viewBtns.style.gridTemplateColumns = "1fr 1fr";
                     delBtn.style.display = "none";
+                    
                 } else if (config.onAction) { 
-                    // CASE: SHARE/DOWNLOAD SUMMARY (One big action button)
+                    // CASE 2: CONFIRMATION (Delete Homework, etc.) - One action button
                     actionBtn.style.display = "block";
-                    actionBtn.textContent = config.actionText || "Confirm";
-                    actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
+                    actionBtn.textContent = config.saveText || "Confirm";
+                    actionBtn.style.background = "#4cd964"; // Green for confirm
+                    actionBtn.style.fontSize = "1rem";
+                    actionBtn.onclick = () => { 
+                        config.onAction(); 
+                        closeOverlay('appModal'); 
+                    };
                     viewBtns.style.gridTemplateColumns = "1fr";
+                    
                 } else if (config.simpleSuccess) {
-                    // CASE: SIMPLE SUCCESS MESSAGE - Just a Close button
+                    // CASE 3: SUCCESS MESSAGE - Just a Close button
                     actionBtn.style.display = "none";
                     editBtn.style.display = "none";
                     delBtn.style.display = "none";
                     closeBtn.style.display = "block";
                     closeBtn.textContent = "OK";
                     viewBtns.style.display = "none";
+                    
                 } else {
-                    // CASE: NOTE VIEW (Standard Edit/Delete)
+                    // CASE 4: NOTE VIEW (Standard Edit/Delete)
                     editBtn.style.display = "block";
                     editBtn.onclick = () => {
                         viewSection.style.display = "none";
@@ -3933,7 +3947,26 @@ async function translateOne(p) {
                         input.value = config.text;
                         closeBtn.style.display = "none";
                     };
-                    delBtn.style.display = config.onDelete ? "block" : "none";
+                    
+                    if (config.onDelete) {
+                        delBtn.style.display = "block";
+                        delBtn.onclick = () => {
+                            // For note deletion, we want a confirmation modal
+                            closeOverlay('appModal');
+                            setTimeout(() => {
+                                openAppModal({
+                                    title: "🗑️ Confirm Delete",
+                                    text: "Are you sure you want to delete this note?",
+                                    mode: 'view',
+                                    saveText: "Yes, Delete",
+                                    onAction: () => {
+                                        config.onDelete();
+                                    }
+                                });
+                            }, 300);
+                        };
+                    }
+                    
                     viewBtns.style.gridTemplateColumns = config.onDelete ? "1fr 1fr" : "1fr";
                 }
             }
@@ -3956,13 +3989,6 @@ async function translateOne(p) {
                     closeBtn.style.display = "block";
                 }
             };
-        
-            if (config.onDelete) {
-                delBtn.onclick = () => {
-                    config.onDelete();
-                    closeOverlay('appModal');
-                };
-            }
         
             openOverlay('appModal');
         }
@@ -4243,6 +4269,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
