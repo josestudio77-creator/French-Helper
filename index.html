@@ -3917,20 +3917,26 @@ async function translateOne(p) {
                 });
                 
                 if (config.onAction && config.onSecondaryAction) {
-                    // CASE 1: DUPLICATE WARNING (Replace / Edit Name)
+                    // CASE 1: TWO BUTTONS (Replace/Edit Name OR Yes Delete/Go Back)
                     actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "Replace";
-                    actionBtn.style.background = "#4cd964"; // Green
+                    actionBtn.textContent = config.saveText || "Confirm";
+                    actionBtn.style.background = "#4cd964"; // Green for confirm
                     actionBtn.style.fontSize = "0.9rem";
                     actionBtn.style.whiteSpace = "nowrap";
-                    actionBtn.onclick = () => { config.onAction(); closeOverlay('appModal'); };
+                    actionBtn.onclick = () => { 
+                        config.onAction(); 
+                        closeOverlay('appModal'); 
+                    };
                 
                     editBtn.style.display = "block";
-                    editBtn.textContent = config.cancelText || "Edit Name";
+                    editBtn.textContent = config.cancelText || "Cancel";
                     editBtn.style.background = "#ff9e6d"; // Orange
                     editBtn.style.fontSize = "0.9rem";
                     editBtn.style.whiteSpace = "nowrap";
-                    editBtn.onclick = () => { config.onSecondaryAction(); closeOverlay('appModal'); };
+                    editBtn.onclick = () => { 
+                        config.onSecondaryAction(); 
+                        closeOverlay('appModal'); 
+                    };
                     
                     viewBtns.style.gridTemplateColumns = "1fr 1fr";
                     delBtn.style.display = "none";
@@ -4295,6 +4301,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
