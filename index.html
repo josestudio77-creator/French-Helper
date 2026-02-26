@@ -2458,60 +2458,48 @@ async function loadHomeworkForPractice(name, words, audio) {
 function showNote(name) {
     const note = homeworkNotes[name] || '';
     
+    // If no note, go straight to editing
     if (note.trim() === '') {
-        // No note exists - open in edit mode directly
         openAppModal({
             title: `📝 Add Note: ${name}`,
             text: '',
             mode: 'edit',
-            placeholder: "Write a note...",
             onSave: (val) => {
-                if (val && val.trim() !== '') {
-                    homeworkNotes[name] = val.trim();
-                } else {
-                    delete homeworkNotes[name];
-                }
+                if (val.trim()) homeworkNotes[name] = val.trim();
                 localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                 refreshAppUI();
             }
         });
-    } else {
-        // Note exists - show in view mode with Edit/Delete options
-        openAppModal({
-            title: `📝 Note: ${name}`,
-            text: note,
-            mode: 'view',
-            onEdit: () => {
-                // Close the current note view modal first
-                closeOverlay('appModal');
-                
-                // Then open the edit modal
-                setTimeout(() => {
-                    openAppModal({
-                        title: `📝 Edit Note: ${name}`,
-                        text: note,
-                        mode: 'edit',
-                        placeholder: "Edit your note...",
-                        onSave: (updatedNote) => {
-                            if (updatedNote && updatedNote.trim() !== '') {
-                                homeworkNotes[name] = updatedNote.trim();
-                            } else {
-                                delete homeworkNotes[name];
-                            }
-                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            refreshAppUI();
-                        }
-                    });
-                }, 300);
-            }, // ← Added missing comma here
-            onDelete: () => {
-                // Delete immediately - no confirmation needed
-                delete homeworkNotes[name];
-                localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                refreshAppUI();
-            }
-        });
+        return;
     }
+
+    // Viewing existing note
+    openAppModal({
+        title: `📝 Note: ${name}`,
+        text: note,
+        mode: 'view',
+        onEdit: () => {
+            closeOverlay('appModal');
+            setTimeout(() => {
+                openAppModal({
+                    title: `✏️ Edit Note: ${name}`,
+                    text: note,
+                    mode: 'edit',
+                    onSave: (val) => {
+                        if (val.trim()) homeworkNotes[name] = val.trim();
+                        else delete homeworkNotes[name];
+                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                        refreshAppUI();
+                    }
+                });
+            }, 200);
+        },
+        onDelete: () => {
+            delete homeworkNotes[name];
+            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+            refreshAppUI();
+        }
+    });
 }
         
 function needsTranslation(words) {
@@ -3866,97 +3854,99 @@ function openAppModal(config) {
     const viewSection = document.getElementById('appModalView');
     const editSection = document.getElementById('appModalEdit');
     
-    // Get button elements
-    const closeBtn = document.getElementById('appModalBtnClose');
-    const actionBtn = document.getElementById('appModalBtnAction');
-    const editBtn = document.getElementById('appModalBtnEdit');
-    const delBtn = document.getElementById('appModalBtnDelete');
-    const viewBtns = document.getElementById('appModalViewBtns');
-    const saveBtn = document.getElementById('appModalBtnSave');
-    const cancelBtn = document.getElementById('appModalBtnCancel');
+    // Buttons
+    const btnClose = document.getElementById('appModalBtnClose'); // Bottom big button
+    const btnAction = document.getElementById('appModalBtnAction'); // Primary (Green/Red)
+    const btnEdit = document.getElementById('appModalBtnEdit'); // Secondary (Blue/Gray)
+    const btnDelete = document.getElementById('appModalBtnDelete'); // Red (Specifically for Note deletion)
+    const btnGrid = document.getElementById('appModalViewBtns');
 
-    // 1. SURGICAL CLEAN: Remove old click events
-    [actionBtn, editBtn, delBtn, closeBtn, saveBtn, cancelBtn].forEach(btn => {
+    // SURGICAL CLEAN: Remove all previous event listeners by cloning
+    [btnAction, btnEdit, btnDelete, btnClose].forEach(btn => {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
     });
 
-    // Re-get fresh references
-    const bAction = document.getElementById('appModalBtnAction');
-    const bEdit = document.getElementById('appModalBtnEdit');
+    // Re-assign fresh references
+    const bAct = document.getElementById('appModalBtnAction');
+    const bEdi = document.getElementById('appModalBtnEdit');
     const bDel = document.getElementById('appModalBtnDelete');
-    const bClose = document.getElementById('appModalBtnClose');
-    const bSave = document.getElementById('appModalBtnSave');
-    const bCancel = document.getElementById('appModalBtnCancel');
+    const bClo = document.getElementById('appModalBtnClose');
 
-    // 2. RESET LAYOUT
-    bAction.style.display = "none";
-    bEdit.style.display = "none";
+    // RESET ALL STYLES
+    bAct.style.display = "none";
+    bAct.style.gridColumn = "auto";
+    bEdi.style.display = "none";
+    bEdi.style.gridColumn = "auto";
     bDel.style.display = "none";
-    bClose.style.display = "block"; // Default to showing close
-    viewBtns.style.display = "grid";
-    viewBtns.style.gridTemplateColumns = "1fr"; // Default single column
+    bDel.style.gridColumn = "auto";
+    bClo.style.display = "block"; // Show by default
+    btnGrid.style.display = "grid";
+    btnGrid.style.gridTemplateColumns = "1fr 1fr"; // 2 equal columns
     statsEl.textContent = "";
 
     titleEl.textContent = config.title || "";
     display.textContent = config.text || "";
 
-    // 3. HANDLE MODES
+    // --- FLOW 1: EDIT MODE (Naming or Writing Notes) ---
     if (config.mode === 'edit') {
         viewSection.style.display = "none";
         editSection.style.display = "block";
-        bClose.style.display = "none";
+        bClo.style.display = "none"; // Hide bottom Close
         input.value = config.text || "";
-        bSave.textContent = config.saveText || "💾 Save";
-        bSave.onclick = () => {
-            const result = config.onSave(input.value.trim());
-            if (result !== false) closeOverlay('appModal');
-        };
-        bCancel.onclick = () => closeOverlay('appModal');
-    } else {
+        
+        const bSave = document.getElementById('appModalBtnSave');
+        const bCan = document.getElementById('appModalBtnCancel');
+        bSave.onclick = () => { if(config.onSave(input.value.trim()) !== false) closeOverlay('appModal'); };
+        bCan.onclick = () => closeOverlay('appModal');
+    } 
+    // --- FLOW 2: VIEW MODE (Everything else) ---
+    else {
         viewSection.style.display = "block";
         editSection.style.display = "none";
 
-        // Logic: If we have an Action and a Secondary action, show ONLY those two in a 50/50 grid
-        if (config.onAction && config.onSecondaryAction) {
-            bClose.style.display = "none"; // HIDE THE EXTRA CLOSE BUTTON
+        // SCENARIO A: Confirmation (Reset Month / Delete Homework)
+        // Two buttons side-by-side, NO bottom Close button.
+        if (config.onAction && (config.onSecondaryAction || config.cancelText)) {
+            bClo.style.display = "none"; 
             
-            bAction.style.display = "block";
-            bAction.textContent = config.saveText || "Confirm";
-            bAction.style.background = (config.saveText && config.saveText.includes("Delete")) ? "#ff4d4d" : "#4cd964";
-            bAction.onclick = () => { config.onAction(); closeOverlay('appModal'); };
+            bAct.style.display = "block";
+            bAct.textContent = config.saveText || "Confirm";
+            bAct.style.background = (config.saveText && config.saveText.includes("Delete")) ? "#ef4444" : "#4cd964";
+            bAct.onclick = () => { config.onAction(); closeOverlay('appModal'); };
 
-            bEdit.style.display = "block";
-            bEdit.textContent = config.cancelText || "Cancel";
-            bEdit.style.background = "#cbd5e0"; // Soft gray for cancel
-            bEdit.style.color = "#2d3748";
-            bEdit.onclick = () => { if(config.onSecondaryAction) config.onSecondaryAction(); closeOverlay('appModal'); };
-            
-            viewBtns.style.gridTemplateColumns = "1fr 1fr"; // Forces 50/50 layout
+            bEdi.style.display = "block";
+            bEdi.textContent = config.cancelText || "Cancel";
+            bEdi.style.background = "#cbd5e0"; 
+            bEdi.style.color = "#4a5568";
+            bEdi.onclick = () => { if(config.onSecondaryAction) config.onSecondaryAction(); closeOverlay('appModal'); };
         } 
-        // Logic: Just one action button (like "OK")
-        else if (config.onAction) {
-            bAction.style.display = "block";
-            bAction.style.gridColumn = "span 2"; // Stretch across
-            bAction.textContent = config.saveText || "OK";
-            bAction.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-            bClose.style.display = "none";
-        }
-        // Logic: Note View (Edit/Delete)
+        // SCENARIO B: Note View (Edit / Delete / Close)
+        // Edit and Delete side-by-side, big Close button underneath.
         else if (config.onEdit || config.onDelete) {
-            if (config.onEdit) {
-                bEdit.style.display = "block";
-                bEdit.onclick = () => config.onEdit();
-            }
-            if (config.onDelete) {
-                bDel.style.display = "block";
-                bDel.onclick = () => config.onDelete();
-            }
-            viewBtns.style.gridTemplateColumns = (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
+            bEdi.style.display = "block";
+            bEdi.textContent = "✏️ Edit";
+            bEdi.style.background = "#118AB2";
+            bEdi.onclick = () => { config.onEdit(); };
+
+            bDel.style.display = "block";
+            bDel.textContent = "🗑️ Delete";
+            bDel.style.background = "#fee2e2";
+            bDel.style.color = "#ef4444";
+            bDel.onclick = () => { config.onDelete(); closeOverlay('appModal'); };
+            
+            bClo.textContent = "Close";
+            bClo.style.display = "block";
+        }
+        // SCENARIO C: Simple Alert (Just information + Close button)
+        else {
+            bClo.style.display = "block";
+            bClo.textContent = config.saveText || "OK";
+            btnGrid.style.display = "none"; // Hide the top grid entirely
         }
     }
 
-    bClose.onclick = () => closeOverlay('appModal');
+    bClo.onclick = () => closeOverlay('appModal');
     openOverlay('appModal');
 }
         
@@ -4006,55 +3996,37 @@ function openAppModal(config) {
                 });
         }
         
-    function resetMonth() {
+   function resetMonth() {
     const currentMonthName = monthNames[selectedBpMonth];
-    
-    // Calculate how many items will be lost
     let count = 0;
     Object.values(history).forEach(val => {
         try { if (JSON.parse(val).month === selectedBpMonth) count++; } catch(e) {}
     });
 
-    if (count === 0) {
-        alert(`The ${currentMonthName} folder is already empty!`);
-        return;
-    }
+    if (count === 0) return; // Silent exit if already empty
 
     openAppModal({
         title: "⚠️ Clear " + currentMonthName,
-        text: `Delete all ${count} homework items from this folder? This cannot be undone.`,
+        text: `Delete all ${count} items in this folder?`,
         mode: 'view',
         saveText: "🗑️ Delete All",
         cancelText: "Cancel",
         onAction: () => {
-            // THE ACTUAL DELETION PROCESS
             Object.keys(history).forEach(name => {
                 try {
-                    const hwData = JSON.parse(history[name]);
-                    if (hwData.month === selectedBpMonth) {
+                    const hw = JSON.parse(history[name]);
+                    if (hw.month === selectedBpMonth) {
                         delete history[name];
-                        if (homeworkNotes && homeworkNotes[name]) delete homeworkNotes[name];
-                        
-                        // Clean up the practice screen if this was the active set
-                        if (currentSetName === name) {
-                            currentSetName = '';
-                            localStorage.removeItem('homeworkPhrases');
-                            renderList([]);
-                        }
+                        if (homeworkNotes[name]) delete homeworkNotes[name];
+                        if (currentSetName === name) { currentSetName = ''; renderList([]); }
                     }
                 } catch(e) {}
             });
-
-            // Save the results
             localStorage.setItem('frenchHistory', JSON.stringify(history));
             localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-            
-            openBP(); // Refresh Backpack UI
-            console.log("Folder cleared successfully.");
+            openBP();
         },
-        onSecondaryAction: () => {
-            // Do nothing, modal closes automatically
-        }
+        onSecondaryAction: () => {} // Engine handles closing
     });
 }
         
@@ -4216,4 +4188,5 @@ window.onload = () => {
         
 </body>
 </html>
+
 
