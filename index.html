@@ -2467,47 +2467,47 @@ function showNote(name) {
             text: note,
             mode: 'view',
             onEdit: () => {
-                // Switch to edit mode
-                openAppModal({
-                    title: `📝 Edit Note: ${name}`,
-                    text: note,
-                    mode: 'edit',
-                    placeholder: "Write a note...",
-                    onSave: (val) => {
-                        if (val && val.trim() !== '') {
-                            homeworkNotes[name] = val.trim();
-                        } else {
-                            delete homeworkNotes[name];
+                // Close current modal first
+                closeOverlay('appModal');
+                
+                // Open edit modal with current note
+                setTimeout(() => {
+                    openAppModal({
+                        title: `📝 Edit Note: ${name}`,
+                        text: note,  // Pass the current note text
+                        mode: 'edit',
+                        placeholder: "Write a note...",
+                        onSave: (updatedNote) => {
+                            if (updatedNote && updatedNote.trim() !== '') {
+                                homeworkNotes[name] = updatedNote.trim();
+                            } else {
+                                delete homeworkNotes[name];
+                            }
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
                         }
-                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                        refreshAppUI();
-                    }
-                });
+                    });
+                }, 300);
             },
             onDelete: () => {
-                // Use modal for delete confirmation instead of system confirm
-                openAppModal({
-                    title: "🗑️ Delete Note",
-                    text: `Are you sure you want to delete this note?`,
-                    mode: 'view',
-                    saveText: "Yes, Delete",
-                    cancelText: "Cancel",
-                    onAction: () => {
-                        delete homeworkNotes[name];
-                        localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                        refreshAppUI();
-                        
-                        // Show success message
-                        setTimeout(() => {
-                            openAppModal({
-                                title: "✅ Note Deleted",
-                                text: "The note has been removed.",
-                                mode: 'view',
-                                simpleSuccess: true
-                            });
-                        }, 300);
-                    }
-                });
+                // Close current modal first
+                closeOverlay('appModal');
+                
+                // Open delete confirmation
+                setTimeout(() => {
+                    openAppModal({
+                        title: "🗑️ Delete Note",
+                        text: "Are you sure you want to delete this note?",
+                        mode: 'view',
+                        saveText: "Yes, Delete",
+                        cancelText: "Cancel",
+                        onAction: () => {
+                            delete homeworkNotes[name];
+                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+                            refreshAppUI();
+                        }
+                    });
+                }, 300);
             }
         });
     }
@@ -4257,6 +4257,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
