@@ -3471,17 +3471,25 @@ async function translateOne(p) {
                 text: `Are you sure you want to delete "${name}"?`,
                 mode: 'view',
                 saveText: "🗑️ Delete",
+                cancelText: "Cancel",
                 onAction: () => {
+                    // Delete logic
                     delete history[name]; 
-                    if (homeworkNotes) delete homeworkNotes[name];
+                    if (homeworkNotes && homeworkNotes[name]) delete homeworkNotes[name];
+                    
                     localStorage.setItem('frenchHistory', JSON.stringify(history));
+                    
+                    // If deleting the active set
                     if (currentSetName === name) {
                         currentSetName = '';
                         localStorage.removeItem('homeworkPhrases');
                         renderList([]);
                     }
-                    openBP();
-                }
+                    
+                    closeOverlay('appModal');
+                    openBP(); // Refresh the backpack view
+                },
+                onSecondaryAction: () => closeOverlay('appModal')
             });
         }
         
@@ -3851,7 +3859,6 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
-            // Get all modal elements
             const titleEl = document.getElementById('appModalTitle');
             const statsEl = document.getElementById('appModalStats');
             const input = document.getElementById('appModalInput');
@@ -3865,134 +3872,88 @@ async function translateOne(p) {
             const viewBtns = document.getElementById('appModalViewBtns');
             const saveBtn = document.getElementById('appModalBtnSave');
             const cancelBtn = document.getElementById('appModalBtnCancel');
-            
-            // Reset everything to default
-            actionBtn.style.display = "none";
-            editBtn.style.display = "none";
-            delBtn.style.display = "none";
-            closeBtn.style.display = "block";
-            closeBtn.textContent = "Close";
+        
+            // 1. CLEAR PREVIOUS BUTTON DATA
+            [actionBtn, editBtn, delBtn, closeBtn, saveBtn, cancelBtn].forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+            });
+        
+            // Re-get references to the fresh buttons
+            const newActionBtn = document.getElementById('appModalBtnAction');
+            const newEditBtn = document.getElementById('appModalBtnEdit');
+            const newDelBtn = document.getElementById('appModalBtnDelete');
+            const newCloseBtn = document.getElementById('appModalBtnClose');
+            const newSaveBtn = document.getElementById('appModalBtnSave');
+            const newCancelBtn = document.getElementById('appModalBtnCancel');
+        
+            // 2. RESET STYLES
+            newActionBtn.style.display = "none";
+            newEditBtn.style.display = "none";
+            newDelBtn.style.display = "none";
+            newCloseBtn.style.display = "block";
+            newCloseBtn.textContent = "Close";
             viewBtns.style.display = "grid";
             viewBtns.style.gridTemplateColumns = "1fr";
             statsEl.textContent = "";
-            
-            // Reset button styles
-            editBtn.textContent = "✏️ Edit";
-            editBtn.style.background = "#118AB2";
-            editBtn.style.color = "white";
-            actionBtn.style.background = "";
-            actionBtn.style.color = "white";
-            delBtn.style.background = "#fee2e2";
-            delBtn.style.color = "#ef4444";
-            
-            // Set title and content
+        
             titleEl.textContent = config.title || "";
             display.textContent = config.text || "";
-            
-            // Handle different modal types based on config
+        
+            // 3. HANDLE MODES
             if (config.mode === 'edit') {
-                // EDIT MODE - for adding/editing notes, renaming, etc.
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
-                closeBtn.style.display = "none";
+                newCloseBtn.style.display = "none";
                 input.value = config.text || "";
                 input.placeholder = config.placeholder || "";
-                saveBtn.textContent = config.saveText || "💾 Save";
-                cancelBtn.textContent = config.cancelText || "Cancel";
-                
-                saveBtn.onclick = () => {
+                newSaveBtn.textContent = config.saveText || "💾 Save";
+                newSaveBtn.onclick = () => {
                     if (config.onSave) {
                         const result = config.onSave(input.value.trim());
                         if (result !== false) closeOverlay('appModal');
-                    } else {
-                        closeOverlay('appModal');
                     }
                 };
-                
-                cancelBtn.onclick = () => {
-                    if (config.onCancel) {
-                        config.onCancel();
-                    }
-                    closeOverlay('appModal');
-                };
-                
+                newCancelBtn.onclick = () => closeOverlay('appModal');
             } else {
-                // VIEW MODE - all non-edit modals
                 viewSection.style.display = "block";
                 editSection.style.display = "none";
-                
-                // SIMPLE SUCCESS MESSAGE
-                if (config.simpleSuccess) {
-                    actionBtn.style.display = "none";
-                    editBtn.style.display = "none";
-                    delBtn.style.display = "none";
-                    closeBtn.style.display = "block";
-                    closeBtn.textContent = "OK";
-                    viewBtns.style.display = "none";
-                    
-                // TWO-BUTTON CONFIRMATION (Replace/Edit Name, Yes Delete/Go Back)
-                } else if (config.onAction && config.onSecondaryAction) {
-                    actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "Confirm";
-                    actionBtn.style.background = config.saveText === "🗑️ Delete All" ? "#ff4d4d" : "#4cd964";
-                    actionBtn.onclick = () => {
-                        config.onAction();
-                        closeOverlay('appModal'); // Close this modal before opening the next one
-                    };
-                    
-                    editBtn.style.display = "block";
-                    editBtn.textContent = config.cancelText || "Cancel";
-                    editBtn.style.background = "#ff9e6d";
-                    editBtn.onclick = () => {
-                        if (config.onSecondaryAction) {
-                            config.onSecondaryAction();
-                        }
-                        closeOverlay('appModal');
-                    };
-                    
+        
+                // Confimation Mode (Double Button)
+                if (config.onAction && config.onSecondaryAction) {
+                    newActionBtn.style.display = "block";
+                    newActionBtn.textContent = config.saveText || "Confirm";
+                    newActionBtn.style.background = (config.saveText && config.saveText.includes("Delete")) ? "#ff4d4d" : "#4cd964";
+                    newActionBtn.onclick = () => config.onAction();
+        
+                    newEditBtn.style.display = "block";
+                    newEditBtn.textContent = config.cancelText || "Cancel";
+                    newEditBtn.style.background = "#ff9e6d";
+                    newEditBtn.onclick = () => config.onSecondaryAction();
                     viewBtns.style.gridTemplateColumns = "1fr 1fr";
-                    delBtn.style.display = "none";
-                    
-                // SINGLE ACTION BUTTON (View in Backpack, Confirm Delete)
-                } else if (config.onAction) {
-                    actionBtn.style.display = "block";
-                    actionBtn.textContent = config.saveText || "OK";
-                    actionBtn.style.background = "#4cd964";
-                    actionBtn.onclick = () => {
-                        config.onAction();
-                        closeOverlay('appModal');
-                    };
-                    viewBtns.style.gridTemplateColumns = "1fr";
-                    
-                // NOTE VIEW with Edit/Delete
-                } else if (config.onEdit || config.onDelete) {
-                    editBtn.style.display = config.onEdit ? "block" : "none";
+                } 
+                // Single Action Mode
+                else if (config.onAction) {
+                    newActionBtn.style.display = "block";
+                    newActionBtn.textContent = config.saveText || "OK";
+                    newActionBtn.style.background = "#4cd964";
+                    newActionBtn.onclick = () => config.onAction();
+                }
+                // Note View Mode
+                else if (config.onEdit || config.onDelete) {
                     if (config.onEdit) {
-                        editBtn.onclick = () => {
-                            config.onEdit();
-                            // The edit function will handle closing
-                        };
+                        newEditBtn.style.display = "block";
+                        newEditBtn.onclick = () => config.onEdit();
                     }
-                    
-                    delBtn.style.display = config.onDelete ? "block" : "none";
                     if (config.onDelete) {
-                        delBtn.onclick = () => {
-                            config.onDelete();
-                            closeOverlay('appModal');
-                        };
+                        newDelBtn.style.display = "block";
+                        newDelBtn.onclick = () => config.onDelete();
                     }
-                    
-                    viewBtns.style.gridTemplateColumns = 
-                        (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
+                    viewBtns.style.gridTemplateColumns = (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
                 }
             }
-            
-            // Close button behavior
-            closeBtn.onclick = () => {
-                if (config.onClose) config.onClose();
-                closeOverlay('appModal');
-            };
-            
+        
+            newCloseBtn.onclick = () => closeOverlay('appModal');
             openOverlay('appModal');
         }
         
@@ -4044,88 +4005,66 @@ async function translateOne(p) {
         
     function resetMonth() {
             const currentMonthName = monthNames[selectedBpMonth];
-            console.log('resetMonth called for:', currentMonthName);
             
-            // Safety check
-            const count = Object.values(history).filter(val => {
-                try { return JSON.parse(val).month === selectedBpMonth; } catch(e) { return false; }
-            }).length;
-            
-            console.log('Items in folder:', count);
+            // Count items in this month
+            let count = 0;
+            Object.values(history).forEach(val => {
+                try { if (JSON.parse(val).month === selectedBpMonth) count++; } catch(e) {}
+            });
         
             if (count === 0) {
-                console.log('Folder empty, showing empty message');
-                openAppModal({
-                    title: "📁 Folder Empty",
-                    text: `The ${currentMonthName} folder is already empty!`,
-                    mode: 'view',
-                    simpleSuccess: true
-                });
+                alert(`The ${currentMonthName} folder is already empty!`);
                 return;
             }
         
-            console.log('Showing first confirmation modal');
-            
-            // First confirmation
             openAppModal({
                 title: "⚠️ Reset Month",
-                text: `Delete ALL ${count} items in the ${currentMonthName} folder?\n\nThis will not affect your other folders.`,
+                text: `Delete ALL ${count} items in ${currentMonthName}?`,
                 mode: 'view',
                 saveText: "🗑️ Delete All",
                 cancelText: "Cancel",
                 onAction: () => {
-                    console.log('First modal - Delete All clicked');
-                    
-                    // Second confirmation (last chance)
+                    // SECOND CONFIRMATION
                     openAppModal({
                         title: "⚠️ FINAL WARNING",
                         text: `Are you absolutely sure? This cannot be undone.`,
                         mode: 'view',
-                        saveText: "Yes, Delete All",
+                        saveText: "Yes, Delete Everything",
                         cancelText: "Go Back",
                         onAction: () => {
-                            console.log('SECOND MODAL - Yes, Delete All clicked - starting deletion');
-                            // Filter out items belonging to this month
+                            // PERFORM THE ACTUAL DELETION
                             Object.keys(history).forEach(name => {
                                 try {
                                     const hwData = JSON.parse(history[name]);
                                     if (hwData.month === selectedBpMonth) {
-                                        console.log('Deleting:', name);
                                         delete history[name];
-                                        if (homeworkNotes[name]) delete homeworkNotes[name];
+                                        if (homeworkNotes && homeworkNotes[name]) delete homeworkNotes[name];
                                         
+                                        // If this was the active set, clear the practice screen
                                         if (currentSetName === name) {
                                             currentSetName = '';
                                             localStorage.removeItem('homeworkPhrases');
                                             renderList([]);
                                         }
                                     }
-                                } catch(e) {
-                                    console.error('Error deleting:', name, e);
-                                }
+                                } catch(e) {}
                             });
-                        
+        
+                            // Save to local storage
                             localStorage.setItem('frenchHistory', JSON.stringify(history));
                             localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                             
-                            console.log('Deletion complete, refreshing backpack');
-                            openBP();
+                            closeOverlay('appModal');
+                            openBP(); // Refresh Backpack
                             
                             setTimeout(() => {
-                                openAppModal({
-                                    title: "✅ Month Reset",
-                                    text: `The ${currentMonthName} folder has been cleared.`,
-                                    mode: 'view',
-                                    simpleSuccess: true
-                                });
+                                alert(`✅ ${currentMonthName} has been cleared.`);
                             }, 300);
-                        }, // ← Added missing comma here
-                        onSecondaryAction: () => {
-                            console.log('Second modal - Go Back clicked');
-                            closeOverlay('appModal');
-                        }
+                        },
+                        onSecondaryAction: () => closeOverlay('appModal')
                     });
-                }
+                },
+                onSecondaryAction: () => closeOverlay('appModal')
             });
         }
         
@@ -4287,157 +4226,3 @@ window.onload = () => {
         
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
