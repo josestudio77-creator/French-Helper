@@ -2210,9 +2210,23 @@ openAppModal({
                 saveText: "Go to Backpack",
                 
                 onAction: () => {
+                    console.log('🔍 Go to Backpack clicked - START');
+                    
                     closeOverlay('appModal');
+                    console.log('✅ appModal closed');
+                    
                     closeOverlay('parentDrawer');
-                    openOverlay('bpModal'); // Direct call, no setTimeout
+                    console.log('✅ parentDrawer closed');
+                    
+                    console.log('🔄 About to call openOverlay for bpModal');
+                    openOverlay('bpModal');
+                    console.log('✅ openOverlay called for bpModal');
+                    
+                    // Double-check the display style
+                    setTimeout(() => {
+                        const bpElem = document.getElementById('bpModal');
+                        console.log('bpModal display style:', bpElem ? bpElem.style.display : 'ELEMENT NOT FOUND');
+                    }, 200);
                 }
             });
         }
@@ -4377,6 +4391,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
