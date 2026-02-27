@@ -2063,9 +2063,15 @@ openAppModal({
                     let targetMonthIndex = selectedBpMonth; 
                     const nameList = incomingKeys.map(name => `• ${name}`).join('\n');
         
-                    // Count notes in the file
+                    // 1. Detect Duplicates
+                    let existingCount = 0;
+                    incomingKeys.forEach(name => {
+                        if (history[name]) existingCount++;
+                    });
+        
                     const incomingNoteCount = data.homeworkNotes ? Object.keys(data.homeworkNotes).length : 0;
         
+                    // 2. Build Summary (Scenario Logic preserved)
                     if (count === 1) {
                         const firstKey = incomingKeys[0];
                         modalTitle = `📥 Import Homework: ${firstKey}`;
@@ -2113,50 +2119,33 @@ openAppModal({
         
                     detailedStats += `\n📦 Included:\n${nameList}\n\nAdd these to your backpack?`;
         
+                    // 3. SHOW INITIAL MODAL
                     openAppModal({
                         title: modalTitle,
                         text: detailedStats,
                         mode: 'view',
-                        saveText: "Import File",
+                        saveText: "Continue",
                         cancelText: "Cancel",
                         onAction: () => {
-                            let importedCount = 0;
-                            let skippedCount = 0;
-        
-                            for (const name of incomingKeys) {
-                                if (history[name]) {
-                                    skippedCount++;
-                                    continue; 
-                                }
-                                history[name] = data.history[name];
-                                if (data.homeworkNotes && data.homeworkNotes[name]) {
-                                    homeworkNotes[name] = data.homeworkNotes[name];
-                                }
-                                importedCount++;
+                            // IF NO DUPLICATES: Import immediately
+                            if (existingCount === 0) {
+                                performActualImport(data, incomingKeys, true, targetMonthIndex);
+                            } 
+                            // IF DUPLICATES FOUND: Show the Conflict Resolver
+                            else {
+                                closeOverlay('appModal');
+                                setTimeout(() => {
+                                    openAppModal({
+                                        title: "⚠️ Conflicts Found",
+                                        text: `${existingCount} of these items already exist in your backpack.\n\nWhat would you like to do?`,
+                                        mode: 'view',
+                                        saveText: "🔄 Replace All",
+                                        cancelText: "⏭️ Skip Duplicates",
+                                        onAction: () => performActualImport(data, incomingKeys, true, targetMonthIndex), // Overwrite = true
+                                        onSecondaryAction: () => performActualImport(data, incomingKeys, false, targetMonthIndex) // Overwrite = false
+                                    });
+                                }, 300);
                             }
-        
-                            if (data.cache) Object.assign(cache, data.cache);
-                            if (data.customIcons) Object.assign(customIcons, data.customIcons);
-                            if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
-        
-                            localStorage.setItem('frenchHistory', JSON.stringify(history));
-                            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
-                            localStorage.setItem('customIcons', JSON.stringify(customIcons));
-                            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
-                            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
-                            
-                            selectedBpMonth = targetMonthIndex;
-                            
-                            openAppModal({
-                                title: "✅ Import Complete",
-                                text: `Imported ${importedCount} items.\n(Skipped ${skippedCount} duplicates).`,
-                                mode: 'view',
-                                saveText: "Go to Backpack",
-                                onAction: () => {
-                                    closeOverlay('appModal');
-                                    openBP();
-                                }
-                            });
                         },
                         onSecondaryAction: () => closeOverlay('appModal')
                     });
@@ -2166,6 +2155,61 @@ openAppModal({
                 }
             };
             input.click();
+        }
+        
+        // SURGICAL HELPER: The actual engine that saves the data
+        function performActualImport(data, incomingKeys, overwrite, targetMonthIndex) {
+            let importedCount = 0;
+            let updatedCount = 0;
+            let skippedCount = 0;
+        
+            incomingKeys.forEach(name => {
+                if (history[name]) {
+                    if (overwrite) {
+                        updatedCount++;
+                        history[name] = data.history[name];
+                        if (data.homeworkNotes && data.homeworkNotes[name]) {
+                            homeworkNotes[name] = data.homeworkNotes[name];
+                        }
+                    } else {
+                        skippedCount++;
+                    }
+                } else {
+                    importedCount++;
+                    history[name] = data.history[name];
+                    if (data.homeworkNotes && data.homeworkNotes[name]) {
+                        homeworkNotes[name] = data.homeworkNotes[name];
+                    }
+                }
+            });
+        
+            // Merge Assets
+            if (data.cache) Object.assign(cache, data.cache);
+            if (data.customIcons) Object.assign(customIcons, data.customIcons);
+            if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
+        
+            localStorage.setItem('frenchHistory', JSON.stringify(history));
+            localStorage.setItem('phraseTranslations', JSON.stringify(cache));
+            localStorage.setItem('customIcons', JSON.stringify(customIcons));
+            localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
+            localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
+            
+            selectedBpMonth = targetMonthIndex;
+            
+            let resultMsg = `Import Complete!\n✅ ${importedCount} new items added.`;
+            if (updatedCount > 0) resultMsg += `\n🔄 ${updatedCount} items replaced.`;
+            if (skippedCount > 0) resultMsg += `\n⏭️ ${skippedCount} items skipped.`;
+        
+            openAppModal({
+                title: "✅ Success",
+                text: resultMsg,
+                mode: 'view',
+                saveText: "Go to Backpack",
+                onAction: () => {
+                    closeOverlay('appModal');
+                    openBP();
+                }
+            });
         }
 
         function checkForImport() {
@@ -4328,6 +4372,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
