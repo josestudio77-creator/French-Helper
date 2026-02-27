@@ -4181,6 +4181,37 @@ async function translateOne(p) {
                 }
             });
         }
+
+    function findMonthWithHomework() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    
+    // 1. Identify which months actually have content
+    const monthsWithContent = new Set();
+    Object.values(history).forEach(val => {
+        try {
+            const data = JSON.parse(val);
+            if (data.month !== undefined) {
+                monthsWithContent.add(data.month);
+            }
+        } catch(e) {}
+    });
+
+    // 2. If the current month has content, or if the whole backpack is empty, stay here
+    if (monthsWithContent.has(currentMonth) || monthsWithContent.size === 0) {
+        return currentMonth;
+    }
+
+    // 3. Search backwards from the current month (e.g., May -> April -> March...)
+    for (let i = 1; i < 12; i++) {
+        let checkMonth = (currentMonth - i + 12) % 12;
+        if (monthsWithContent.has(checkMonth)) {
+            return checkMonth;
+        }
+    }
+
+    return currentMonth; // Fallback
+}
         
    function resetMonth() {
     const currentMonthName = monthNames[selectedBpMonth];
@@ -4315,14 +4346,22 @@ window.onload = () => {
         displayAudioPlayer();
         
     } else {
-        console.log('No homework found in storage');
-        // No homework loaded, so clear the name and audio
+        // --- UPDATED LANDING LOGIC ---
+        console.log('No homework found in storage. Landing on Backpack.');
         currentSetName = '';
         localStorage.removeItem('currentSetName');
         currentIsDialogue = false;
         currentWeekAudio = null;
         localStorage.removeItem('currentWeekAudio');
         displayAudioPlayer();
+
+        // 1. Find the best month to show
+        selectedBpMonth = findMonthWithHomework();
+        
+        // 2. Open the backpack automatically
+        setTimeout(() => {
+            openOverlay('bpModal');
+        }, 200); 
     }
     
     initVoices();
@@ -4374,6 +4413,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
