@@ -2183,17 +2183,19 @@ openAppModal({
                 }
             });
         
-            // Merge Assets
+            // Merge Assets (icons/photos/cache)
             if (data.cache) Object.assign(cache, data.cache);
             if (data.customIcons) Object.assign(customIcons, data.customIcons);
             if (data.customPhotos) Object.assign(customPhotos, data.customPhotos);
         
+            // Save to local storage
             localStorage.setItem('frenchHistory', JSON.stringify(history));
             localStorage.setItem('phraseTranslations', JSON.stringify(cache));
             localStorage.setItem('customIcons', JSON.stringify(customIcons));
             localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
             localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
             
+            // Set the backpack's month tracker to the new month
             selectedBpMonth = targetMonthIndex;
             
             let resultMsg = `Import Complete!\n✅ ${importedCount} new items added.`;
@@ -2206,8 +2208,15 @@ openAppModal({
                 mode: 'view',
                 saveText: "Go to Backpack",
                 onAction: () => {
+                    // 1. Close the success popup
                     closeOverlay('appModal');
+                    
+                    // 2. CRUCIAL FIX: Close the Parent Settings drawer so you don't stay behind it
+                    closeOverlay('parentDrawer');
+                    
+                    // 3. Open the Backpack
                     openBP();
+                    openOverlay('bpModal');
                 }
             });
         }
@@ -4372,6 +4381,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
