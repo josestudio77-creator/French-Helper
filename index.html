@@ -2056,41 +2056,67 @@ openAppModal({
                     const incomingKeys = Object.keys(data.history);
                     const count = incomingKeys.length;
                     
-                    // --- LOGIC TO DETERMINE IMPORT TYPE ---
                     let modalTitle = "📥 Import File";
-                    let modalDescription = "";
+                    let detailedStats = "";
+                    let targetMonthIndex = selectedBpMonth; 
                     
+                    // Create the bulleted list of names
+                    const nameList = incomingKeys.map(name => `• ${name}`).join('\n');
+        
                     if (count === 1) {
-                        // Scenario 1: Single Homework
-                        modalTitle = `📥 Import Homework: ${incomingKeys[0]}`;
-                        modalDescription = `Found 1 homework set. Add it to your backpack?`;
+                        const firstKey = incomingKeys[0];
+                        modalTitle = `📥 Import Homework: ${firstKey}`;
+                        
+                        let phraseCount = 0;
+                        try {
+                            const item = typeof data.history[firstKey] === 'string' ? JSON.parse(data.history[firstKey]) : data.history[firstKey];
+                            phraseCount = item.words.split('\n').filter(p => p.trim()).length;
+                            if (item.month !== undefined) targetMonthIndex = item.month;
+                        } catch(e) { phraseCount = "?"; }
+                        
+                        let iconCount = data.customIcons ? Object.keys(data.customIcons).length : 0;
+                        let photoCount = data.customPhotos ? Object.keys(data.customPhotos).length : 0;
+                        
+                        detailedStats = `📝 ${phraseCount} phrases`;
+                        if (iconCount > 0) detailedStats += `\n😊 ${iconCount} icons`;
+                        if (photoCount > 0) detailedStats += `\n📷 ${photoCount} photos`;
+                        
                     } else {
-                        // Scenario 2: Check if it's a specific month or full backup
                         let monthsFound = new Set();
+                        let totalPhrases = 0;
+                        
                         incomingKeys.forEach(k => {
                             try {
-                                const item = JSON.parse(data.history[k]);
+                                const item = typeof data.history[k] === 'string' ? JSON.parse(data.history[k]) : data.history[k];
                                 if (item.month !== undefined) monthsFound.add(item.month);
+                                if (item.words) totalPhrases += item.words.split('\n').filter(p => p.trim()).length;
                             } catch(e) {}
                         });
+                        
+                        let totalIcons = data.customIcons ? Object.keys(data.customIcons).length : 0;
+                        let totalPhotos = data.customPhotos ? Object.keys(data.customPhotos).length : 0;
         
                         if (monthsFound.size === 1) {
-                            // It's a Month Backup
                             const monthIdx = Array.from(monthsFound)[0];
+                            targetMonthIndex = monthIdx;
                             const monthName = monthNames[monthIdx];
                             modalTitle = `📥 Import ${monthName} Homeworks`;
-                            modalDescription = `Found ${count} items for ${monthName}. Add them to your backpack?`;
+                            detailedStats = `📁 Folder: ${monthName}\n📚 ${count} homework sets\n📝 ${totalPhrases} total phrases`;
                         } else {
-                            // It's a Full Backup
                             modalTitle = "📥 Import Full Backup";
-                            modalDescription = `This file contains ${count} items from multiple months. Add them to your backpack?`;
+                            detailedStats = `📚 ${count} homework sets\n📝 ${totalPhrases} total phrases`;
                         }
+                        
+                        if (totalIcons > 0) detailedStats += `\n😊 ${totalIcons} icons`;
+                        if (totalPhotos > 0) detailedStats += `\n📷 ${totalPhotos} photos`;
                     }
         
-                    // --- SHOW THE ALIGNED MODAL ---
+                    // Append the list of names to the display text
+                    detailedStats += `\n\n📦 Included:\n${nameList}`;
+        
                     openAppModal({
                         title: modalTitle,
-                        text: modalDescription,
+                        text: detailedStats + "\n\nAdd these to your backpack?",
                         mode: 'view',
                         saveText: "Import File",
                         cancelText: "Cancel",
@@ -2120,19 +2146,25 @@ openAppModal({
                             localStorage.setItem('customPhotos', JSON.stringify(customPhotos));
                             localStorage.setItem('homeworkNotes', JSON.stringify(homeworkNotes));
                             
+                            selectedBpMonth = targetMonthIndex;
+                            
                             openAppModal({
                                 title: "✅ Import Complete",
-                                text: `Imported ${importedCount} items. (Skipped ${skippedCount} duplicates).`,
+                                text: `Imported ${importedCount} items.\n(Skipped ${skippedCount} duplicates).`,
                                 mode: 'view',
-                                saveText: "OK",
-                                onAction: () => location.reload()
+                                saveText: "Go to Backpack",
+                                onAction: () => {
+                                    closeOverlay('appModal');
+                                    openOverlay('bpModal');
+                                }
                             });
                         },
                         onSecondaryAction: () => closeOverlay('appModal')
                     });
         
                 } catch (error) {
-                    alert('❌ Failed to read file. Make sure it is a valid French Fun backup.');
+                    console.error(error);
+                    alert('❌ Failed to read file.');
                 }
             };
             input.click();
@@ -4056,12 +4088,14 @@ async function translateOne(p) {
             const currentMonthName = monthNames[selectedBpMonth];
             const monthHistory = {}, monthNotes = {}, monthIcons = {}, monthPhotos = {};
             let hwCount = 0, totalPhrases = 0;
+            let includedNames = []; // Added to track names
             
             Object.keys(history).forEach(name => {
                 try {
                     const hwData = JSON.parse(history[name]);
                     if (hwData.month === selectedBpMonth) {
                         hwCount++;
+                        includedNames.push(`• ${name}`); // Collect name
                         monthHistory[name] = history[name];
                         if (homeworkNotes[name]) monthNotes[name] = homeworkNotes[name];
                         const phrases = hwData.words.split('\n').filter(p => p.trim());
@@ -4079,12 +4113,15 @@ async function translateOne(p) {
         
             let summary = `📁 Folder: ${currentMonthName}\n📚 ${hwCount} homework sets\n📝 ${totalPhrases} total phrases`;
             if (Object.keys(monthPhotos).length > 0) summary += `\n📷 ${Object.keys(monthPhotos).length} photos included`;
+            
+            // Add the list of names to the summary
+            summary += `\n\n📦 Included:\n${includedNames.join('\n')}`;
         
             openAppModal({
                 title: `📤 Export ${currentMonthName}`,
                 text: summary,
                 mode: 'view',
-                actionText: "💾 Export File", // UPDATED: Changed from Download to Export
+                actionText: "💾 Export File", 
                 onAction: () => {
                     const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Fun V10.0" };
                     attemptFileShare(JSON.stringify(data), `french-fun-${currentMonthName.toLowerCase()}.json`, `🇫🇷 Folder: ${currentMonthName}`);
@@ -4284,6 +4321,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
