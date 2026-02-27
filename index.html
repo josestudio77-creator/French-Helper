@@ -4018,13 +4018,13 @@ async function translateOne(p) {
             const btnDelete = document.getElementById('appModalBtnDelete'); 
             const btnGrid = document.getElementById('appModalViewBtns');
         
-            // SURGICAL CLEAN: Reset listeners using onclick = null
+            // Reset listeners
             btnAction.onclick = null;
             btnEdit.onclick = null;
             btnDelete.onclick = null;
             btnClose.onclick = null;
         
-            // RESET STYLES
+            // Default Styles
             btnAction.style.display = "none";
             btnAction.style.gridColumn = "auto";
             btnEdit.style.display = "none";
@@ -4058,14 +4058,13 @@ async function translateOne(p) {
                 editSection.style.display = "none";
                 const primaryText = config.saveText || config.actionText;
         
-                // SCENARIO A: Two-button confirmation
+                // SCENARIO A: Strict Two-button confirmation (Delete/Reset/Import Confirm)
                 if (config.onAction && (config.onSecondaryAction || config.cancelText)) {
-                    btnClose.style.display = "none"; 
+                    btnClose.style.display = "none"; // Hide bottom Close for Yes/No choices
                     btnAction.style.display = "block";
                     btnAction.textContent = primaryText || "Confirm";
                     btnAction.style.background = (primaryText && primaryText.includes("Delete")) ? "#ef4444" : "#4cd964";
                     
-                    // FIX: Close Modal FIRST, then run Action (Next-Modal-Safe)
                     btnAction.onclick = () => { 
                         const cb = config.onAction;
                         closeOverlay('appModal'); 
@@ -4082,9 +4081,12 @@ async function translateOne(p) {
                         if (scb) scb();
                     };
                 } 
-                // SCENARIO B: Single action button
+                // SCENARIO B: Single action button (Share, Export, Success)
                 else if (config.onAction) {
-                    btnClose.style.display = "none"; 
+                    // RESTORED: Show the Close button so user can abort Share/Export
+                    btnClose.style.display = "block"; 
+                    btnClose.textContent = "Cancel"; 
+                    
                     btnAction.style.display = "block";
                     btnAction.textContent = primaryText || "OK";
                     btnAction.style.background = "#5a67d8"; 
@@ -4114,6 +4116,7 @@ async function translateOne(p) {
                     btnGrid.style.gridTemplateColumns = (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
                 }
                 else {
+                    // SCENARIO D: Simple Alert
                     btnClose.style.display = "block";
                     btnClose.textContent = primaryText || "OK";
                     btnGrid.style.display = "none";
@@ -4413,6 +4416,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
