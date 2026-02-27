@@ -2157,8 +2157,7 @@ openAppModal({
             input.click();
         }
         
-        // SURGICAL HELPER: The actual engine that saves the data
-        // SURGICAL HELPER: The actual engine that saves the data
+       // SURGICAL HELPER: The actual engine that saves the data
         function performActualImport(data, incomingKeys, overwrite, targetMonthIndex) {
             let importedCount = 0;
             let updatedCount = 0;
@@ -2210,15 +2209,17 @@ openAppModal({
                 mode: 'view',
                 saveText: "Go to Backpack",
                 onAction: () => {
-                    // Close the success popup
+                    // 1. Close the success popup
                     closeOverlay('appModal');
                     
-                    // Close the Parent Settings drawer (where you came from)
+                    // 2. Close the Parent Settings drawer
                     closeOverlay('parentDrawer');
                     
-                    // Refresh and open the backpack
-                    openBP();
-                    openOverlay('bpModal');
+                    // 3. Tiny delay (100ms) to allow the UI to "breathe" before opening the backpack
+                    setTimeout(() => {
+                        // This automatically calls openBP() and shows the correct month
+                        openOverlay('bpModal');
+                    }, 100);
                 }
             });
         }
@@ -4383,6 +4384,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
