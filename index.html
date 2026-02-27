@@ -2158,6 +2158,7 @@ openAppModal({
         }
         
         // SURGICAL HELPER: The actual engine that saves the data
+        // SURGICAL HELPER: The actual engine that saves the data
         function performActualImport(data, incomingKeys, overwrite, targetMonthIndex) {
             let importedCount = 0;
             let updatedCount = 0;
@@ -2202,19 +2203,20 @@ openAppModal({
             if (updatedCount > 0) resultMsg += `\n🔄 ${updatedCount} items replaced.`;
             if (skippedCount > 0) resultMsg += `\n⏭️ ${skippedCount} items skipped.`;
         
+            // Show success modal with option to go to backpack
             openAppModal({
                 title: "✅ Success",
                 text: resultMsg,
                 mode: 'view',
                 saveText: "Go to Backpack",
                 onAction: () => {
-                    // 1. Close the success popup
+                    // Close the success popup
                     closeOverlay('appModal');
                     
-                    // 2. CRUCIAL FIX: Close the Parent Settings drawer so you don't stay behind it
+                    // Close the Parent Settings drawer (where you came from)
                     closeOverlay('parentDrawer');
                     
-                    // 3. Open the Backpack
+                    // Refresh and open the backpack
                     openBP();
                     openOverlay('bpModal');
                 }
@@ -4381,6 +4383,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
