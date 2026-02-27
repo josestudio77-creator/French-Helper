@@ -2208,18 +2208,11 @@ openAppModal({
                 text: resultMsg,
                 mode: 'view',
                 saveText: "Go to Backpack",
+                
                 onAction: () => {
-                    // 1. Close the success popup
                     closeOverlay('appModal');
-                    
-                    // 2. Close the Parent Settings drawer
                     closeOverlay('parentDrawer');
-                    
-                    // 3. Tiny delay (100ms) to allow the UI to "breathe" before opening the backpack
-                    setTimeout(() => {
-                        // This automatically calls openBP() and shows the correct month
-                        openOverlay('bpModal');
-                    }, 100);
+                    openOverlay('bpModal'); // Direct call, no setTimeout
                 }
             });
         }
@@ -4384,6 +4377,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
