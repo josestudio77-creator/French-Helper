@@ -2202,31 +2202,22 @@ openAppModal({
             if (updatedCount > 0) resultMsg += `\n🔄 ${updatedCount} items replaced.`;
             if (skippedCount > 0) resultMsg += `\n⏭️ ${skippedCount} items skipped.`;
         
-            // Show success modal with option to go to backpack
             openAppModal({
                 title: "✅ Success",
                 text: resultMsg,
                 mode: 'view',
                 saveText: "Go to Backpack",
-                
                 onAction: () => {
-                    console.log('🔍 Go to Backpack clicked - START');
+                    console.log('🔍 Go to Backpack callback executing');
                     
-                    closeOverlay('appModal');
-                    console.log('✅ appModal closed');
-                    
+                    // 1. Close the parent drawer that was underneath
                     closeOverlay('parentDrawer');
-                    console.log('✅ parentDrawer closed');
                     
-                    console.log('🔄 About to call openOverlay for bpModal');
-                    openOverlay('bpModal');
-                    console.log('✅ openOverlay called for bpModal');
-                    
-                    // Double-check the display style
+                    // 2. Delay slightly to allow Parent Drawer to slide away
                     setTimeout(() => {
-                        const bpElem = document.getElementById('bpModal');
-                        console.log('bpModal display style:', bpElem ? bpElem.style.display : 'ELEMENT NOT FOUND');
-                    }, 200);
+                        // 3. Open the Backpack (openOverlay automatically calls openBP())
+                        openOverlay('bpModal');
+                    }, 150);
                 }
             });
         }
@@ -4021,34 +4012,27 @@ async function translateOne(p) {
             const viewSection = document.getElementById('appModalView');
             const editSection = document.getElementById('appModalEdit');
             
-            // Buttons
             const btnClose = document.getElementById('appModalBtnClose'); 
             const btnAction = document.getElementById('appModalBtnAction'); 
             const btnEdit = document.getElementById('appModalBtnEdit'); 
             const btnDelete = document.getElementById('appModalBtnDelete'); 
             const btnGrid = document.getElementById('appModalViewBtns');
         
-            // SURGICAL CLEAN: Remove all previous event listeners by cloning
-            [btnAction, btnEdit, btnDelete, btnClose].forEach(btn => {
-                const newBtn = btn.cloneNode(true);
-                btn.parentNode.replaceChild(newBtn, btn);
-            });
+            // SURGICAL CLEAN: Reset listeners using onclick = null
+            btnAction.onclick = null;
+            btnEdit.onclick = null;
+            btnDelete.onclick = null;
+            btnClose.onclick = null;
         
-            // Re-assign fresh references
-            const bAct = document.getElementById('appModalBtnAction');
-            const bEdi = document.getElementById('appModalBtnEdit');
-            const bDel = document.getElementById('appModalBtnDelete');
-            const bClo = document.getElementById('appModalBtnClose');
-        
-            // RESET ALL STYLES
-            bAct.style.display = "none";
-            bAct.style.gridColumn = "auto";
-            bEdi.style.display = "none";
-            bEdi.style.gridColumn = "auto";
-            bDel.style.display = "none";
-            bDel.style.gridColumn = "auto";
-            bClo.style.display = "block"; 
-            bClo.textContent = "Close";
+            // RESET STYLES
+            btnAction.style.display = "none";
+            btnAction.style.gridColumn = "auto";
+            btnEdit.style.display = "none";
+            btnEdit.style.gridColumn = "auto";
+            btnDelete.style.display = "none";
+            btnDelete.style.gridColumn = "auto";
+            btnClose.style.display = "block"; 
+            btnClose.textContent = "Close";
             btnGrid.style.display = "grid";
             btnGrid.style.gridTemplateColumns = "1fr 1fr"; 
             statsEl.textContent = "";
@@ -4056,13 +4040,11 @@ async function translateOne(p) {
             titleEl.textContent = config.title || "";
             display.textContent = config.text || "";
         
-            // --- FLOW 1: EDIT MODE (Naming or Writing Notes) ---
             if (config.mode === 'edit') {
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
-                bClo.style.display = "none"; 
+                btnClose.style.display = "none"; 
                 input.value = config.text || "";
-                
                 const bSave = document.getElementById('appModalBtnSave');
                 const bCan = document.getElementById('appModalBtnCancel');
                 bSave.onclick = () => { 
@@ -4071,72 +4053,73 @@ async function translateOne(p) {
                 };
                 bCan.onclick = () => closeOverlay('appModal');
             } 
-            // --- FLOW 2: VIEW MODE (Everything else) ---
             else {
                 viewSection.style.display = "block";
                 editSection.style.display = "none";
-        
                 const primaryText = config.saveText || config.actionText;
         
-                // SCENARIO A: Two-button confirmation (Reset Month, Delete Homework, Import Confirm)
+                // SCENARIO A: Two-button confirmation
                 if (config.onAction && (config.onSecondaryAction || config.cancelText)) {
-                    bClo.style.display = "none"; 
+                    btnClose.style.display = "none"; 
+                    btnAction.style.display = "block";
+                    btnAction.textContent = primaryText || "Confirm";
+                    btnAction.style.background = (primaryText && primaryText.includes("Delete")) ? "#ef4444" : "#4cd964";
                     
-                    bAct.style.display = "block";
-                    bAct.textContent = primaryText || "Confirm";
-                    bAct.style.background = (primaryText && primaryText.includes("Delete")) ? "#ef4444" : "#4cd964";
-                    bAct.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-        
-                    bEdi.style.display = "block";
-                    bEdi.textContent = config.cancelText || "Cancel";
-                    bEdi.style.background = "#ff9e6d"; // Orange
-                    bEdi.style.color = "white";
-                    bEdi.onclick = () => { 
-                        if(config.onSecondaryAction) config.onSecondaryAction(); 
+                    // FIX: Close Modal FIRST, then run Action (Next-Modal-Safe)
+                    btnAction.onclick = () => { 
+                        const cb = config.onAction;
                         closeOverlay('appModal'); 
+                        if (cb) cb();
+                    };
+        
+                    btnEdit.style.display = "block";
+                    btnEdit.textContent = config.cancelText || "Cancel";
+                    btnEdit.style.background = "#ff9e6d"; 
+                    btnEdit.style.color = "white";
+                    btnEdit.onclick = () => { 
+                        const scb = config.onSecondaryAction;
+                        closeOverlay('appModal'); 
+                        if (scb) scb();
                     };
                 } 
-                // SCENARIO B: Single action button (Share, Export, View in Backpack)
+                // SCENARIO B: Single action button
                 else if (config.onAction) {
-                    bAct.style.display = "block";
-                    bAct.textContent = primaryText || "OK";
-                    bAct.style.background = "#5a67d8"; // Indigo for Share/Info
-                    bAct.style.gridColumn = "span 2";
-                    bAct.onclick = () => { config.onAction(); closeOverlay('appModal'); };
-                    
-                    bEdi.style.display = "none";
-                    bDel.style.display = "none";
+                    btnClose.style.display = "none"; 
+                    btnAction.style.display = "block";
+                    btnAction.textContent = primaryText || "OK";
+                    btnAction.style.background = "#5a67d8"; 
+                    btnAction.style.gridColumn = "span 2";
+                    btnAction.onclick = () => { 
+                        const cb = config.onAction;
+                        closeOverlay('appModal'); 
+                        if (cb) cb();
+                    };
                 }
-                // SCENARIO C: Note View (Edit / Delete / Close)
+                // SCENARIO C: Note View
                 else if (config.onEdit || config.onDelete) {
                     if (config.onEdit) {
-                        bEdi.style.display = "block";
-                        bEdi.textContent = "✏️ Edit";
-                        bEdi.style.background = "#118AB2";
-                        bEdi.style.color = "white";
-                        bEdi.onclick = () => { config.onEdit(); };
+                        btnEdit.style.display = "block";
+                        btnEdit.textContent = "✏️ Edit";
+                        btnEdit.style.background = "#118AB2";
+                        btnEdit.style.color = "white";
+                        btnEdit.onclick = () => config.onEdit();
                     }
-        
                     if (config.onDelete) {
-                        bDel.style.display = "block";
-                        bDel.textContent = "🗑️ Delete";
-                        bDel.style.background = "#fee2e2";
-                        bDel.style.color = "#ef4444";
-                        bDel.onclick = () => { config.onDelete(); closeOverlay('appModal'); };
+                        btnDelete.style.display = "block";
+                        btnDelete.textContent = "🗑️ Delete";
+                        btnDelete.style.background = "#fee2e2";
+                        btnDelete.style.color = "#ef4444";
+                        btnDelete.onclick = () => { config.onDelete(); closeOverlay('appModal'); };
                     }
-                    
-                    // Adjust grid if only one button is present
                     btnGrid.style.gridTemplateColumns = (config.onEdit && config.onDelete) ? "1fr 1fr" : "1fr";
                 }
-                // SCENARIO D: Simple Alert (Just information + Close button)
                 else {
-                    bClo.style.display = "block";
-                    bClo.textContent = primaryText || "OK";
+                    btnClose.style.display = "block";
+                    btnClose.textContent = primaryText || "OK";
                     btnGrid.style.display = "none";
                 }
             }
-        
-            bClo.onclick = () => closeOverlay('appModal');
+            btnClose.onclick = () => closeOverlay('appModal');
             openOverlay('appModal');
         }
         
@@ -4391,6 +4374,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
