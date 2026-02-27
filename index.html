@@ -1048,8 +1048,11 @@
             <input type="file" id="teacherAudioFile" accept="audio/*" style="width:100%; margin-top:5px; font-size:0.8rem;">
             
             <div id="audioPlayerContainer" style="display:none; margin-top:10px; padding:10px; background:rgba(255,255,255,0.5); border-radius:10px;">
-                <p style="font-size:0.7rem; color:#856404; margin-bottom:5px; font-weight:bold;">📻 Current Recording:</p>
+                <p style="font-size:0.7rem; color:#856404; margin-bottom:5px; font-weight:bold;">
+                    📻 Recording: <span id="teacherAudioNameDisplay" style="color:#2d3748; font-weight:900;"></span>
+                </p>
                 <audio id="teacherAudioPlayer" controls style="width:100%; height:35px;"></audio>
+                
                 <button onclick="removeTeacherAudio()" style="background:#ff4d4d; color:white; border:none; border-radius:8px; padding:8px; font-size:0.75rem; margin-top:8px; font-weight:900; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:5px;">
                     🗑️ Remove Recording
                 </button>
@@ -2216,6 +2219,7 @@ function addNewHomework() {
     document.getElementById('hwIsDialogue').checked = false;
     document.getElementById('teacherAudioFile').value = '';
     document.getElementById('audioPlayerContainer').style.display = 'none';
+    document.getElementById('teacherAudioNameDisplay').textContent = '';
     
     refreshHwTitle('add');
     closeOverlay('bpModal');
@@ -2657,16 +2661,22 @@ async function translateIfNeeded(words, showProgress = true) {
             }
             
             const player = document.getElementById('teacherAudioPlayer');
+            const nameDisplay = document.getElementById('teacherAudioNameDisplay');
             
             // 1. Setup the player
             player.pause();
             player.currentTime = 0;
             player.src = currentWeekAudio.data;
             
-            // 2. Show the container (which now includes your Remove button)
+            // 2. RESTORED: Update the filename display
+            if (nameDisplay) {
+                nameDisplay.textContent = currentWeekAudio.name || "Saved Recording";
+            }
+            
+            // 3. Show the container
             document.getElementById('audioPlayerContainer').style.display = 'block';
             
-            // 3. Audio Exclusivity: Prevents "Double Audio"
+            // 4. Audio Exclusivity
             player.onplay = () => {
                 document.querySelectorAll('audio').forEach(audio => {
                     if (audio !== player && !audio.paused) {
@@ -2679,6 +2689,7 @@ async function translateIfNeeded(words, showProgress = true) {
         function removeTeacherAudio() {
             // 1. Clear the data (Step 2 in your version)
             currentWeekAudio = null;
+            document.getElementById('teacherAudioNameDisplay').textContent = '';
             
             // 2. Reset the file input (Step 3 in your version)
             const fileInput = document.getElementById('teacherAudioFile');
@@ -4274,6 +4285,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
