@@ -9,8 +9,7 @@
     <meta name="theme-color" content="#FF6B8B">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Patrick+Hand&family=Playwrite+USA+Trad:wght@100..400&display=swap" rel="stylesheet">
     
     <!-- Cropper.js for photo cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -845,8 +844,31 @@
         position: relative; background: white !important; -webkit-print-color-adjust: exact !important;
     }
     .print-phrase-block:last-child { margin-bottom: 0 !important; }
-    .print-phrase-text { font-size: 24pt; font-weight: 700; margin-bottom: 15px; color: #000; text-align: left; display: block; padding-right: 40px; }
-    .cursive-font { font-family: 'Dancing Script', cursive !important; font-size: 28pt !important; font-weight: 700 !important; }
+    
+    /* Updated Manuscript style using Patrick Hand */
+    .print-phrase-text { 
+        font-family: 'Patrick Hand', cursive !important;
+        font-size: 32pt; 
+        font-weight: 400; 
+        margin-bottom: 15px; 
+        color: #000; 
+        text-align: left; 
+        display: block; 
+        padding-right: 40px; 
+        letter-spacing: 1.5pt;
+    }
+
+    /* Updated Cursive style using Playwrite USA Trad */
+    .cursive-font { 
+        font-family: 'Playwrite USA Trad', cursive !important; 
+        font-size: 20pt !important; 
+        font-weight: 400 !important; 
+        letter-spacing: 0;
+        line-height: 1.6;
+    }
+
+    /* Helper class to ensure logic function applies Patrick Hand correctly when cursive is off */
+    .block-font { font-family: 'Patrick Hand', cursive !important; }
     
     .calligraphy-row {
         height: 38px; width: 100%; margin-bottom: 25px; border-bottom: 2px solid black;
@@ -3982,7 +4004,7 @@ async function translateOne(p) {
         
             phrases.forEach((phrase, index) => {
                 const cleanPhrase = phrase.split('|')[0].trim();
-                const fontClass = isCursive ? 'cursive-font' : '';
+                const fontClass = isCursive ? 'cursive-font' : 'block-font';
                 let rows = "";
                 for (let i = 0; i < repetitions; i++) { rows += `<div class="calligraphy-row"></div>`; }
                 html += `<div class="print-phrase-block">
@@ -4416,6 +4438,7 @@ window.onload = () => {
         
 </body>
 </html>
+
 
 
 
