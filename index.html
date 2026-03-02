@@ -884,32 +884,40 @@
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
 
-    /* Faint Tracing Style */
+    /* Faint Tracing Style - Corrected Baseline Alignment */
     .trace-text {
         position: absolute;
-        top: 0;
         left: 0;
         width: 100%;
-        height: 38px;
-        color: #e0e0e0 !important; /* Faint grey */
+        color: #d1d1d1 !important; /* Slightly lighter faint grey */
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        opacity: 0.6;
+        opacity: 0.7;
         pointer-events: none;
-        overflow: hidden;
         white-space: nowrap;
         
-        /* Vertical alignment to guidelines */
-        display: flex;
-        align-items: flex-end; /* Sits on the baseline */
-        padding-bottom: 2px;   /* Fine-tuning to sit exactly on bottom solid line */
-        box-sizing: border-box;
+        /* Allow tails (descenders) to go below the solid line */
+        overflow: visible !important; 
+        
+        /* Anchor alignment */
+        display: block;
+        text-align: left;
     }
 
-    /* Override sizes for tracing text specifically so they don't overflow the 38px row */
-    .trace-text.block-font { font-size: 20pt !important; }
-    .trace-text.cursive-font { font-size: 18pt !important; padding-bottom: 4px; }
-}
+    /* Block Tracing Alignment (Comic Neue) */
+    .trace-text.block-font { 
+        font-size: 26pt !important; /* Matches your main print text size */
+        line-height: 38px;          /* Centers it in the row height */
+        top: -6px;                  /* Nudges the baseline to sit ON the line */
+    }
+
+    /* Cursive Tracing Alignment (Playwrite US Trad) */
+    .trace-text.cursive-font { 
+        font-size: 22pt !important; /* Matches your main cursive size */
+        line-height: 38px;
+        top: -4px;                  /* Nudges the baseline to sit ON the line */
+        word-spacing: 5pt !important;
+    }
        
    </style>
 </head>
@@ -4472,6 +4480,7 @@ window.onload = () => {
     <div style="font-family: 'Comic Neue'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Block</div>
 </body>
 </html>
+
 
 
 
