@@ -884,38 +884,39 @@
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
 
-    /* Faint Tracing Style - Corrected Baseline Alignment */
+   /* Faint Tracing Style - Adjusted for thin strokes and perfect baseline */
     .trace-text {
         position: absolute;
         left: 0;
         width: 100%;
-        color: #d1d1d1 !important; /* Slightly lighter faint grey */
+        color: #e0e0e0 !important; /* Lighter grey for a faint look */
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        opacity: 0.7;
+        opacity: 0.8;
         pointer-events: none;
         white-space: nowrap;
-        
-        /* Allow tails (descenders) to go below the solid line */
         overflow: visible !important; 
-        
-        /* Anchor alignment */
         display: block;
         text-align: left;
     }
 
-    /* Block Tracing Alignment (Comic Neue) */
+    /* Block Tracing (Comic Neue) - Thinner and Moved Down */
     .trace-text.block-font { 
-        font-size: 26pt !important; /* Matches your main print text size */
-        line-height: 38px;          /* Centers it in the row height */
-        top: -6px;                  /* Nudges the baseline to sit ON the line */
+        font-family: "Comic Neue", sans-serif !important;
+        font-size: 29pt !important;  /* Increased size */
+        font-weight: 300 !important; /* Thinner stroke */
+        line-height: 38px;
+        top: 2px;                   /* Moved down significantly */
+        letter-spacing: 0pt;
     }
 
-    /* Cursive Tracing Alignment (Playwrite US Trad) */
+    /* Cursive Tracing (Playwrite US Trad) - Thinner and Moved Down */
     .trace-text.cursive-font { 
-        font-size: 22pt !important; /* Matches your main cursive size */
+        font-family: "Playwrite US Trad", cursive !important;
+        font-size: 24pt !important;  /* Increased size */
+        font-weight: 100 !important; /* Thinnest possible stroke */
         line-height: 38px;
-        top: -4px;                  /* Nudges the baseline to sit ON the line */
+        top: 3px;                   /* Moved down to sit on baseline */
         word-spacing: 5pt !important;
     }
        
@@ -4480,6 +4481,7 @@ window.onload = () => {
     <div style="font-family: 'Comic Neue'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Block</div>
 </body>
 </html>
+
 
 
 
