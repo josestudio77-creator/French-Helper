@@ -918,6 +918,11 @@
         border-top: 1.2px dashed #bbb; 
         height: 0;
     }
+
+    /* CURSIVE OVERRIDE: Moves the line lower (to 50%) only when the phrase is Cursive */
+    .print-phrase-text.cursive-font ~ .calligraphy-row::after {
+        top: 45% !important; /* This moves the dotted line to the middle for Cursive only */
+    }
     
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
@@ -4516,6 +4521,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
