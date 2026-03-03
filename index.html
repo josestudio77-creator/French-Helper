@@ -884,9 +884,16 @@
     /* BLOCK OVERRIDE: Specific to KG Primary Penmanship */
     .print-phrase-text.block-font, .block-font { 
         font-family: "KG Primary Penmanship Alt", sans-serif !important;
-        font-weight: 600 !important;
-        /* Using your found "perfect balance" size */
+        
+        /* FIX: Change from 600 to 400 to stop the browser from "faking" bold */
+        font-weight: 400 !important;
+        
         font-size: 46px !important; 
+        text-align: left !important;
+
+        /* NEW: This prevents the browser from adding extra "ink" to the edges */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     /* CURSIVE OVERRIDE: Specific to Playwrite US Trad */
@@ -950,6 +957,10 @@
         line-height: 38px;
         top: 1px; 
         letter-spacing: -1px;
+        
+        /* Ensure this is 400 too */
+        font-weight: 400 !important;
+
         -webkit-text-stroke: 1.5px white !important;
         paint-order: stroke fill;
     }
@@ -4568,6 +4579,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
