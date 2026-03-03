@@ -969,23 +969,23 @@
     <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 90%; max-width: 400px; padding: 30px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h2 style="color: #9d4edd; margin-bottom: 20px;">🖨️ Print Settings</h2>
         
-        <!-- Repetition Input -->
+        <!-- Repetition Input - Defaulted to 3 -->
         <div style="margin-bottom: 15px; background: #fdf2ff; padding: 15px; border-radius: 15px; border: 2px dashed #9d4edd;">
             <p style="font-weight: 900; color: #9d4edd; margin-bottom: 10px; font-size: 1rem;">How many lines per phrase?</p>
-            <input type="number" id="repeatCountInput" value="2" min="1" max="10" 
+            <input type="number" id="repeatCountInput" value="3" min="1" max="10" 
                    style="width: 80px; padding: 10px; font-size: 1.5rem; text-align: center; border-radius: 10px; border: 3px solid #9d4edd; font-weight: 900; outline: none;">
         </div>
 
-        <!-- NEW: Checkboxes for Header and Tracing -->
+        <!-- Checkboxes for Header and Tracing -->
         <div style="margin-bottom: 20px; text-align: left; padding-left: 10px;">
             <!-- Header Toggle -->
             <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; margin-bottom: 10px;">
                 <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.4);"> 📝 Include Name/Date Header
             </label>
             
-            <!-- NEW: Faint Tracing Toggle -->
+            <!-- Faint Tracing Toggle - Defaulted to Checked -->
             <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
-                <input type="checkbox" id="includeTraceToggle" style="transform: scale(1.4);"> ✏️ Include Faint Tracing Line
+                <input type="checkbox" id="includeTraceToggle" checked style="transform: scale(1.4);"> ✏️ Include Faint Tracing Line
             </label>
         </div>
 
@@ -4034,17 +4034,21 @@ async function translateOne(p) {
             window.speechSynthesis.speak(utterance);
         }
         
-        function openPrintSelection(words, homeworkName) {
-            tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-            if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
-            tempPrintName = homeworkName || currentSetName || "Français";
-            
-            document.getElementById('repeatCountInput').value = 2;
-            document.getElementById('includeHeaderToggle').checked = false; 
-            document.getElementById('includeTraceToggle').checked = false; // NEW: Reset trace
-            
-            openOverlay('printSelectionOverlay');
-        }
+function openPrintSelection(words, homeworkName) {
+    tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
+    if (!tempWordsToPrint) { 
+        alert("Please enter some phrases first!"); 
+        return; 
+    }
+
+    tempPrintName = homeworkName || currentSetName || "Français";
+    
+    document.getElementById('repeatCountInput').value = 3;
+    document.getElementById('includeHeaderToggle').checked = false; 
+    document.getElementById('includeTraceToggle').checked = true; // Set to true
+    
+    openOverlay('printSelectionOverlay');
+}
         
         function handlePrintChoice(choice) {
             const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
@@ -4521,6 +4525,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
