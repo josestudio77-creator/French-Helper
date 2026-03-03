@@ -1833,11 +1833,19 @@ function getCardData(p) {
 
 
 function renderList(list) {
+    
     console.log('Rendering list. Audio:', !!currentWeekAudio, 'Mode:', viewMode);
     currentScreenList = list; 
     const container = document.getElementById('phrasesList'); 
     if (!container) return;
     container.innerHTML = '';
+
+        // SPECIAL HANDLING FOR ALPHABET PRESET
+    // Check if this looks like the alphabet list
+    if (list.length === 26 && list[0].includes('(ah)')) {
+        renderAlphabetCards(list);
+        return;
+    }
     
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
@@ -3971,7 +3979,61 @@ async function translateOne(p) {
             });
         }
 
-       
+        function renderAlphabetCards(alphabetList) {
+            const container = document.getElementById('phrasesList');
+            container.innerHTML = '';
+            
+            // Clear any existing badges/status that might interfere
+            const statusInfo = document.getElementById('stCountText');
+            if (statusInfo) {
+                statusInfo.innerHTML = '🔤 French Alphabet';
+            }
+            
+            alphabetList.forEach(item => {
+                // Parse the format "A (ah)"
+                const match = item.match(/([A-Z])\s\(([^)]+)\)/);
+                if (!match) return;
+                
+                const letter = match[1];
+                const pronunciation = match[2];
+                
+                // Create a mapping for the letter names in English
+                const letterNames = {
+                    'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E',
+                    'F': 'F', 'G': 'G', 'H': 'H', 'I': 'I', 'J': 'J',
+                    'K': 'K', 'L': 'L', 'M': 'M', 'N': 'N', 'O': 'O',
+                    'P': 'P', 'Q': 'Q', 'R': 'R', 'S': 'S', 'T': 'T',
+                    'U': 'U', 'V': 'V', 'W': 'W', 'X': 'X', 'Y': 'Y', 'Z': 'Z'
+                };
+                
+                const card = document.createElement('div');
+                card.className = 'phrase-card';
+                card.style.borderColor = '#4cd964'; // Special green color for alphabet
+                card.style.background = 'linear-gradient(145deg, #ffffff, #f0fff4)'; // Subtle green tint
+                
+                card.innerHTML = `
+                    <span class="card-icon" style="font-size: 3rem; margin-bottom: 5px;">🔤</span>
+                    <span class="french-text" style="font-size: 5rem; line-height: 1.2; color: #2d3748;">${letter}</span>
+                    <span class="pronunciation-text" style="font-size: 1.8rem; color: #4a5568; margin: 10px 0;">[ ${pronunciation} ]</span>
+                    <span class="english-text" style="font-size: 1.5rem; color: #5a67d8; margin-bottom: 20px;">Letter ${letterNames[letter]}</span>
+                    <div class="card-btns">
+                        <button class="card-btn spk-fr" style="background: #4cd964; font-size: 1.2rem;">🔊 French Letter</button>
+                        <button class="card-btn spk-en" style="background: #ff9e6d; font-size: 1.2rem;">🔊 Pronunciation</button>
+                    </div>
+                `;
+                
+                // French button - says the letter
+                card.querySelector('.spk-fr').onclick = () => spk(letter, 'fr-FR', true);
+                
+                // English button - says the pronunciation
+                card.querySelector('.spk-en').onclick = () => {
+                    spk(pronunciation, 'fr-FR', true);
+                };
+                
+                container.appendChild(card);
+            });
+        }
+        
         function manualFixTranslation(p, currentEn) {
             openAppModal({
                 title: `🔧 Fix Translation: ${p}`,
@@ -4587,6 +4649,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
