@@ -978,15 +978,34 @@
 
         <!-- Checkboxes for Header and Tracing -->
         <div style="margin-bottom: 20px; text-align: left; padding-left: 10px;">
-            <!-- Header Toggle -->
-            <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; margin-bottom: 10px;">
-                <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.4);"> 📝 Include Name/Date Header
-            </label>
             
-            <!-- Faint Tracing Toggle - Defaulted to Checked -->
-            <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
-                <input type="checkbox" id="includeTraceToggle" checked style="transform: scale(1.4);"> ✏️ Include Faint Tracing Line
-            </label>
+            <!-- Header Toggle -->
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
+                    <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.4);"> 📝 Include Name/Date Header
+                </label>
+            </div>
+            
+            <!-- Tracing Options -->
+            <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.9rem;">✏️ Tracing Guide:</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #f8fafc; padding: 5px; border-radius: 12px; border: 2px solid #e2e8f0;">
+                
+                <!-- None Option -->
+                <label style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: #64748b;">
+                    <input type="radio" name="traceOption" value="none" style="display:none;" onchange="updateTraceUI('none')"> ❌ None
+                </label>
+                
+                <!-- First Line Option -->
+                <label id="labelTraceFirst" style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; background: #5a67d8; color: white;">
+                    <input type="radio" name="traceOption" value="first" checked style="display:none;" onchange="updateTraceUI('first')"> 1️⃣ First
+                </label>
+                
+                <!-- All Lines Option -->
+                <label id="labelTraceAll" style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: #64748b;">
+                    <input type="radio" name="traceOption" value="all" style="display:none;" onchange="updateTraceUI('all')"> 🔄 All
+                </label>
+
+            </div>
         </div>
 
         <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.9rem;">Choose Style:</p>
@@ -4034,32 +4053,50 @@ async function translateOne(p) {
             window.speechSynthesis.speak(utterance);
         }
         
-function openPrintSelection(words, homeworkName) {
-    tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!tempWordsToPrint) { 
-        alert("Please enter some phrases first!"); 
-        return; 
-    }
-
-    tempPrintName = homeworkName || currentSetName || "Français";
-    
-    document.getElementById('repeatCountInput').value = 3;
-    document.getElementById('includeHeaderToggle').checked = false; 
-    document.getElementById('includeTraceToggle').checked = true; // Set to true
-    
-    openOverlay('printSelectionOverlay');
-}
-        
-        function handlePrintChoice(choice) {
-            const reps = parseInt(document.getElementById('repeatCountInput').value) || 2;
-            const showHeader = document.getElementById('includeHeaderToggle').checked;
-            const showTrace = document.getElementById('includeTraceToggle').checked; // NEW
+        function openPrintSelection(words, homeworkName) {
+            tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
+            if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
+            tempPrintName = homeworkName || currentSetName || "Français";
             
-            closeOverlay('printSelectionOverlay');
-            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, showTrace);
+            document.getElementById('repeatCountInput').value = 3;
+            document.getElementById('includeHeaderToggle').checked = false; 
+            
+            // Reset Tracing to "First" as default
+            updateTraceUI('first');
+            
+            openOverlay('printSelectionOverlay');
+        }
+
+        function updateTraceUI(choice) {
+            // Resets all buttons to default grey
+            const labels = document.querySelectorAll('input[name="traceOption"]');
+            labels.forEach(input => {
+                const parent = input.parentElement;
+                parent.style.background = "none";
+                parent.style.color = "#64748b";
+            });
+        
+            // Highlights the selected button
+            const selected = document.querySelector(`input[name="traceOption"][value="${choice}"]`);
+            if (selected) {
+                selected.checked = true;
+                selected.parentElement.style.background = "#5a67d8";
+                selected.parentElement.style.color = "white";
+            }
         }
         
-        function runPrintLogic(words, isCursive = false, repetitions = 2, includeHeader = false, printName = "Français", showTrace = false) {
+        function handlePrintChoice(choice) {
+            const reps = parseInt(document.getElementById('repeatCountInput').value) || 3;
+            const showHeader = document.getElementById('includeHeaderToggle').checked;
+            
+            // Get the tracing mode (none, first, or all)
+            const traceMode = document.querySelector('input[name="traceOption"]:checked').value;
+            
+            closeOverlay('printSelectionOverlay');
+            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
+        }
+        
+        function runPrintLogic(words, isCursive = false, repetitions = 3, includeHeader = false, printName = "Français", traceMode = 'first') {
             if (isPrinting) return;
             isPrinting = true;
         
@@ -4090,8 +4127,12 @@ function openPrintSelection(words, homeworkName) {
                 let rows = "";
                 
                 for (let i = 0; i < repetitions; i++) {
-                    // NEW: If it's the first row and tracing is on, add the trace-text div
-                    let traceHTML = (showTrace && i === 0) ? `<div class="trace-text ${fontClass}">${cleanPhrase}</div>` : '';
+                    // --- UPDATED TRACING LOGIC ---
+                    let shouldTrace = false;
+                    if (traceMode === 'all') shouldTrace = true;
+                    else if (traceMode === 'first' && i === 0) shouldTrace = true;
+        
+                    let traceHTML = shouldTrace ? `<div class="trace-text ${fontClass}">${cleanPhrase}</div>` : '';
                     rows += `<div class="calligraphy-row">${traceHTML}</div>`; 
                 }
         
@@ -4525,6 +4566,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
