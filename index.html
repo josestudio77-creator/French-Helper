@@ -1303,6 +1303,7 @@
                 <button class="preset-btn" onclick="loadPresetAndClose('school')">📚 School</button>
                 <button class="preset-btn" onclick="loadPresetAndClose('house')">🏠 House</button>
                 <button class="preset-btn" onclick="loadPresetAndClose('actions')">🎭 Actions</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('alphabet')">🔤 Alphabet</button>
             </div>
             
             <button onclick="closeOverlay('presetsOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
@@ -1391,6 +1392,13 @@
             school:["Un livre","Un crayon","Un sac","L'école","Le bureau","Le professeur","Un cahier","Une règle"],
             house:["Une chaise","Une table","Un lit","Une fenêtre","Une porte"],
             actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"]
+            alphabet: [
+                "A (ah)", "B (bay)", "C (say)", "D (day)", "E (uh)",
+                "F (ef)", "G (zhay)", "H (ash)", "I (ee)", "J (zhee)",
+                "K (kah)", "L (el)", "M (em)", "N (en)", "O (oh)",
+                "P (pay)", "Q (koo)", "R (air)", "S (ess)", "T (tay)",
+                "U (oo)", "V (vay)", "W (doo-bluh-vay)", "X (eeks)", "Y (ee-grek)", "Z (zed)"
+            ]
         };
 
         // ===== APP STATE =====
@@ -4579,6 +4587,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
