@@ -1017,32 +1017,50 @@
         min-height: 40px;
     }
     
+    /* Ensure the word box handles scaling without clipping */
     .word-box {
         display: flex;
         gap: 4px;
         padding: 4px;
-        border-radius: 8px;
-        align-items: center; /* Ensures text and slots line up */
+        align-items: center;
+        transition: all 0.3s;
     }
     
-    /* NEW: Renamed to .bee-slot to avoid conflict with Hangman */
+       /* UPDATED: Letter boxes instead of simple underlines */
     .bee-slot {
-        width: 26px;
-        border-bottom: 3px solid #cbd5e0;
-        /* INCREASED: Matches your standard 1.8rem french-text */
+        width: 32px; /* Fixed width to prevent jumping */
+        height: 42px;
+        border: 2px solid #cbd5e0;
+        border-radius: 8px;
+        background: white;
         font-size: 1.8rem;
         font-weight: 900;
-        height: 40px;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: #2d3748;
         text-transform: uppercase;
+        transition: all 0.2s;
     }
     
     .bee-slot.filled {
-        border-bottom-color: #4cd964;
-        color: #2d3748;
+        border-color: #4cd964;
+        background: #f0fdf4;
+    }
+
+    /* Animation for the word victory pop */
+    @keyframes wordPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
     }
     
+    .word-victory-anim {
+        animation: wordPop 0.6s ease-out;
+        color: #4cd964 !important;
+        text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
+    }
+       
     /* Optimized QWERTY Mini Keyboard */
     .mini-keyboard {
         display: flex;
@@ -4724,7 +4742,6 @@ async function translateOne(p) {
     }
     
     function startNewSpellingGame(card, phrase) {
-        // Remove punctuation for the spelling logic but keep it for display if needed
         const cleanPhrase = phrase.split('|')[0].trim();
         const words = cleanPhrase.split(/\s+/);
         
@@ -4733,14 +4750,16 @@ async function translateOne(p) {
             phrase: cleanPhrase,
             words: words,
             currentWordIndex: 0,
-            currentLetterIndex: 0
+            currentLetterIndex: 0,
+            isWordVictory: false // NEW: Track the transition state
         };
     
         renderSpellingSlots();
         renderMiniKeyboard();
         
-        // Initial prompt: Speak the first word
-        spk(words[0], 'fr-FR');
+        setTimeout(() => {
+            spk(words[0], 'fr-FR');
+        }, 500);
     }
     
     function renderSpellingSlots() {
@@ -4752,42 +4771,54 @@ async function translateOne(p) {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-box';
             
-            if (wIdx === currentSpellingState.currentWordIndex) {
-                // --- TARGET WORD: Show .bee-slot underscores ---
+            // --- CASE 1: Word already completed (Past) ---
+            if (wIdx < currentSpellingState.currentWordIndex) {
+                const wordSpan = document.createElement('span');
+                wordSpan.textContent = word;
+                wordSpan.style.fontSize = "1.8rem";
+                wordSpan.style.fontWeight = "900";
+                wordSpan.style.color = "#4cd964"; // Permanent Green
+                wordDiv.appendChild(wordSpan);
+            } 
+            // --- CASE 2: The current word we just finished (VICTORY MOMENT) ---
+            else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
+                const wordSpan = document.createElement('span');
+                wordSpan.textContent = word;
+                wordSpan.className = "word-victory-anim"; // Trigger the POP
+                wordSpan.style.fontSize = "1.8rem";
+                wordSpan.style.fontWeight = "900";
+                wordDiv.appendChild(wordSpan);
+            }
+            // --- CASE 3: The Target word being spelled (Underlines/Boxes) ---
+            else if (wIdx === currentSpellingState.currentWordIndex) {
                 const letters = word.split('');
                 letters.forEach((char, lIdx) => {
                     const slot = document.createElement('div');
-                    slot.className = 'bee-slot'; // Renamed class to match Step 1 CSS
+                    slot.className = 'bee-slot';
                     
                     const isPunctuation = /[.,!?;:]/.test(char);
     
                     if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
                         slot.textContent = char;
                         slot.classList.add('filled');
-                        if (isPunctuation) slot.style.borderBottom = 'none';
                     } else if (char === "'" || char === "-") {
                         slot.textContent = char;
-                        slot.style.borderBottom = 'none';
+                        slot.style.border = 'none';
+                        slot.style.background = 'transparent';
                     } else {
-                        slot.textContent = ''; 
+                        slot.textContent = ''; // Blank box
                     }
                     wordDiv.appendChild(slot);
                 });
-            } else {
-                // --- CONTEXT WORDS: Show Full Text ---
+            } 
+            // --- CASE 4: Future words (Faint Context) ---
+            else {
                 const wordSpan = document.createElement('span');
                 wordSpan.textContent = word;
-                
-                // Visual Styles for Context
-                wordSpan.style.fontSize = "1.8rem"; // MATCHES standard card text
+                wordSpan.style.fontSize = "1.8rem";
                 wordSpan.style.fontWeight = "900";
-                
-                if (wIdx < currentSpellingState.currentWordIndex) {
-                    wordSpan.style.color = "#4cd964"; // Finished = Green
-                } else {
-                    wordSpan.style.opacity = "0.5"; // Future = Faint
-                    wordSpan.style.color = "#2d3748";
-                }
+                wordSpan.style.opacity = "0.3";
+                wordSpan.style.color = "#2d3748";
                 wordDiv.appendChild(wordSpan);
             }
     
@@ -4820,52 +4851,58 @@ async function translateOne(p) {
     }
     
     function handleSpellingInput(inputLetter) {
-        if (!currentSpellingState) return;
+        // Prevent typing during the 3-second victory reveal
+        if (!currentSpellingState || currentSpellingState.isWordVictory) return;
     
         let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        // Remove punctuation (like periods at end of phrases) for matching
         let cleanTargetWord = targetWord.replace(/[.,!?;:]+$/, "");
         let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
         
         if (inputLetter === targetLetter) {
-            // --- CORRECT LETTER ---
             currentSpellingState.currentLetterIndex++;
-            if (typeof playDingSound === "function") playDingSound();
             
             if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
-                // WORD FINISHED
-                currentSpellingState.currentWordIndex++;
-                currentSpellingState.currentLetterIndex = 0;
+                // --- WORD COMPLETED ---
+                currentSpellingState.isWordVictory = true; 
+                renderSpellingSlots(); // Show the revealed word + Pop animation
                 
-                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
-                    // --- FULL PHRASE VICTORY ---
-                    renderSpellingSlots();
-                    if (typeof celebrate === "function") celebrate();
-                    if (typeof playVictorySound === "function") playVictorySound();
-                    
-                    // Speak full phrase after a short delay for the victory sound to start
-                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+                if (typeof playDingSound === "function") playDingSound();
+                
+                // Check if this was the last word of the whole phrase
+                const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
+                
+                const waitTime = isLastWord ? 1000 : 2500; // Wait longer for middle words to let her see it
     
-                    // Close mode after a few seconds
-                    setTimeout(() => {
-                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
-                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                    }, 4000);
-                } else {
-                    // NEXT WORD
-                    renderSpellingSlots();
-                    // Increased delay to 500ms to ensure "Ding" doesn't clip the word
-                    setTimeout(() => {
-                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
-                    }, 500);
-                }
+                setTimeout(() => {
+                    currentSpellingState.isWordVictory = false;
+                    currentSpellingState.currentWordIndex++;
+                    currentSpellingState.currentLetterIndex = 0;
+                    
+                    if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                        // --- FULL PHRASE VICTORY ---
+                        if (typeof celebrate === "function") celebrate();
+                        if (typeof playVictorySound === "function") playVictorySound();
+                        
+                        setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+    
+                        setTimeout(() => {
+                            const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                            if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                        }, 4000);
+                    } else {
+                        // --- NEXT WORD ---
+                        renderSpellingSlots();
+                        setTimeout(() => {
+                            spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                        }, 400);
+                    }
+                }, waitTime);
             } else {
                 renderSpellingSlots();
             }
         } else {
             // --- WRONG LETTER ---
             const card = currentSpellingState.card;
-            // Kill whatever is playing to say "Non" immediately
             window.speechSynthesis.cancel(); 
             setTimeout(() => {
                 spk("Non", 'fr-FR');
@@ -5038,6 +5075,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
