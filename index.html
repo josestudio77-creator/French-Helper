@@ -3189,31 +3189,30 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
-            // 1. Clear the queue
-            window.speechSynthesis.cancel();
+            // 1. Only cancel if we specifically want to stop everything immediately
+            if (forceInterrupt) {
+                window.speechSynthesis.cancel();
+            }
         
-            // 2. A 200ms delay is the "Surgical Sweet Spot" to prevent first-word clipping
-            // especially on mobile and high-performance desktop browsers.
+            // 2. Surgical Delay: 50ms is the "Sweet Spot" to prevent clipping
+            // while keeping the app feeling fast.
             setTimeout(() => {
-                // Prepare the utterance
                 const u = new SpeechSynthesisUtterance(t);
                 u.lang = lang;
                 u.rate = speedOverride || speechSpeed;
                 
-                // Ensure voice is assigned correctly
                 if (lang === 'fr-FR') {
                     u.voice = selectedFrVoice || window.speechSynthesis.getVoices().find(v => v.lang.includes('fr'));
                 } else {
                     u.voice = cachedEnVoice;
                 }
         
-                // 3. The "Wake Up" trick: 
-                // On some devices, the first word is cut if we don't 'nudge' the engine.
+                // 3. Wake up the engine with a tiny empty nudge
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
                 
                 // 4. Speak the actual text
                 window.speechSynthesis.speak(u);
-            }, 200); 
+            }, 50);
         }
         
         function spellWord() {
@@ -4824,45 +4823,55 @@ async function translateOne(p) {
         if (!currentSpellingState) return;
     
         let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
+        // Remove punctuation (like periods at end of phrases) for matching
         let cleanTargetWord = targetWord.replace(/[.,!?;:]+$/, "");
         let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
         
         if (inputLetter === targetLetter) {
+            // --- CORRECT LETTER ---
             currentSpellingState.currentLetterIndex++;
             if (typeof playDingSound === "function") playDingSound();
             
             if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
+                // WORD FINISHED
                 currentSpellingState.currentWordIndex++;
                 currentSpellingState.currentLetterIndex = 0;
                 
                 if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                    // --- FULL PHRASE VICTORY ---
                     renderSpellingSlots();
                     if (typeof celebrate === "function") celebrate();
                     if (typeof playVictorySound === "function") playVictorySound();
                     
-                    // Final full pronunciation - increased delay to 800ms to avoid clipping
-                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR'), 800);
+                    // Speak full phrase after a short delay for the victory sound to start
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
     
+                    // Close mode after a few seconds
                     setTimeout(() => {
                         const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
                         if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                    }, 3500);
+                    }, 4000);
                 } else {
+                    // NEXT WORD
                     renderSpellingSlots();
-                    // Increased delay here to ensure previous word is fully cleared
+                    // Increased delay to 500ms to ensure "Ding" doesn't clip the word
                     setTimeout(() => {
-                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR');
-                    }, 600);
+                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                    }, 500);
                 }
             } else {
                 renderSpellingSlots();
             }
         } else {
-            // Speak "Non" but don't use 'true' for forceInterrupt to avoid killing the queue
-            spk("Non", 'fr-FR');
+            // --- WRONG LETTER ---
             const card = currentSpellingState.card;
-            card.style.animation = 'shake 0.3s';
-            setTimeout(() => card.style.animation = '', 300);
+            // Kill whatever is playing to say "Non" immediately
+            window.speechSynthesis.cancel(); 
+            setTimeout(() => {
+                spk("Non", 'fr-FR');
+                card.style.animation = 'shake 0.3s';
+                setTimeout(() => card.style.animation = '', 300);
+            }, 50);
         }
     }
     
@@ -4871,37 +4880,19 @@ async function translateOne(p) {
         const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
         const letters = word.split('');
         
+        // 1. Clear current queue
         window.speechSynthesis.cancel();
         
-        // We use a longer initial delay (400ms) to "warm up" before starting the letters
-        setTimeout(() => {
-            letters.forEach((letter, i) => {
-                setTimeout(() => {
-                    // IMPORTANT: We do NOT use spk() here because spk calls .cancel()
-                    // and would kill the spelling sequence. We use a raw Utterance instead.
-                    const u = new SpeechSynthesisUtterance(letter);
-                    u.lang = 'fr-FR';
-                    u.rate = speechSpeed;
-                    u.voice = selectedFrVoice;
-                    window.speechSynthesis.speak(u);
-                }, i * 800);
-            });
-        }, 400);
-    }
-    
-    function spellCurrentWord() {
-        if (!currentSpellingState) return;
-        const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        const letters = word.split('');
-        
-        // Cancel other speech
-        window.speechSynthesis.cancel();
-        
-        // Spell each letter with a delay
+        // 2. Queue each letter naturally
+        // We don't use spk() here because spk() calls .cancel() inside it.
         letters.forEach((letter, i) => {
             setTimeout(() => {
-                spk(letter, 'fr-FR', false);
-            }, i * 800);
+                const u = new SpeechSynthesisUtterance(letter);
+                u.lang = 'fr-FR';
+                u.rate = speechSpeed;
+                u.voice = selectedFrVoice;
+                window.speechSynthesis.speak(u);
+            }, i * 850); // 850ms is the perfect speed for a child to follow
         });
     }
      
@@ -5047,6 +5038,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
