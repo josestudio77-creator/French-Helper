@@ -979,6 +979,125 @@
         top: -1px;                   
     }
 }
+
+    /* --- SPELLING BEE MODE STYLES --- */
+    
+    /* The Bee button in the corner */
+    .bee-badge {
+        position: absolute;
+        top: -12px;
+        left: -12px;
+        width: 42px;
+        height: 42px;
+        background: #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 2px rgba(255,255,255,0.5);
+        z-index: 100;
+        cursor: pointer;
+        border: 3px solid white;
+        transition: transform 0.1s;
+    }
+    
+    .bee-badge:active { transform: scale(1.2); }
+    
+    /* Highlight the card when in spelling mode */
+    .phrase-card.spelling-mode {
+        border-color: #FFD700 !important;
+        background: #fffdf0 !important;
+    }
+    
+    /* The area where underlines appear */
+    .spelling-slots {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin: 15px 0;
+        min-height: 40px;
+    }
+    
+    .word-box {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 8px;
+    }
+    
+    /* The individual letter underscores */
+    .letter-slot {
+        width: 22px;
+        border-bottom: 3px solid #cbd5e0;
+        font-size: 1.3rem;
+        font-weight: 900;
+        height: 30px;
+        text-align: center;
+        color: #2d3748;
+        text-transform: uppercase;
+    }
+    
+    .letter-slot.filled {
+        border-bottom-color: #4cd964;
+        color: #2d3748;
+    }
+    
+    /* The Keyboard inside the card */
+    .mini-keyboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 15px;
+        padding: 12px 8px;
+        background: #f1f5f9;
+        border-radius: 18px;
+        border: 2px solid #e2e8f0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .k-key {
+        flex: 1 1 calc(10% - 6px); /* Dynamic width */
+        min-width: 32px;
+        max-width: 40px;
+        height: 42px;
+        background: white;
+        border: 1px solid #cbd5e0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 3px 0 #cbd5e0;
+        transition: all 0.1s;
+        color: #2d3748;
+    }
+    
+    .k-key:active { 
+        transform: translateY(3px); 
+        box-shadow: 0 0 0 #cbd5e0;
+        background: #e0f2fe;
+    }
+    
+    /* Animations */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+    
+    @keyframes letterPop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .pop-anim {
+        animation: letterPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
        
    </style>
 </head>
@@ -1982,7 +2101,7 @@ function renderList(list) {
         container.appendChild(diagCard);
         
     } else {
-        // STANDARD CARDS MODE
+// STANDARD CARDS MODE (Updated with Spelling Bee Mode)
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
@@ -1990,6 +2109,14 @@ function renderList(list) {
             
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+
+            // This is the spelling area that starts hidden
+            const spellingHTML = `
+                <div class="spelling-zone" style="display:none;">
+                    <div class="spelling-slots"></div>
+                    <div class="mini-keyboard"></div>
+                </div>
+            `;
 
             const buttonHTML = `
                 <div class="card-btns">
@@ -2003,6 +2130,7 @@ function renderList(list) {
                 </div>
             `;
 
+            // We wrap the text in "card-main-content" so we can hide it during spelling
             if (data.isPhoto) {
                 let orientationClass = data.photoOrientation || 'landscape';
                 let inlineStyle = '';
@@ -2018,46 +2146,56 @@ function renderList(list) {
                 }
                 
                 card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
                     ${gIcon}
-                    <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
-                    <span class="french-text">${p}</span>
-                    ${pGuide}
-                    <span class="english-text">${data.en}</span>
+                    <div class="card-main-content">
+                        <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
                     ${buttonHTML}
                 `;
             } else {
                 card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
                     ${gIcon}
-                    <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                    <span class="french-text">${p}</span>
-                    ${pGuide}
-                    <span class="english-text">${data.en}</span>
+                    <div class="card-main-content">
+                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
                     ${buttonHTML}
                 `;
             }
 
-            // A. Handle the French Speech & Snail
+            // Bind the button clicks
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
-                // ULTRA-SLOW FIX: Changed from 0.1 to 0.05
                 spk(p, 'fr-FR', true, 0.05); 
             };
             
-            // B. Define our targets
             const engTextEl = card.querySelector('.english-text');
             const engBtnEl = card.querySelector('.spk-en');
             
-            // C. The "Fix" logic (extracted for reuse)
             const triggerFix = (e) => {
                 e.preventDefault();
                 manualFixTranslation(p, data.en);
             };
             
-            // D. English Button: Speech only
-            engBtnEl.onclick = () => spk(data.en, 'en-US', true);
+            engBtnEl.onclick = () => {
+                // If the card is in spelling mode, this button acts as "Spell Out Loud"
+                if (card.classList.contains('spelling-mode')) {
+                    if (typeof spellCurrentWord === "function") spellCurrentWord();
+                } else {
+                    spk(data.en, 'en-US', true);
+                }
+            };
             
-            // E. English Text: Fix only (Double Click for computer, Double Tap for phone)
             engTextEl.ondblclick = triggerFix;
             
             let lastTap = 0;
@@ -2070,7 +2208,7 @@ function renderList(list) {
             });
             
             container.appendChild(card);
-            }); 
+        });
     } 
 } 
 
@@ -4526,6 +4664,208 @@ async function translateOne(p) {
             document.getElementById('installBtn').style.display = 'block'; 
         });
 
+    let currentSpellingState = null;
+    
+    function toggleSpellingMode(btn, fullPhrase) {
+        const card = btn.closest('.phrase-card');
+        const mainContent = card.querySelector('.card-main-content');
+        const spellingZone = card.querySelector('.spelling-zone');
+        const enBtn = card.querySelector('.spk-en');
+        
+        // Select text elements we want to hide/show
+        const frText = card.querySelector('.french-text');
+        const enText = card.querySelector('.english-text');
+        const prText = card.querySelector('.pronunciation-text');
+    
+        if (card.classList.contains('spelling-mode')) {
+            // EXIT SPELLING MODE
+            card.classList.remove('spelling-mode');
+            if (frText) frText.style.display = 'block';
+            if (enText) enText.style.display = 'block';
+            if (prText) prText.style.display = 'block';
+            spellingZone.style.display = 'none';
+            
+            // Restore English Button
+            enBtn.innerHTML = '<span>English</span>';
+            currentSpellingState = null;
+        } else {
+            // ENTER SPELLING MODE
+            card.classList.add('spelling-mode');
+            
+            // Hide only the text, KEEP the photo/icon visible as a clue
+            if (frText) frText.style.display = 'none';
+            if (enText) enText.style.display = 'none';
+            if (prText) prText.style.display = 'none';
+            
+            spellingZone.style.display = 'block';
+            
+            // Change English button to "Spell"
+            enBtn.innerHTML = '<span>🔡 Spell</span>';
+    
+            startNewSpellingGame(card, fullPhrase);
+        }
+    }
+    
+    function startNewSpellingGame(card, phrase) {
+        // Remove punctuation for the spelling logic but keep it for display if needed
+        const cleanPhrase = phrase.split('|')[0].trim();
+        const words = cleanPhrase.split(/\s+/);
+        
+        currentSpellingState = {
+            card: card,
+            phrase: cleanPhrase,
+            words: words,
+            currentWordIndex: 0,
+            currentLetterIndex: 0
+        };
+    
+        renderSpellingSlots();
+        renderMiniKeyboard();
+        
+        // Initial prompt: Speak the first word
+        spk(words[0], 'fr-FR');
+    }
+    
+    function renderSpellingSlots() {
+        if (!currentSpellingState) return;
+        const container = currentSpellingState.card.querySelector('.spelling-slots');
+        container.innerHTML = '';
+    
+        currentSpellingState.words.forEach((word, wIdx) => {
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-box';
+            
+            const letters = word.split('');
+            letters.forEach((char, lIdx) => {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                
+                // Check if character is a letter or punctuation
+                const isPunctuation = /[.,!?;:]/.test(char);
+    
+                if (wIdx < currentSpellingState.currentWordIndex) {
+                    slot.textContent = char;
+                    slot.classList.add('filled');
+                } else if (wIdx === currentSpellingState.currentWordIndex) {
+                    if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
+                        slot.textContent = char;
+                        slot.classList.add('filled');
+                        slot.style.borderBottom = isPunctuation ? 'none' : '';
+                    } else {
+                        slot.textContent = '';
+                    }
+                } else {
+                    slot.textContent = '';
+                    slot.style.opacity = '0.3';
+                }
+                
+                // Automatic handling of Apostrophes and Hyphens
+                if (char === "'" || char === "-") {
+                    slot.textContent = char;
+                    slot.style.borderBottom = 'none';
+                    // Auto-advance if we are currently on this character
+                    if (wIdx === currentSpellingState.currentWordIndex && lIdx === currentSpellingState.currentLetterIndex) {
+                        currentSpellingState.currentLetterIndex++;
+                    }
+                }
+    
+                wordDiv.appendChild(slot);
+            });
+            container.appendChild(wordDiv);
+        });
+    }
+    
+    function renderMiniKeyboard() {
+        const kb = currentSpellingState.card.querySelector('.mini-keyboard');
+        kb.innerHTML = '';
+        
+        // A simplified French-friendly keyboard layout
+        const layout = [
+            "A","B","C","D","E","F","G","H","I","J",
+            "K","L","M","N","O","P","Q","R","S","T",
+            "U","V","W","X","Y","Z","É","À","È","Ç"
+        ];
+    
+        layout.forEach(key => {
+            const k = document.createElement('div');
+            k.className = 'k-key';
+            k.textContent = key;
+            k.onclick = (e) => {
+                e.stopPropagation();
+                handleSpellingInput(key);
+            };
+            kb.appendChild(k);
+        });
+    }
+    
+    function handleSpellingInput(inputLetter) {
+        if (!currentSpellingState) return;
+    
+        let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
+        // Remove punctuation from the end of the word for matching logic
+        let cleanTargetWord = targetWord.replace(/[.,!?;:]+$/, "");
+        let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+        
+        // Normalize accents for comparison (so typing 'E' can match 'é' if you prefer, 
+        // but here we require exact match for the spelling test)
+        if (inputLetter === targetLetter) {
+            currentSpellingState.currentLetterIndex++;
+            if (typeof playDingSound === "function") playDingSound();
+            
+            // Check if we finished the letters of the word
+            if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
+                currentSpellingState.currentWordIndex++;
+                currentSpellingState.currentLetterIndex = 0;
+                
+                // Phrase finished?
+                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                    renderSpellingSlots();
+                    if (typeof celebrate === "function") celebrate();
+                    if (typeof playVictorySound === "function") playVictorySound();
+                    
+                    // Final full pronunciation
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR'), 500);
+    
+                    // Exit mode after victory
+                    setTimeout(() => {
+                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                    }, 3000);
+                } else {
+                    // Next word
+                    renderSpellingSlots();
+                    setTimeout(() => {
+                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR');
+                    }, 500);
+                }
+            } else {
+                renderSpellingSlots();
+            }
+        } else {
+            // ERROR: Provide audio feedback and shake the card
+            spk("Non", 'fr-FR', true);
+            const card = currentSpellingState.card;
+            card.style.animation = 'shake 0.3s';
+            setTimeout(() => card.style.animation = '', 300);
+        }
+    }
+    
+    function spellCurrentWord() {
+        if (!currentSpellingState) return;
+        const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+        const letters = word.split('');
+        
+        // Cancel other speech
+        window.speechSynthesis.cancel();
+        
+        // Spell each letter with a delay
+        letters.forEach((letter, i) => {
+            setTimeout(() => {
+                spk(letter, 'fr-FR', false);
+            }, i * 800);
+        });
+    }
+     
 window.onload = () => {
     console.log('App loading...');
 
@@ -4668,6 +5008,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
