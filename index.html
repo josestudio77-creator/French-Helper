@@ -1045,12 +1045,14 @@
     }
     
     /* The Keyboard inside the card */
+    /* Optimized Mini Keyboard - Updated with bottom spacing */
     .mini-keyboard {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         gap: 6px;
         margin-top: 15px;
+        margin-bottom: 20px; /* NEW: Pushes the keyboard away from the buttons */
         padding: 12px 8px;
         background: #f1f5f9;
         border-radius: 18px;
@@ -4735,42 +4737,46 @@ async function translateOne(p) {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-box';
             
-            const letters = word.split('');
-            letters.forEach((char, lIdx) => {
-                const slot = document.createElement('div');
-                slot.className = 'letter-slot';
-                
-                // Check if character is a letter or punctuation
-                const isPunctuation = /[.,!?;:]/.test(char);
+            if (wIdx === currentSpellingState.currentWordIndex) {
+                // --- THIS IS THE TARGET WORD: Show Underlines ---
+                const letters = word.split('');
+                letters.forEach((char, lIdx) => {
+                    const slot = document.createElement('div');
+                    slot.className = 'letter-slot';
+                    
+                    const isPunctuation = /[.,!?;:]/.test(char);
     
-                if (wIdx < currentSpellingState.currentWordIndex) {
-                    slot.textContent = char;
-                    slot.classList.add('filled');
-                } else if (wIdx === currentSpellingState.currentWordIndex) {
                     if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
                         slot.textContent = char;
                         slot.classList.add('filled');
-                        slot.style.borderBottom = isPunctuation ? 'none' : '';
+                        if (isPunctuation) slot.style.borderBottom = 'none';
+                    } else if (char === "'" || char === "-") {
+                        // Auto-fill symbols
+                        slot.textContent = char;
+                        slot.style.borderBottom = 'none';
                     } else {
-                        slot.textContent = '';
+                        slot.textContent = ''; // Blank underscore
                     }
-                } else {
-                    slot.textContent = '';
-                    slot.style.opacity = '0.3';
-                }
+                    wordDiv.appendChild(slot);
+                });
+            } else {
+                // --- THIS IS CONTEXT (Past or Future): Show Full Word ---
+                const wordSpan = document.createElement('span');
+                wordSpan.textContent = word;
+                wordSpan.style.fontSize = "1.3rem";
+                wordSpan.style.fontWeight = "900";
                 
-                // Automatic handling of Apostrophes and Hyphens
-                if (char === "'" || char === "-") {
-                    slot.textContent = char;
-                    slot.style.borderBottom = 'none';
-                    // Auto-advance if we are currently on this character
-                    if (wIdx === currentSpellingState.currentWordIndex && lIdx === currentSpellingState.currentLetterIndex) {
-                        currentSpellingState.currentLetterIndex++;
-                    }
+                if (wIdx < currentSpellingState.currentWordIndex) {
+                    // Completed words look green
+                    wordSpan.style.color = "#4cd964";
+                } else {
+                    // Future words are visible but slightly faded
+                    wordSpan.style.opacity = "0.5";
+                    wordSpan.style.color = "#2d3748";
                 }
+                wordDiv.appendChild(wordSpan);
+            }
     
-                wordDiv.appendChild(slot);
-            });
             container.appendChild(wordDiv);
         });
     }
@@ -5008,6 +5014,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
