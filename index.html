@@ -3192,22 +3192,31 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
-            if (forceInterrupt) {
-                window.speechSynthesis.cancel();
-                setTimeout(() => {
-                    const u = new SpeechSynthesisUtterance(t); 
-                    u.lang = lang; 
-                    u.rate = speedOverride || speechSpeed;
-                    u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
-                    window.speechSynthesis.speak(u);
-                }, 150); 
-            } else {
-                const u = new SpeechSynthesisUtterance(t); 
-                u.lang = lang; 
+            // 1. Clear the queue
+            window.speechSynthesis.cancel();
+        
+            // 2. A 200ms delay is the "Surgical Sweet Spot" to prevent first-word clipping
+            // especially on mobile and high-performance desktop browsers.
+            setTimeout(() => {
+                // Prepare the utterance
+                const u = new SpeechSynthesisUtterance(t);
+                u.lang = lang;
                 u.rate = speedOverride || speechSpeed;
-                u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
+                
+                // Ensure voice is assigned correctly
+                if (lang === 'fr-FR') {
+                    u.voice = selectedFrVoice || window.speechSynthesis.getVoices().find(v => v.lang.includes('fr'));
+                } else {
+                    u.voice = cachedEnVoice;
+                }
+        
+                // 3. The "Wake Up" trick: 
+                // On some devices, the first word is cut if we don't 'nudge' the engine.
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+                
+                // 4. Speak the actual text
                 window.speechSynthesis.speak(u);
-            }
+            }, 200); 
         }
         
         function spellWord() {
@@ -4808,52 +4817,69 @@ async function translateOne(p) {
         if (!currentSpellingState) return;
     
         let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        // Remove punctuation from the end of the word for matching logic
         let cleanTargetWord = targetWord.replace(/[.,!?;:]+$/, "");
         let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
         
-        // Normalize accents for comparison (so typing 'E' can match 'é' if you prefer, 
-        // but here we require exact match for the spelling test)
         if (inputLetter === targetLetter) {
             currentSpellingState.currentLetterIndex++;
             if (typeof playDingSound === "function") playDingSound();
             
-            // Check if we finished the letters of the word
             if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
                 currentSpellingState.currentWordIndex++;
                 currentSpellingState.currentLetterIndex = 0;
                 
-                // Phrase finished?
                 if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
                     renderSpellingSlots();
                     if (typeof celebrate === "function") celebrate();
                     if (typeof playVictorySound === "function") playVictorySound();
                     
-                    // Final full pronunciation
-                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR'), 500);
+                    // Final full pronunciation - increased delay to 800ms to avoid clipping
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR'), 800);
     
-                    // Exit mode after victory
                     setTimeout(() => {
                         const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
                         if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                    }, 3000);
+                    }, 3500);
                 } else {
-                    // Next word
                     renderSpellingSlots();
+                    // Increased delay here to ensure previous word is fully cleared
                     setTimeout(() => {
                         spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR');
-                    }, 500);
+                    }, 600);
                 }
             } else {
                 renderSpellingSlots();
             }
         } else {
-            // ERROR: Provide audio feedback and shake the card
-            spk("Non", 'fr-FR', true);
+            // Speak "Non" but don't use 'true' for forceInterrupt to avoid killing the queue
+            spk("Non", 'fr-FR');
             const card = currentSpellingState.card;
             card.style.animation = 'shake 0.3s';
             setTimeout(() => card.style.animation = '', 300);
         }
+    }
+    
+    function spellCurrentWord() {
+        if (!currentSpellingState) return;
+        const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+        const letters = word.split('');
+        
+        window.speechSynthesis.cancel();
+        
+        // We use a longer initial delay (400ms) to "warm up" before starting the letters
+        setTimeout(() => {
+            letters.forEach((letter, i) => {
+                setTimeout(() => {
+                    // IMPORTANT: We do NOT use spk() here because spk calls .cancel()
+                    // and would kill the spelling sequence. We use a raw Utterance instead.
+                    const u = new SpeechSynthesisUtterance(letter);
+                    u.lang = 'fr-FR';
+                    u.rate = speechSpeed;
+                    u.voice = selectedFrVoice;
+                    window.speechSynthesis.speak(u);
+                }, i * 800);
+            });
+        }, 400);
     }
     
     function spellCurrentWord() {
@@ -5014,6 +5040,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
