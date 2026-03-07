@@ -111,32 +111,7 @@
     50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
     100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 }
-       
-   /* Keyboard key styles - UPDATED */
-.key { 
-    width: 34px; 
-    height: 42px; 
-    background: #f0f4f8; 
-    border-radius: 8px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-weight: 900; 
-    border: 1px solid #cbd5e0; 
-    font-size: 0.9rem; 
-    color: #2d3748; 
-    cursor: pointer;
-    transition: all 0.1s ease; /* ADD THIS - smooth feedback */
-    box-sizing: border-box;
-}
 
-/* Make used keys more distinct - UPDATED */
-.key.used { 
-    opacity: 0.4; 
-    background-color: #e2e8f0 !important; 
-    pointer-events: none;
-    border-color: #a0aec0;
-}
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
     .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
@@ -192,20 +167,6 @@
         font-weight: 900;
         cursor: pointer;
         white-space: nowrap;
-    }
-
-    .keyboard { 
-        display: flex; 
-        flex-wrap: wrap; 
-        justify-content: center; 
-        gap: 6px; 
-        margin: 10px 0; 
-        width: 100%; 
-        background: #f1f5f9; 
-        padding: 12px 8px; 
-        border-radius: 20px; 
-        border: 2px solid #e2e8f0;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .game-actions {
@@ -1621,6 +1582,13 @@
         let selectedBpMonth = new Date().getMonth(); // Defaults to current month (0-11)
         let showFavsOnly = false;
         let homeworkToMove = ""; // Tracks which set we are moving
+
+        const FRENCH_QWERTY_LAYOUT = [
+            ["Q","W","E","R","T","Y","U","I","O","P"],
+            ["A","S","D","F","G","H","J","K","L"],
+            ["Z","X","C","V","B","N","M"],
+            ["É","À","È","Ç","Ù","Û","Î"]
+        ];
 
         // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
@@ -3507,7 +3475,6 @@ async function translateOne(p) {
         function startHangman() {
             gameActive = true; 
             isSpelling = false;
-            document.addEventListener('keydown', handleKeyPress);
             
             const cleanWord = (w) => w.replace(/[!?.,\-;:'"()]/g, '').trim();
             
@@ -3633,18 +3600,12 @@ async function translateOne(p) {
             const kb = document.getElementById('keyboard'); 
             kb.innerHTML = ''; 
             
-            const rows = [
-                ["Q","W","E","R","T","Y","U","I","O","P"],
-                ["A","S","D","F","G","H","J","K","L"],
-                ["Z","X","C","V","B","N","M"],
-                ["É","À","È","Ç","Ù","Û","Î"]
-            ];
-        
-            rows.forEach((row, index) => {
+            FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
                 row.forEach(l => {
                     const k = document.createElement('div'); 
+                    // PRESERVED: Keeping your .used logic for Hangman
                     k.className = 'k-key' + (guessed.includes(l) ? ' used' : ''); 
                     k.textContent = l; 
                     k.setAttribute('data-key', l);
@@ -3698,9 +3659,6 @@ async function translateOne(p) {
                 musicNode = null; 
                 document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; 
             } 
-            
-            // Remove keyboard listener
-            document.removeEventListener('keydown', handleKeyPress);
             
             closeOverlay('gameDrawer'); 
         }
@@ -4850,25 +4808,17 @@ function renderSpellingSlots() {
 function renderMiniKeyboard() {
     if (!currentSpellingState) return;
     const kbContainer = currentSpellingState.card.querySelector('.mini-keyboard');
-    // Ensure we use the unified class
     kbContainer.className = "mini-keyboard unified-keyboard";
     kbContainer.innerHTML = '';
     
-    const rows = [
-        ["Q","W","E","R","T","Y","U","I","O","P"],
-        ["A","S","D","F","G","H","J","K","L"],
-        ["Z","X","C","V","B","N","M"],
-        ["É","À","È","Ç","Ù","Û","Î"]
-    ];
-
-    rows.forEach((row, index) => {
+    FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
         row.forEach(key => {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
-            k.setAttribute('data-key', key); // For laptop feedback
+            k.setAttribute('data-key', key);
             k.onclick = (e) => { e.stopPropagation(); handleSpellingInput(key); };
             rowDiv.appendChild(k);
         });
@@ -4877,6 +4827,12 @@ function renderMiniKeyboard() {
 }
     
 function handleSpellingInput(inputLetter) {
+    const keyElem = currentSpellingState.card.querySelector(`.k-key[data-key="${inputLetter}"]`);
+    if (keyElem) {
+        keyElem.classList.add('key-pressed');
+        setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+    }
+    
     if (!currentSpellingState || currentSpellingState.isWordVictory) return;
 
     let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
@@ -5097,6 +5053,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
