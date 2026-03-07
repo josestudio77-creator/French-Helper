@@ -1062,43 +1062,56 @@
     }
        
     /* Optimized QWERTY Mini Keyboard */
-    .mini-keyboard {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 4px;
-        margin-top: 15px;
-        margin-bottom: 25px; /* Spacing between keyboard and card buttons */
-        padding: 10px 5px;
-        background: #f1f5f9;
-        border-radius: 18px;
-        border: 2px solid #e2e8f0;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
-    .k-key {
-        flex: 0 0 calc(10% - 4px); /* Fits 10 keys per row nicely */
-        min-width: 30px;
-        height: 42px;
-        background: white;
-        border: 1px solid #cbd5e0;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 0.9rem;
-        cursor: pointer;
-        box-shadow: 0 3px 0 #cbd5e0;
-        transition: all 0.1s;
-        color: #2d3748;
-    }
-    
-    .k-key:active { 
-        transform: translateY(3px); 
-        box-shadow: 0 0 0 #cbd5e0;
-        background: #e0f2fe;
-    }
+.mini-keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    padding: 10px 5px;
+    background: #f1f5f9;
+    border-radius: 18px;
+    border: 2px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+}
+    .keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+}
+       
+   .k-key {
+    flex: 1;
+    max-width: 38px; /* Prevents keys from getting too wide on large screens */
+    height: 45px;
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #cbd5e0;
+    color: #2d3748;
+    user-select: none;
+}
+
+.k-key:active { 
+    transform: translateY(3px); 
+    box-shadow: 0 0 0 #cbd5e0;
+    background: #e0f2fe;
+}
+
+       .keyboard-row.accents .k-key {
+    background: #f8fafc;
+    height: 38px;
+    font-size: 0.8rem;
+}
     
     /* Animations */
     @keyframes shake {
@@ -4762,83 +4775,91 @@ async function translateOne(p) {
         }, 500);
     }
     
-    function renderSpellingSlots() {
-        if (!currentSpellingState) return;
-        const container = currentSpellingState.card.querySelector('.spelling-slots');
-        container.innerHTML = '';
-    
-        currentSpellingState.words.forEach((word, wIdx) => {
-            const wordDiv = document.createElement('div');
-            wordDiv.className = 'word-box';
-            
-            // --- CASE 1: Word already completed (Past) ---
-            if (wIdx < currentSpellingState.currentWordIndex) {
-                const wordSpan = document.createElement('span');
-                wordSpan.textContent = word;
-                wordSpan.style.fontSize = "1.8rem";
-                wordSpan.style.fontWeight = "900";
-                wordSpan.style.color = "#4cd964"; // Permanent Green
-                wordDiv.appendChild(wordSpan);
-            } 
-            // --- CASE 2: The current word we just finished (VICTORY MOMENT) ---
-            else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
-                const wordSpan = document.createElement('span');
-                wordSpan.textContent = word;
-                wordSpan.className = "word-victory-anim"; // Trigger the POP
-                wordSpan.style.fontSize = "1.8rem";
-                wordSpan.style.fontWeight = "900";
-                wordDiv.appendChild(wordSpan);
-            }
-            // --- CASE 3: The Target word being spelled (Underlines/Boxes) ---
-            else if (wIdx === currentSpellingState.currentWordIndex) {
-                const letters = word.split('');
-                letters.forEach((char, lIdx) => {
-                    const slot = document.createElement('div');
-                    slot.className = 'bee-slot';
-                    
-                    const isPunctuation = /[.,!?;:]/.test(char);
-    
-                    if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
-                        slot.textContent = char;
-                        slot.classList.add('filled');
-                    } else if (char === "'" || char === "-") {
-                        slot.textContent = char;
+function renderSpellingSlots() {
+    if (!currentSpellingState) return;
+    const container = currentSpellingState.card.querySelector('.spelling-slots');
+    container.innerHTML = '';
+
+    currentSpellingState.words.forEach((word, wIdx) => {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'word-box';
+        
+        if (wIdx < currentSpellingState.currentWordIndex) {
+            const wordSpan = document.createElement('span');
+            wordSpan.textContent = word;
+            wordSpan.style.fontSize = "1.8rem";
+            wordSpan.style.fontWeight = "900";
+            wordSpan.style.color = "#4cd964"; 
+            wordDiv.appendChild(wordSpan);
+        } 
+        else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
+            const wordSpan = document.createElement('span');
+            wordSpan.textContent = word;
+            wordSpan.className = "word-victory-anim";
+            wordSpan.style.fontSize = "1.8rem";
+            wordSpan.style.fontWeight = "900";
+            wordDiv.appendChild(wordSpan);
+        }
+        else if (wIdx === currentSpellingState.currentWordIndex) {
+            const letters = word.split('');
+            letters.forEach((char, lIdx) => {
+                const slot = document.createElement('div');
+                slot.className = 'bee-slot';
+                
+                // CHECK FOR PUNCTUATION: Matches . , ! ? ; : AND both types of apostrophes ' ’
+                const isPunctuation = /[.,!?;:''’\-]/.test(char);
+
+                if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
+                    slot.textContent = char;
+                    slot.classList.add('filled');
+                    if (isPunctuation) {
                         slot.style.border = 'none';
                         slot.style.background = 'transparent';
-                    } else {
-                        slot.textContent = ''; // Blank box
                     }
-                    wordDiv.appendChild(slot);
-                });
-            } 
-            // --- CASE 4: Future words (Faint Context) ---
-            else {
-                const wordSpan = document.createElement('span');
-                wordSpan.textContent = word;
-                wordSpan.style.fontSize = "1.8rem";
-                wordSpan.style.fontWeight = "900";
-                wordSpan.style.opacity = "0.3";
-                wordSpan.style.color = "#2d3748";
-                wordDiv.appendChild(wordSpan);
-            }
+                    
+                    // If this specific character is an auto-fill (like an apostrophe) 
+                    // and we are sitting on it, advance the cursor automatically
+                    if (isPunctuation && lIdx === currentSpellingState.currentLetterIndex) {
+                        currentSpellingState.currentLetterIndex++;
+                    }
+                } else {
+                    slot.textContent = ''; 
+                }
+                wordDiv.appendChild(slot);
+            });
+        } 
+        else {
+            const wordSpan = document.createElement('span');
+            wordSpan.textContent = word;
+            wordSpan.style.fontSize = "1.8rem";
+            wordSpan.style.fontWeight = "900";
+            wordSpan.style.opacity = "0.3";
+            wordSpan.style.color = "#2d3748";
+            wordDiv.appendChild(wordSpan);
+        }
+
+        container.appendChild(wordDiv);
+    });
+}
     
-            container.appendChild(wordDiv);
-        });
-    }
+function renderMiniKeyboard() {
+    if (!currentSpellingState) return;
+    const kbContainer = currentSpellingState.card.querySelector('.mini-keyboard');
+    kbContainer.innerHTML = '';
     
-    function renderMiniKeyboard() {
-        if (!currentSpellingState) return;
-        const kb = currentSpellingState.card.querySelector('.mini-keyboard');
-        kb.innerHTML = '';
+    // Standard QWERTY Distribution
+    const rows = [
+        ["Q","W","E","R","T","Y","U","I","O","P"], // 10
+        ["A","S","D","F","G","H","J","K","L"],     // 9
+        ["Z","X","C","V","B","N","M"],             // 7
+        ["É","À","È","Ç","Ù","Û","Î"]              // Accents
+    ];
+
+    rows.forEach((row, index) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
         
-        // Proper QWERTY Layout with French Accents
-        const layout = [
-            "Q","W","E","R","T","Y","U","I","O","P",
-            "A","S","D","F","G","H","J","K","L", "É",
-            "Z","X","C","V","B","N","M","À","È","Ç"
-        ];
-    
-        layout.forEach(key => {
+        row.forEach(key => {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
@@ -4846,71 +4867,69 @@ async function translateOne(p) {
                 e.stopPropagation();
                 handleSpellingInput(key);
             };
-            kb.appendChild(k);
+            rowDiv.appendChild(k);
         });
-    }
+        kbContainer.appendChild(rowDiv);
+    });
+}
     
-    function handleSpellingInput(inputLetter) {
-        // Prevent typing during the 3-second victory reveal
-        if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+function handleSpellingInput(inputLetter) {
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
     
-        let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        let cleanTargetWord = targetWord.replace(/[.,!?;:]+$/, "");
-        let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+    // Clean target to ignore punctuation/apostrophes for typing logic
+    let cleanTargetWord = targetWord.replace(/[.,!?;:''’\-]+$/, "");
+    let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+    
+    // Normalize target letter (handle smart apostrophes if they appear mid-word)
+    if (targetLetter === "’") targetLetter = "'"; 
+
+    if (inputLetter === targetLetter) {
+        currentSpellingState.currentLetterIndex++;
         
-        if (inputLetter === targetLetter) {
-            currentSpellingState.currentLetterIndex++;
+        // Check if finished with letters (ignoring trailing punctuation)
+        if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
+            currentSpellingState.isWordVictory = true; 
+            renderSpellingSlots();
+            if (typeof playDingSound === "function") playDingSound();
             
-            if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
-                // --- WORD COMPLETED ---
-                currentSpellingState.isWordVictory = true; 
-                renderSpellingSlots(); // Show the revealed word + Pop animation
-                
-                if (typeof playDingSound === "function") playDingSound();
-                
-                // Check if this was the last word of the whole phrase
-                const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
-                
-                const waitTime = isLastWord ? 1000 : 2500; // Wait longer for middle words to let her see it
-    
-                setTimeout(() => {
-                    currentSpellingState.isWordVictory = false;
-                    currentSpellingState.currentWordIndex++;
-                    currentSpellingState.currentLetterIndex = 0;
-                    
-                    if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
-                        // --- FULL PHRASE VICTORY ---
-                        if (typeof celebrate === "function") celebrate();
-                        if (typeof playVictorySound === "function") playVictorySound();
-                        
-                        setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
-    
-                        setTimeout(() => {
-                            const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
-                            if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                        }, 4000);
-                    } else {
-                        // --- NEXT WORD ---
-                        renderSpellingSlots();
-                        setTimeout(() => {
-                            spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
-                        }, 400);
-                    }
-                }, waitTime);
-            } else {
-                renderSpellingSlots();
-            }
-        } else {
-            // --- WRONG LETTER ---
-            const card = currentSpellingState.card;
-            window.speechSynthesis.cancel(); 
+            const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
+            const waitTime = isLastWord ? 1000 : 2500;
+
             setTimeout(() => {
-                spk("Non", 'fr-FR');
-                card.style.animation = 'shake 0.3s';
-                setTimeout(() => card.style.animation = '', 300);
-            }, 50);
+                currentSpellingState.isWordVictory = false;
+                currentSpellingState.currentWordIndex++;
+                currentSpellingState.currentLetterIndex = 0;
+                
+                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                    if (typeof celebrate === "function") celebrate();
+                    if (typeof playVictorySound === "function") playVictorySound();
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+                    setTimeout(() => {
+                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                    }, 4000);
+                } else {
+                    renderSpellingSlots();
+                    setTimeout(() => {
+                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                    }, 400);
+                }
+            }, waitTime);
+        } else {
+            renderSpellingSlots();
         }
+    } else {
+        const card = currentSpellingState.card;
+        window.speechSynthesis.cancel(); 
+        setTimeout(() => {
+            spk("Non", 'fr-FR');
+            card.style.animation = 'shake 0.3s';
+            setTimeout(() => card.style.animation = '', 300);
+        }, 50);
     }
+}
     
     function spellCurrentWord() {
         if (!currentSpellingState) return;
@@ -5075,6 +5094,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
