@@ -1061,31 +1061,32 @@
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
     }
        
-    /* Optimized QWERTY Mini Keyboard */
-.mini-keyboard {
+   /* Unified Keyboard Styles for both Games */
+.unified-keyboard {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-top: 15px;
-    margin-bottom: 20px;
+    margin: 15px auto;
     padding: 10px 5px;
     background: #f1f5f9;
     border-radius: 18px;
     border: 2px solid #e2e8f0;
     width: 100%;
+    max-width: 450px;
     box-sizing: border-box;
 }
-    .keyboard-row {
+
+.keyboard-row {
     display: flex;
     justify-content: center;
     gap: 4px;
     width: 100%;
 }
        
-   .k-key {
+  .k-key {
     flex: 1;
-    max-width: 38px; /* Prevents keys from getting too wide on large screens */
+    max-width: 38px;
     height: 45px;
     background: white;
     border: 1px solid #cbd5e0;
@@ -1099,15 +1100,24 @@
     box-shadow: 0 3px 0 #cbd5e0;
     color: #2d3748;
     user-select: none;
+    transition: all 0.1s;
 }
 
-.k-key:active { 
+.k-key:active, .k-key.key-pressed { 
     transform: translateY(3px); 
     box-shadow: 0 0 0 #cbd5e0;
     background: #e0f2fe;
 }
 
-       .keyboard-row.accents .k-key {
+/* Gray out used keys for Hangman */
+.k-key.used {
+    opacity: 0.4;
+    background: #e2e8f0;
+    pointer-events: none;
+    box-shadow: none;
+}
+       
+.keyboard-row.accents .k-key {
     background: #f8fafc;
     height: 38px;
     font-size: 0.8rem;
@@ -1401,7 +1411,7 @@
             <canvas id="hangmanCanvas" width="200" height="150"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
             <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess!</div>
-            <div id="keyboard" class="keyboard"></div>
+            <div id="keyboard" class="unified-keyboard"></div>
     
             <!-- Row 2: Bottom Action Buttons (Next and Exit) -->
             <div class="game-actions">
@@ -3622,76 +3632,49 @@ async function translateOne(p) {
         function renderKeyboard() { 
             const kb = document.getElementById('keyboard'); 
             kb.innerHTML = ''; 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => { 
-                const k = document.createElement('div'); 
-                k.className = 'key' + (guessed.includes(l) ? ' used' : ''); 
-                k.textContent = l; 
-                k.setAttribute('data-letter', l);
-                
-                k.onclick = () => { 
-                    if (!gameActive || guessed.includes(l)) return; 
-                    
-                    // Add animation class for visual feedback
-                    k.classList.add('key-animate');
-                    
-                    guessed.push(l); 
-                    
-                    if (targetWord.includes(l)) { 
-                        spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
-                    } else { 
-                        mistakes++; 
-                        drawHangman(mistakes); 
-                        spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
-                    } 
-                    
-                    // Wait for animation to complete before updating UI
-                    setTimeout(() => {
-                        updateHangmanUI();
-                        renderKeyboard();
-                    }, 250); // Match animation duration
-                }; 
-                kb.appendChild(k); 
-            }); 
+            
+            const rows = [
+                ["Q","W","E","R","T","Y","U","I","O","P"],
+                ["A","S","D","F","G","H","J","K","L"],
+                ["Z","X","C","V","B","N","M"],
+                ["É","À","È","Ç","Ù","Û","Î"]
+            ];
+        
+            rows.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
+                row.forEach(l => {
+                    const k = document.createElement('div'); 
+                    k.className = 'k-key' + (guessed.includes(l) ? ' used' : ''); 
+                    k.textContent = l; 
+                    k.setAttribute('data-key', l);
+                    k.onclick = () => handleHangmanInput(l); 
+                    rowDiv.appendChild(k);
+                });
+                kb.appendChild(rowDiv);
+            });
         }
 
-        // Handle physical keyboard input
+        // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
         function handleKeyPress(e) {
-            if (!gameActive) return;
-            
             const key = e.key.toUpperCase();
             
-            // Only process A-Z letters
-            if (!/^[A-Z]$/.test(key)) return;
-            
-            // Find the corresponding on-screen key
-            const keyElement = document.querySelector(`.key[data-letter="${key}"]`);
-            if (!keyElement) return;
-            
-            // Prevent default browser behavior (like typing in search bars)
-            e.preventDefault();
-            
-            // If letter already used, ignore
-            if (guessed.includes(key)) return;
-            
-            // Add animation class for visual feedback
-            keyElement.classList.add('key-animate');
-            
-            // Process the guess
-            guessed.push(key);
-            if (targetWord.includes(key)) {
-                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true);
-            } else {
-                mistakes++;
-                drawHangman(mistakes);
-                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true);
+            // Support standard A-Z and common French accents
+            const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛÎ".split('');
+            if (!validKeys.includes(key)) return;
+        
+            // Traffic Controller: Decide which game gets the input
+            if (gameActive) {
+                // We are in Hangman Drawer
+                handleHangmanInput(key);
+            } else if (currentSpellingState && !currentSpellingState.isWordVictory) {
+                // We are in a Spelling Bee Card
+                handleSpellingInput(key);
             }
-            
-            // Wait for animation to complete before updating UI
-            setTimeout(() => {
-                updateHangmanUI();
-                renderKeyboard();
-            }, 250); // Match animation duration
         }
+        
+        // Ensure the listener is always active (Add this near your window.onload area)
+        document.addEventListener('keydown', handleKeyPress);
 
         function updateScoreUI() { 
             document.getElementById('winCount').textContent = wins; 
@@ -3740,7 +3723,29 @@ async function translateOne(p) {
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-
+        function handleHangmanInput(l) {
+            if (!gameActive || guessed.includes(l)) return; 
+            
+            // Add visual feedback for laptop users
+            const keyElem = document.querySelector(`#gameDrawer .k-key[data-key="${l}"]`);
+            if (keyElem) {
+                keyElem.classList.add('key-pressed');
+                setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+            }
+        
+            guessed.push(l); 
+            if (targetWord.includes(l)) { 
+                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
+            } else { 
+                mistakes++; 
+                drawHangman(mistakes); 
+                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
+            } 
+            
+            updateHangmanUI();
+            renderKeyboard();
+        }
+        
         async function saveHW() {
             let name = document.getElementById('hwNameInput').value.trim();
             const words = document.getElementById('hwInput').value.trim();
@@ -4845,28 +4850,26 @@ function renderSpellingSlots() {
 function renderMiniKeyboard() {
     if (!currentSpellingState) return;
     const kbContainer = currentSpellingState.card.querySelector('.mini-keyboard');
+    // Ensure we use the unified class
+    kbContainer.className = "mini-keyboard unified-keyboard";
     kbContainer.innerHTML = '';
     
-    // Standard QWERTY Distribution
     const rows = [
-        ["Q","W","E","R","T","Y","U","I","O","P"], // 10
-        ["A","S","D","F","G","H","J","K","L"],     // 9
-        ["Z","X","C","V","B","N","M"],             // 7
-        ["É","À","È","Ç","Ù","Û","Î"]              // Accents
+        ["Q","W","E","R","T","Y","U","I","O","P"],
+        ["A","S","D","F","G","H","J","K","L"],
+        ["Z","X","C","V","B","N","M"],
+        ["É","À","È","Ç","Ù","Û","Î"]
     ];
 
     rows.forEach((row, index) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
-        
         row.forEach(key => {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
-            k.onclick = (e) => {
-                e.stopPropagation();
-                handleSpellingInput(key);
-            };
+            k.setAttribute('data-key', key); // For laptop feedback
+            k.onclick = (e) => { e.stopPropagation(); handleSpellingInput(key); };
             rowDiv.appendChild(k);
         });
         kbContainer.appendChild(rowDiv);
@@ -5094,6 +5097,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
