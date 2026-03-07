@@ -977,7 +977,19 @@
         margin: 15px 0;
         min-height: 40px;
     }
+
+    /* Pulsing effect for the active word's boxes */
+    .word-box.current-word .bee-slot:not(.filled) {
+        animation: gentlePulse 1.5s infinite;
+        border-color: #FFD700; /* Gold color to match the Bee */
+    }
     
+    @keyframes gentlePulse {
+        0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; }
+        50% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); border-color: #FFD700; }
+        100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; }
+    }
+       
     /* Ensure the word box handles scaling without clipping */
     .word-box {
         display: flex;
@@ -1587,7 +1599,7 @@
             ["Q","W","E","R","T","Y","U","I","O","P"],
             ["A","S","D","F","G","H","J","K","L"],
             ["Z","X","C","V","B","N","M"],
-            ["É","À","È","Ç","Ù","Û","Î"]
+            ["É","À","È","Ç","Ù","Û","'"] // Added apostrophe to the accents row
         ];
 
         // ===== CORE FUNCTIONS =====
@@ -3619,17 +3631,18 @@ async function translateOne(p) {
         // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
         function handleKeyPress(e) {
             const key = e.key.toUpperCase();
-            
-            // Support standard A-Z and common French accents
-            const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛÎ".split('');
+            const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛ' ".split('');
             if (!validKeys.includes(key)) return;
         
-            // Traffic Controller: Decide which game gets the input
             if (gameActive) {
-                // We are in Hangman Drawer
                 handleHangmanInput(key);
             } else if (currentSpellingState && !currentSpellingState.isWordVictory) {
-                // We are in a Spelling Bee Card
+                // Visual feedback for Card keys
+                const keyElem = currentSpellingState.card.querySelector(`.k-key[data-key="${key}"]`);
+                if (keyElem) {
+                    keyElem.classList.add('key-pressed');
+                    setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+                }
                 handleSpellingInput(key);
             }
         }
@@ -4747,6 +4760,7 @@ function renderSpellingSlots() {
         const wordDiv = document.createElement('div');
         wordDiv.className = 'word-box';
         
+        // --- CASE 1: Word already completed (Past) ---
         if (wIdx < currentSpellingState.currentWordIndex) {
             const wordSpan = document.createElement('span');
             wordSpan.textContent = word;
@@ -4755,6 +4769,7 @@ function renderSpellingSlots() {
             wordSpan.style.color = "#4cd964"; 
             wordDiv.appendChild(wordSpan);
         } 
+        // --- CASE 2: The current word we just finished (VICTORY MOMENT) ---
         else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
             const wordSpan = document.createElement('span');
             wordSpan.textContent = word;
@@ -4763,13 +4778,16 @@ function renderSpellingSlots() {
             wordSpan.style.fontWeight = "900";
             wordDiv.appendChild(wordSpan);
         }
+        // --- CASE 3: The Target word being spelled (Underlines/Boxes) ---
         else if (wIdx === currentSpellingState.currentWordIndex) {
+            // NEW: Apply the 'current-word' class to trigger the CSS Pulse
+            wordDiv.className = 'word-box current-word'; 
+            
             const letters = word.split('');
             letters.forEach((char, lIdx) => {
                 const slot = document.createElement('div');
                 slot.className = 'bee-slot';
                 
-                // CHECK FOR PUNCTUATION: Matches . , ! ? ; : AND both types of apostrophes ' ’
                 const isPunctuation = /[.,!?;:''’\-]/.test(char);
 
                 if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
@@ -4780,8 +4798,6 @@ function renderSpellingSlots() {
                         slot.style.background = 'transparent';
                     }
                     
-                    // If this specific character is an auto-fill (like an apostrophe) 
-                    // and we are sitting on it, advance the cursor automatically
                     if (isPunctuation && lIdx === currentSpellingState.currentLetterIndex) {
                         currentSpellingState.currentLetterIndex++;
                     }
@@ -4791,6 +4807,7 @@ function renderSpellingSlots() {
                 wordDiv.appendChild(slot);
             });
         } 
+        // --- CASE 4: Future words (Faint Context) ---
         else {
             const wordSpan = document.createElement('span');
             wordSpan.textContent = word;
@@ -4818,77 +4835,88 @@ function renderMiniKeyboard() {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
+            // IMPORTANT: data-key allows the laptop keyboard to "light up" these keys
             k.setAttribute('data-key', key);
-            k.onclick = (e) => { e.stopPropagation(); handleSpellingInput(key); };
+            k.onclick = (e) => { 
+                e.stopPropagation(); 
+                handleSpellingInput(key); 
+            };
             rowDiv.appendChild(k);
         });
         kbContainer.appendChild(rowDiv);
     });
 }
     
-function handleSpellingInput(inputLetter) {
-    const keyElem = currentSpellingState.card.querySelector(`.k-key[data-key="${inputLetter}"]`);
-    if (keyElem) {
-        keyElem.classList.add('key-pressed');
-        setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
-    }
+    function handleSpellingInput(inputLetter) {
+        if (!currentSpellingState || currentSpellingState.isWordVictory) return;
     
-    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
-
-    let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
-    
-    // Clean target to ignore punctuation/apostrophes for typing logic
-    let cleanTargetWord = targetWord.replace(/[.,!?;:''’\-]+$/, "");
-    let targetLetter = cleanTargetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
-    
-    // Normalize target letter (handle smart apostrophes if they appear mid-word)
-    if (targetLetter === "’") targetLetter = "'"; 
-
-    if (inputLetter === targetLetter) {
-        currentSpellingState.currentLetterIndex++;
+        let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
+        let cleanTargetWord = targetWord.replace(/[.,!?;:''’\-]+$/, "");
         
-        // Check if finished with letters (ignoring trailing punctuation)
-        if (currentSpellingState.currentLetterIndex >= cleanTargetWord.length) {
-            currentSpellingState.isWordVictory = true; 
-            renderSpellingSlots();
+        // 1. Check if the current character is a punctuation/auto-fill char
+        // If it is, skip it and look at the next letter
+        let currentChar = targetWord[currentSpellingState.currentLetterIndex];
+        if (/[.,!?;:''’\-]/.test(currentChar)) {
+            currentSpellingState.currentLetterIndex++;
+        }
+    
+        let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+        
+        // Normalize smart apostrophe
+        if (targetLetter === "’") targetLetter = "'"; 
+    
+        if (inputLetter === targetLetter) {
+            currentSpellingState.currentLetterIndex++;
             if (typeof playDingSound === "function") playDingSound();
             
-            const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
-            const waitTime = isLastWord ? 1000 : 2500;
-
-            setTimeout(() => {
-                currentSpellingState.isWordVictory = false;
-                currentSpellingState.currentWordIndex++;
-                currentSpellingState.currentLetterIndex = 0;
+            // 2. Immediate look-ahead: If the NEW current char is punctuation, skip it too
+            while (currentSpellingState.currentLetterIndex < targetWord.length && 
+                   /[.,!?;:''’\-]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
+                currentSpellingState.currentLetterIndex++;
+            }
+    
+            // Check if finished (using the length of the full word now for safety)
+            if (currentSpellingState.currentLetterIndex >= targetWord.length) {
+                currentSpellingState.isWordVictory = true; 
+                renderSpellingSlots();
                 
-                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
-                    if (typeof celebrate === "function") celebrate();
-                    if (typeof playVictorySound === "function") playVictorySound();
-                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
-                    setTimeout(() => {
-                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
-                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                    }, 4000);
-                } else {
-                    renderSpellingSlots();
-                    setTimeout(() => {
-                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
-                    }, 400);
-                }
-            }, waitTime);
+                const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
+                const waitTime = isLastWord ? 1000 : 2500;
+    
+                setTimeout(() => {
+                    currentSpellingState.isWordVictory = false;
+                    currentSpellingState.currentWordIndex++;
+                    currentSpellingState.currentLetterIndex = 0;
+                    
+                    if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                        if (typeof celebrate === "function") celebrate();
+                        if (typeof playVictorySound === "function") playVictorySound();
+                        setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+                        setTimeout(() => {
+                            const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                            if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                        }, 4000);
+                    } else {
+                        renderSpellingSlots();
+                        setTimeout(() => {
+                            spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                        }, 400);
+                    }
+                }, waitTime);
+            } else {
+                renderSpellingSlots();
+            }
         } else {
-            renderSpellingSlots();
+            // WRONG LETTER
+            const card = currentSpellingState.card;
+            window.speechSynthesis.cancel(); 
+            setTimeout(() => {
+                spk("Non", 'fr-FR');
+                card.style.animation = 'shake 0.3s';
+                setTimeout(() => card.style.animation = '', 300);
+            }, 50);
         }
-    } else {
-        const card = currentSpellingState.card;
-        window.speechSynthesis.cancel(); 
-        setTimeout(() => {
-            spk("Non", 'fr-FR');
-            card.style.animation = 'shake 0.3s';
-            setTimeout(() => card.style.animation = '', 300);
-        }, 50);
     }
-}
     
     function spellCurrentWord() {
         if (!currentSpellingState) return;
@@ -5053,6 +5081,7 @@ window.onload = () => {
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 </body>
 </html>
+
 
 
 
