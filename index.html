@@ -1020,13 +1020,6 @@
         border-color: #4cd964;
         background: #f0fdf4;
     }
-
-    /* Animation for the word victory pop */
-    @keyframes wordPop {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
     
     .word-victory-anim {
         animation: wordPop 0.6s ease-out;
@@ -1034,20 +1027,22 @@
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
     }
        
-   /* Unified Keyboard Styles for both Games */
+ /* --- UPDATED UNIFIED 3D KEYBOARD --- */
 .unified-keyboard {
-    display: flex;
+    position: fixed; /* Makes it float over the card */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f8fafc;
+    /* Extra bottom padding for phone "safe areas" */
+    padding: 15px 5px 30px 5px; 
+    border-top: 4px solid #FFD700; /* Gold top border to match the Bee */
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
+    z-index: 5000; /* Stays above everything else */
+    display: none; /* Hidden by default, toggled by JS */
     flex-direction: column;
-    align-items: center;
     gap: 8px;
-    margin: 15px auto;
-    padding: 10px 5px;
-    background: #f1f5f9;
-    border-radius: 18px;
-    border: 2px solid #e2e8f0;
-    width: 100%;
-    max-width: 450px;
-    box-sizing: border-box;
+    animation: slideUp 0.3s ease-out;
 }
 
 .keyboard-row {
@@ -1057,32 +1052,35 @@
     width: 100%;
 }
        
-  .k-key {
-    flex: 1;
-    max-width: 38px;
-    height: 45px;
+ .k-key {
+    /* FIXED WIDTH LOGIC: 10% of screen ensures all rows align perfectly */
+    flex: 0 0 calc(10% - 6px); 
+    height: 48px;
     background: white;
     border: 1px solid #cbd5e0;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 900;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    box-shadow: 0 3px 0 #cbd5e0;
     color: #2d3748;
     user-select: none;
     transition: all 0.1s;
+    
+    /* 3D "Pushable" Effect */
+    box-shadow: 0 4px 0 #cbd5e0;
 }
 
 .k-key:active, .k-key.key-pressed { 
     transform: translateY(3px); 
-    box-shadow: 0 0 0 #cbd5e0;
+    box-shadow: 0 1px 0 #cbd5e0;
     background: #e0f2fe;
 }
 
 /* Gray out used keys for Hangman */
+/* Gray out used keys for Hangman game */
 .k-key.used {
     opacity: 0.4;
     background: #e2e8f0;
@@ -1090,22 +1088,40 @@
     box-shadow: none;
 }
        
+/* Specific styling for accents row */
 .keyboard-row.accents .k-key {
-    background: #f8fafc;
-    height: 38px;
-    font-size: 0.8rem;
+    background: #fffdf0;
+    height: 42px;
+    font-size: 0.9rem;
+    border-color: #ffe082;
 }
     
-    /* Animations */
+     /* --- ANIMATIONS --- */
+    
+    /* For the Floating Keyboard to enter smoothly */
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    
+    /* For when she makes a mistake */
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-8px); }
         75% { transform: translateX(8px); }
     }
     
+    /* For individual letter feedback */
     @keyframes letterPop {
         0% { transform: scale(0.5); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* For the Word Victory celebration */
+    @keyframes wordPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
     }
     
     .pop-anim {
@@ -1384,7 +1400,6 @@
             <canvas id="hangmanCanvas" width="200" height="150"></canvas>
             <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
             <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess!</div>
-            <div id="keyboard" class="unified-keyboard"></div>
     
             <!-- Row 2: Bottom Action Buttons (Next and Exit) -->
             <div class="game-actions">
@@ -1632,7 +1647,10 @@
                 wins = 0;
                 losses = 0;
                 updateScoreUI();
-                // FIX: Added a tiny delay (50ms) so the game starts AFTER the drawer is visible
+
+                const globalKb = document.getElementById('keyboard');
+                if (globalKb) globalKb.style.display = 'flex'; 
+                
                 setTimeout(startHangman, 50); 
             } else if (id === 'bpModal') {
                 openBP();
@@ -2132,9 +2150,8 @@ function renderList(list) {
 
             // This is the spelling area that starts hidden
             const spellingHTML = `
-                <div class="spelling-zone" style="display:none;">
+                <div class="spelling-zone" style="display:none; padding: 10px 0;">
                     <div class="spelling-slots"></div>
-                    <div class="mini-keyboard"></div>
                 </div>
             `;
 
@@ -3673,6 +3690,10 @@ async function translateOne(p) {
                 document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; 
             } 
             
+            // NEW: Hide the Global Keyboard
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+            
             closeOverlay('gameDrawer'); 
         }
 
@@ -4680,55 +4701,80 @@ async function translateOne(p) {
 
     let currentSpellingState = null;
     
-    function toggleSpellingMode(btn, fullPhrase) {
-        const card = btn.closest('.phrase-card');
-        const spellingZone = card.querySelector('.spelling-zone');
-        const enBtn = card.querySelector('.spk-en');
-        
-        // --- NEW: Single-Card Enforcement ---
-        // Find any OTHER card that is currently in spelling mode
-        document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
-            if (otherCard !== card) {
-                // Force the other card back to normal mode
-                otherCard.classList.remove('spelling-mode');
-                otherCard.querySelector('.card-main-content').style.display = 'block';
-                
-                // Show all hidden text elements in that other card
-                otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-                    el.style.display = 'block';
-                });
-                
-                otherCard.querySelector('.spelling-zone').style.display = 'none';
-                const otherEnBtn = otherCard.querySelector('.spk-en');
-                otherEnBtn.innerHTML = '<span>English</span>';
-            }
-        });
+function toggleSpellingMode(btn, fullPhrase) {
+    const card = btn.closest('.phrase-card');
+    const spellingZone = card.querySelector('.spelling-zone');
+    const enBtn = card.querySelector('.spk-en');
+    const globalKb = document.getElementById('keyboard'); // Target the new global container
     
-        if (card.classList.contains('spelling-mode')) {
-            // EXIT MODE (Manual Close)
-            card.classList.remove('spelling-mode');
-            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+    // 1. CLEANUP: Find any OTHER card that is currently in spelling mode and shut it down
+    document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
+        if (otherCard !== card) {
+            otherCard.classList.remove('spelling-mode');
+            // Show all hidden text elements in that other card
+            otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'block';
             });
-            spellingZone.style.display = 'none';
-            enBtn.innerHTML = '<span>English</span>';
-            currentSpellingState = null;
-            window.speechSynthesis.cancel();
-        } else {
-            // ENTER MODE
-            card.classList.add('spelling-mode');
-            
-            // Hide only text, keep photo/icon visible
-            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-                el.style.display = 'none';
-            });
-            
-            spellingZone.style.display = 'block';
-            enBtn.innerHTML = '<span>Spell</span>';
-    
-            startNewSpellingGame(card, fullPhrase);
+            // Hide the spelling zone in that other card
+            const otherZone = otherCard.querySelector('.spelling-zone');
+            if (otherZone) otherZone.style.display = 'none';
+            // Reset the English button in that other card
+            const otherEnBtn = otherCard.querySelector('.spk-en');
+            if (otherEnBtn) otherEnBtn.innerHTML = '<span>English</span>';
         }
+    });
+
+    // 2. TOGGLE LOGIC for the clicked card
+    if (card.classList.contains('spelling-mode')) {
+        // --- EXIT SPELLING MODE ---
+        card.classList.remove('spelling-mode');
+        
+        // Show normal text elements
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'block';
+        });
+        
+        // Hide the spelling box area
+        spellingZone.style.display = 'none';
+        
+        // Restore the standard English button
+        enBtn.innerHTML = '<span>English</span>';
+        
+        // HIDE the Global Keyboard
+        if (globalKb) globalKb.style.display = 'none';
+        
+        currentSpellingState = null;
+        window.speechSynthesis.cancel();
+    } else {
+        // --- ENTER SPELLING MODE ---
+        card.classList.add('spelling-mode');
+        
+        // Hide text elements (Photo/Icon stays visible as a clue)
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Show the spelling box area
+        spellingZone.style.display = 'block';
+        
+        // Change English button to "🔡 Spell"
+        enBtn.innerHTML = '<span>🔡 Spell</span>';
+
+        // SHOW the Global Keyboard
+        if (globalKb) {
+            globalKb.style.display = 'flex';
+            renderMiniKeyboard(); // This populates the keys into the global container
+        }
+
+        // Start the actual game logic
+        startNewSpellingGame(card, fullPhrase);
+
+        // Mobile UX: Scroll the card to the center so the keyboard doesn't cover the boxes
+        setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
     }
+}
     
     function startNewSpellingGame(card, phrase) {
         const cleanPhrase = phrase.split('|')[0].trim();
@@ -5079,8 +5125,11 @@ window.onload = () => {
    <!-- This ensures the browser loads the KG font from your GitHub root immediately -->
     <div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
+    <!-- THE GLOBAL KEYBOARD CONTAINER -->
+    <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
