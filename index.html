@@ -2152,6 +2152,7 @@ function renderList(list) {
             const spellingHTML = `
                 <div class="spelling-zone" style="display:none; padding: 10px 0;">
                     <div class="spelling-slots"></div>
+                    <!-- Keyboard removed from here because it is now Global at the bottom of the page -->
                 </div>
             `;
 
@@ -3645,17 +3646,25 @@ async function translateOne(p) {
             });
         }
 
-        // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
+         // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
         function handleKeyPress(e) {
             const key = e.key.toUpperCase();
+            
+            // Support standard A-Z, space, and common French accents
             const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛ' ".split('');
             if (!validKeys.includes(key)) return;
         
             if (gameActive) {
+                // Visual feedback for Hangman keys
+                const keyElem = document.querySelector(`#keyboard .k-key[data-key="${key}"]`);
+                if (keyElem) {
+                    keyElem.classList.add('key-pressed');
+                    setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+                }
                 handleHangmanInput(key);
             } else if (currentSpellingState && !currentSpellingState.isWordVictory) {
-                // Visual feedback for Card keys
-                const keyElem = currentSpellingState.card.querySelector(`.k-key[data-key="${key}"]`);
+                // Visual feedback for Spelling Bee keys
+                const keyElem = document.querySelector(`#keyboard .k-key[data-key="${key}"]`);
                 if (keyElem) {
                     keyElem.classList.add('key-pressed');
                     setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
@@ -4870,9 +4879,14 @@ function renderSpellingSlots() {
     
 function renderMiniKeyboard() {
     if (!currentSpellingState) return;
-    const kbContainer = currentSpellingState.card.querySelector('.mini-keyboard');
-    kbContainer.className = "mini-keyboard unified-keyboard";
+    
+    // FIX: Target the Global Container at the bottom of the page
+    const kbContainer = document.getElementById('keyboard');
+    if (!kbContainer) return;
+
     kbContainer.innerHTML = '';
+    // Ensure it has the correct classes for your 3D styling
+    kbContainer.className = "unified-keyboard";
     
     FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
         const rowDiv = document.createElement('div');
@@ -4881,7 +4895,7 @@ function renderMiniKeyboard() {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
-            // IMPORTANT: data-key allows the laptop keyboard to "light up" these keys
+            // data-key allows the laptop keyboard to find this specific button
             k.setAttribute('data-key', key);
             k.onclick = (e) => { 
                 e.stopPropagation(); 
@@ -4894,40 +4908,43 @@ function renderMiniKeyboard() {
 }
     
     function handleSpellingInput(inputLetter) {
+        // 1. Guard: Prevent input if no game is active or during the "Victory Pop" pause
         if (!currentSpellingState || currentSpellingState.isWordVictory) return;
     
         let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        let cleanTargetWord = targetWord.replace(/[.,!?;:''’\-]+$/, "");
         
-        // 1. Check if the current character is a punctuation/auto-fill char
-        // If it is, skip it and look at the next letter
-        let currentChar = targetWord[currentSpellingState.currentLetterIndex];
-        if (/[.,!?;:''’\-]/.test(currentChar)) {
+        // 2. Initial Skip Logic: If the current position is punctuation, skip it BEFORE checking the letter.
+        // Changing 'if' to 'while' ensures we skip multiple symbols (e.g. "L'...)
+        while (currentSpellingState.currentLetterIndex < targetWord.length && 
+               /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
             currentSpellingState.currentLetterIndex++;
         }
     
+        // 3. Identify the letter she IS supposed to type
         let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
         
-        // Normalize smart apostrophe
+        // Normalize smart apostrophes just in case they weren't caught by the regex
         if (targetLetter === "’") targetLetter = "'"; 
     
         if (inputLetter === targetLetter) {
+            // --- CORRECT LETTER ---
             currentSpellingState.currentLetterIndex++;
             if (typeof playDingSound === "function") playDingSound();
             
-            // 2. Immediate look-ahead: If the NEW current char is punctuation, skip it too
+            // 4. Look-ahead Skip: If the letter she just typed is followed by punctuation,
+            // skip those symbols immediately so the next underline is ready.
             while (currentSpellingState.currentLetterIndex < targetWord.length && 
-                   /[.,!?;:''’\-]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
+                   /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
                 currentSpellingState.currentLetterIndex++;
             }
     
-            // Check if finished (using the length of the full word now for safety)
+            // 5. Check if the Word is finished
             if (currentSpellingState.currentLetterIndex >= targetWord.length) {
                 currentSpellingState.isWordVictory = true; 
-                renderSpellingSlots();
+                renderSpellingSlots(); // Show the word in Green/Victory state
                 
                 const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
-                const waitTime = isLastWord ? 1000 : 2500;
+                const waitTime = isLastWord ? 1000 : 2500; // 2.5s pause to celebrate the word
     
                 setTimeout(() => {
                     currentSpellingState.isWordVictory = false;
@@ -4935,35 +4952,44 @@ function renderMiniKeyboard() {
                     currentSpellingState.currentLetterIndex = 0;
                     
                     if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                        // --- FULL PHRASE SUCCESS ---
                         if (typeof celebrate === "function") celebrate();
                         if (typeof playVictorySound === "function") playVictorySound();
+                        
+                        // Pronounce the whole phrase one last time
                         setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+    
+                        // Close the mode and hide keyboard after 4 seconds
                         setTimeout(() => {
                             const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
                             if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
                         }, 4000);
                     } else {
+                        // --- PREPARE NEXT WORD ---
                         renderSpellingSlots();
+                        // Prompt the child by speaking the next word
                         setTimeout(() => {
                             spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
                         }, 400);
                     }
                 }, waitTime);
             } else {
+                // Word not finished, refresh underlines to show the letter just typed
                 renderSpellingSlots();
             }
         } else {
-            // WRONG LETTER
+            // --- WRONG LETTER ---
             const card = currentSpellingState.card;
             window.speechSynthesis.cancel(); 
             setTimeout(() => {
                 spk("Non", 'fr-FR');
+                // Visual feedback: Shake the card
                 card.style.animation = 'shake 0.3s';
                 setTimeout(() => card.style.animation = '', 300);
             }, 50);
         }
     }
-    
+        
     function spellCurrentWord() {
         if (!currentSpellingState) return;
         const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
@@ -5129,6 +5155,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
