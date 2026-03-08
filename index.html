@@ -973,9 +973,9 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
-        margin: 15px 0;
-        min-height: 40px;
+        gap: 6px;      /* Reduced from 8px */
+        margin: 0;     /* REMOVED: 15px margin that caused the big gap */
+        min-height: 42px;
     }
 
     /* Pulsing effect for the active word's boxes */
@@ -984,27 +984,27 @@
         border-color: #FFD700; /* Gold color to match the Bee */
     }
     
-    @keyframes gentlePulse {
-        0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; }
-        50% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); border-color: #FFD700; }
-        100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; }
-    }
+        @keyframes gentlePulse {
+            0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+            50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.5); border-color: #FFD700; transform: scale(1.02); }
+            100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+        }
        
     /* Ensure the word box handles scaling without clipping */
     .word-box {
         display: flex;
-        gap: 4px;
-        padding: 4px;
+        gap: 2px;
+        padding: 2px 4px; /* Reduced padding */
         align-items: center;
         transition: all 0.3s;
     }
     
        /* UPDATED: Letter boxes instead of simple underlines */
-    .bee-slot {
-        width: 32px; /* Fixed width to prevent jumping */
-        height: 42px;
+     .bee-slot {
+        width: 30px; 
+        height: 38px;  /* Reduced from 42px to match text line-height */
         border: 2px solid #cbd5e0;
-        border-radius: 8px;
+        border-radius: 6px;
         background: white;
         font-size: 1.8rem;
         font-weight: 900;
@@ -2159,9 +2159,8 @@ function renderList(list) {
 
             // This is the spelling area that starts hidden
             const spellingHTML = `
-                <div class="spelling-zone" style="display:none; padding: 10px 0;">
+                <div class="spelling-zone" style="display:none; padding: 0;">
                     <div class="spelling-slots"></div>
-                    <!-- Keyboard removed from here because it is now Global at the bottom of the page -->
                 </div>
             `;
 
@@ -4830,27 +4829,38 @@ function renderSpellingSlots() {
         const wordDiv = document.createElement('div');
         wordDiv.className = 'word-box';
         
-        // --- CASE 1: Word already completed (Past) ---
-        if (wIdx < currentSpellingState.currentWordIndex) {
+        // --- CASES 1, 2, and 4: Text-based words ---
+        if (wIdx < currentSpellingState.currentWordIndex || 
+            (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) ||
+            wIdx > currentSpellingState.currentWordIndex) {
+            
             const wordSpan = document.createElement('span');
             wordSpan.textContent = word;
+            
+            // SHARED STYLES to prevent jumping
             wordSpan.style.fontSize = "1.8rem";
             wordSpan.style.fontWeight = "900";
-            wordSpan.style.color = "#4cd964"; 
+            wordSpan.style.lineHeight = "38px"; // Fixed height
+            wordSpan.style.display = "inline-block";
+            wordSpan.style.transition = "all 0.3s";
+
+            if (wIdx < currentSpellingState.currentWordIndex) {
+                // CASE 1: Past Words (Green)
+                wordSpan.style.color = "#4cd964"; 
+            } 
+            else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
+                // CASE 2: The Victory Pop (Animated)
+                wordSpan.className = "word-victory-anim";
+            } 
+            else {
+                // CASE 4: Future Words (Faint)
+                wordSpan.style.opacity = "0.3";
+                wordSpan.style.color = "#2d3748";
+            }
             wordDiv.appendChild(wordSpan);
         } 
-        // --- CASE 2: The current word we just finished (VICTORY MOMENT) ---
-        else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
-            const wordSpan = document.createElement('span');
-            wordSpan.textContent = word;
-            wordSpan.className = "word-victory-anim";
-            wordSpan.style.fontSize = "1.8rem";
-            wordSpan.style.fontWeight = "900";
-            wordDiv.appendChild(wordSpan);
-        }
-        // --- CASE 3: The Target word being spelled (Underlines/Boxes) ---
+        // --- CASE 3: The Target word currently being spelled (The Boxes) ---
         else if (wIdx === currentSpellingState.currentWordIndex) {
-            // NEW: Apply the 'current-word' class to trigger the CSS Pulse
             wordDiv.className = 'word-box current-word'; 
             
             const letters = word.split('');
@@ -4876,16 +4886,6 @@ function renderSpellingSlots() {
                 }
                 wordDiv.appendChild(slot);
             });
-        } 
-        // --- CASE 4: Future words (Faint Context) ---
-        else {
-            const wordSpan = document.createElement('span');
-            wordSpan.textContent = word;
-            wordSpan.style.fontSize = "1.8rem";
-            wordSpan.style.fontWeight = "900";
-            wordSpan.style.opacity = "0.3";
-            wordSpan.style.color = "#2d3748";
-            wordDiv.appendChild(wordSpan);
         }
 
         container.appendChild(wordDiv);
@@ -5170,6 +5170,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
