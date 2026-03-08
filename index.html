@@ -969,14 +969,14 @@
         background: #fffdf0 !important;
     }
     
-    .spelling-slots {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;      /* Reduced from 8px */
-        margin: 0;     /* REMOVED: 15px margin that caused the big gap */
-        min-height: 42px;
-    }
+.spelling-slots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 0 30px 0; 
+    min-height: 42px;
+}
 
     /* Pulsing effect for the active word's boxes */
     .word-box.current-word .bee-slot:not(.filled) {
@@ -2159,7 +2159,7 @@ function renderList(list) {
 
             // This is the spelling area that starts hidden
             const spellingHTML = `
-                <div class="spelling-zone" style="display:none; padding: 0;">
+                <div class="spelling-zone" style="display:none; padding: 10px 0;">
                     <div class="spelling-slots"></div>
                 </div>
             `;
@@ -5170,6 +5170,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
