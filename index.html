@@ -1045,6 +1045,11 @@
     animation: slideUp 0.3s ease-out;
 }
 
+.keyboard-buffer {
+    padding-bottom: 300px !important; /* Adjust based on keyboard height */
+    transition: padding-bottom 0.3s ease;
+}
+       
 .keyboard-row {
     display: flex;
     justify-content: center;
@@ -1643,15 +1648,21 @@
             document.getElementById(id).style.display = 'block'; 
             
             // 5. SPECIFIC LOGIC FOR EACH DRAWER
-            if(id === 'gameDrawer') { 
+        if(id === 'gameDrawer') { 
                 wins = 0;
                 losses = 0;
                 updateScoreUI();
-
+        
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
                 
+                // NEW: Add buffer to the drawer content so buttons aren't covered
+                const drawerContent = document.querySelector('#gameDrawer .overlay-content');
+                if (drawerContent) drawerContent.classList.add('keyboard-buffer');
+                
                 setTimeout(startHangman, 50); 
+            }
+            
             } else if (id === 'bpModal') {
                 openBP();
             } else if (id === 'presetsOverlay') {
@@ -3702,6 +3713,10 @@ async function translateOne(p) {
             // NEW: Hide the Global Keyboard
             const globalKb = document.getElementById('keyboard');
             if (globalKb) globalKb.style.display = 'none';
+        
+            // NEW: Remove the buffer from the drawer content
+            const drawerContent = document.querySelector('#gameDrawer .overlay-content');
+            if (drawerContent) drawerContent.classList.remove('keyboard-buffer');
             
             closeOverlay('gameDrawer'); 
         }
@@ -4751,6 +4766,8 @@ function toggleSpellingMode(btn, fullPhrase) {
         
         // HIDE the Global Keyboard
         if (globalKb) globalKb.style.display = 'none';
+
+        document.body.classList.remove('keyboard-buffer');
         
         currentSpellingState = null;
         window.speechSynthesis.cancel();
@@ -4774,6 +4791,8 @@ function toggleSpellingMode(btn, fullPhrase) {
             globalKb.style.display = 'flex';
             renderMiniKeyboard(); // This populates the keys into the global container
         }
+
+        document.body.classList.add('keyboard-buffer');
 
         // Start the actual game logic
         startNewSpellingGame(card, fullPhrase);
@@ -5155,6 +5174,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
