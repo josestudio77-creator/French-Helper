@@ -1358,8 +1358,6 @@
                     ⚠️ Reset Everything
                 </button>
             </div>
-            
-            <button onclick="closeOverlay('parentDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -1452,35 +1450,43 @@
         </div>
     </div>
 
-    <!-- Backpack Modal V10.0 -->
-    <div id="bpModal" class="overlay" style="z-index:3000">
-        <div class="overlay-content">
-            <!-- New Navigation Header -->
-            <div style="background: #fdf2ff; border-radius: 20px; padding: 15px; border: 3px solid #9d4edd; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <button onclick="changeBpMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀️</button>
-                    <h2 id="bpFolderName" onclick="openFolderNav()" style="color:#9d4edd; margin:0; font-size:1.4rem; cursor:pointer; text-decoration:underline dashed #9d4edd; text-underline-offset: 4px;">🎒 Backpack</h2>
-                    <button onclick="changeBpMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶️</button>
-                </div>
-                
-                <!-- Favorites Filter Toggle -->
-                <button id="btnFavFilter" onclick="toggleFavFilter()" style="width:100%; padding:10px; border-radius:12px; border:2px solid #ffb703; background:white; color:#fb8500; font-weight:900; cursor:pointer;">
-                    Show Only ⭐ Favorites
-                </button>
-            </div>
-    
-            <div id="bpList"></div>
-            
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
-                <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">📤 Share Month</button>
-                <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">➕ Add New</button>
-                <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">🗑️ Reset Month</button>
-                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">⚙️ Settings</button>
+<!-- Backpack Modal V10.0 -->
+<div id="bpModal" class="overlay" style="z-index:3000">
+    <div class="overlay-content">
+        <!-- New Navigation Header -->
+        <div style="background: #fdf2ff; border-radius: 20px; padding: 15px; border: 3px solid #9d4edd; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <button onclick="changeBpMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀️</button>
+                <h2 id="bpFolderName" onclick="openFolderNav()" style="color:#9d4edd; margin:0; font-size:1.4rem; cursor:pointer; text-decoration:underline dashed #9d4edd; text-underline-offset: 4px;">🎒 Backpack</h2>
+                <button onclick="changeBpMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶️</button>
             </div>
             
-            <button onclick="closeOverlay('bpModal')" style="margin-top:15px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Close</button>
+            <!-- Favorites Filter Toggle -->
+            <button id="btnFavFilter" onclick="toggleFavFilter()" style="width:100%; padding:10px; border-radius:12px; border:2px solid #ffb703; background:white; color:#fb8500; font-weight:900; cursor:pointer;">
+                Show Only ⭐ Favorites
+            </button>
         </div>
+
+        <!-- The list of homework items -->
+        <div id="bpList"></div>
+        
+        <!-- UPDATED FOOTER LAYOUT -->
+        <div style="margin-top:25px;">
+            <!-- Large Full Width Add Button -->
+            <button onclick="addNewHomework()" style="width:100%; background:#4cd964; color:white; padding:20px; border:none; border-radius:18px; font-weight:900; font-size:1.2rem; cursor:pointer; margin-bottom:12px; box-shadow: 0 4px 0 #2e8b57; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>➕</span> Add New Homework
+            </button>
+            
+            <!-- Secondary Utilities in a single row -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:15px 5px; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size: 0.85rem;">📤 Share Month</button>
+                <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:15px 5px; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size: 0.85rem;">🗑️ Reset Month</button>
+            </div>
+        </div>
+
+        <!-- Redundant Settings and Close buttons are now removed -->
     </div>
+</div>
 
     <!-- Presets Overlay -->
     <div id="presetsOverlay" class="overlay">
@@ -1504,8 +1510,6 @@
                 <button class="preset-btn" onclick="loadPresetAndClose('spellingBee')">🐝 Spelling Bee<div class="difficulty-badge">57</div>
 </button>
             </div>
-            
-            <button onclick="closeOverlay('presetsOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -5274,6 +5278,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
