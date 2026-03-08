@@ -1555,7 +1555,7 @@
             house:["Une chaise","Une table","Un lit","Une fenêtre","Une porte"],
             actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"],
 
-            alphabet: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"],
+            alphabet: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","É","À","È","Ù","Ç"],
             
             spellingBee: [
                 "ami", "amie", "aussi", "alors", "aller", "autre", "avoir", "avant", "avec",
@@ -2040,8 +2040,8 @@ function renderList(list) {
     if (!container) return;
     container.innerHTML = '';
 
-    // NEW: Improved Alphabet detection (26 single letters A-Z)
-    const isAlphabet = list.length === 26 && list[0] === "A" && list[25] === "Z";
+    // NEW: Detects 26 letters + 5 common accents
+    const isAlphabet = (list.length >= 26 && list.length <= 31) && list.includes('A') && list.includes('Z');
 
     // If in Cards mode and it's the alphabet, show special big cards
     if (isAlphabet && viewMode === 'cards') {
@@ -4227,7 +4227,7 @@ async function translateOne(p) {
             
             const statusInfo = document.getElementById('stCountText');
             if (statusInfo) {
-                statusInfo.innerHTML = '🔤 French Alphabet';
+                statusInfo.innerHTML = '🔤 French Alphabet & Accents';
             }
             
             alphabetList.forEach(letter => {
@@ -4237,15 +4237,17 @@ async function translateOne(p) {
                 card.className = 'phrase-card';
                 card.style.borderColor = '#4cd964';
                 card.style.background = 'linear-gradient(145deg, #ffffff, #f0fff4)';
+                // Added padding-top since we removed the icon
+                card.style.paddingTop = '40px'; 
                 
                 card.innerHTML = `
-                    <span class="card-icon" style="font-size: 3rem; margin-bottom: 5px;">🔤</span>
-                    <span class="french-text" style="font-size: 5rem; line-height: 1.2; color: #2d3748;">${letter}</span>
-                    <span class="pronunciation-text" style="font-size: 1.8rem; color: #4a5568; margin: 10px 20px;">[ ${pronunciation} ]</span>
+                    <!-- Icon Removed for cleaner look -->
+                    <span class="french-text" style="font-size: 6rem; line-height: 1; color: #2d3748; display: block;">${letter}</span>
+                    <span class="pronunciation-text" style="font-size: 1.6rem; color: #4a5568; margin: 20px 0; display: block;">[ ${pronunciation} ]</span>
                     
-                    <div class="card-btns">
+                    <div class="card-btns" style="margin-top: 20px;">
                         <button class="card-btn spk-fr" style="background: #4cd964; font-size: 1.3rem; grid-column: span 2; height: 60px;">
-                            🎤 Listen to Letter
+                            🎤 Listen to Name
                         </button>
                     </div>
                 `;
@@ -5203,6 +5205,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
