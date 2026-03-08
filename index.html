@@ -1622,7 +1622,6 @@
             ["É","À","È","Ç","Ù","Û","'"] // Added apostrophe to the accents row
         ];
 
-        // ===== CORE FUNCTIONS =====
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
@@ -1648,21 +1647,20 @@
             document.getElementById(id).style.display = 'block'; 
             
             // 5. SPECIFIC LOGIC FOR EACH DRAWER
-        if(id === 'gameDrawer') { 
+            if(id === 'gameDrawer') { 
                 wins = 0;
                 losses = 0;
                 updateScoreUI();
         
+                // Show the Global Keyboard for Hangman
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
                 
-                // NEW: Add buffer to the drawer content so buttons aren't covered
+                // Add buffer to the drawer content so buttons aren't covered by keyboard
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
                 setTimeout(startHangman, 50); 
-            }
-            
             } else if (id === 'bpModal') {
                 openBP();
             } else if (id === 'presetsOverlay') {
@@ -3700,8 +3698,6 @@ async function translateOne(p) {
             // Clear any victory animations
             victoryTimeouts.forEach(timeout => clearTimeout(timeout));
             victoryTimeouts = [];
-            
-            // Remove any leftover victory elements from DOM
             document.querySelectorAll('.victory-item').forEach(el => el.remove());
             
             if (musicNode) { 
@@ -3710,11 +3706,11 @@ async function translateOne(p) {
                 document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; 
             } 
             
-            // NEW: Hide the Global Keyboard
+            // Hide the Global Keyboard
             const globalKb = document.getElementById('keyboard');
             if (globalKb) globalKb.style.display = 'none';
         
-            // NEW: Remove the buffer from the drawer content
+            // Remove the scroll buffer from the drawer
             const drawerContent = document.querySelector('#gameDrawer .overlay-content');
             if (drawerContent) drawerContent.classList.remove('keyboard-buffer');
             
@@ -5174,6 +5170,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
