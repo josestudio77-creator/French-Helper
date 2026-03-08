@@ -1013,7 +1013,7 @@
         justify-content: center;
         color: #2d3748;
         text-transform: uppercase;
-        transition: all 0.2s;
+        transition: all 0.2s, background-color 0.3s; 
     }
     
     .bee-slot.filled {
@@ -1570,6 +1570,17 @@
                 "nouvelle", "oiseau", "pas", "pour", "pense", "pendant", "quand", "regarder",
                 "semaine", "sous", "très", "trop", "travail", "trouve", "voici"
             ]
+        };
+        
+        const FRENCH_LETTER_NAMES = {
+            'A': 'a', 'B': 'bé', 'C': 'cé', 'D': 'dé', 'E': 'e',
+            'F': 'effe', 'G': 'gé', 'H': 'hache', 'I': 'i', 'J': 'ji',
+            'K': 'ka', 'L': 'elle', 'M': 'emme', 'N': 'enne', 'O': 'o',
+            'P': 'pé', 'Q': 'qu', 'R': 'erre', 'S': 'esse', 'T': 'té',
+            'U': 'u', 'V': 'vé', 'W': 'double vé', 'X': 'ixe', 'Y': 'i grec', 'Z': 'zed',
+            'É': 'é', 'À': 'a accent grave', 'È': 'e accent grave', 'Ç': 'c cédille',
+            'Ù': 'u accent grave', 'Û': 'u accent circonflexe', 'Î': 'i accent circonflexe',
+            "'": 'apostrophe', '-': 'trait d’union'
         };
 
         // ===== APP STATE =====
@@ -5004,26 +5015,50 @@ function renderMiniKeyboard() {
         }
     }
         
-    function spellCurrentWord() {
-        if (!currentSpellingState) return;
-        const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
-        const letters = word.split('');
-        
-        // 1. Clear current queue
-        window.speechSynthesis.cancel();
-        
-        // 2. Queue each letter naturally
-        // We don't use spk() here because spk() calls .cancel() inside it.
-        letters.forEach((letter, i) => {
-            setTimeout(() => {
-                const u = new SpeechSynthesisUtterance(letter);
-                u.lang = 'fr-FR';
-                u.rate = speechSpeed;
-                u.voice = selectedFrVoice;
-                window.speechSynthesis.speak(u);
-            }, i * 850); // 850ms is the perfect speed for a child to follow
-        });
-    }
+function spellCurrentWord() {
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+    const letters = word.split('');
+    
+    // 1. Clear current speech
+    window.speechSynthesis.cancel();
+
+    // 2. Identify the slots for this specific word only
+    // We find the word-box that is currently being spelled
+    const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
+    const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
+
+    // 3. Queue the letters
+    letters.forEach((letter, i) => {
+        setTimeout(() => {
+            const upper = letter.toUpperCase();
+            const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+
+            // Visual Feedback: Highlight the box
+            if (slots[i]) {
+                slots[i].style.backgroundColor = '#FFD700'; // Gold highlight
+                slots[i].style.transform = 'scale(1.15)';
+                slots[i].style.zIndex = '10';
+                
+                // Remove highlight after the letter is spoken
+                setTimeout(() => {
+                    slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
+                    slots[i].style.transform = '';
+                    slots[i].style.zIndex = '';
+                }, 700);
+            }
+
+            // Audio: Speak the proper French name of the letter
+            const u = new SpeechSynthesisUtterance(nameToSpeak);
+            u.lang = 'fr-FR';
+            u.rate = speechSpeed * 0.8; // Slightly slower for clarity
+            u.voice = selectedFrVoice;
+            window.speechSynthesis.speak(u);
+
+        }, i * 900); // 900ms gap gives her time to process each letter
+    });
+}
      
 window.onload = () => {
     console.log('App loading...');
@@ -5169,3 +5204,4 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
