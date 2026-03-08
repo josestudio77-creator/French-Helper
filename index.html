@@ -69,14 +69,42 @@
 
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
+    .bottom-nav { 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        background: white; 
+        border-top: 4px solid #5a67d8; 
+        display: flex; 
+        z-index: 9000;
+        height: 80px; 
+    }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; font-size: 0.85rem; }
     .nav-presets { color: #ff9e6d; background: #fff5f0; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
     .nav-backpack { color: #9d4edd; background: #fdf2ff; }
     .nav-parent { color: #118AB2; background: #f0f9ff; }
-    .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
-    .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
+    .overlay { 
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        background: rgba(0,0,0,0.85); 
+        z-index: 8000; /* Lower than Nav Bar */
+        padding: 15px; 
+    }
+    .overlay-content {
+        background: white; 
+        border-radius: 30px; 
+        padding: 15px; 
+        height: 95vh; 
+        overflow-y: auto; 
+        text-align: center;
+        padding-bottom: 100px !important; 
+    }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 5px 0; outline: none; }
 
 /* Snail Badge: Floating Top-Left with 3D Effect */
@@ -1029,17 +1057,16 @@
        
  /* --- UPDATED UNIFIED 3D KEYBOARD --- */
 .unified-keyboard {
-    position: fixed; /* Makes it float over the card */
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: #f8fafc;
-    /* Extra bottom padding for phone "safe areas" */
     padding: 15px 5px 30px 5px; 
-    border-top: 4px solid #FFD700; /* Gold top border to match the Bee */
+    border-top: 4px solid #FFD700;
     box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
-    z-index: 5000; /* Stays above everything else */
-    display: none; /* Hidden by default, toggled by JS */
+    z-index: 9500; /* HIGHEST: Covers the Nav Bar when active */
+    display: none;
     flex-direction: column;
     gap: 8px;
     animation: slideUp 0.3s ease-out;
@@ -1278,13 +1305,24 @@
             oninput="document.getElementById('gapValue').innerText = this.value; localStorage.setItem('gapValue', this.value);">
         </div>
         <div id="phrasesList" class="phrases-container"></div>
-             <div class="bottom-nav">
-            <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-            <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
+        <div class="bottom-nav">
+            <!-- Tapping this icon acts like a "Home" button for the Practice cards -->
+            <div class="nav-item" onclick="navJump(null)" style="color: #4cd964; background: #f0fff4;">
+                <span>📖</span><br>Practice
+            </div>
+            <div class="nav-item nav-presets" onclick="navJump('presetsOverlay')">
+                <span>🎨</span><br>Presets
+            </div>
+            <div class="nav-item nav-game" onclick="navJump('gameDrawer')">
+                <span>🎮</span><br>Game
+            </div>
+            <div class="nav-item nav-backpack" onclick="navJump('bpModal')">
+                <span>🎒</span><br>Backpack
+            </div>
+            <div class="nav-item nav-parent" onclick="navJump('parentDrawer')">
+                <span>⚙️</span><br>Parent
+            </div>
         </div>
-    </div>
         
     <!-- Parent Settings  -->
     <div id="parentDrawer" class="overlay">
@@ -1629,6 +1667,37 @@
             ["É","À","È","Ç","Ù","Û","'"] // Added apostrophe to the accents row
         ];
 
+        function navJump(targetId) {
+            // 1. Close all potential main overlays first
+            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer'];
+            overlays.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        
+            // 2. Hide keyboard and remove buffer
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+            
+            // 3. Reset any active spelling states to prevent audio bugs
+            if (currentSpellingState) {
+                // If we were in the middle of a word, just turn it off
+                currentSpellingState = null;
+                window.speechSynthesis.cancel();
+            }
+        
+            // 4. If target is null, we just go back to the main practice screen
+            if (!targetId) {
+                // Refresh the current list to make sure Bee mode is visually reset
+                renderList(currentScreenList);
+                return;
+            }
+        
+            // 5. Open the new target
+            openOverlay(targetId);
+        }
+        
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
@@ -5205,6 +5274,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
