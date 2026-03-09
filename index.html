@@ -251,15 +251,29 @@
     .clue-emoji { font-size: 3rem; margin: 2px 0; }
     .hangman-word { font-size: 1.6rem; margin: 10px 0; }
        
-    /* App Control Panel */
+    /* UPDATED: Sticky Panel ensures controls are always reachable */
     .app-control-panel {
         background: white;
         border-radius: 25px;
         padding: 12px 15px;
         margin-bottom: 15px;
         border: 3px solid #118AB2;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        position: relative;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        
+        /* NEW: Sticky Logic */
+        position: sticky;
+        top: 10px;      /* Gap from the top edge */
+        z-index: 1000;  /* Below Nav (9000) but above cards */
+    }
+    
+    /* Ensure the autoplay controls inside the panel look clean when sticking */
+    #autoplayControls {
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 15px;
+        margin-top: 10px;
+        border: 2px solid #e2e8f0;
+        display: none;
     }
     
     .status-info {
@@ -4512,7 +4526,7 @@ async function translateOne(p) {
             }
         }
         
-        function playLine(index) {
+       function playLine(index) {
             if (!isAutoPlaying) return;
             
             if (index >= currentScreenList.length) {
@@ -4530,20 +4544,18 @@ async function translateOne(p) {
             // Highlight current line
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             const currentEl = document.getElementById(`line-${index}`);
+            
             if (currentEl) {
                 currentEl.classList.add('playing-now');
-                currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
             
-            // Cancel any ongoing speech
             window.speechSynthesis.cancel();
             
-            // Create and speak the utterance
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'fr-FR';
             utterance.rate = speechSpeed;
             
-            // When speech ends, wait for the gap then play next
             utterance.onend = () => {
                 if (isAutoPlaying) {
                     autoPlayTimeout = setTimeout(() => {
@@ -5481,6 +5493,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
