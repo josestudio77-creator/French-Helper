@@ -209,21 +209,27 @@
         display: flex;
         gap: 10px;
         margin-top: 25px;
+        width: 100%;
     }
     
     .game-actions button {
-        flex: 1;
-        padding: 15px !important;
-        border-radius: 20px;
+        padding: 15px 5px !important;
+        border-radius: 18px;
         border: none;
         font-weight: 900;
+        font-size: 1rem;
         cursor: pointer;
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap; /* Safety: prevents wrapping */
     }
     
     .game-actions button:active {
         transform: translateY(2px);
-        box-shadow: none;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.15);
     }
        
     #hangmanCanvas { 
@@ -1448,11 +1454,20 @@
             <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
         </div>
         
-        <!-- NEW TOP ROW: Administrative/Game Flow Buttons -->
+        <!-- NEW TOP ROW: Refined colors to avoid confusion with the bottom Listen button -->
         <div class="game-hints">
-            <button class="hint-btn" onclick="startHangman()" style="background:#4cd964; color:white; border-color:#2e8b57;">🎯 Next</button>
-            <button class="hint-btn" onclick="exitGame()" style="background:#2d3748; color:white; border-color:#1a202c;">🚪 Exit</button>
-            <button id="musicToggleBtn" class="hint-btn" style="background:#fef3c7; color:#92400e; border-color:#f59e0b" onclick="toggleMusic()">🎵 Music: Off</button>
+            <!-- Next: Changed to Indigo to distinguish from Listen -->
+            <button class="hint-btn" onclick="startHangman()" 
+                    style="background:#5a67d8; color:white; border-color:#434190;">🎯 Next</button>
+            
+            <!-- Exit: Kept Dark -->
+            <button class="hint-btn" onclick="exitGame()" 
+                    style="background:#2d3748; color:white; border-color:#1a202c;">🚪 Exit</button>
+            
+            <!-- Music: Kept Yellow -->
+            <button id="musicToggleBtn" class="hint-btn" 
+                    style="background:#fef3c7; color:#92400e; border-color:#f59e0b" 
+                    onclick="toggleMusic()">🎵 Music</button>
         </div>
         
         <!-- Volume slider (appears when music is on) -->
@@ -1474,8 +1489,17 @@
         <!-- NEW BOTTOM ROW: Primary Interaction Buttons (Listen & Spell) -->
         <!-- These are now the large, easy-to-hit buttons at the bottom -->
         <div class="game-actions">
-            <button onclick="if(targetWord) spk(targetWord, 'fr-FR', true)" style="background:#5a67d8; color:white;">📢 Listen to Word</button>
-            <button onclick="spellWord()" style="background:#ff9e6d; color:white;">🔡 Spell Letters</button>
+            <!-- Green Button: Matches the '🎤 French' card button -->
+            <button onclick="if(targetWord) spk(targetWord, 'fr-FR', true)" 
+                    style="background:#4cd964; color:white; flex: 1.2;">
+                <span>🎤</span> Listen
+            </button>
+            
+            <!-- Orange Button: Matches the 'Spell' card button -->
+            <button onclick="spellWord()" 
+                    style="background:#ff9e6d; color:white; flex: 1;">
+                <span>🔡</span> Spell
+            </button>
         </div>
     </div>
 </div>
@@ -5385,6 +5409,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
