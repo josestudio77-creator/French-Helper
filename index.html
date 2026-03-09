@@ -5149,43 +5149,53 @@ function renderMiniKeyboard() {
 }
             
 function handleSpellingInput(inputLetter) {
-    // 1. Guard: Prevent input if no game is active or during the "Victory Pop" pause
+    // 1. Guard: Prevent input if no game is active or during the "Word Victory" celebration
     if (!currentSpellingState || currentSpellingState.isWordVictory) return;
 
     let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
     
-    // 2. Initial Skip Logic: If the current position is punctuation, skip it BEFORE checking the letter.
+    // 2. Initial Skip Logic: If the current position is punctuation, skip it automatically.
+    // This handles cases where a word might start with punctuation.
     while (currentSpellingState.currentLetterIndex < targetWord.length && 
            /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
         currentSpellingState.currentLetterIndex++;
     }
 
-    // 3. Identify the letter she IS supposed to type
+    // 3. Identify the letter she is supposed to type
     let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
     
-    // Normalize smart apostrophes
-    if (targetLetter === "’") targetLetter = "'"; 
+    // 4. Special Match Check: 
+    // - Check for direct match (e.g. A matches A)
+    // - Check for Ligature match (If box wants 'Œ', accept 'O' or 'E' from a laptop keyboard)
+    let isMatch = (inputLetter === targetLetter);
+    if (!isMatch && targetLetter === 'Œ' && (inputLetter === 'O' || inputLetter === 'E')) {
+        isMatch = true;
+    }
 
-    if (inputLetter === targetLetter) {
+    if (isMatch) {
         // --- CORRECT LETTER ---
         currentSpellingState.currentLetterIndex++;
         if (typeof playDingSound === "function") playDingSound();
         
-        // 4. Look-ahead Skip: Skip punctuation immediately following the letter typed
+        // 5. Look-ahead Skip: If the letter typed is followed by punctuation (like an apostrophe),
+        // skip those symbols immediately so the next box is ready for her.
         while (currentSpellingState.currentLetterIndex < targetWord.length && 
                /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
             currentSpellingState.currentLetterIndex++;
         }
 
-        // 5. Check if the Word is finished
+        // 6. Check if the current word is finished
         if (currentSpellingState.currentLetterIndex >= targetWord.length) {
+            // Trigger the "Word Victory" state
             currentSpellingState.isWordVictory = true; 
-            renderSpellingSlots(); 
+            renderSpellingSlots(); // This draws the finished word in green with the Pop animation
             
+            // Wait logic: shorter for the very last word, longer for middle words to let her see them
             const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
             const waitTime = isLastWord ? 1000 : 2500; 
 
             setTimeout(() => {
+                // Reset victory state and move to the next word
                 currentSpellingState.isWordVictory = false;
                 currentSpellingState.currentWordIndex++;
                 currentSpellingState.currentLetterIndex = 0;
@@ -5195,8 +5205,10 @@ function handleSpellingInput(inputLetter) {
                     if (typeof celebrate === "function") celebrate();
                     if (typeof playVictorySound === "function") playVictorySound();
                     
+                    // Pronounce the full phrase one last time
                     setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
 
+                    // Auto-close Spelling Bee mode after 4 seconds
                     setTimeout(() => {
                         const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
                         if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
@@ -5204,18 +5216,20 @@ function handleSpellingInput(inputLetter) {
                 } else {
                     // --- PREPARE NEXT WORD ---
                     renderSpellingSlots();
+                    // Say the next word out loud to guide her
                     setTimeout(() => {
                         spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
                     }, 400);
                 }
             }, waitTime);
         } else {
+            // Word not finished, just update the boxes to show the letter typed
             renderSpellingSlots();
         }
     } else {
         // --- WRONG LETTER ---
         const card = currentSpellingState.card;
-        // FIX: Removed the stray timeout characters that were here
+        // Instant Buzz sound
         if (typeof playBuzzSound === "function") playBuzzSound(); 
         
         // Visual feedback: Shake the card
@@ -5225,69 +5239,80 @@ function handleSpellingInput(inputLetter) {
 }
         
 function spellCurrentWord() {
+    // 1. Guard: Don't spell if we are in a victory transition
     if (!currentSpellingState || currentSpellingState.isWordVictory) return;
 
     const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
     const letters = word.split('');
     
-    // 1. Full stop for any existing speech
+    // 2. Full Stop for existing speech
     window.speechSynthesis.cancel();
 
     const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
     const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
 
-    // 2. The recursive "Next Letter" function
     function speakNextLetter(index) {
-        // Exit if we reached the end or the user left the mode
+        // Exit check
         if (index >= letters.length || !currentSpellingState) return;
 
         const letter = letters[index];
         const upper = letter.toUpperCase();
-        const isAutoFill = /[.,!?;:''’\-\(\)«»]/.test(letter);
         
-        // Handle Auto-fill characters (spaces, hyphens, etc.)
+        // Punctuation/Symbols: Show instantly and move to next index immediately
+        const isAutoFill = /[.,!?;:''’\-\(\)«»]/.test(letter);
         if (isAutoFill) {
             if (slots[index]) {
                 slots[index].textContent = letter;
                 slots[index].style.border = 'none';
+                slots[index].style.background = 'transparent';
             }
-            // Move immediately to next character without speaking
             speakNextLetter(index + 1);
             return;
         }
 
+        // Prepare the letter name
         const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
         const u = new SpeechSynthesisUtterance(nameToSpeak);
         u.lang = 'fr-FR';
-        u.rate = speechSpeed * 0.85; // Slightly slower for clarity
+        u.rate = speechSpeed * 0.8; 
         u.voice = selectedFrVoice;
 
         // 3. Visual Highlight ON
         if (slots[index]) {
-            slots[index].style.backgroundColor = '#FFD700';
+            slots[index].style.backgroundColor = '#FFD700'; // Gold
             slots[index].style.transform = 'scale(1.15)';
             slots[index].style.zIndex = '10';
         }
 
-        // 4. THE SYNC FIX: Wait for audio to finish
+        // 4. THE FIX: Explicitly handle the transition to the next letter
         u.onend = () => {
-            // Tiny delay (200ms) for a "natural breath" between letters
+            // Short delay (300ms) to ensure the engine is ready for the next letter
             setTimeout(() => {
                 // Visual Highlight OFF
                 if (slots[index]) {
+                    // Restore background: green if already correctly typed, white otherwise
                     slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
                     slots[index].style.transform = '';
                     slots[index].style.zIndex = '';
                 }
-                // Speak the next letter in the sequence
-                speakNextLetter(index + 1);
-            }, 200);
+                
+                // CRUCIAL: Check again if we are still in the same game state before continuing
+                if (currentSpellingState) {
+                    speakNextLetter(index + 1);
+                }
+            }, 300); // Increased from 200ms to 300ms for better "œ" to "u" transition
         };
+
+        // Safety: If for some reason onend fails (browser bug), move on after 3 seconds
+        const backupTimer = setTimeout(() => {
+            u.onend();
+        }, 3000);
+
+        u.onstart = () => clearTimeout(backupTimer);
 
         window.speechSynthesis.speak(u);
     }
 
-    // Start the chain
     speakNextLetter(0);
 }
      
@@ -5460,6 +5485,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
