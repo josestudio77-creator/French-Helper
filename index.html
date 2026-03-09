@@ -158,8 +158,19 @@
 
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
-    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+    @keyframes floatUp { 
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+        100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } 
+    }
+    .victory-item { 
+        position: fixed; 
+        bottom: -60px; 
+        font-size: 3rem; 
+        /* HIGHEST Z-INDEX: Higher than Nav (9000) and Keyboard (9500) */
+        z-index: 10000; 
+        pointer-events: none; 
+        animation: floatUp 4s linear forwards; 
+    }
     
 /* History items */
     .history-item { 
@@ -3732,29 +3743,35 @@ async function translateOne(p) {
         }
 
         function celebrate() { 
-            // Clear any previous animations
-            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
+            // 1. Clear any previous animations to save memory
+            if (window.victoryTimeouts) {
+                victoryTimeouts.forEach(timeout => clearTimeout(timeout));
+            }
             victoryTimeouts = [];
             
-            for (let i = 0; i < 20; i++) { 
+            // 2. Create a burst of 25 items
+            for (let i = 0; i < 25; i++) { 
                 const timeout = setTimeout(() => { 
-                    // Don't create if game is no longer active
-                    if (!gameActive && document.getElementById('gameDrawer').style.display !== 'block') {
-                        return;
-                    }
-                    
+                    // Create the balloon/emoji element
                     const el = document.createElement('div'); 
                     el.className = 'victory-item'; 
-                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)]; 
+                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆", "🐝", "🍭"][Math.floor(Math.random()*7)]; 
+                    
+                    // Randomize horizontal start position
                     el.style.left = Math.random() * 100 + "vw"; 
+                    
+                    // Randomize size slightly for depth
+                    el.style.fontSize = (2 + Math.random() * 2) + "rem";
+                    
                     document.body.appendChild(el); 
                     
+                    // Cleanup: remove from DOM after it finishes flying
                     const removeTimeout = setTimeout(() => {
                         if (el.parentNode) el.remove();
-                    }, 3000);
+                    }, 4500);
                     
                     victoryTimeouts.push(removeTimeout);
-                }, i * 150); 
+                }, i * 120); // Stagger the start times
                 
                 victoryTimeouts.push(timeout);
             } 
@@ -3785,7 +3802,7 @@ async function translateOne(p) {
                         if (typeof playDingSound === "function") playDingSound();
                     }
                 } else if (isGameOverLoss) {
-                    // RESTORED: Show the missing letter in red because the game is lost
+                    // Show the missing letter in red because the game is lost
                     slot.textContent = char;
                     slot.classList.add('missed-letter');
                     slot.classList.add('filled');
@@ -3798,22 +3815,39 @@ async function translateOne(p) {
             
             display.appendChild(wordDiv);
         
-            // WIN/LOSS Check
+            // --- WIN/LOSS LOGIC ---
             const isWon = targetWord.split('').every(char => guessed.includes(char));
-            if (isWon) {
+            
+            if (isWon && gameActive) {
+                // Stop the game engine
                 gameActive = false; 
+                isSpelling = false; // Stop any ongoing spelling audio
+                
                 wins++; 
                 updateScoreUI(); 
-                celebrate(); 
-                playVictorySound();
+                
+                // --- TRIGGER CELEBRATION ---
+                if (typeof celebrate === "function") {
+                    celebrate(); 
+                }
+                
+                if (typeof playVictorySound === "function") {
+                    playVictorySound();
+                }
+        
                 document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
+                
+                // Pronounce the word in French after a short delay
                 setTimeout(() => spk(targetWord, 'fr-FR', true), 800);
+        
             } else if (isGameOverLoss) {
                 gameActive = false; 
+                isSpelling = false;
                 losses++; 
                 updateScoreUI();
                 document.getElementById('gameMsg').textContent = "Good try! 👍"; 
-                // RESTORED: Pronounce the word they missed so they learn it
+                
+                // Pronounce the word they missed so they learn it
                 setTimeout(() => spk(targetWord, 'fr-FR', true), 500);
             }
         }
@@ -5451,6 +5485,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
