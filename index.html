@@ -3412,7 +3412,7 @@ async function translateIfNeeded(words, showProgress = true) {
             }, 50);
         }
         
-        function spellWord() {
+         function spellWord() {
             if (!gameActive || !targetWord) return;
             
             isSpelling = true; 
@@ -3422,38 +3422,51 @@ async function translateIfNeeded(words, showProgress = true) {
             // Identify all the boxes in the Hangman display
             const slots = document.querySelectorAll('#hangmanDisplay .bee-slot');
         
-            letters.forEach((letter, i) => {
-                setTimeout(() => {
-                    if (!gameActive) return;
+            // SURGICAL ENGINE: This function calls itself only when the voice is done
+            function speakNext(index) {
+                // Exit if we finished the word or the user closed the game
+                if (index >= letters.length || !gameActive) {
+                    isSpelling = false;
+                    return;
+                }
         
-                    const upper = letter.toUpperCase();
-                    const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+                const upper = letters[index].toUpperCase();
+                const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letters[index];
         
-                    // Visual Feedback: Highlight the corresponding Hangman box
-                    if (slots[i]) {
-                        const originalBg = slots[i].style.backgroundColor;
-                        slots[i].style.backgroundColor = '#FFD700'; // Highlight Gold
-                        slots[i].style.transform = 'scale(1.15)';
-                        slots[i].style.zIndex = '10';
-                        
-                        setTimeout(() => {
-                            // Return to original state (either white or filled green)
-                            slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
-                            slots[i].style.transform = '';
-                            slots[i].style.zIndex = '';
-                        }, 700);
-                    }
+                // 1. Visual Highlight ON
+                if (slots[index]) {
+                    slots[index].style.backgroundColor = '#FFD700'; // Your Gold
+                    slots[index].style.transform = 'scale(1.15)';
+                    slots[index].style.zIndex = '10';
+                }
         
-                    // Audio: Proper letter names
-                    const u = new SpeechSynthesisUtterance(nameToSpeak);
-                    u.lang = 'fr-FR';
-                    u.rate = speechSpeed * 0.85;
-                    u.voice = selectedFrVoice;
-                    window.speechSynthesis.speak(u);
+                // 2. Prepare the Voice
+                const u = new SpeechSynthesisUtterance(nameToSpeak);
+                u.lang = 'fr-FR';
+                u.rate = speechSpeed * 0.85;
+                u.voice = selectedFrVoice;
         
-                    if (i === letters.length - 1) isSpelling = false; 
-                }, i * 900);
-            });
+                // 3. THE SYNC FIX: Wait for this specific letter to finish
+                u.onend = () => {
+                    // A short 200ms pause for a "natural" gap between letters
+                    setTimeout(() => {
+                        // Visual Highlight OFF
+                        if (slots[index]) {
+                            // Return to your specific green if filled, otherwise white
+                            slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
+                            slots[index].style.transform = '';
+                            slots[index].style.zIndex = '';
+                        }
+                        // MOVE TO NEXT LETTER
+                        speakNext(index + 1);
+                    }, 200);
+                };
+        
+                window.speechSynthesis.speak(u);
+            }
+        
+            // Start the recursive chain at the first letter
+            speakNext(0);
         }
 
         function playVictorySound() {
@@ -5211,61 +5224,72 @@ function handleSpellingInput(inputLetter) {
     }
 }
         
-        function spellCurrentWord() {
-            if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+function spellCurrentWord() {
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+    const letters = word.split('');
+    
+    // 1. Full stop for any existing speech
+    window.speechSynthesis.cancel();
+
+    const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
+    const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
+
+    // 2. The recursive "Next Letter" function
+    function speakNextLetter(index) {
+        // Exit if we reached the end or the user left the mode
+        if (index >= letters.length || !currentSpellingState) return;
+
+        const letter = letters[index];
+        const upper = letter.toUpperCase();
+        const isAutoFill = /[.,!?;:''’\-\(\)«»]/.test(letter);
         
-            const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
-            const letters = word.split('');
-            window.speechSynthesis.cancel();
-        
-            const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
-            const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
-        
-            // Use a variable to track the audio delay independently
-            let audioDelay = 0;
-        
-            letters.forEach((letter, i) => {
-                const upper = letter.toUpperCase();
-                const isAutoFill = /[.,!?;:''’\-]/.test(letter);
-                
-                // Only speak and animate letters that aren't auto-filled punctuation
-                if (!isAutoFill) {
-                    setTimeout(() => {
-                        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
-        
-                        // Visual Highlight
-                        if (slots[i]) {
-                            slots[i].style.backgroundColor = '#FFD700';
-                            slots[i].style.transform = 'scale(1.15)';
-                            slots[i].style.zIndex = '10';
-                            
-                            setTimeout(() => {
-                                slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
-                                slots[i].style.transform = '';
-                                slots[i].style.zIndex = '';
-                            }, 800);
-                        }
-        
-                        // Audio
-                        const u = new SpeechSynthesisUtterance(nameToSpeak);
-                        u.lang = 'fr-FR';
-                        u.rate = speechSpeed * 0.8;
-                        u.voice = selectedFrVoice;
-                        window.speechSynthesis.speak(u);
-        
-                    }, audioDelay);
-                    
-                    // Increment delay only for spoken letters
-                    audioDelay += 1000; 
-                } else {
-                    // If it IS an apostrophe/punctuation, show it instantly without speaking
-                    if (slots[i]) {
-                        slots[i].textContent = letter;
-                        slots[i].style.border = 'none';
-                    }
-                }
-            });
+        // Handle Auto-fill characters (spaces, hyphens, etc.)
+        if (isAutoFill) {
+            if (slots[index]) {
+                slots[index].textContent = letter;
+                slots[index].style.border = 'none';
+            }
+            // Move immediately to next character without speaking
+            speakNextLetter(index + 1);
+            return;
         }
+
+        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+        const u = new SpeechSynthesisUtterance(nameToSpeak);
+        u.lang = 'fr-FR';
+        u.rate = speechSpeed * 0.85; // Slightly slower for clarity
+        u.voice = selectedFrVoice;
+
+        // 3. Visual Highlight ON
+        if (slots[index]) {
+            slots[index].style.backgroundColor = '#FFD700';
+            slots[index].style.transform = 'scale(1.15)';
+            slots[index].style.zIndex = '10';
+        }
+
+        // 4. THE SYNC FIX: Wait for audio to finish
+        u.onend = () => {
+            // Tiny delay (200ms) for a "natural breath" between letters
+            setTimeout(() => {
+                // Visual Highlight OFF
+                if (slots[index]) {
+                    slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
+                    slots[index].style.transform = '';
+                    slots[index].style.zIndex = '';
+                }
+                // Speak the next letter in the sequence
+                speakNextLetter(index + 1);
+            }, 200);
+        };
+
+        window.speechSynthesis.speak(u);
+    }
+
+    // Start the chain
+    speakNextLetter(0);
+}
      
 window.onload = () => {
     console.log('App loading...');
@@ -5436,6 +5460,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
