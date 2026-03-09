@@ -1694,7 +1694,7 @@
 
         function navJump(targetId) {
             // 1. Close all potential main overlays first
-            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer'];
+            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay'];
             overlays.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
@@ -1705,64 +1705,57 @@
             if (globalKb) globalKb.style.display = 'none';
             document.body.classList.remove('keyboard-buffer');
             
-            // 3. Reset any active spelling states to prevent audio bugs
-            if (currentSpellingState) {
-                // If we were in the middle of a word, just turn it off
-                currentSpellingState = null;
-                window.speechSynthesis.cancel();
-            }
+            // 3. Reset Spelling Bee Card states
+            // This turns off the 🐝 mode visually on the cards so they reset to normal
+            document.querySelectorAll('.phrase-card.spelling-mode').forEach(card => {
+                card.classList.remove('spelling-mode');
+                card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                    el.style.display = 'block';
+                });
+                const zone = card.querySelector('.spelling-zone');
+                if (zone) zone.style.display = 'none';
+                const enBtn = card.querySelector('.spk-en');
+                if (enBtn) enBtn.innerHTML = '<span>English</span>';
+            });
         
-            // 4. If target is null, we just go back to the main practice screen
+            currentSpellingState = null;
+            window.speechSynthesis.cancel();
+        
+            // 4. Navigate
             if (!targetId) {
-                // Refresh the current list to make sure Bee mode is visually reset
                 renderList(currentScreenList);
                 return;
             }
-        
-            // 5. Open the new target
             openOverlay(targetId);
         }
         
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
-            // 1. PRESERVED: STOP AUTO-PLAY when opening any overlay
-            if (isAutoPlaying) {
-                stopAutoPlay();
-            }
-            
-            // 2. PRESERVED: Pause teacher audio
-            const teacherPlayer = document.getElementById('teacherAudioPlayer');
-            if (teacherPlayer && !teacherPlayer.paused) {
-                teacherPlayer.pause();
-            }
-            
-            // 3. PRESERVED: Pause any other audio
-            document.querySelectorAll('audio').forEach(audio => {
-                if (!audio.paused) {
-                    audio.pause();
-                }
-            });
-            
-            // 4. SHOW THE OVERLAY
-            document.getElementById(id).style.display = 'block'; 
-            
-            // 5. SPECIFIC LOGIC FOR EACH DRAWER
-            if(id === 'gameDrawer') { 
-                wins = 0;
-                losses = 0;
-                updateScoreUI();
+            // 1. Safety: Stop auto-play and pause audio
+            if (isAutoPlaying) stopAutoPlay();
+            document.querySelectorAll('audio').forEach(audio => audio.pause());
         
-                // Show the Global Keyboard for Hangman
-                const globalKb = document.getElementById('keyboard');
-                if (globalKb) globalKb.style.display = 'flex'; 
+            // 2. NEW: If we are opening any overlay, HIDE the keyboard and buffer
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+            
+            // 3. SHOW THE OVERLAY
+            const overlay = document.getElementById(id);
+            if (overlay) overlay.style.display = 'block'; 
+            
+            // 4. SPECIFIC LOGIC
+            if(id === 'gameDrawer') { 
+                wins = 0; losses = 0; updateScoreUI();
                 
-                // Add buffer to the drawer content
+                // Re-show keyboard ONLY for the Game Drawer
+                if (globalKb) globalKb.style.display = 'flex'; 
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
                 setTimeout(startHangman, 50); 
-            } else if (id === 'bpModal') { // Chain is now correctly connected
+            } else if (id === 'bpModal') {
                 openBP();
             } else if (id === 'presetsOverlay') {
                 console.log('Presets overlay opened');
@@ -1793,14 +1786,17 @@
             viewMode = mode;
             localStorage.setItem('viewMode', mode);
             
-            // Update button visuals
+            // 1. Logic: If we are switching views, hide the global keyboard and buffer
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+        
+            // 2. Update button visuals
             document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
             
             const diagBtn = document.getElementById('btnViewDialogue');
             if (diagBtn) {
                 diagBtn.classList.toggle('active', mode === 'dialogue');
-                
-                // FIX: Always check for audio when setting the button label
                 if (currentWeekAudio) {
                     diagBtn.innerHTML = "🎧 Recording";
                 } else {
@@ -1808,10 +1804,7 @@
                 }
             }
             
-            // STOP AUTO-PLAY when switching modes
-            if (isAutoPlaying) {
-                stopAutoPlay();
-            }
+            if (isAutoPlaying) stopAutoPlay();
             
             renderList(currentScreenList);
         }
@@ -5358,4 +5351,5 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
