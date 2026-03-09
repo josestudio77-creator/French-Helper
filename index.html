@@ -184,13 +184,6 @@
     .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    .preset-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
     /* Game Layout Styles */
     .game-hints { 
         display: flex; 
@@ -1291,7 +1284,7 @@
     
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V9.0 🎉</h1>
+            <h1>🇫🇷 French Fun V10.0 🎉</h1>
         </div>
         
         <!-- App Control Panel -->
@@ -1471,7 +1464,7 @@
         <!-- NEW BOTTOM ROW: Primary Interaction Buttons (Listen & Spell) -->
         <!-- These are now the large, easy-to-hit buttons at the bottom -->
         <div class="game-actions">
-            <button onclick="spk(targetWord, 'fr-FR', true)" style="background:#5a67d8; color:white;">📢 Listen to Word</button>
+            <button onclick="if(targetWord) spk(targetWord, 'fr-FR', true)" style="background:#5a67d8; color:white;">📢 Listen to Word</button>
             <button onclick="spellWord()" style="background:#ff9e6d; color:white;">🔡 Spell Letters</button>
         </div>
     </div>
@@ -1668,6 +1661,7 @@
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
         let victoryTimeouts = [];
         let isNameManuallyEdited = false; // Tracks if the user typed their own name
+        let targetWord = ""; // Global declaration for Hangman and Spelling logic
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -3896,32 +3890,32 @@ async function translateOne(p) {
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-                function handleHangmanInput(l) {
-            // Visual feedback for the Global Keyboard
+        function handleHangmanInput(l) {
+            if (!gameActive || guessed.includes(l)) return; 
+        
+            // 1. Visual feedback for Global Keyboard
             const keyElem = document.querySelector(`#keyboard .k-key[data-key="${l}"]`);
             if (keyElem) {
                 keyElem.classList.add('key-pressed');
                 setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
             }
         
-            if (!gameActive || guessed.includes(l)) return; 
-            
-            // Pronounce the letter
-            spk(l, 'fr-FR');
-        
             guessed.push(l); 
+            
             if (targetWord.includes(l)) { 
-                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR'); 
+                // CORRECT: Instant Chime
+                playDingSound(); 
             } else { 
+                // INCORRECT: Instant Buzz
                 mistakes++; 
                 drawHangman(mistakes); 
-                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR'); 
+                playBuzzSound();
             } 
             
             updateHangmanUI();
             renderKeyboard();
         }
-        
+                
         async function saveHW() {
             let name = document.getElementById('hwNameInput').value.trim();
             const words = document.getElementById('hwInput').value.trim();
@@ -4419,11 +4413,16 @@ async function translateOne(p) {
         
         function stopAutoPlay() {
             isAutoPlaying = false;
-            clearTimeout(autoPlayTimeout);
-            document.getElementById('playAllBtn').innerHTML = "▶️ Play All";
+            // Clear the timer so it doesn't fire one last time
+            if (autoPlayTimeout) {
+                clearTimeout(autoPlayTimeout);
+                autoPlayTimeout = null;
+            }
+            const playBtn = document.getElementById('playAllBtn');
+            if (playBtn) playBtn.innerHTML = "▶️ Play All";
+            
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             window.speechSynthesis.cancel();
-            // Removed all loop counter references
         }
         
         function startAutoPlay() {
@@ -5060,7 +5059,28 @@ function renderMiniKeyboard() {
         kbContainer.appendChild(rowDiv);
     });
 }
+
+    function playBuzzSound() {
+        if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (musicContext.state === 'suspended') musicContext.resume();
+        const now = musicContext.currentTime;
+        const osc = musicContext.createOscillator();
+        const gain = musicContext.createGain();
     
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+    
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+    
+        osc.connect(gain);
+        gain.connect(musicContext.destination);
+    
+        osc.start();
+        osc.stop(now + 0.3);
+    }
+            
     function handleSpellingInput(inputLetter) {
         // 1. Guard: Prevent input if no game is active or during the "Victory Pop" pause
         if (!currentSpellingState || currentSpellingState.isWordVictory) return;
@@ -5134,60 +5154,71 @@ function renderMiniKeyboard() {
         } else {
             // --- WRONG LETTER ---
             const card = currentSpellingState.card;
-            window.speechSynthesis.cancel(); 
-            setTimeout(() => {
-                spk("Non", 'fr-FR');
-                // Visual feedback: Shake the card
-                card.style.animation = 'shake 0.3s';
-                setTimeout(() => card.style.animation = '', 300);
+            // Instant Sound instead of slow "Non"
+            playBuzzSound(); 
+            
+            // Visual feedback: Shake the card
+            card.style.animation = 'shake 0.3s';
+            setTimeout(() => card.style.animation = '', 300);
             }, 50);
         }
     }
         
-function spellCurrentWord() {
-    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
-
-    const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
-    const letters = word.split('');
-    
-    // 1. Clear current speech
-    window.speechSynthesis.cancel();
-
-    // 2. Identify the slots for this specific word only
-    // We find the word-box that is currently being spelled
-    const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
-    const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
-
-    // 3. Queue the letters
-    letters.forEach((letter, i) => {
-        setTimeout(() => {
-            const upper = letter.toUpperCase();
-            const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
-
-            // Visual Feedback: Highlight the box
-            if (slots[i]) {
-                slots[i].style.backgroundColor = '#FFD700'; // Gold highlight
-                slots[i].style.transform = 'scale(1.15)';
-                slots[i].style.zIndex = '10';
+        function spellCurrentWord() {
+            if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+        
+            const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+            const letters = word.split('');
+            window.speechSynthesis.cancel();
+        
+            const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
+            const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
+        
+            // Use a variable to track the audio delay independently
+            let audioDelay = 0;
+        
+            letters.forEach((letter, i) => {
+                const upper = letter.toUpperCase();
+                const isAutoFill = /[.,!?;:''’\-]/.test(letter);
                 
-                // Remove highlight after the letter is spoken
-                setTimeout(() => {
-                    slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
-                    slots[i].style.transform = '';
-                    slots[i].style.zIndex = '';
-                }, 700);
-            }
-
-            // Audio: Speak the proper French name of the letter
-            const u = new SpeechSynthesisUtterance(nameToSpeak);
-            u.lang = 'fr-FR';
-            u.rate = speechSpeed * 0.8; // Slightly slower for clarity
-            u.voice = selectedFrVoice;
-            window.speechSynthesis.speak(u);
-
-        }, i * 900); // 900ms gap gives her time to process each letter
-    });
-}
+                // Only speak and animate letters that aren't auto-filled punctuation
+                if (!isAutoFill) {
+                    setTimeout(() => {
+                        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+        
+                        // Visual Highlight
+                        if (slots[i]) {
+                            slots[i].style.backgroundColor = '#FFD700';
+                            slots[i].style.transform = 'scale(1.15)';
+                            slots[i].style.zIndex = '10';
+                            
+                            setTimeout(() => {
+                                slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
+                                slots[i].style.transform = '';
+                                slots[i].style.zIndex = '';
+                            }, 800);
+                        }
+        
+                        // Audio
+                        const u = new SpeechSynthesisUtterance(nameToSpeak);
+                        u.lang = 'fr-FR';
+                        u.rate = speechSpeed * 0.8;
+                        u.voice = selectedFrVoice;
+                        window.speechSynthesis.speak(u);
+        
+                    }, audioDelay);
+                    
+                    // Increment delay only for spoken letters
+                    audioDelay += 1000; 
+                } else {
+                    // If it IS an apostrophe/punctuation, show it instantly without speaking
+                    if (slots[i]) {
+                        slots[i].textContent = letter;
+                        slots[i].style.border = 'none';
+                    }
+                }
+            });
+        }
      
 window.onload = () => {
     console.log('App loading...');
@@ -5325,7 +5356,16 @@ window.onload = () => {
     }, 100);
     
 };
+
+    // iOS Speech Synthesis Fix: Wakes up the engine on the first tap
+    document.addEventListener('touchstart', function wakeSpeech() {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
+        console.log("🔊 Speech engine primed for mobile");
+    }, { once: true });
+        
     </script>
+            
    <!-- This ensures the browser loads the KG font from your GitHub root immediately -->
     <div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
     <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
@@ -5333,14 +5373,3 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
