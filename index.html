@@ -1714,6 +1714,7 @@
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
         let currentSetName = localStorage.getItem('currentSetName') || '';
+        let appVersion = "V10.0"; // NEW: Centralized versioning
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
@@ -3361,32 +3362,32 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
-            if (forceInterrupt) {
-                window.speechSynthesis.cancel();
-            }
+            try {
+                if (forceInterrupt) {
+                    window.speechSynthesis.cancel();
+                }
         
-            // Master Logic: If it's a single letter, always use the French Name Map
-            let textToSpeak = t;
-            if (lang === 'fr-FR' && t.trim().length === 1) {
-                const upper = t.trim().toUpperCase();
-                textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
-            }
+                let textToSpeak = t;
+                if (lang === 'fr-FR' && t.trim().length === 1) {
+                    const upper = t.trim().toUpperCase();
+                    textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
+                }
         
-            const u = new SpeechSynthesisUtterance(textToSpeak);
-            u.lang = lang;
-            u.rate = speedOverride || speechSpeed;
-            
-            if (lang === 'fr-FR') {
-                u.voice = selectedFrVoice || window.speechSynthesis.getVoices().find(v => v.lang.includes('fr'));
-            } else {
-                u.voice = cachedEnVoice;
-            }
+                const u = new SpeechSynthesisUtterance(textToSpeak);
+                u.lang = lang;
+                u.rate = speedOverride || speechSpeed;
+                u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
         
-            // Wake up nudge + 50ms delay to prevent clipping
-            setTimeout(() => {
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
-                window.speechSynthesis.speak(u);
-            }, 50);
+                setTimeout(() => {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+                    window.speechSynthesis.speak(u);
+                }, 50);
+            } catch (e) {
+                console.error("📢 Speech Synthesis Error:", e);
+                // Fallback: update message so user knows why it's silent
+                const msg = document.getElementById('gameMsg');
+                if (msg) msg.textContent = "🔇 Audio Error";
+            }
         }
         
          function spellWord() {
@@ -3698,6 +3699,9 @@ async function translateOne(p) {
         const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
         function startHangman() {
+            // NEW: Clear balloons from the previous win before starting a new round
+            clearVictoryItems();
+            
             // 1. Force the game to be active
             gameActive = true; 
             isSpelling = false;
@@ -3743,38 +3747,31 @@ async function translateOne(p) {
         }
 
         function celebrate() { 
-            // 1. Clear any previous animations to save memory
-            if (window.victoryTimeouts) {
-                victoryTimeouts.forEach(timeout => clearTimeout(timeout));
-            }
-            victoryTimeouts = [];
+            clearVictoryItems(); // Clean old balloons before starting new ones
             
-            // 2. Create a burst of 25 items
             for (let i = 0; i < 25; i++) { 
                 const timeout = setTimeout(() => { 
-                    // Create the balloon/emoji element
                     const el = document.createElement('div'); 
                     el.className = 'victory-item'; 
-                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆", "🐝", "🍭"][Math.floor(Math.random()*7)]; 
-                    
-                    // Randomize horizontal start position
+                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆", "🐝"][Math.floor(Math.random()*6)]; 
                     el.style.left = Math.random() * 100 + "vw"; 
-                    
-                    // Randomize size slightly for depth
-                    el.style.fontSize = (2 + Math.random() * 2) + "rem";
-                    
                     document.body.appendChild(el); 
                     
-                    // Cleanup: remove from DOM after it finishes flying
-                    const removeTimeout = setTimeout(() => {
-                        if (el.parentNode) el.remove();
-                    }, 4500);
-                    
-                    victoryTimeouts.push(removeTimeout);
-                }, i * 120); // Stagger the start times
-                
+                    const removeT = setTimeout(() => { if (el.parentNode) el.remove(); }, 4500);
+                    victoryTimeouts.push(removeT);
+                }, i * 120); 
                 victoryTimeouts.push(timeout);
             } 
+        }
+
+        function clearVictoryItems() {
+            // 1. Stop all pending balloon timers
+            if (window.victoryTimeouts) {
+                victoryTimeouts.forEach(t => clearTimeout(t));
+                victoryTimeouts = [];
+            }
+            // 2. Remove any balloons currently on screen
+            document.querySelectorAll('.victory-item').forEach(el => el.remove());
         }
         
         function updateHangmanUI() {
@@ -3919,9 +3916,7 @@ async function translateOne(p) {
             gameActive = false; 
             
             // Clear any victory animations
-            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
-            victoryTimeouts = [];
-            document.querySelectorAll('.victory-item').forEach(el => el.remove());
+            clearVictoryItems();
             
             if (musicNode) { 
                 musicNode.stop(); 
@@ -5136,11 +5131,14 @@ function renderMiniKeyboard() {
             const k = document.createElement('div');
             k.className = 'k-key';
             k.textContent = key;
-            // data-key allows the laptop keyboard to find this specific button
             k.setAttribute('data-key', key);
+            // NEW: Accessibility
+            k.setAttribute('role', 'button');
+            k.setAttribute('aria-label', 'Key ' + key);
             k.onclick = (e) => { 
                 e.stopPropagation(); 
-                handleSpellingInput(key); 
+                if (gameActive) handleHangmanInput(key);
+                else handleSpellingInput(key); 
             };
             rowDiv.appendChild(k);
         });
@@ -5455,25 +5453,23 @@ window.onload = () => {
 
 // --- GLOBAL EVENT LISTENERS ---
 
-// 1. Unified Keyboard Support (Laptop/Desktop)
-document.removeEventListener('keydown', handleKeyPress); 
+// Laptop Keyboard Support
 document.addEventListener('keydown', handleKeyPress);
 
-// 2. iOS Speech Synthesis Fix: Unlocks engine on first tap
+// iOS Speech Unlock
 document.addEventListener('touchstart', function wakeSpeech() {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
-    console.log("🔊 Speech engine primed for mobile");
 }, { once: true });
 
-// 3. PWA Install Logic: Shows the "Install App" button when ready
+// PWA Install
 window.addEventListener('beforeinstallprompt', (e) => { 
     e.preventDefault(); 
-    deferredPrompt = e; // Variable must be defined at the top of your script
-    const installBtn = document.getElementById('installBtn');
-    if (installBtn) installBtn.style.display = 'block'; 
+    deferredPrompt = e; 
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'block'; 
 });
-
+        
 </script>
             
 <!-- This ensures the browser loads the KG font from your GitHub root immediately -->
@@ -5485,6 +5481,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
