@@ -142,7 +142,6 @@
 
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
     @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
     .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
     
@@ -1011,10 +1010,23 @@
             100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
         }
        
-    /* Update the word-box to ensure centering in the Hangman drawer */
-    #hangmanDisplay .word-box {
+    /* FIX: Force the Hangman word to stay horizontal and centered */
+    #hangmanDisplay {
+        display: flex;
         justify-content: center;
-        margin-top: 10px;
+        align-items: center;
+        width: 100%;
+        min-height: 50px;
+        margin: 15px 0;
+    }
+    
+    #hangmanDisplay .word-box {
+        display: flex;
+        flex-direction: row; /* Force horizontal */
+        flex-wrap: wrap;     /* Allow wrap only if word is too long for screen */
+        justify-content: center;
+        gap: 6px;
+        width: auto;
     }
     
     /* Ensure slots look good in both modes */
@@ -1147,7 +1159,7 @@
     }
     
     .pop-anim {
-        animation: letterPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation: letterPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
        
    </style>
@@ -1704,13 +1716,13 @@
                 stopAutoPlay();
             }
             
-            // 2. PRESERVED: Pause teacher audio if it's playing
+            // 2. PRESERVED: Pause teacher audio
             const teacherPlayer = document.getElementById('teacherAudioPlayer');
             if (teacherPlayer && !teacherPlayer.paused) {
                 teacherPlayer.pause();
             }
             
-            // 3. PRESERVED: Pause any other audio elements
+            // 3. PRESERVED: Pause any other audio
             document.querySelectorAll('audio').forEach(audio => {
                 if (!audio.paused) {
                     audio.pause();
@@ -1730,12 +1742,12 @@
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
                 
-                // Add buffer to the drawer content so buttons aren't covered by keyboard
+                // Add buffer to the drawer content
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
                 setTimeout(startHangman, 50); 
-            } else if (id === 'bpModal') {
+            } else if (id === 'bpModal') { // Chain is now correctly connected
                 openBP();
             } else if (id === 'presetsOverlay') {
                 console.log('Presets overlay opened');
@@ -3863,25 +3875,26 @@ async function translateOne(p) {
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-        function handleHangmanInput(l) {
-            spk(l, 'fr-FR');
-            
-            if (!gameActive || guessed.includes(l)) return; 
-            
-            // Add visual feedback for laptop users
-            const keyElem = document.querySelector(`#gameDrawer .k-key[data-key="${l}"]`);
+                function handleHangmanInput(l) {
+            // Visual feedback for the Global Keyboard
+            const keyElem = document.querySelector(`#keyboard .k-key[data-key="${l}"]`);
             if (keyElem) {
                 keyElem.classList.add('key-pressed');
                 setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
             }
         
+            if (!gameActive || guessed.includes(l)) return; 
+            
+            // Pronounce the letter
+            spk(l, 'fr-FR');
+        
             guessed.push(l); 
             if (targetWord.includes(l)) { 
-                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
+                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR'); 
             } else { 
                 mistakes++; 
                 drawHangman(mistakes); 
-                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
+                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR'); 
             } 
             
             updateHangmanUI();
@@ -5305,6 +5318,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
