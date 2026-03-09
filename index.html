@@ -1661,6 +1661,8 @@
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
         let victoryTimeouts = [];
         let isNameManuallyEdited = false; // Tracks if the user typed their own name
+        let deferredPrompt; 
+        let currentSpellingState = null;
         let targetWord = ""; // Global declaration for Hangman and Spelling logic
         
         // NEW: Custom icon/photo state
@@ -1693,35 +1695,17 @@
         ];
 
         function navJump(targetId) {
-            // 1. Close all potential main overlays first
+            // 1. Close all main overlays
             const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay'];
             overlays.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
         
-            // 2. Hide keyboard and remove buffer
-            const globalKb = document.getElementById('keyboard');
-            if (globalKb) globalKb.style.display = 'none';
-            document.body.classList.remove('keyboard-buffer');
-            
-            // 3. Reset Spelling Bee Card states
-            // This turns off the 🐝 mode visually on the cards so they reset to normal
-            document.querySelectorAll('.phrase-card.spelling-mode').forEach(card => {
-                card.classList.remove('spelling-mode');
-                card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-                    el.style.display = 'block';
-                });
-                const zone = card.querySelector('.spelling-zone');
-                if (zone) zone.style.display = 'none';
-                const enBtn = card.querySelector('.spk-en');
-                if (enBtn) enBtn.innerHTML = '<span>English</span>';
-            });
+            // 2. Use our new central reset function
+            resetAllSpellingCards();
         
-            currentSpellingState = null;
-            window.speechSynthesis.cancel();
-        
-            // 4. Navigate
+            // 3. Navigate
             if (!targetId) {
                 renderList(currentScreenList);
                 return;
@@ -1736,10 +1720,11 @@
             if (isAutoPlaying) stopAutoPlay();
             document.querySelectorAll('audio').forEach(audio => audio.pause());
         
-            // 2. NEW: If we are opening any overlay, HIDE the keyboard and buffer
-            const globalKb = document.getElementById('keyboard');
-            if (globalKb) globalKb.style.display = 'none';
-            document.body.classList.remove('keyboard-buffer');
+            // 2. NEW: Reset all spelling cards before opening a new overlay
+            // (We do this unless we are opening the gameDrawer, which handles its own keyboard)
+            if (id !== 'gameDrawer') {
+                resetAllSpellingCards();
+            }
             
             // 3. SHOW THE OVERLAY
             const overlay = document.getElementById(id);
@@ -1749,8 +1734,9 @@
             if(id === 'gameDrawer') { 
                 wins = 0; losses = 0; updateScoreUI();
                 
-                // Re-show keyboard ONLY for the Game Drawer
+                const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
+                
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
@@ -4601,6 +4587,7 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
+            resetAllSpellingCards();
             const titleEl = document.getElementById('appModalTitle');
             const statsEl = document.getElementById('appModalStats');
             const input = document.getElementById('appModalInput');
@@ -4864,15 +4851,6 @@ async function translateOne(p) {
                 deferredPrompt = null; 
             }
         }
-
-        let deferredPrompt; 
-        window.addEventListener('beforeinstallprompt', (e) => { 
-            e.preventDefault(); 
-            deferredPrompt = e; 
-            document.getElementById('installBtn').style.display = 'block'; 
-        });
-
-    let currentSpellingState = null;
     
     function toggleSpellingMode(btn, fullPhrase) {
         const card = btn.closest('.phrase-card');
@@ -5032,7 +5010,37 @@ function renderSpellingSlots() {
         container.appendChild(wordDiv);
     });
 }
-    
+
+function resetAllSpellingCards() {
+    // 1. Find all cards and restore their normal look
+    document.querySelectorAll('.phrase-card.spelling-mode').forEach(card => {
+        card.classList.remove('spelling-mode');
+        // Show text elements
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'block';
+        });
+        // Hide spelling area
+        const zone = card.querySelector('.spelling-zone');
+        if (zone) zone.style.display = 'none';
+        // Reset button label
+        const enBtn = card.querySelector('.spk-en');
+        if (enBtn) {
+            enBtn.innerHTML = '<span>English</span>';
+            // Restore English speech logic
+            const enText = card.querySelector('.english-text').textContent;
+            enBtn.onclick = () => spk(enText, 'en-US', true);
+        }
+    });
+
+    // 2. Hide Global Keyboard and Buffer
+    const globalKb = document.getElementById('keyboard');
+    if (globalKb) globalKb.style.display = 'none';
+    document.body.classList.remove('keyboard-buffer');
+
+    // 3. Clear logic state
+    currentSpellingState = null;
+}
+        
 function renderMiniKeyboard() {
     if (!currentSpellingState) return;
     
@@ -5332,24 +5340,38 @@ window.onload = () => {
     
 };
 
-    // iOS Speech Synthesis Fix: Wakes up the engine on the first tap
-    document.addEventListener('touchstart', function wakeSpeech() {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
-        console.log("🔊 Speech engine primed for mobile");
-    }, { once: true });
+// --- GLOBAL EVENT LISTENERS ---
 
-    // Ensure the listener is always active (Add this near your window.onload area)
-    document.addEventListener('keydown', handleKeyPress);
-        
-    </script>
+// 1. Unified Keyboard Support (Laptop/Desktop)
+document.removeEventListener('keydown', handleKeyPress); 
+document.addEventListener('keydown', handleKeyPress);
+
+// 2. iOS Speech Synthesis Fix: Unlocks engine on first tap
+document.addEventListener('touchstart', function wakeSpeech() {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
+    console.log("🔊 Speech engine primed for mobile");
+}, { once: true });
+
+// 3. PWA Install Logic: Shows the "Install App" button when ready
+window.addEventListener('beforeinstallprompt', (e) => { 
+    e.preventDefault(); 
+    deferredPrompt = e; // Variable must be defined at the top of your script
+    const installBtn = document.getElementById('installBtn');
+    if (installBtn) installBtn.style.display = 'block'; 
+});
+
+</script>
             
-   <!-- This ensures the browser loads the KG font from your GitHub root immediately -->
-    <div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
-    <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
-    <!-- THE GLOBAL KEYBOARD CONTAINER -->
-    <div id="keyboard" class="unified-keyboard"></div>
+<!-- This ensures the browser loads the KG font from your GitHub root immediately -->
+<div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
+<div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
+
+<!-- THE GLOBAL KEYBOARD CONTAINER -->
+<div id="keyboard" class="unified-keyboard"></div>
+
 </body>
 </html>
+
 
 
