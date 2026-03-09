@@ -2158,14 +2158,20 @@ function renderList(list) {
     const container = document.getElementById('phrasesList'); 
     if (!container) return;
     container.innerHTML = '';
+    
+    // --- SURGICAL FIX: Manage Autoplay UI visibility FIRST ---
+    const autoPlayUI = document.getElementById('autoplayControls');
+    if (autoPlayUI) {
+        // Only show controls in Dialogue/List mode AND if there's no teacher audio
+        autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
+    }
 
-    // NEW: Detects 26 letters + 5 common accents
+    // --- Alphabet Detection ---
     const isAlphabet = (list.length >= 26 && list.length <= 31) && list.includes('A') && list.includes('Z');
 
-    // If in Cards mode and it's the alphabet, show special big cards
     if (isAlphabet && viewMode === 'cards') {
         renderAlphabetCards(list);
-        return;
+        return; // Now it's safe to return because the UI was already handled above
     }
     
     // If it's the alphabet and we are in Dialogue mode, the code will continue 
@@ -5485,6 +5491,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
