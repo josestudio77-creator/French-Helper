@@ -719,13 +719,6 @@
         100% { transform: scale(1); color: #2d3748; opacity: 1; }
     }
     
-    .letter-slot {
-        display: inline-block;
-        width: 30px; /* Fixed width so letters don't jump around */
-        text-align: center;
-        transition: all 0.3s;
-    }
-    
     .pop-animation {
         animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
@@ -1018,21 +1011,18 @@
             100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
         }
        
-    /* Ensure the word box handles scaling without clipping */
-    .word-box {
-        display: flex;
-        gap: 2px;
-        padding: 2px 4px; /* Reduced padding */
-        align-items: center;
-        transition: all 0.3s;
+    /* Update the word-box to ensure centering in the Hangman drawer */
+    #hangmanDisplay .word-box {
+        justify-content: center;
+        margin-top: 10px;
     }
     
-       /* UPDATED: Letter boxes instead of simple underlines */
-     .bee-slot {
-        width: 30px; 
-        height: 38px;  /* Reduced from 42px to match text line-height */
+    /* Ensure slots look good in both modes */
+    .bee-slot {
+        width: 32px; 
+        height: 42px;
         border: 2px solid #cbd5e0;
-        border-radius: 6px;
+        border-radius: 8px;
         background: white;
         font-size: 1.8rem;
         font-weight: 900;
@@ -1041,7 +1031,7 @@
         justify-content: center;
         color: #2d3748;
         text-transform: uppercase;
-        transition: all 0.2s, background-color 0.3s; 
+        transition: all 0.2s, background-color 0.3s;
     }
     
     .bee-slot.filled {
@@ -1440,7 +1430,7 @@
 
         <div id="clueEmoji" class="clue-emoji">💡</div>
         <canvas id="hangmanCanvas" width="200" height="150"></canvas>
-        <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
+        <div id="hangmanDisplay" class="hangman-word"></div>
         <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a letter!</div>
         
         <!-- The Keyboard is here (Managed by JavaScript) -->
@@ -3346,11 +3336,10 @@ async function translateIfNeeded(words, showProgress = true) {
                 window.speechSynthesis.cancel();
             }
         
-            // NEW: Alphabet Song Logic
-            // If the text is a single letter, use the proper French name from our map
+            // Master Logic: If it's a single letter, always use the French Name Map
             let textToSpeak = t;
-            if (lang === 'fr-FR' && t.length === 1) {
-                const upper = t.toUpperCase();
+            if (lang === 'fr-FR' && t.trim().length === 1) {
+                const upper = t.trim().toUpperCase();
                 textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
             }
         
@@ -3364,6 +3353,7 @@ async function translateIfNeeded(words, showProgress = true) {
                 u.voice = cachedEnVoice;
             }
         
+            // Wake up nudge + 50ms delay to prevent clipping
             setTimeout(() => {
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
                 window.speechSynthesis.speak(u);
@@ -3375,27 +3365,42 @@ async function translateIfNeeded(words, showProgress = true) {
             
             isSpelling = true; 
             const letters = targetWord.split('');
-            
-            // 1. Clear current speech
             window.speechSynthesis.cancel();
             
-            // 2. Queue each letter using the proper French names
-            // We use a raw Utterance here to prevent the "clipping" caused by spk()
+            // Identify all the boxes in the Hangman display
+            const slots = document.querySelectorAll('#hangmanDisplay .bee-slot');
+        
             letters.forEach((letter, i) => {
                 setTimeout(() => {
-                    if (!gameActive) return; // Stop if user exits game mid-spell
+                    if (!gameActive) return;
         
                     const upper = letter.toUpperCase();
                     const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
         
+                    // Visual Feedback: Highlight the corresponding Hangman box
+                    if (slots[i]) {
+                        const originalBg = slots[i].style.backgroundColor;
+                        slots[i].style.backgroundColor = '#FFD700'; // Highlight Gold
+                        slots[i].style.transform = 'scale(1.15)';
+                        slots[i].style.zIndex = '10';
+                        
+                        setTimeout(() => {
+                            // Return to original state (either white or filled green)
+                            slots[i].style.backgroundColor = slots[i].classList.contains('filled') ? '#f0fdf4' : 'white';
+                            slots[i].style.transform = '';
+                            slots[i].style.zIndex = '';
+                        }, 700);
+                    }
+        
+                    // Audio: Proper letter names
                     const u = new SpeechSynthesisUtterance(nameToSpeak);
                     u.lang = 'fr-FR';
-                    u.rate = speechSpeed * 0.85; // Slightly slower for spelling clarity
+                    u.rate = speechSpeed * 0.85;
                     u.voice = selectedFrVoice;
                     window.speechSynthesis.speak(u);
         
                     if (i === letters.length - 1) isSpelling = false; 
-                }, i * 900); // 900ms matches the rhythm of the Spelling Bee
+                }, i * 900);
             });
         }
 
@@ -3707,32 +3712,40 @@ async function translateOne(p) {
         
         function updateHangmanUI() {
             const display = document.getElementById('hangmanDisplay');
-            const currentGuess = guessed[guessed.length - 1]; // The letter she just clicked
-            const isCorrect = targetWord.includes(currentGuess);
+            if (!display) return;
             
-            // Clear the display but keep it ready for elements
+            // Clear the display
             display.innerHTML = ''; 
         
-            for (let char of targetWord) {
-                const span = document.createElement('span');
-                span.className = 'letter-slot';
+            // Create a container to hold the boxes
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-box';
+        
+            const currentGuess = guessed[guessed.length - 1]; // The letter she just clicked
+        
+            targetWord.split('').forEach(char => {
+                const slot = document.createElement('div');
+                slot.className = 'bee-slot'; // UNIFIED: Using the Spelling Bee box class
                 
                 if (guessed.includes(char)) {
-                    span.textContent = char;
-                    // If this is the letter she JUST clicked, make it spectacular!
-                    if (char === currentGuess && isCorrect) {
-                        span.classList.add('pop-animation');
-                        playDingSound(); // Play the magic chime
+                    slot.textContent = char;
+                    slot.classList.add('filled');
+                    
+                    // Victory/Pop animation for the letter she JUST found
+                    if (char === currentGuess) {
+                        slot.classList.add('pop-anim'); // Uses your existing animation
+                        playDingSound();
                     }
                 } else {
-                    span.textContent = '_';
+                    slot.textContent = ''; // Empty box for hidden letters
                 }
-                display.appendChild(span);
-            }
-        
-            // WIN/LOSS Logic
-            const isWon = targetWord.split('').every(char => guessed.includes(char));
+                wordDiv.appendChild(slot);
+            });
             
+            display.appendChild(wordDiv);
+        
+            // WIN/LOSS Check
+            const isWon = targetWord.split('').every(char => guessed.includes(char));
             if (isWon) {
                 gameActive = false; 
                 wins++; 
@@ -3746,16 +3759,6 @@ async function translateOne(p) {
                 losses++; 
                 updateScoreUI();
                 document.getElementById('gameMsg').textContent = "Good try! 👍"; 
-                
-                // Show the missing letters in red
-                display.innerHTML = '';
-                for (let char of targetWord) {
-                    const span = document.createElement('span');
-                    span.className = 'letter-slot';
-                    span.textContent = char;
-                    if (!guessed.includes(char)) span.style.color = '#ff6b8b';
-                    display.appendChild(span);
-                }
                 spk("Oups! " + targetWord, 'fr-FR', true);
             }
         }
@@ -5302,6 +5305,7 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
 
 
 
