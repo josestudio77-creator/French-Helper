@@ -253,17 +253,18 @@
        
     /* UPDATED: Sticky Panel ensures controls are always reachable */
     .app-control-panel {
-        background: white;
+        background: white !important; /* Ensure it's not transparent */
         border-radius: 25px;
         padding: 12px 15px;
         margin-bottom: 15px;
         border: 3px solid #118AB2;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         
-        /* NEW: Sticky Logic */
+        /* FIX: Sticky behavior */
+        position: -webkit-sticky; /* Support for Safari */
         position: sticky;
-        top: 10px;      /* Gap from the top edge */
-        z-index: 1000;  /* Below Nav (9000) but above cards */
+        top: 5px;       /* Lock it to the very top of the viewport */
+        z-index: 8500;  /* Below Nav (9000) but above everything else */
     }
     
     /* Ensure the autoplay controls inside the panel look clean when sticking */
@@ -522,20 +523,26 @@
     }
     
     .dialogue-line {
-        padding: 15px 20px;  /* INCREASED padding for better touch target */
+        padding: 15px 20px;
         border-radius: 20px;
-        margin-bottom: 15px;  /* INCREASED space between phrases */
+        margin-bottom: 15px;
         font-weight: 800;
-        font-size: 1.3rem;    /* INCREASED for easier reading */
+        font-size: 1.3rem;
         cursor: pointer;
         transition: all 0.1s;
         display: block;
         border: 2px solid #e2e8f0;
         background: #f8fafc;
         color: #2d3748;
-        max-width: 90%;       /* Slightly wider */
+        max-width: 90%;
         line-height: 1.4;
         position: relative;
+    
+        /* SURGICAL FIX: These tell the browser where the "Safe Zone" is */
+        /* 1. Prevents the word from being hidden behind the Sticky Header */
+        scroll-margin-top: 220px; 
+        /* 2. Prevents the word from being hidden behind the Bottom Nav Bar */
+        scroll-margin-bottom: 120px; 
     }
     
     /* Remove top margin from first line */
@@ -4526,7 +4533,7 @@ async function translateOne(p) {
             }
         }
         
-       function playLine(index) {
+        function playLine(index) {
             if (!isAutoPlaying) return;
             
             if (index >= currentScreenList.length) {
@@ -4547,6 +4554,10 @@ async function translateOne(p) {
             
             if (currentEl) {
                 currentEl.classList.add('playing-now');
+                
+                // --- SURGICAL FIX: Nearest Alignment ---
+                // Combined with the 'scroll-margin' CSS above, 'nearest' will now 
+                // keep the word perfectly between the Header and the Bottom Nav.
                 currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
             
@@ -5493,6 +5504,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
