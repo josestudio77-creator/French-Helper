@@ -1086,6 +1086,14 @@
         color: #4cd964 !important;
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
     }
+
+    /* Style for letters revealed after losing Hangman */
+    .bee-slot.missed-letter {
+        color: #ff6b8b !important; /* Soft Red/Pink */
+        border-color: #ff6b8b !important;
+        background: #fff5f5;
+        animation: letterPop 0.4s ease-out;
+    }   
        
  /* --- UPDATED UNIFIED 3D KEYBOARD --- */
 .unified-keyboard {
@@ -3772,30 +3780,34 @@ async function translateOne(p) {
             const display = document.getElementById('hangmanDisplay');
             if (!display) return;
             
-            // Clear the display
             display.innerHTML = ''; 
-        
-            // Create a container to hold the boxes
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-box';
         
-            const currentGuess = guessed[guessed.length - 1]; // The letter she just clicked
+            const isGameOverLoss = (mistakes >= 10);
+            const currentGuess = guessed[guessed.length - 1]; 
         
             targetWord.split('').forEach(char => {
                 const slot = document.createElement('div');
-                slot.className = 'bee-slot'; // UNIFIED: Using the Spelling Bee box class
+                slot.className = 'bee-slot'; 
                 
                 if (guessed.includes(char)) {
+                    // Letter was correctly guessed
                     slot.textContent = char;
                     slot.classList.add('filled');
                     
-                    // Victory/Pop animation for the letter she JUST found
-                    if (char === currentGuess) {
-                        slot.classList.add('pop-anim'); // Uses your existing animation
-                        playDingSound();
+                    if (char === currentGuess && !isGameOverLoss) {
+                        slot.classList.add('pop-anim');
+                        if (typeof playDingSound === "function") playDingSound();
                     }
+                } else if (isGameOverLoss) {
+                    // RESTORED: Show the missing letter in red because the game is lost
+                    slot.textContent = char;
+                    slot.classList.add('missed-letter');
+                    slot.classList.add('filled');
                 } else {
-                    slot.textContent = ''; // Empty box for hidden letters
+                    // Letter is still hidden
+                    slot.textContent = ''; 
                 }
                 wordDiv.appendChild(slot);
             });
@@ -3811,13 +3823,14 @@ async function translateOne(p) {
                 celebrate(); 
                 playVictorySound();
                 document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
-                setTimeout(() => spk(targetWord, 'fr-FR'), 800);
-            } else if (mistakes >= 10) {
+                setTimeout(() => spk(targetWord, 'fr-FR', true), 800);
+            } else if (isGameOverLoss) {
                 gameActive = false; 
                 losses++; 
                 updateScoreUI();
                 document.getElementById('gameMsg').textContent = "Good try! 👍"; 
-                spk("Oups! " + targetWord, 'fr-FR', true);
+                // RESTORED: Pronounce the word they missed so they learn it
+                setTimeout(() => spk(targetWord, 'fr-FR', true), 500);
             }
         }
 
@@ -5409,6 +5422,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
