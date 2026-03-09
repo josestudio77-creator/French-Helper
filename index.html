@@ -3467,24 +3467,39 @@ async function translateIfNeeded(words, showProgress = true) {
         function playDingSound() {
             if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
             if (musicContext.state === 'suspended') musicContext.resume();
-        
+            const now = musicContext.currentTime;
+            const osc = musicContext.createOscillator();
+            const gain = musicContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.connect(gain);
+            gain.connect(musicContext.destination);
+            osc.start();
+            osc.stop(now + 0.2);
+        }
+
+        function playBuzzSound() {
+            if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (musicContext.state === 'suspended') musicContext.resume();
             const now = musicContext.currentTime;
             const osc = musicContext.createOscillator();
             const gain = musicContext.createGain();
         
-            osc.type = 'sine'; // Pure, sweet sound
-            osc.frequency.setValueAtTime(880, now); // High A
-            osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1); // Slide up to high E
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
         
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.3);
         
             osc.connect(gain);
             gain.connect(musicContext.destination);
         
             osc.start();
-            osc.stop(now + 0.5);
+            osc.stop(now + 0.3);
         }
 
         function toggleMusic() {
@@ -3664,13 +3679,17 @@ async function translateOne(p) {
         }
 
         // ===== HANGMAN GAME =====
-        let targetWord = "", guessed = [], mistakes = 0;
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
         const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
         function startHangman() {
+            // 1. Force the game to be active
             gameActive = true; 
             isSpelling = false;
+            
+            // 2. Clear the old game state
+            guessed = [];
+            mistakes = 0;
             
             const cleanWord = (w) => w.replace(/[!?.,\-;:'"()]/g, '').trim();
             
@@ -3836,9 +3855,6 @@ async function translateOne(p) {
                 handleSpellingInput(key);
             }
         }
-        
-        // Ensure the listener is always active (Add this near your window.onload area)
-        document.addEventListener('keydown', handleKeyPress);
 
         function updateScoreUI() { 
             document.getElementById('winCount').textContent = wins; 
@@ -4840,7 +4856,7 @@ async function translateOne(p) {
         function shareApp() { 
             if (navigator.share) { 
                 navigator.share({ 
-                    title: 'French Fun V8.1', 
+                    title: 'French Fun V10.0', 
                     text: 'Check out this fun French learning app for kids!',
                     url: window.location.href 
                 }).catch(() => {}); 
@@ -4865,83 +4881,77 @@ async function translateOne(p) {
 
     let currentSpellingState = null;
     
-function toggleSpellingMode(btn, fullPhrase) {
-    const card = btn.closest('.phrase-card');
-    const spellingZone = card.querySelector('.spelling-zone');
-    const enBtn = card.querySelector('.spk-en');
-    const globalKb = document.getElementById('keyboard'); // Target the new global container
+    function toggleSpellingMode(btn, fullPhrase) {
+        const card = btn.closest('.phrase-card');
+        const spellingZone = card.querySelector('.spelling-zone');
+        const enBtn = card.querySelector('.spk-en');
+        const globalKb = document.getElementById('keyboard'); 
+        
+        // 1. CLEANUP: Shut down any OTHER active spelling card
+        document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
+            if (otherCard !== card) {
+                otherCard.classList.remove('spelling-mode');
+                otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                    el.style.display = 'block';
+                });
+                const otherZone = otherCard.querySelector('.spelling-zone');
+                if (otherZone) otherZone.style.display = 'none';
+                
+                // Restore English label and logic on other cards
+                const otherEnBtn = otherCard.querySelector('.spk-en');
+                if (otherEnBtn) {
+                    otherEnBtn.innerHTML = '<span>English</span>';
+                    const otherEnText = otherCard.querySelector('.english-text').textContent;
+                    otherEnBtn.onclick = () => spk(otherEnText, 'en-US', true);
+                }
+            }
+        });
     
-    // 1. CLEANUP: Find any OTHER card that is currently in spelling mode and shut it down
-    document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
-        if (otherCard !== card) {
-            otherCard.classList.remove('spelling-mode');
-            // Show all hidden text elements in that other card
-            otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+        if (card.classList.contains('spelling-mode')) {
+            // --- EXIT SPELLING MODE ---
+            card.classList.remove('spelling-mode');
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'block';
             });
-            // Hide the spelling zone in that other card
-            const otherZone = otherCard.querySelector('.spelling-zone');
-            if (otherZone) otherZone.style.display = 'none';
-            // Reset the English button in that other card
-            const otherEnBtn = otherCard.querySelector('.spk-en');
-            if (otherEnBtn) otherEnBtn.innerHTML = '<span>English</span>';
+            spellingZone.style.display = 'none';
+            
+            // Restore standard label and logic
+            const enText = card.querySelector('.english-text').textContent;
+            enBtn.innerHTML = '<span>English</span>';
+            enBtn.onclick = () => spk(enText, 'en-US', true);
+            
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+            currentSpellingState = null;
+            window.speechSynthesis.cancel();
+        } else {
+            // --- ENTER SPELLING MODE ---
+            card.classList.add('spelling-mode');
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                el.style.display = 'none';
+            });
+            spellingZone.style.display = 'block';
+            
+            // SETUP: Text-only "Spell" button to keep it single-line
+            enBtn.innerHTML = '<span>Spell</span>';
+            enBtn.onclick = (e) => {
+                e.stopPropagation();
+                spellCurrentWord(); 
+            };
+    
+            if (globalKb) {
+                globalKb.style.display = 'flex';
+                renderMiniKeyboard(); 
+            }
+    
+            document.body.classList.add('keyboard-buffer');
+            startNewSpellingGame(card, fullPhrase);
+    
+            setTimeout(() => {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         }
-    });
-
-    // 2. TOGGLE LOGIC for the clicked card
-    if (card.classList.contains('spelling-mode')) {
-        // --- EXIT SPELLING MODE ---
-        card.classList.remove('spelling-mode');
-        
-        // Show normal text elements
-        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-            el.style.display = 'block';
-        });
-        
-        // Hide the spelling box area
-        spellingZone.style.display = 'none';
-        
-        // Restore the standard English button
-        enBtn.innerHTML = '<span>English</span>';
-        
-        // HIDE the Global Keyboard
-        if (globalKb) globalKb.style.display = 'none';
-
-        document.body.classList.remove('keyboard-buffer');
-        
-        currentSpellingState = null;
-        window.speechSynthesis.cancel();
-    } else {
-        // --- ENTER SPELLING MODE ---
-        card.classList.add('spelling-mode');
-        
-        // Hide text elements (Photo/Icon stays visible as a clue)
-        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-            el.style.display = 'none';
-        });
-        
-        // Show the spelling box area
-        spellingZone.style.display = 'block';
-        
-        enBtn.innerHTML = '<span>Spell</span>';
-
-        // SHOW the Global Keyboard
-        if (globalKb) {
-            globalKb.style.display = 'flex';
-            renderMiniKeyboard(); // This populates the keys into the global container
-        }
-
-        document.body.classList.add('keyboard-buffer');
-
-        // Start the actual game logic
-        startNewSpellingGame(card, fullPhrase);
-
-        // Mobile UX: Scroll the card to the center so the keyboard doesn't cover the boxes
-        setTimeout(() => {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
     }
-}
     
     function startNewSpellingGame(card, phrase) {
         const cleanPhrase = phrase.split('|')[0].trim();
@@ -5059,110 +5069,82 @@ function renderMiniKeyboard() {
         kbContainer.appendChild(rowDiv);
     });
 }
-
-    function playBuzzSound() {
-        if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
-        if (musicContext.state === 'suspended') musicContext.resume();
-        const now = musicContext.currentTime;
-        const osc = musicContext.createOscillator();
-        const gain = musicContext.createGain();
-    
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-    
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.3);
-    
-        osc.connect(gain);
-        gain.connect(musicContext.destination);
-    
-        osc.start();
-        osc.stop(now + 0.3);
-    }
             
-    function handleSpellingInput(inputLetter) {
-        // 1. Guard: Prevent input if no game is active or during the "Victory Pop" pause
-        if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+function handleSpellingInput(inputLetter) {
+    // 1. Guard: Prevent input if no game is active or during the "Victory Pop" pause
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
     
-        let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
+    // 2. Initial Skip Logic: If the current position is punctuation, skip it BEFORE checking the letter.
+    while (currentSpellingState.currentLetterIndex < targetWord.length && 
+           /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
+        currentSpellingState.currentLetterIndex++;
+    }
+
+    // 3. Identify the letter she IS supposed to type
+    let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+    
+    // Normalize smart apostrophes
+    if (targetLetter === "’") targetLetter = "'"; 
+
+    if (inputLetter === targetLetter) {
+        // --- CORRECT LETTER ---
+        currentSpellingState.currentLetterIndex++;
+        if (typeof playDingSound === "function") playDingSound();
         
-        // 2. Initial Skip Logic: If the current position is punctuation, skip it BEFORE checking the letter.
-        // Changing 'if' to 'while' ensures we skip multiple symbols (e.g. "L'...)
+        // 4. Look-ahead Skip: Skip punctuation immediately following the letter typed
         while (currentSpellingState.currentLetterIndex < targetWord.length && 
                /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
             currentSpellingState.currentLetterIndex++;
         }
-    
-        // 3. Identify the letter she IS supposed to type
-        let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
-        
-        // Normalize smart apostrophes just in case they weren't caught by the regex
-        if (targetLetter === "’") targetLetter = "'"; 
-    
-        if (inputLetter === targetLetter) {
-            // --- CORRECT LETTER ---
-            currentSpellingState.currentLetterIndex++;
-            if (typeof playDingSound === "function") playDingSound();
+
+        // 5. Check if the Word is finished
+        if (currentSpellingState.currentLetterIndex >= targetWord.length) {
+            currentSpellingState.isWordVictory = true; 
+            renderSpellingSlots(); 
             
-            // 4. Look-ahead Skip: If the letter she just typed is followed by punctuation,
-            // skip those symbols immediately so the next underline is ready.
-            while (currentSpellingState.currentLetterIndex < targetWord.length && 
-                   /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
-                currentSpellingState.currentLetterIndex++;
-            }
-    
-            // 5. Check if the Word is finished
-            if (currentSpellingState.currentLetterIndex >= targetWord.length) {
-                currentSpellingState.isWordVictory = true; 
-                renderSpellingSlots(); // Show the word in Green/Victory state
+            const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
+            const waitTime = isLastWord ? 1000 : 2500; 
+
+            setTimeout(() => {
+                currentSpellingState.isWordVictory = false;
+                currentSpellingState.currentWordIndex++;
+                currentSpellingState.currentLetterIndex = 0;
                 
-                const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
-                const waitTime = isLastWord ? 1000 : 2500; // 2.5s pause to celebrate the word
-    
-                setTimeout(() => {
-                    currentSpellingState.isWordVictory = false;
-                    currentSpellingState.currentWordIndex++;
-                    currentSpellingState.currentLetterIndex = 0;
+                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                    // --- FULL PHRASE SUCCESS ---
+                    if (typeof celebrate === "function") celebrate();
+                    if (typeof playVictorySound === "function") playVictorySound();
                     
-                    if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
-                        // --- FULL PHRASE SUCCESS ---
-                        if (typeof celebrate === "function") celebrate();
-                        if (typeof playVictorySound === "function") playVictorySound();
-                        
-                        // Pronounce the whole phrase one last time
-                        setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
-    
-                        // Close the mode and hide keyboard after 4 seconds
-                        setTimeout(() => {
-                            const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
-                            if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
-                        }, 4000);
-                    } else {
-                        // --- PREPARE NEXT WORD ---
-                        renderSpellingSlots();
-                        // Prompt the child by speaking the next word
-                        setTimeout(() => {
-                            spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
-                        }, 400);
-                    }
-                }, waitTime);
-            } else {
-                // Word not finished, refresh underlines to show the letter just typed
-                renderSpellingSlots();
-            }
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+
+                    setTimeout(() => {
+                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                    }, 4000);
+                } else {
+                    // --- PREPARE NEXT WORD ---
+                    renderSpellingSlots();
+                    setTimeout(() => {
+                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                    }, 400);
+                }
+            }, waitTime);
         } else {
-            // --- WRONG LETTER ---
-            const card = currentSpellingState.card;
-            // Instant Sound instead of slow "Non"
-            playBuzzSound(); 
-            
-            // Visual feedback: Shake the card
-            card.style.animation = 'shake 0.3s';
-            setTimeout(() => card.style.animation = '', 300);
-            }, 50);
+            renderSpellingSlots();
         }
+    } else {
+        // --- WRONG LETTER ---
+        const card = currentSpellingState.card;
+        // FIX: Removed the stray timeout characters that were here
+        if (typeof playBuzzSound === "function") playBuzzSound(); 
+        
+        // Visual feedback: Shake the card
+        card.style.animation = 'shake 0.3s';
+        setTimeout(() => card.style.animation = '', 300);
     }
+}
         
         function spellCurrentWord() {
             if (!currentSpellingState || currentSpellingState.isWordVictory) return;
@@ -5363,6 +5345,9 @@ window.onload = () => {
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
         console.log("🔊 Speech engine primed for mobile");
     }, { once: true });
+
+    // Ensure the listener is always active (Add this near your window.onload area)
+    document.addEventListener('keydown', handleKeyPress);
         
     </script>
             
@@ -5373,3 +5358,4 @@ window.onload = () => {
     <div id="keyboard" class="unified-keyboard"></div>
 </body>
 </html>
+
