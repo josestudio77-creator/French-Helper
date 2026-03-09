@@ -1776,13 +1776,16 @@
             const overlay = document.getElementById(id);
             if (overlay) overlay.style.display = 'block'; 
             
-            // 4. SPECIFIC LOGIC
+            // 4. SPECIFIC LOGIC FOR EACH DRAWER
             if(id === 'gameDrawer') { 
-                wins = 0; losses = 0; updateScoreUI();
-                
+                wins = 0;
+                losses = 0;
+                updateScoreUI();
+        
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
                 
+                // Add buffer so buttons aren't covered by keyboard
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
@@ -2159,34 +2162,24 @@ function renderList(list) {
     if (!container) return;
     container.innerHTML = '';
     
-    // --- SURGICAL FIX: Manage Autoplay UI visibility FIRST ---
+    // --- STEP 1: Manage Autoplay UI visibility FIRST ---
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
-        // Only show controls in Dialogue/List mode AND if there's no teacher audio
         autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
-    // --- Alphabet Detection ---
+    // --- STEP 2: Alphabet Detection ---
     const isAlphabet = (list.length >= 26 && list.length <= 31) && list.includes('A') && list.includes('Z');
 
     if (isAlphabet && viewMode === 'cards') {
         renderAlphabetCards(list);
-        return; // Now it's safe to return because the UI was already handled above
+        return; 
     }
     
-    // If it's the alphabet and we are in Dialogue mode, the code will continue 
-    // past this point to render the list, enabling the "Alphabet Song" Play All.
-
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
 
-    // ✅ FIX 1: Auto-play visibility - only in dialogue mode WITHOUT teacher audio
-    const autoPlayUI = document.getElementById('autoplayControls');
-    if (autoPlayUI) {
-        autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
-    }
-
-    // ✅ FIX 2: Dialogue button label - FIXED to always check for audio
+    // Logic for Dialogue/List button labels
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -2196,11 +2189,9 @@ function renderList(list) {
         }
     }
     
-    // 1. UPDATE STATUS BAR & BADGES
+    // Status Bar & Badges
     const statusInfo = document.getElementById('stCountText');
     const controlPanel = document.querySelector('.app-control-panel');
-    
-    // Remove existing badges from the control panel to refresh them
     controlPanel.querySelectorAll('.corner-badge').forEach(b => b.remove());
 
     if (statusInfo) {
@@ -2208,21 +2199,20 @@ function renderList(list) {
             statusInfo.textContent = '🇫🇷 Ready to learn!';
         } else {
             statusInfo.innerHTML = currentSetName ? `📚 ${currentSetName}` : `📚 List`;
-            
-            // Inject badges into the Practice Screen header
             if (currentSetName && history[currentSetName]) {
                 controlPanel.insertAdjacentHTML('afterbegin', getCornerBadgesHTML(currentSetName));
             }
         }
     }
+
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
-    // ✅ FIX 3: TEACHER RECORDING MODE - This was accidentally removed!
     if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
+        // Teacher Recording Mode rendering...
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
         banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
-        banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+        banner.innerHTML = '🎤 Teacher Recording Mode';
         container.parentElement.insertBefore(banner, container);
         
         const card = document.createElement('div');
@@ -2233,28 +2223,12 @@ function renderList(list) {
                 ${list.map(w => `• ${w.split('|')[0]}`).join('<br>')}
             </div>
             <audio controls style="width:100%;" src="${currentWeekAudio.data}"></audio>
-            <p style="font-size:0.8rem; margin-top:10px; color:#856404; font-weight:800;">💡 Switch to 🗂️ Cards mode to see translations</p>
         `;
         container.appendChild(card);
-        
     } else if (viewMode === 'dialogue' && !hasTeacherAudio) {
-        // Regular dialogue/list mode (only when no teacher audio)
-        
-        // Reset loop button when entering dialogue mode
-        if (loopMode) {
-            loopMode = false;
-            const loopBtn = document.getElementById('loopBtn');
-            if (loopBtn) {
-                loopBtn.style.background = '#ff9e6d';
-                loopBtn.style.border = '2px solid transparent';
-            }
-        }
-        
+        // Dialogue/List Mode rendering...
         const diagCard = document.createElement('div');
         diagCard.className = 'condensed-card';
-        diagCard.style.display = 'flex';
-        diagCard.style.flexDirection = 'column';
-
         list.forEach((p, index) => {
             const line = document.createElement('div');
             const sideClass = currentIsDialogue ? ((index % 2 === 0) ? 'line-left' : 'line-right') : 'line-center';
@@ -2262,146 +2236,37 @@ function renderList(list) {
             line.id = `line-${index}`;
             const cleanText = p.split('|')[0].trim();
             line.textContent = cleanText;
-            line.onclick = () => {
-                if (isAutoPlaying) {
-                    // Clear the pending timeout
-                    clearTimeout(autoPlayTimeout);
-                    
-                    // Cancel any current speech
-                    window.speechSynthesis.cancel();
-                    
-                    // Speak the clicked phrase
-                    const utterance = new SpeechSynthesisUtterance(cleanText);
-                    utterance.lang = 'fr-FR';
-                    utterance.rate = speechSpeed;
-                    
-                    // When done, resume auto-play from current index
-                    utterance.onend = () => {
-                        if (isAutoPlaying) {
-                            playLine(index); // Resume from this same position
-                        }
-                    };
-                    
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    spk(cleanText, 'fr-FR', true);
-                }
-            };
-            
+            line.onclick = () => spk(cleanText, 'fr-FR', true);
             diagCard.appendChild(line);
         });
         container.appendChild(diagCard);
-        
     } else {
-// STANDARD CARDS MODE (Updated with Spelling Bee Mode)
+        // Standard Cards Mode rendering...
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
-            
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+            const spellingHTML = `<div class="spelling-zone" style="display:none; padding: 0;"><div class="spelling-slots"></div></div>`;
+            const buttonHTML = `<div class="card-btns"><button class="card-btn spk-fr" style="position: relative;"><span class="snail-corner">🐌</span><span>🎤 French</span></button><button class="card-btn spk-en"><span>English</span></button></div>`;
 
-            // This is the spelling area that starts hidden
-            const spellingHTML = `
-                <div class="spelling-zone" style="display:none; padding: 10px 0;">
-                    <div class="spelling-slots"></div>
-                </div>
-            `;
-
-            const buttonHTML = `
-                <div class="card-btns">
-                    <button class="card-btn spk-fr" style="position: relative;">
-                        <span class="snail-corner">🐌</span>
-                        <span>🎤 French</span>
-                    </button>
-                    <button class="card-btn spk-en">
-                        <span>English</span>
-                    </button>
-                </div>
-            `;
-
-            // We wrap the text in "card-main-content" so we can hide it during spelling
             if (data.isPhoto) {
-                let orientationClass = data.photoOrientation || 'landscape';
-                let inlineStyle = '';
-                
-                if (data.isFreeCrop && data.customRatio) {
-                    const baseHeight = 7;
-                    const calculatedWidth = baseHeight * data.customRatio;
-                    const finalWidth = Math.min(calculatedWidth, 12); 
-                    inlineStyle = `style="height: ${baseHeight}rem; width: ${finalWidth.toFixed(2)}rem; object-fit: cover;"`;
-                    orientationClass = '';
-                } else {
-                    orientationClass = data.photoOrientation;
-                }
-                
-                card.innerHTML = `
-                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
-                    ${gIcon}
-                    <div class="card-main-content">
-                        <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
-                        <span class="french-text">${p}</span>
-                        ${pGuide}
-                        <span class="english-text">${data.en}</span>
-                    </div>
-                    ${spellingHTML}
-                    ${buttonHTML}
-                `;
+                card.innerHTML = `<div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>${gIcon}<div class="card-main-content"><img src="${data.photoData}" class="card-photo landscape" alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')"><span class="french-text">${p}</span>${pGuide}<span class="english-text">${data.en}</span></div>${spellingHTML}${buttonHTML}`;
             } else {
-                card.innerHTML = `
-                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
-                    ${gIcon}
-                    <div class="card-main-content">
-                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                        <span class="french-text">${p}</span>
-                        ${pGuide}
-                        <span class="english-text">${data.en}</span>
-                    </div>
-                    ${spellingHTML}
-                    ${buttonHTML}
-                `;
+                card.innerHTML = `<div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>${gIcon}<div class="card-main-content"><span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span><span class="french-text">${p}</span>${pGuide}<span class="english-text">${data.en}</span></div>${spellingHTML}${buttonHTML}`;
             }
 
-            // Bind the button clicks
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
-            card.querySelector('.snail-corner').onclick = (e) => {
-                e.stopPropagation();
-                spk(p, 'fr-FR', true, 0.05); 
+            card.querySelector('.snail-corner').onclick = (e) => { e.stopPropagation(); spk(p, 'fr-FR', true, 0.05); };
+            card.querySelector('.spk-en').onclick = () => {
+                if (card.classList.contains('spelling-mode')) spellCurrentWord();
+                else spk(data.en, 'en-US', true);
             };
-            
-            const engTextEl = card.querySelector('.english-text');
-            const engBtnEl = card.querySelector('.spk-en');
-            
-            const triggerFix = (e) => {
-                e.preventDefault();
-                manualFixTranslation(p, data.en);
-            };
-            
-            engBtnEl.onclick = () => {
-                // If the card is in spelling mode, this button acts as "Spell Out Loud"
-                if (card.classList.contains('spelling-mode')) {
-                    if (typeof spellCurrentWord === "function") spellCurrentWord();
-                } else {
-                    spk(data.en, 'en-US', true);
-                }
-            };
-            
-            engTextEl.ondblclick = triggerFix;
-            
-            let lastTap = 0;
-            engTextEl.addEventListener('touchstart', (e) => {
-                const now = Date.now();
-                if (now - lastTap < 300) {
-                    triggerFix(e);
-                }
-                lastTap = now;
-            });
-            
             container.appendChild(card);
         });
     } 
-} 
+}
 
     function shareWeek(weekName, wordsText, audioData = null) {
         const phraseList = wordsText.split('\n').filter(p => p.trim() !== "");
@@ -5491,6 +5356,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
