@@ -1810,17 +1810,22 @@
         ];
 
         function navJump(targetId) {
-            // 1. Close all main overlays
-            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay'];
+            // 1. Force ALL overlays to close
+            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay', 'printSelectionOverlay', 'folderSelectionOverlay', 'appModal'];
             overlays.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
         
-            // 2. Use our new central reset function
+            // 2. UNLOCK the body scroll
+            document.body.style.overflow = 'auto';
+            document.body.classList.remove('keyboard-buffer');
+        
+            // 3. Stop any auto-play fighting
+            if (isAutoPlaying) stopAutoPlay();
             resetAllSpellingCards();
         
-            // 3. Navigate
+            // 4. Navigate
             if (!targetId) {
                 renderList(currentScreenList);
                 return;
@@ -1831,22 +1836,40 @@
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
-            // 1. Safety: Stop auto-play and pause audio
+            // 1. Safety: Stop auto-play and pause all audio
             if (isAutoPlaying) stopAutoPlay();
-            document.querySelectorAll('audio').forEach(audio => audio.pause());
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0; // Reset audio positions
+            });
         
-            // 2. Reset all spelling cards before opening a new overlay
+            // 2. Reset spelling cards so the keyboard doesn't "ghost" into other screens
             if (id !== 'gameDrawer') {
                 resetAllSpellingCards();
             }
-
+        
+            // 3. THE FIX: Hide other MAJOR drawers when opening a new one
+            // This prevents the "Print Selection" or "Folder Move" from being blocked by the Backpack
+            const majorDrawers = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer'];
+            if (majorDrawers.includes(id)) {
+                majorDrawers.forEach(drawerId => {
+                    if (drawerId !== id) document.getElementById(drawerId).style.display = 'none';
+                });
+            }
+        
+            // 4. Lock the main screen scroll
             document.body.style.overflow = 'hidden';
             
-            // 3. SHOW THE OVERLAY
+            // 5. SHOW THE OVERLAY
             const overlay = document.getElementById(id);
-            if (overlay) overlay.style.display = 'block'; 
+            if (overlay) {
+                overlay.style.display = 'block'; 
+                // Force the content to the top
+                const content = overlay.querySelector('.overlay-content');
+                if (content) content.scrollTop = 0;
+            }
             
-            // 4. SPECIFIC LOGIC FOR EACH DRAWER
+            // 6. SPECIFIC LOGIC (Your original code preserved)
             if(id === 'gameDrawer') { 
                 wins = 0;
                 losses = 0;
@@ -1855,7 +1878,6 @@
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
                 
-                // Add buffer so buttons aren't covered by keyboard
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
                 
@@ -1870,21 +1892,28 @@
                 console.log('Homework drawer opened');
             }
         }
-
+        
         function closeOverlay(id) { 
             document.getElementById(id).style.display = 'none'; 
             
-            // ✅ FIX: Also pause audio when closing overlays (in case something was playing)
-            const teacherPlayer = document.getElementById('teacherAudioPlayer');
-            if (teacherPlayer && !teacherPlayer.paused) {
-                teacherPlayer.pause();
+            // Hide keyboard if we are closing the game
+            if (id === 'gameDrawer') {
+                const globalKb = document.getElementById('keyboard');
+                if (globalKb) globalKb.style.display = 'none';
             }
-            
-            document.querySelectorAll('audio').forEach(audio => {
-                if (!audio.paused) {
-                    audio.pause();
-                }
+        
+            // Check if any other overlays are STILL open
+            const allOverlays = document.querySelectorAll('.overlay');
+            let somethingStillOpen = false;
+            allOverlays.forEach(ov => {
+                if (ov.style.display === 'block') somethingStillOpen = true;
             });
+        
+            // ONLY unlock the main screen scroll if no drawers are visible
+            if (!somethingStillOpen) {
+                document.body.style.overflow = 'auto';
+                document.body.classList.remove('keyboard-buffer');
+            }
         }
 
         function setViewMode(mode) {
@@ -5558,5 +5587,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
