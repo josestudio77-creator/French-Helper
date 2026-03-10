@@ -542,7 +542,7 @@
     
     /* 2. List Cushion: Ensures the very last words can reach the center of the screen */
     .condensed-card {
-        padding-bottom: 350px !important; 
+        padding-bottom: 400px !important; 
     }
 
        /* Condensed & Dialogue Mode Styles - CLEANED UP */
@@ -574,12 +574,9 @@
         max-width: 90%;
         line-height: 1.4;
         position: relative;
-    
-        /* SURGICAL FIX: These tell the browser where the "Safe Zone" is */
-        /* 1. Prevents the word from being hidden behind the Sticky Header */
-        scroll-margin-top: 220px; 
-        /* 2. Prevents the word from being hidden behind the Bottom Nav Bar */
-        scroll-margin-bottom: 120px; 
+        scroll-margin-top: 100px; 
+        scroll-margin-bottom: 100px; 
+        transition: all 0.2s;
     }
     
     /* Remove top margin from first line */
@@ -4557,6 +4554,7 @@ async function translateOne(p) {
         function playLine(index) {
             if (!isAutoPlaying) return;
             
+            // Check if we reached the end of the list
             if (index >= currentScreenList.length) {
                 if (loopMode) {
                     playLine(0);
@@ -4569,35 +4567,22 @@ async function translateOne(p) {
             const text = currentScreenList[index].split('|')[0].trim();
             const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
             
+            // 1. Highlight the current line
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             const currentEl = document.getElementById(`line-${index}`);
             
             if (currentEl) {
                 currentEl.classList.add('playing-now');
                 
-                // --- THE SURGICAL MATH FIX ---
-                // 1. Get the height of your fixed bars
-                const headerPanel = document.querySelector('.app-control-panel');
-                const headerHeight = headerPanel ? headerPanel.offsetHeight + 20 : 180;
-                const navHeight = 100; // Bottom nav height + some padding
-                
-                // 2. Calculate the "Center" of the safe area
-                const windowHeight = window.innerHeight;
-                const safeAreaHeight = windowHeight - headerHeight - navHeight;
-                
-                // 3. Find exactly where the phrase is
-                const elementRect = currentEl.getBoundingClientRect();
-                const elementTopRelative = elementRect.top + window.scrollY;
-                
-                // 4. Target position: Centers the phrase in the "Safe Zone"
-                const targetScroll = elementTopRelative - headerHeight - (safeAreaHeight / 2) + (elementRect.height / 2);
-                
-                window.scrollTo({
-                    top: targetScroll,
-                    behavior: 'smooth'
+                // --- RESTORED: Simple Centering ---
+                // This makes the word jump to the middle of the screen smoothly.
+                currentEl.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
                 });
             }
             
+            // 2. Pronunciation logic
             window.speechSynthesis.cancel();
             
             const utterance = new SpeechSynthesisUtterance(text);
@@ -5568,6 +5553,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
