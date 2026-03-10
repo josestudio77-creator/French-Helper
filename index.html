@@ -4517,9 +4517,10 @@ async function translateOne(p) {
             isAutoPlaying = true;
             document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
             
-            // Show the floating safety button
-            const floatBtn = document.getElementById('floatingStopBtn');
-            if (floatBtn) floatBtn.style.display = 'flex';
+            if (currentScreenList && currentScreenList.length > 10) {
+                const floatBtn = document.getElementById('floatingStopBtn');
+                if (floatBtn) floatBtn.style.display = 'flex';
+            }
             
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
@@ -4534,11 +4535,10 @@ async function translateOne(p) {
                 autoPlayTimeout = null;
             }
             
-            // Reset buttons
             const playBtn = document.getElementById('playAllBtn');
             if (playBtn) playBtn.innerHTML = "▶️ Play All";
             
-            // Hide the floating safety button
+            // Always attempt to hide the floating button when stopping
             const floatBtn = document.getElementById('floatingStopBtn');
             if (floatBtn) floatBtn.style.display = 'none';
             
@@ -5548,6 +5548,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
