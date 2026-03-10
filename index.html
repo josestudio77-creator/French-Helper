@@ -69,14 +69,58 @@
 
     .spk-fr { background: #4cd964; }
     .spk-en { background: #ff9e6d; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 4px solid #5a67d8; display: flex; z-index: 1000; height: 80px; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; font-size: 0.85rem; }
+    .bottom-nav { 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        background: white; 
+        border-top: 4px solid #5a67d8; 
+        display: flex; 
+        z-index: 9000;
+        height: 80px; 
+    }
+    .nav-item { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        font-weight: 900; 
+        cursor: pointer; 
+        font-size: 0.85rem; 
+        gap: 2px; /* Tight gap between icon and label */
+        line-height: 1;
+    }
+    .nav-item span {
+        font-size: 1.7rem; /* Large visible icons */
+        display: block;
+        line-height: 1;
+    }
     .nav-presets { color: #ff9e6d; background: #fff5f0; }
     .nav-game { color: #ff6b8b; background: #fff5f7; }
     .nav-backpack { color: #9d4edd; background: #fdf2ff; }
     .nav-parent { color: #118AB2; background: #f0f9ff; }
-    .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; padding: 15px; }
-    .overlay-content { background: white; border-radius: 30px; padding: 15px; height: 95vh; overflow-y: auto; text-align: center; }
+    .overlay { 
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        background: rgba(0,0,0,0.85); 
+        z-index: 8000; /* Lower than Nav Bar */
+        padding: 15px; 
+    }
+    .overlay-content {
+        background: white; 
+        border-radius: 30px; 
+        padding: 15px; 
+        height: 95vh; 
+        overflow-y: auto; 
+        text-align: center;
+        padding-bottom: 100px !important; 
+    }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 5px 0; outline: none; }
 
 /* Snail Badge: Floating Top-Left with 3D Effect */
@@ -111,37 +155,22 @@
     50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
     100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
 }
-       
-   /* Keyboard key styles - UPDATED */
-.key { 
-    width: 34px; 
-    height: 42px; 
-    background: #f0f4f8; 
-    border-radius: 8px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-weight: 900; 
-    border: 1px solid #cbd5e0; 
-    font-size: 0.9rem; 
-    color: #2d3748; 
-    cursor: pointer;
-    transition: all 0.1s ease; /* ADD THIS - smooth feedback */
-    box-sizing: border-box;
-}
 
-/* Make used keys more distinct - UPDATED */
-.key.used { 
-    opacity: 0.4; 
-    background-color: #e2e8f0 !important; 
-    pointer-events: none;
-    border-color: #a0aec0;
-}
     #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
     .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    .hangman-word { font-size: 2rem; letter-spacing: 5px; margin: 15px 0; font-weight: 900; color: #2d3748; }
-    @keyframes floatUp { 0% { transform: translateY(100vh); opacity: 1; } 100% { transform: translateY(-100vh); opacity: 0; } }
-    .victory-item { position: fixed; bottom: -50px; font-size: 2.5rem; z-index: 3000; pointer-events: none; animation: floatUp 3s linear forwards; }
+    @keyframes floatUp { 
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+        100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } 
+    }
+    .victory-item { 
+        position: fixed; 
+        bottom: -60px; 
+        font-size: 3rem; 
+        /* HIGHEST Z-INDEX: Higher than Nav (9000) and Keyboard (9500) */
+        z-index: 10000; 
+        pointer-events: none; 
+        animation: floatUp 4s linear forwards; 
+    }
     
 /* History items */
     .history-item { 
@@ -187,39 +216,31 @@
         white-space: nowrap;
     }
 
-    .keyboard { 
-        display: flex; 
-        flex-wrap: wrap; 
-        justify-content: center; 
-        gap: 6px; 
-        margin: 10px 0; 
-        width: 100%; 
-        background: #f1f5f9; 
-        padding: 12px 8px; 
-        border-radius: 20px; 
-        border: 2px solid #e2e8f0;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    }
-
     .game-actions {
         display: flex;
         gap: 10px;
         margin-top: 25px;
+        width: 100%;
     }
     
     .game-actions button {
-        flex: 1;
-        padding: 15px !important;
-        border-radius: 20px;
+        padding: 15px 5px !important;
+        border-radius: 18px;
         border: none;
         font-weight: 900;
+        font-size: 1rem;
         cursor: pointer;
-        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap; /* Safety: prevents wrapping */
     }
     
     .game-actions button:active {
         transform: translateY(2px);
-        box-shadow: none;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.15);
     }
        
     #hangmanCanvas { 
@@ -230,15 +251,30 @@
     .clue-emoji { font-size: 3rem; margin: 2px 0; }
     .hangman-word { font-size: 1.6rem; margin: 10px 0; }
        
-    /* App Control Panel */
+    /* UPDATED: Sticky Panel ensures controls are always reachable */
     .app-control-panel {
-        background: white;
+        background: white !important; /* Ensure it's not transparent */
         border-radius: 25px;
         padding: 12px 15px;
         margin-bottom: 15px;
         border: 3px solid #118AB2;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        
+        /* FIX: Sticky behavior */
+        position: -webkit-sticky; /* Support for Safari */
+        position: sticky;
+        top: 5px;       /* Lock it to the very top of the viewport */
+        z-index: 8500;  /* Below Nav (9000) but above everything else */
+    }
+    
+    /* Ensure the autoplay controls inside the panel look clean when sticking */
+    #autoplayControls {
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 15px;
+        margin-top: 10px;
+        border: 2px solid #e2e8f0;
+        display: none;
     }
     
     .status-info {
@@ -472,6 +508,38 @@
         font-weight: 700;
     }
 
+           /* --- AUTOPLAY SAFETY FEATURES --- */
+    
+    /* 1. Floating Stop Button: Only appears during Auto-Play */
+    .floating-stop-btn {
+        position: fixed;
+        bottom: 100px; /* Above the bottom nav bar */
+        right: 20px;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        background: #ff6b8b; /* Matches your header pink */
+        color: white;
+        border: 4px solid white;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        font-size: 2.2rem;
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 8600; /* Above the Sticky Panel but below Keyboard */
+        transition: transform 0.2s;
+        animation: pulseStop 2s infinite;
+    }
+    
+    .floating-stop-btn:active { transform: scale(1.2); }
+    
+    @keyframes pulseStop {
+        0% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(255, 107, 139, 0.5); }
+        100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    }
+    
        /* Condensed & Dialogue Mode Styles - CLEANED UP */
     .condensed-card {
         background: white;
@@ -487,20 +555,23 @@
     }
     
     .dialogue-line {
-        padding: 15px 20px;  /* INCREASED padding for better touch target */
+        padding: 15px 20px;
         border-radius: 20px;
-        margin-bottom: 15px;  /* INCREASED space between phrases */
+        margin-bottom: 15px;
         font-weight: 800;
-        font-size: 1.3rem;    /* INCREASED for easier reading */
+        font-size: 1.3rem;
         cursor: pointer;
         transition: all 0.1s;
         display: block;
         border: 2px solid #e2e8f0;
         background: #f8fafc;
         color: #2d3748;
-        max-width: 90%;       /* Slightly wider */
+        max-width: 90%;
         line-height: 1.4;
         position: relative;
+        scroll-margin-top: 100px; 
+        scroll-margin-bottom: 100px; 
+        transition: all 0.2s;
     }
     
     /* Remove top margin from first line */
@@ -713,8 +784,16 @@
         100% { transform: scale(1); background-color: #e2e8f0; }
     }
     
-    .key-animate {
-        animation: keyFlash 0.25s ease-out forwards;
+    /* Unified Pop Animation Logic */
+    @keyframes letterPop {
+        0% { transform: scale(0.5); opacity: 0; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Use these classes for any element that needs to "Pop" */
+    .pop-anim, .pop-animation, .key-animate {
+        animation: letterPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
     @keyframes letterPop {
@@ -722,44 +801,22 @@
         50% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 5px #4cd964); }
         100% { transform: scale(1); color: #2d3748; opacity: 1; }
     }
-    
-    .letter-slot {
-        display: inline-block;
-        width: 30px; /* Fixed width so letters don't jump around */
-        text-align: center;
-        transition: all 0.3s;
-    }
-    
-    .pop-animation {
-        animation: letterPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
        
-/* --- SCREEN STYLES (Visible on Phone/PC) --- */
+    /* Merged and Optimized Icon Buttons */
     .icon-btn {
         background: none !important;
         border: none !important;
-        font-size: 1.4rem !important;
+        /* 1.2rem ensures 6 icons fit side-by-side on smaller phones */
+        font-size: 1.2rem !important; 
         padding: 4px !important;
-        margin: 0 2px !important;
+        margin: 0 2px !important; /* Kept from first definition for spacing */
         cursor: pointer;
-        transition: transform 0.1s;
         color: #4a5568 !important;
         box-shadow: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: auto;
-    }
-.icon-btn {
-        background: none !important;
-        border: none !important;
-        font-size: 1.2rem !important; /* Forces icons to stay small */
-        padding: 4px !important;
-        cursor: pointer;
-        color: #4a5568 !important;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        transition: transform 0.1s; /* Kept from first definition for "click" feel */
     }
     .icon-btn:active { transform: scale(1.2); }
     .icon-label { 
@@ -881,19 +938,20 @@
         line-height: 1.2;
     }
 
-    /* BLOCK OVERRIDE: Specific to KG Primary Penmanship */
+     /* BLOCK OVERRIDE: Specific to KG Primary Penmanship */
     .print-phrase-text.block-font, .block-font { 
         font-family: "KG Primary Penmanship Alt", sans-serif !important;
-        
-        /* FIX: Change from 600 to 400 to stop the browser from "faking" bold */
         font-weight: 400 !important;
         
+        /* PRESERVED: Your perfect balance settings */
         font-size: 46px !important; 
         text-align: left !important;
+        margin-bottom: 16px;
 
-        /* NEW: This prevents the browser from adding extra "ink" to the edges */
+        /* NEW: Professional smoothing and ligature support for characters like œ */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        font-variant-ligatures: common-ligatures; 
     }
 
     /* CURSIVE OVERRIDE: Specific to Playwrite US Trad */
@@ -903,6 +961,7 @@
         /* Keeps your cursive reference size consistent */
         font-size: 28px !important; 
         word-spacing: 5pt !important; 
+        font-variant-ligatures: common-ligatures;
     }
     
     /* Guideline Rows */
@@ -950,28 +1009,251 @@
         text-align: left !important;
     }
 
-    /* KG Tracing - Scaled to fill the 38px guidelines perfectly */
+    /* KG Tracing - Scaled to fill the 38px guidelines and thinned out */
     .trace-text.block-font { 
         font-family: "KG Primary Penmanship Alt", sans-serif !important;
         font-size: 57px !important; 
         line-height: 38px;
         top: 1px; 
         letter-spacing: -1px;
-        
-        /* Ensure this is 400 too */
         font-weight: 400 !important;
 
+        /* THE THINNING HACK */
         -webkit-text-stroke: 1.5px white !important;
         paint-order: stroke fill;
+
+        /* NEW: Ensures the 'o' and 'e' connect into 'œ' in the tracing line */
+        font-variant-ligatures: common-ligatures;
     }
 
     /* Cursive Tracing size alignment */
     .trace-text.cursive-font { 
         font-size: 34px !important;  
         line-height: 38px;
-        top: -1px;                   
+        top: -1px; 
+        font-variant-ligatures: common-ligatures;
     }
 }
+
+/* --- SPELLING BEE MODE STYLES --- */
+    
+    .bee-badge {
+        position: absolute;
+        top: -12px;
+        left: -12px;
+        width: 42px;
+        height: 42px;
+        background: #FFD700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 2px rgba(255,255,255,0.5);
+        z-index: 100;
+        cursor: pointer;
+        border: 3px solid white;
+        transition: transform 0.1s;
+    }
+    
+    .bee-badge:active { transform: scale(1.2); }
+    
+    .phrase-card.spelling-mode {
+        border-color: #FFD700 !important;
+        background: #fffdf0 !important;
+    }
+    
+.spelling-slots {
+    display: flex;
+    flex-direction: row; /* Force horizontal words */
+    flex-wrap: wrap;     /* Allow the phrase to wrap to a new line if it's long */
+    justify-content: center;
+    align-items: center;
+    gap: 10px;           /* Gap between words */
+    margin: 0 0 30px 0; 
+    width: 100%;
+    min-height: 42px;
+}
+
+    /* Pulsing effect for the active word's boxes */
+    .word-box.current-word .bee-slot:not(.filled) {
+        animation: gentlePulse 1.5s infinite;
+        border-color: #FFD700; /* Gold color to match the Bee */
+    }
+    
+        @keyframes gentlePulse {
+            0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+            50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.5); border-color: #FFD700; transform: scale(1.02); }
+            100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+        }
+       
+    /* FIX: Force the Hangman word to stay horizontal and centered */
+     #hangmanDisplay {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 60px;
+        margin: 15px 0;
+    }
+    
+    .word-box {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap; 
+        gap: 4px;
+        padding: 2px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Specific fix for punctuation boxes to save space */
+    .bee-slot[style*="border: none"] {
+        width: auto !important;
+        min-width: 10px;
+        padding: 0 2px;
+    }
+    
+    /* Ensure slots look good in both modes */
+    .bee-slot {
+        /* CLAMP: Minimum 22px, Preferred 7% of screen, Maximum 32px */
+        width: clamp(22px, 7.5vw, 32px); 
+        height: 42px;
+        border: 2px solid #cbd5e0;
+        border-radius: 8px;
+        background: white;
+        /* Font size scales slightly with the box */
+        font-size: clamp(1.2rem, 4vw, 1.8rem); 
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2d3748;
+        text-transform: uppercase;
+        transition: all 0.2s, background-color 0.3s;
+        box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05);
+        flex-shrink: 1; /* Allows boxes to squish slightly to fit the row */
+    }
+    
+    .bee-slot.filled {
+        border-color: #4cd964;
+        background: #f0fdf4;
+    }
+    
+    .word-victory-anim {
+        animation: wordPop 0.6s ease-out;
+        color: #4cd964 !important;
+        text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
+    }
+
+    /* Style for letters revealed after losing Hangman */
+    .bee-slot.missed-letter {
+        color: #ff6b8b !important; /* Soft Red/Pink */
+        border-color: #ff6b8b !important;
+        background: #fff5f5;
+        animation: letterPop 0.4s ease-out;
+    }   
+       
+ /* --- UPDATED UNIFIED 3D KEYBOARD --- */
+.unified-keyboard {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f8fafc;
+    padding: 15px 5px 30px 5px; 
+    border-top: 4px solid #FFD700;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
+    z-index: 9500; /* HIGHEST: Covers the Nav Bar when active */
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    animation: slideUp 0.3s ease-out;
+}
+
+.keyboard-buffer {
+    padding-bottom: 300px !important; /* Adjust based on keyboard height */
+    transition: padding-bottom 0.3s ease;
+}
+       
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+}
+       
+ .k-key {
+    /* FIXED WIDTH LOGIC: 10% of screen ensures all rows align perfectly */
+    flex: 0 0 calc(10% - 6px); 
+    height: 48px;
+    background: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #2d3748;
+    user-select: none;
+    transition: all 0.1s;
+    
+    /* 3D "Pushable" Effect */
+    box-shadow: 0 4px 0 #cbd5e0;
+}
+
+.k-key:active, .k-key.key-pressed { 
+    transform: translateY(3px); 
+    box-shadow: 0 1px 0 #cbd5e0;
+    background: #e0f2fe;
+}
+
+/* Gray out used keys for Hangman */
+/* Gray out used keys for Hangman game */
+.k-key.used {
+    opacity: 0.4;
+    background: #e2e8f0;
+    pointer-events: none;
+    box-shadow: none;
+}
+       
+/* Specific styling for accents row */
+.keyboard-row.accents .k-key {
+    background: #fffdf0;
+    height: 42px;
+    font-size: 0.9rem;
+    border-color: #ffe082;
+}
+    
+     /* --- ANIMATIONS --- */
+    
+    /* For the Floating Keyboard to enter smoothly */
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    
+    /* For when she makes a mistake */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        75% { transform: translateX(8px); }
+    }
+    
+    /* For individual letter feedback */
+    @keyframes letterPop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* For the Word Victory celebration */
+    @keyframes wordPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
        
    </style>
 </head>
@@ -1081,7 +1363,7 @@
     
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V9.0 🎉</h1>
+            <h1>🇫🇷 French Fun V10.0 🎉</h1>
         </div>
         
         <!-- App Control Panel -->
@@ -1118,13 +1400,23 @@
             oninput="document.getElementById('gapValue').innerText = this.value; localStorage.setItem('gapValue', this.value);">
         </div>
         <div id="phrasesList" class="phrases-container"></div>
-             <div class="bottom-nav">
-            <div class="nav-item nav-presets" onclick="openOverlay('presetsOverlay')"><span>🎨</span><br>Presets</div>
-            <div class="nav-item nav-game" onclick="openOverlay('gameDrawer')"><span>🎮</span><br>Game</div>
-            <div class="nav-item nav-backpack" onclick="openOverlay('bpModal')"><span>🎒</span><br>Backpack</div>
-            <div class="nav-item nav-parent" onclick="openOverlay('parentDrawer')"><span>⚙️</span><br>Parent</div>
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="navJump(null)" style="color: #4cd964; background: #f0fff4;">
+                <span>📖</span>Practice
+            </div>
+            <div class="nav-item nav-presets" onclick="navJump('presetsOverlay')">
+                <span>🎨</span>Presets
+            </div>
+            <div class="nav-item nav-game" onclick="navJump('gameDrawer')">
+                <span>🎮</span>Game
+            </div>
+            <div class="nav-item nav-backpack" onclick="navJump('bpModal')">
+                <span>🎒</span>Backpack
+            </div>
+            <div class="nav-item nav-parent" onclick="navJump('parentDrawer')">
+                <span>⚙️</span>Parent
+            </div>
         </div>
-    </div>
         
     <!-- Parent Settings  -->
     <div id="parentDrawer" class="overlay">
@@ -1160,8 +1452,6 @@
                     ⚠️ Reset Everything
                 </button>
             </div>
-            
-            <button onclick="closeOverlay('parentDrawer')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -1217,73 +1507,102 @@
     </div>
 </div>
 
-    <!-- Game Drawer - UPDATED with volume slider -->
-    <div id="gameDrawer" class="overlay">
-        <div class="overlay-content">
-            <div style="display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:900">
-                <span style="color:#4cd964">Wins: <span id="winCount">0</span></span>
-                <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
-            </div>
+<!-- Game Drawer - UPDATED with volume slider -->
+<div id="gameDrawer" class="overlay">
+    <div class="overlay-content">
+        <!-- Score Display -->
+        <div style="display:flex; justify-content:center; gap:20px; margin-bottom:5px; font-weight:900">
+            <span style="color:#4cd964">Wins: <span id="winCount">0</span></span>
+            <span style="color:#ff4d4d">Losses: <span id="lossCount">0</span></span>
+        </div>
+        
+        <!-- NEW TOP ROW: Refined colors to avoid confusion with the bottom Listen button -->
+        <div class="game-hints">
+            <!-- Next: Changed to Indigo to distinguish from Listen -->
+            <button class="hint-btn" onclick="startHangman()" 
+                    style="background:#5a67d8; color:white; border-color:#434190;">🎯 Next</button>
             
-            <!-- Row 1: The 3 Controls (Listen, Spell, Music) -->
-            <div class="game-hints">
-                <button class="hint-btn" onclick="spk(targetWord, 'fr-FR', true)">📢 Listen</button>
-                <button class="hint-btn" onclick="spellWord()">🔤 Spell</button>
-                <button id="musicToggleBtn" class="hint-btn" style="background:#fef3c7; color:#92400e; border-color:#f59e0b" onclick="toggleMusic()">🎵 Music: Off</button>
-            </div>
+            <!-- Exit: Kept Dark -->
+            <button class="hint-btn" onclick="exitGame()" 
+                    style="background:#2d3748; color:white; border-color:#1a202c;">🚪 Exit</button>
             
-            <!-- NEW: Volume slider (appears when music is on) -->
-            <div id="musicVolumeControl" style="display: none; margin: 5px 0 10px 0;">
-                <div style="display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 5px 10px; border-radius: 20px;">
-                    <span style="font-size: 0.8rem;">🔊</span>
-                    <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" style="flex: 1; height: 5px;" oninput="updateMusicVolume(this.value)">
-                    <span id="musicVolumeValue" style="font-size: 0.7rem; min-width: 35px;">30%</span>
-                </div>
-            </div>
-    
-            <div id="clueEmoji" class="clue-emoji">💡</div>
-            <canvas id="hangmanCanvas" width="200" height="150"></canvas>
-            <div id="hangmanDisplay" class="hangman-word">_ _ _ _</div>
-            <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess!</div>
-            <div id="keyboard" class="keyboard"></div>
-    
-            <!-- Row 2: Bottom Action Buttons (Next and Exit) -->
-            <div class="game-actions">
-                <button onclick="startHangman()" style="background:#4cd964; color:white;">🎯 Next</button>
-                <button onclick="exitGame()" style="background:#2d3748; color:white;">Exit</button>
+            <!-- Music: Kept Yellow -->
+            <button id="musicToggleBtn" class="hint-btn" 
+                    style="background:#fef3c7; color:#92400e; border-color:#f59e0b" 
+                    onclick="toggleMusic()">🎵 Music</button>
+        </div>
+        
+        <!-- Volume slider (appears when music is on) -->
+        <div id="musicVolumeControl" style="display: none; margin: 5px 0 10px 0;">
+            <div style="display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 5px 10px; border-radius: 20px;">
+                <span style="font-size: 0.8rem;">🔊</span>
+                <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" style="flex: 1; height: 5px;" oninput="updateMusicVolume(this.value)">
+                <span id="musicVolumeValue" style="font-size: 0.7rem; min-width: 35px;">30%</span>
             </div>
         </div>
-    </div>
 
-    <!-- Backpack Modal V10.0 -->
-    <div id="bpModal" class="overlay" style="z-index:3000">
-        <div class="overlay-content">
-            <!-- New Navigation Header -->
-            <div style="background: #fdf2ff; border-radius: 20px; padding: 15px; border: 3px solid #9d4edd; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <button onclick="changeBpMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀️</button>
-                    <h2 id="bpFolderName" onclick="openFolderNav()" style="color:#9d4edd; margin:0; font-size:1.4rem; cursor:pointer; text-decoration:underline dashed #9d4edd; text-underline-offset: 4px;">🎒 Backpack</h2>
-                    <button onclick="changeBpMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶️</button>
-                </div>
-                
-                <!-- Favorites Filter Toggle -->
-                <button id="btnFavFilter" onclick="toggleFavFilter()" style="width:100%; padding:10px; border-radius:12px; border:2px solid #ffb703; background:white; color:#fb8500; font-weight:900; cursor:pointer;">
-                    Show Only ⭐ Favorites
-                </button>
-            </div>
-    
-            <div id="bpList"></div>
+        <div id="clueEmoji" class="clue-emoji">💡</div>
+        <canvas id="hangmanCanvas" width="200" height="150"></canvas>
+        <div id="hangmanDisplay" class="hangman-word"></div>
+        <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a letter!</div>
+        
+        <!-- The Keyboard is here (Managed by JavaScript) -->
+
+        <!-- NEW BOTTOM ROW: Primary Interaction Buttons (Listen & Spell) -->
+        <!-- These are now the large, easy-to-hit buttons at the bottom -->
+        <div class="game-actions">
+            <!-- Green Button: Matches the '🎤 French' card button -->
+            <button onclick="if(targetWord) spk(targetWord, 'fr-FR', true)" 
+                    style="background:#4cd964; color:white; flex: 1.2;">
+                <span>🎤</span> Listen
+            </button>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
-                <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">📤 Share Month</button>
-                <button onclick="addNewHomework()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">➕ Add New</button>
-                <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">🗑️ Reset Month</button>
-                <button onclick="openSettingsFromBP()" style="background:#118AB2; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer;">⚙️ Settings</button>
-            </div>
-            
-            <button onclick="closeOverlay('bpModal')" style="margin-top:15px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:bold">Close</button>
+            <!-- Orange Button: Matches the 'Spell' card button -->
+            <button onclick="spellWord()" 
+                    style="background:#ff9e6d; color:white; flex: 1;">
+                <span>🔡</span> Spell
+            </button>
         </div>
     </div>
+</div>
+
+<!-- Backpack Modal V10.0 -->
+<div id="bpModal" class="overlay" style="z-index:3000">
+    <div class="overlay-content">
+        <!-- New Navigation Header -->
+        <div style="background: #fdf2ff; border-radius: 20px; padding: 15px; border: 3px solid #9d4edd; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <button onclick="changeBpMonth(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀️</button>
+                <h2 id="bpFolderName" onclick="openFolderNav()" style="color:#9d4edd; margin:0; font-size:1.4rem; cursor:pointer; text-decoration:underline dashed #9d4edd; text-underline-offset: 4px;">🎒 Backpack</h2>
+                <button onclick="changeBpMonth(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶️</button>
+            </div>
+            
+            <!-- Favorites Filter Toggle -->
+            <button id="btnFavFilter" onclick="toggleFavFilter()" style="width:100%; padding:10px; border-radius:12px; border:2px solid #ffb703; background:white; color:#fb8500; font-weight:900; cursor:pointer;">
+                Show Only ⭐ Favorites
+            </button>
+        </div>
+
+        <!-- The list of homework items -->
+        <div id="bpList"></div>
+        
+        <!-- UPDATED FOOTER LAYOUT -->
+        <div style="margin-top:25px;">
+            <!-- Large Full Width Add Button -->
+            <button onclick="addNewHomework()" style="width:100%; background:#4cd964; color:white; padding:20px; border:none; border-radius:18px; font-weight:900; font-size:1.2rem; cursor:pointer; margin-bottom:12px; box-shadow: 0 4px 0 #2e8b57; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>➕</span> Add New Homework
+            </button>
+            
+            <!-- Secondary Utilities in a single row -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="shareMonth()" style="background:#5a67d8; color:white; padding:15px 5px; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size: 0.85rem;">📤 Share Month</button>
+                <button onclick="resetMonth()" style="background:#ff4d4d; color:white; padding:15px 5px; border:none; border-radius:12px; font-weight:900; cursor:pointer; font-size: 0.85rem;">🗑️ Reset Month</button>
+            </div>
+        </div>
+
+        <!-- Redundant Settings and Close buttons are now removed -->
+    </div>
+</div>
 
     <!-- Presets Overlay -->
     <div id="presetsOverlay" class="overlay">
@@ -1303,9 +1622,10 @@
                 <button class="preset-btn" onclick="loadPresetAndClose('school')">📚 School</button>
                 <button class="preset-btn" onclick="loadPresetAndClose('house')">🏠 House</button>
                 <button class="preset-btn" onclick="loadPresetAndClose('actions')">🎭 Actions</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('alphabet')">🔤 Alphabet</button>
+                <button class="preset-btn" onclick="loadPresetAndClose('spellingBee')">🐝 Spelling Bee<div class="difficulty-badge">57</div>
+</button>
             </div>
-            
-            <button onclick="closeOverlay('presetsOverlay')" style="margin-top:20px; background:#2d3748; color:white; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900">Close</button>
         </div>
     </div>
 
@@ -1376,7 +1696,8 @@
             "Une chaise":{en:"Chair",icon:"🪑",g:"f",pronunciation:"ewn shez"},"Une table":{en:"Table",icon:"🪵",g:"f",pronunciation:"ewn TAH-bluh"},"Un lit":{en:"Bed",icon:"🛏️",g:"m",pronunciation:"uhn lee"},"Une fenêtre":{en:"Window",icon:"🪟",g:"f",pronunciation:"ewn fuh-NEH-truh"},"Une porte":{en:"Door",icon:"🚪",g:"f",pronunciation:"ewn port"},
             "Une flèche":{en:"Arrow",icon:"🏹",g:"f",pronunciation:"ewn flesh"},"Une fleche":{en:"Arrow",icon:"🏹",g:"f",pronunciation:"ewn flesh"},"Cupidon":{en:"Cupid",icon:"💘",g:"m",pronunciation:"kew-pee-DOHN"},"Un coeur":{en:"Heart",icon:"❤️",g:"m",pronunciation:"uhn kur"},"Un cœur":{en:"Heart",icon:"❤️",g:"m",pronunciation:"uhn kur"},
             "Un cadeau":{en:"Gift",icon:"🎁",g:"m",pronunciation:"uhn kah-DOH"},"Un bouquet de fleurs":{en:"Bouquet",icon:"💐",g:"m",pronunciation:"uhn boo-KEH duh flur"},
-            "Un cercle":{en:"Circle",icon:"⭕",g:"m",pronunciation:"uhn SAIR-kluh"},"Un carré":{en:"Square",icon:"🟦",g:"m",pronunciation:"uhn kah-RAY"},"Un triangle":{en:"Triangle",icon:"🔺",g:"m",pronunciation:"uhn tree-AHN-gluh"},"Une étoile":{en:"Star",icon:"⭐",g:"f",pronunciation:"ewn ay-TWAHL"}
+            "Un cercle":{en:"Circle",icon:"⭕",g:"m",pronunciation:"uhn SAIR-kluh"},"Un carré":{en:"Square",icon:"🟦",g:"m",pronunciation:"uhn kah-RAY"},"Un triangle":{en:"Triangle",icon:"🔺",g:"m",pronunciation:"uhn tree-AHN-gluh"},"Une étoile":{en:"Star",icon:"⭐",g:"f",pronunciation:"ewn ay-TWAHL"},
+            "ami":{en:"friend (male)",icon:"👦",g:"m",pronunciation:"ah-MEE"},"amie":{en:"friend (female)",icon:"👧",g:"f",pronunciation:"ah-MEE"},"aussi":{en:"also",icon:"➕",pronunciation:"oh-SEE"},"alors":{en:"so / then",icon:"⏭️",pronunciation:"ah-LOR"},"aller":{en:"to go",icon:"🚶",pronunciation:"ah-LAY"},"autre":{en:"other",icon:"🔄",pronunciation:"OH-truh"},"avoir":{en:"to have",icon:"✋",pronunciation:"ah-VWAR"},"avant":{en:"before",icon:"⏪",pronunciation:"ah-VAHN"},"avec":{en:"with",icon:"🤝",pronunciation:"ah-VEK"},"bien":{en:"well / good",icon:"👍",pronunciation:"bee-EN"},"bonne":{en:"good (fem.)",icon:"👍",g:"f",pronunciation:"bun"},"bonjour":{en:"hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"beau":{en:"handsome",icon:"😎",g:"m",pronunciation:"boh"},"belle":{en:"beautiful",icon:"💃",g:"f",pronunciation:"bel"},"comme":{en:"like / as",icon:"🤔",pronunciation:"kum"},"comment":{en:"how",icon:"❓",pronunciation:"koh-MAHN"},"devoirs":{en:"homework",icon:"📚",g:"m",pronunciation:"duh-VWAR"},"demain":{en:"tomorrow",icon:"☀️",pronunciation:"duh-MAN"},"des":{en:"some (plural)",icon:"✨",pronunciation:"day"},"écoute":{en:"listen",icon:"👂",pronunciation:"ay-KOOT"},"encore":{en:"again / still",icon:"🔄",pronunciation:"ahn-KOR"},"enfin":{en:"finally",icon:"🏁",pronunciation:"ahn-FAN"},"fait":{en:"fact / done",icon:"✅",pronunciation:"feh"},"fais":{en:"do / make",icon:"🔨",pronunciation:"feh"},"fin":{en:"end",icon:"🏁",g:"f",pronunciation:"fan"},"finir":{en:"to finish",icon:"🏁",pronunciation:"fee-NEER"},"fête":{en:"party",icon:"🎉",g:"f",pronunciation:"fet"},"garçon":{en:"boy",icon:"👦",g:"m",pronunciation:"gar-SOHN"},"grand":{en:"tall (masc.)",icon:"📏",g:"m",pronunciation:"grahn"},"grande":{en:"tall (fem.)",icon:"📏",g:"f",pronunciation:"grahnd"},"habite":{en:"lives",icon:"🏠",pronunciation:"ah-BEET"},"heureux":{en:"happy (masc.)",icon:"😊",g:"m",pronunciation:"uh-RUH"},"jouer":{en:"to play",icon:"🎮",pronunciation:"zhoo-AY"},"les":{en:"the (plural)",icon:"✨",pronunciation:"lay"},"lire":{en:"to read",icon:"📖",pronunciation:"leer"},"lit":{en:"bed",icon:"🛏️",g:"m",pronunciation:"lee"},"marche":{en:"walk / market",icon:"🚶",g:"f",pronunciation:"marsh"},"merci":{en:"thank you",icon:"🙏",pronunciation:"mehr-SEE"},"monsieur":{en:"mister",icon:"👨",g:"m",pronunciation:"muh-SYUH"},"madame":{en:"madam",icon:"👩",g:"f",pronunciation:"mah-DAM"},"mange":{en:"eat",icon:"🍽️",pronunciation:"mahnzh"},"notre":{en:"our",icon:"👪",pronunciation:"NO-truh"},"nouvelle":{en:"new (fem.)",icon:"🆕",g:"f",pronunciation:"noo-VEL"},"oiseau":{en:"bird",icon:"🐦",g:"m",pronunciation:"wah-ZOH"},"pas":{en:"step / not",icon:"🚫",pronunciation:"pah"},"pour":{en:"for",icon:"🎁",pronunciation:"poor"},"pense":{en:"think",icon:"💭",pronunciation:"pahnss"},"pendant":{en:"during",icon:"⏳",pronunciation:"pahn-DAHN"},"quand":{en:"when",icon:"❓",pronunciation:"kahn"},"regarder":{en:"to watch",icon:"👀",pronunciation:"ruh-gar-DAY"},"semaine":{en:"week",icon:"📅",g:"f",pronunciation:"suh-MEN"},"sous":{en:"under",icon:"⬇️",pronunciation:"soo"},"très":{en:"very",icon:"🔥",pronunciation:"treh"},"trop":{en:"too much",icon:"⚠️",pronunciation:"troh"},"travail":{en:"work",icon:"💼",g:"m",pronunciation:"trah-VAHY"},"trouve":{en:"find",icon:"🔍",pronunciation:"troov"},"voici":{en:"here is",icon:"👇",pronunciation:"vwah-SEE"}
         };
 
         const presets = { 
@@ -1390,7 +1711,30 @@
             food:["Une pomme","Une banane","Du pain","Du lait","Une pizza","Un gâteau","Du fromage","Une orange","De l'eau"], 
             school:["Un livre","Un crayon","Un sac","L'école","Le bureau","Le professeur","Un cahier","Une règle"],
             house:["Une chaise","Une table","Un lit","Une fenêtre","Une porte"],
-            actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"]
+            actions:["Je cours","Je saute","Je chante","Je danse","Je dors","Je mange"],
+
+            alphabet: ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","É","À","È","Ù","Ç"],
+            
+            spellingBee: [
+                "ami", "amie", "aussi", "alors", "aller", "autre", "avoir", "avant", "avec",
+                "bien", "bonne", "bonjour", "beau", "belle", "comme", "comment", "devoirs",
+                "demain", "des", "écoute", "encore", "enfin", "fait", "fais", "fin", "finir",
+                "fête", "garçon", "grand", "grande", "habite", "heureux", "jouer", "les",
+                "lire", "lit", "marche", "merci", "monsieur", "madame", "mange", "notre",
+                "nouvelle", "oiseau", "pas", "pour", "pense", "pendant", "quand", "regarder",
+                "semaine", "sous", "très", "trop", "travail", "trouve", "voici"
+            ]
+        };
+        
+        const FRENCH_LETTER_NAMES = {
+            'A': 'a', 'B': 'bé', 'C': 'cé', 'D': 'dé', 'E': 'e',
+            'F': 'effe', 'G': 'gé', 'H': 'hache', 'I': 'i', 'J': 'ji',
+            'K': 'ka', 'L': 'elle', 'M': 'emme', 'N': 'enne', 'O': 'o',
+            'P': 'pé', 'Q': 'qu', 'R': 'erre', 'S': 'esse', 'T': 'té',
+            'U': 'u', 'V': 'vé', 'W': 'double vé', 'X': 'ixe', 'Y': 'i grec', 'Z': 'zed',
+            'É': 'é', 'À': 'a accent grave', 'È': 'e accent grave', 'Ç': 'c cédille',
+            'Ù': 'u accent grave', 'Û': 'u accent circonflexe', 'Î': 'i accent circonflexe',
+            "'": 'apostrophe', '-': 'trait d’union', 'Œ': 'e dans l\'o'
         };
 
         // ===== APP STATE =====
@@ -1408,11 +1752,15 @@
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
         let currentSetName = localStorage.getItem('currentSetName') || '';
+        let appVersion = "V10.0"; // NEW: Centralized versioning
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
         let victoryTimeouts = [];
         let isNameManuallyEdited = false; // Tracks if the user typed their own name
+        let deferredPrompt; 
+        let currentSpellingState = null;
+        let targetWord = ""; // Global declaration for Hangman and Spelling logic
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -1436,37 +1784,61 @@
         let showFavsOnly = false;
         let homeworkToMove = ""; // Tracks which set we are moving
 
-        // ===== CORE FUNCTIONS =====
+        const FRENCH_QWERTY_LAYOUT = [
+            ["Q","W","E","R","T","Y","U","I","O","P"],
+            ["A","S","D","F","G","H","J","K","L"],
+            ["Z","X","C","V","B","N","M"],
+            ["É","À","È","Ç","Ù","Û","Œ","'"] // Added Œ here
+        ];
+
+        function navJump(targetId) {
+            // 1. Close all main overlays
+            const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay'];
+            overlays.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        
+            // 2. Use our new central reset function
+            resetAllSpellingCards();
+        
+            // 3. Navigate
+            if (!targetId) {
+                renderList(currentScreenList);
+                return;
+            }
+            openOverlay(targetId);
+        }
+        
         function openOverlay(id) { 
             console.log('Opening overlay:', id);
             
-            // 1. PRESERVED: STOP AUTO-PLAY when opening any overlay
-            if (isAutoPlaying) {
-                stopAutoPlay();
+            // 1. Safety: Stop auto-play and pause audio
+            if (isAutoPlaying) stopAutoPlay();
+            document.querySelectorAll('audio').forEach(audio => audio.pause());
+        
+            // 2. Reset all spelling cards before opening a new overlay
+            if (id !== 'gameDrawer') {
+                resetAllSpellingCards();
             }
             
-            // 2. PRESERVED: Pause teacher audio if it's playing
-            const teacherPlayer = document.getElementById('teacherAudioPlayer');
-            if (teacherPlayer && !teacherPlayer.paused) {
-                teacherPlayer.pause();
-            }
+            // 3. SHOW THE OVERLAY
+            const overlay = document.getElementById(id);
+            if (overlay) overlay.style.display = 'block'; 
             
-            // 3. PRESERVED: Pause any other audio elements
-            document.querySelectorAll('audio').forEach(audio => {
-                if (!audio.paused) {
-                    audio.pause();
-                }
-            });
-            
-            // 4. SHOW THE OVERLAY
-            document.getElementById(id).style.display = 'block'; 
-            
-            // 5. SPECIFIC LOGIC FOR EACH DRAWER
+            // 4. SPECIFIC LOGIC FOR EACH DRAWER
             if(id === 'gameDrawer') { 
                 wins = 0;
                 losses = 0;
                 updateScoreUI();
-                // FIX: Added a tiny delay (50ms) so the game starts AFTER the drawer is visible
+        
+                const globalKb = document.getElementById('keyboard');
+                if (globalKb) globalKb.style.display = 'flex'; 
+                
+                // Add buffer so buttons aren't covered by keyboard
+                const drawerContent = document.querySelector('#gameDrawer .overlay-content');
+                if (drawerContent) drawerContent.classList.add('keyboard-buffer');
+                
                 setTimeout(startHangman, 50); 
             } else if (id === 'bpModal') {
                 openBP();
@@ -1499,14 +1871,17 @@
             viewMode = mode;
             localStorage.setItem('viewMode', mode);
             
-            // Update button visuals
+            // 1. Logic: If we are switching views, hide the global keyboard and buffer
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+        
+            // 2. Update button visuals
             document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
             
             const diagBtn = document.getElementById('btnViewDialogue');
             if (diagBtn) {
                 diagBtn.classList.toggle('active', mode === 'dialogue');
-                
-                // FIX: Always check for audio when setting the button label
                 if (currentWeekAudio) {
                     diagBtn.innerHTML = "🎧 Recording";
                 } else {
@@ -1514,10 +1889,7 @@
                 }
             }
             
-            // STOP AUTO-PLAY when switching modes
-            if (isAutoPlaying) {
-                stopAutoPlay();
-            }
+            if (isAutoPlaying) stopAutoPlay();
             
             renderList(currentScreenList);
         }
@@ -1752,6 +2124,15 @@
 function getCardData(p) {
     const normalizedPhrase = norm(p);
 
+    // NEW: Alphabet Bypass for single letters
+    if (p.length === 1) {
+        return {
+            en: "", 
+            icon: "🔤",
+            pronunciation: FRENCH_LETTER_NAMES[p.toUpperCase()] || ""
+        };
+    }
+
     // 1. FIRST: Find the base data from dictionary (if it exists) 
     // We need this for the pronunciation and gender, but we won't return it yet.
     let baseData = MASTER_DATA[p];
@@ -1831,16 +2212,23 @@ function renderList(list) {
     if (!container) return;
     container.innerHTML = '';
     
-    const existingBanner = document.querySelector('.teacher-audio-banner');
-    if (existingBanner) existingBanner.remove();
-
-    // ✅ FIX 1: Auto-play visibility - only in dialogue mode WITHOUT teacher audio
+    // --- 1. Manage Autoplay UI visibility FIRST (Fixes the Alphabet bug) ---
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
         autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
-    // ✅ FIX 2: Dialogue button label - FIXED to always check for audio
+    // --- 2. Alphabet Detection ---
+    const isAlphabet = (list.length >= 26 && list.length <= 31) && list.includes('A') && list.includes('Z');
+    if (isAlphabet && viewMode === 'cards') {
+        renderAlphabetCards(list);
+        return; 
+    }
+
+    const existingBanner = document.querySelector('.teacher-audio-banner');
+    if (existingBanner) existingBanner.remove();
+
+    // --- 3. Dialogue button label logic ---
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -1850,11 +2238,9 @@ function renderList(list) {
         }
     }
     
-    // 1. UPDATE STATUS BAR & BADGES
+    // --- 4. Update Status Bar & Badges ---
     const statusInfo = document.getElementById('stCountText');
     const controlPanel = document.querySelector('.app-control-panel');
-    
-    // Remove existing badges from the control panel to refresh them
     controlPanel.querySelectorAll('.corner-badge').forEach(b => b.remove());
 
     if (statusInfo) {
@@ -1862,16 +2248,15 @@ function renderList(list) {
             statusInfo.textContent = '🇫🇷 Ready to learn!';
         } else {
             statusInfo.innerHTML = currentSetName ? `📚 ${currentSetName}` : `📚 List`;
-            
-            // Inject badges into the Practice Screen header
             if (currentSetName && history[currentSetName]) {
                 controlPanel.insertAdjacentHTML('afterbegin', getCornerBadgesHTML(currentSetName));
             }
         }
     }
+
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
-    // ✅ FIX 3: TEACHER RECORDING MODE - This was accidentally removed!
+    // --- BRANCH A: TEACHER RECORDING MODE ---
     if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
@@ -1891,23 +2276,11 @@ function renderList(list) {
         `;
         container.appendChild(card);
         
-    } else if (viewMode === 'dialogue' && !hasTeacherAudio) {
-        // Regular dialogue/list mode (only when no teacher audio)
-        
-        // Reset loop button when entering dialogue mode
-        if (loopMode) {
-            loopMode = false;
-            const loopBtn = document.getElementById('loopBtn');
-            if (loopBtn) {
-                loopBtn.style.background = '#ff9e6d';
-                loopBtn.style.border = '2px solid transparent';
-            }
-        }
-        
+    } 
+    // --- BRANCH B: DIALOGUE / LIST MODE ---
+    else if (viewMode === 'dialogue' && !hasTeacherAudio) {
         const diagCard = document.createElement('div');
         diagCard.className = 'condensed-card';
-        diagCard.style.display = 'flex';
-        diagCard.style.flexDirection = 'column';
 
         list.forEach((p, index) => {
             const line = document.createElement('div');
@@ -1918,36 +2291,23 @@ function renderList(list) {
             line.textContent = cleanText;
             line.onclick = () => {
                 if (isAutoPlaying) {
-                    // Clear the pending timeout
                     clearTimeout(autoPlayTimeout);
-                    
-                    // Cancel any current speech
                     window.speechSynthesis.cancel();
-                    
-                    // Speak the clicked phrase
                     const utterance = new SpeechSynthesisUtterance(cleanText);
                     utterance.lang = 'fr-FR';
                     utterance.rate = speechSpeed;
-                    
-                    // When done, resume auto-play from current index
-                    utterance.onend = () => {
-                        if (isAutoPlaying) {
-                            playLine(index); // Resume from this same position
-                        }
-                    };
-                    
+                    utterance.onend = () => { if (isAutoPlaying) playLine(index); };
                     window.speechSynthesis.speak(utterance);
                 } else {
                     spk(cleanText, 'fr-FR', true);
                 }
             };
-            
             diagCard.appendChild(line);
         });
         container.appendChild(diagCard);
-        
-    } else {
-        // STANDARD CARDS MODE
+    } 
+    // --- BRANCH C: STANDARD CARDS MODE ---
+    else {
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
@@ -1955,6 +2315,12 @@ function renderList(list) {
             
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+
+            const spellingHTML = `
+                <div class="spelling-zone" style="display:none; padding: 0;">
+                    <div class="spelling-slots"></div>
+                </div>
+            `;
 
             const buttonHTML = `
                 <div class="card-btns">
@@ -1968,6 +2334,7 @@ function renderList(list) {
                 </div>
             `;
 
+            // PRESERVED: Complex Photo logic for orientations
             if (data.isPhoto) {
                 let orientationClass = data.photoOrientation || 'landscape';
                 let inlineStyle = '';
@@ -1983,61 +2350,68 @@ function renderList(list) {
                 }
                 
                 card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
                     ${gIcon}
-                    <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
-                    <span class="french-text">${p}</span>
-                    ${pGuide}
-                    <span class="english-text">${data.en}</span>
+                    <div class="card-main-content">
+                        <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
                     ${buttonHTML}
                 `;
             } else {
                 card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
                     ${gIcon}
-                    <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                    <span class="french-text">${p}</span>
-                    ${pGuide}
-                    <span class="english-text">${data.en}</span>
+                    <div class="card-main-content">
+                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
                     ${buttonHTML}
                 `;
             }
 
-            // A. Handle the French Speech & Snail
+            // Bind interactions
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
-                // ULTRA-SLOW FIX: Changed from 0.1 to 0.05
                 spk(p, 'fr-FR', true, 0.05); 
             };
             
-            // B. Define our targets
             const engTextEl = card.querySelector('.english-text');
             const engBtnEl = card.querySelector('.spk-en');
             
-            // C. The "Fix" logic (extracted for reuse)
+            // PRESERVED: Manual Fix Translation logic
             const triggerFix = (e) => {
                 e.preventDefault();
                 manualFixTranslation(p, data.en);
             };
             
-            // D. English Button: Speech only
-            engBtnEl.onclick = () => spk(data.en, 'en-US', true);
+            engBtnEl.onclick = () => {
+                if (card.classList.contains('spelling-mode')) {
+                    spellCurrentWord();
+                } else {
+                    spk(data.en, 'en-US', true);
+                }
+            };
             
-            // E. English Text: Fix only (Double Click for computer, Double Tap for phone)
             engTextEl.ondblclick = triggerFix;
-            
             let lastTap = 0;
             engTextEl.addEventListener('touchstart', (e) => {
                 const now = Date.now();
-                if (now - lastTap < 300) {
-                    triggerFix(e);
-                }
+                if (now - lastTap < 300) triggerFix(e);
                 lastTap = now;
             });
             
             container.appendChild(card);
-            }); 
+        }); 
     } 
-} 
+}
 
     function shareWeek(weekName, wordsText, audioData = null) {
         const phraseList = wordsText.split('\n').filter(p => p.trim() !== "");
@@ -2785,14 +3159,23 @@ function needsTranslation(words) {
 }
 
 async function translateIfNeeded(words, showProgress = true) {
+    // NEW: Filter the list to ignore single letters (the alphabet)
+    // We only want to auto-translate phrases with 2 or more characters
+    const list = words.split('\n').filter(l => l.trim().length > 1);
+    
+    // If the list is empty (it's just the alphabet), we return immediately
+    if (list.length === 0) return words;
+
     if (!needsTranslation(words)) return words; // Nothing to translate
     
-    const list = words.split('\n').filter(l => l.trim().length > 0);
     let successCount = 0;
     
     if (showProgress) {
         const msgDiv = document.getElementById('hwMessages');
-        msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">📝 Auto-translating... Please wait</div>';
+        // Ensure this div exists before trying to update it
+        if (msgDiv) {
+            msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">📝 Auto-translating... Please wait</div>';
+        }
     }
     
     // Translate each untranslated phrase
@@ -3017,33 +3400,89 @@ async function translateIfNeeded(words, showProgress = true) {
         }
 
         function spk(t, lang, forceInterrupt = false, speedOverride = null) {
-            if (forceInterrupt) {
-                window.speechSynthesis.cancel();
-                setTimeout(() => {
-                    const u = new SpeechSynthesisUtterance(t); 
-                    u.lang = lang; 
-                    u.rate = speedOverride || speechSpeed;
-                    u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
-                    window.speechSynthesis.speak(u);
-                }, 150); 
-            } else {
-                const u = new SpeechSynthesisUtterance(t); 
-                u.lang = lang; 
+            try {
+                if (forceInterrupt) {
+                    window.speechSynthesis.cancel();
+                }
+        
+                let textToSpeak = t;
+                if (lang === 'fr-FR' && t.trim().length === 1) {
+                    const upper = t.trim().toUpperCase();
+                    textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
+                }
+        
+                const u = new SpeechSynthesisUtterance(textToSpeak);
+                u.lang = lang;
                 u.rate = speedOverride || speechSpeed;
                 u.voice = (lang === 'fr-FR') ? selectedFrVoice : cachedEnVoice;
-                window.speechSynthesis.speak(u);
+        
+                setTimeout(() => {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+                    window.speechSynthesis.speak(u);
+                }, 50);
+            } catch (e) {
+                console.error("📢 Speech Synthesis Error:", e);
+                // Fallback: update message so user knows why it's silent
+                const msg = document.getElementById('gameMsg');
+                if (msg) msg.textContent = "🔇 Audio Error";
             }
         }
         
-        function spellWord() {
+         function spellWord() {
+            if (!gameActive || !targetWord) return;
+            
             isSpelling = true; 
             const letters = targetWord.split('');
-            letters.forEach((l, i) => {
-                setTimeout(() => { 
-                    if(gameActive) spk(l, 'fr-FR', true); 
-                    if(i === letters.length - 1) isSpelling = false; 
-                }, i * 1100);
-            });
+            window.speechSynthesis.cancel();
+            
+            // Identify all the boxes in the Hangman display
+            const slots = document.querySelectorAll('#hangmanDisplay .bee-slot');
+        
+            // SURGICAL ENGINE: This function calls itself only when the voice is done
+            function speakNext(index) {
+                // Exit if we finished the word or the user closed the game
+                if (index >= letters.length || !gameActive) {
+                    isSpelling = false;
+                    return;
+                }
+        
+                const upper = letters[index].toUpperCase();
+                const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letters[index];
+        
+                // 1. Visual Highlight ON
+                if (slots[index]) {
+                    slots[index].style.backgroundColor = '#FFD700'; // Your Gold
+                    slots[index].style.transform = 'scale(1.15)';
+                    slots[index].style.zIndex = '10';
+                }
+        
+                // 2. Prepare the Voice
+                const u = new SpeechSynthesisUtterance(nameToSpeak);
+                u.lang = 'fr-FR';
+                u.rate = speechSpeed * 0.85;
+                u.voice = selectedFrVoice;
+        
+                // 3. THE SYNC FIX: Wait for this specific letter to finish
+                u.onend = () => {
+                    // A short 200ms pause for a "natural" gap between letters
+                    setTimeout(() => {
+                        // Visual Highlight OFF
+                        if (slots[index]) {
+                            // Return to your specific green if filled, otherwise white
+                            slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
+                            slots[index].style.transform = '';
+                            slots[index].style.zIndex = '';
+                        }
+                        // MOVE TO NEXT LETTER
+                        speakNext(index + 1);
+                    }, 200);
+                };
+        
+                window.speechSynthesis.speak(u);
+            }
+        
+            // Start the recursive chain at the first letter
+            speakNext(0);
         }
 
         function playVictorySound() {
@@ -3082,24 +3521,39 @@ async function translateIfNeeded(words, showProgress = true) {
         function playDingSound() {
             if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
             if (musicContext.state === 'suspended') musicContext.resume();
-        
+            const now = musicContext.currentTime;
+            const osc = musicContext.createOscillator();
+            const gain = musicContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.connect(gain);
+            gain.connect(musicContext.destination);
+            osc.start();
+            osc.stop(now + 0.2);
+        }
+
+        function playBuzzSound() {
+            if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (musicContext.state === 'suspended') musicContext.resume();
             const now = musicContext.currentTime;
             const osc = musicContext.createOscillator();
             const gain = musicContext.createGain();
         
-            osc.type = 'sine'; // Pure, sweet sound
-            osc.frequency.setValueAtTime(880, now); // High A
-            osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1); // Slide up to high E
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
         
-            gain.gain.setValueAtTime(0, now);
-            gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.3);
         
             osc.connect(gain);
             gain.connect(musicContext.destination);
         
             osc.start();
-            osc.stop(now + 0.5);
+            osc.stop(now + 0.3);
         }
 
         function toggleMusic() {
@@ -3279,14 +3733,20 @@ async function translateOne(p) {
         }
 
         // ===== HANGMAN GAME =====
-        let targetWord = "", guessed = [], mistakes = 0;
         const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
         const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
         function startHangman() {
+            // NEW: Clear balloons from the previous win before starting a new round
+            clearVictoryItems();
+            
+            // 1. Force the game to be active
             gameActive = true; 
             isSpelling = false;
-            document.addEventListener('keydown', handleKeyPress);
+            
+            // 2. Clear the old game state
+            guessed = [];
+            mistakes = 0;
             
             const cleanWord = (w) => w.replace(/[!?.,\-;:'"()]/g, '').trim();
             
@@ -3325,161 +3785,164 @@ async function translateOne(p) {
         }
 
         function celebrate() { 
-            // Clear any previous animations
-            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
-            victoryTimeouts = [];
+            clearVictoryItems(); // Clean old balloons before starting new ones
             
-            for (let i = 0; i < 20; i++) { 
+            for (let i = 0; i < 25; i++) { 
                 const timeout = setTimeout(() => { 
-                    // Don't create if game is no longer active
-                    if (!gameActive && document.getElementById('gameDrawer').style.display !== 'block') {
-                        return;
-                    }
-                    
                     const el = document.createElement('div'); 
                     el.className = 'victory-item'; 
-                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆"][Math.floor(Math.random()*5)]; 
+                    el.textContent = ["🎈", "✨", "🎉", "🌟", "🏆", "🐝"][Math.floor(Math.random()*6)]; 
                     el.style.left = Math.random() * 100 + "vw"; 
                     document.body.appendChild(el); 
                     
-                    const removeTimeout = setTimeout(() => {
-                        if (el.parentNode) el.remove();
-                    }, 3000);
-                    
-                    victoryTimeouts.push(removeTimeout);
-                }, i * 150); 
-                
+                    const removeT = setTimeout(() => { if (el.parentNode) el.remove(); }, 4500);
+                    victoryTimeouts.push(removeT);
+                }, i * 120); 
                 victoryTimeouts.push(timeout);
             } 
+        }
+
+        function clearVictoryItems() {
+            // 1. Stop all pending balloon timers
+            if (window.victoryTimeouts) {
+                victoryTimeouts.forEach(t => clearTimeout(t));
+                victoryTimeouts = [];
+            }
+            // 2. Remove any balloons currently on screen
+            document.querySelectorAll('.victory-item').forEach(el => el.remove());
         }
         
         function updateHangmanUI() {
             const display = document.getElementById('hangmanDisplay');
-            const currentGuess = guessed[guessed.length - 1]; // The letter she just clicked
-            const isCorrect = targetWord.includes(currentGuess);
+            if (!display) return;
             
-            // Clear the display but keep it ready for elements
             display.innerHTML = ''; 
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-box';
         
-            for (let char of targetWord) {
-                const span = document.createElement('span');
-                span.className = 'letter-slot';
+            const isGameOverLoss = (mistakes >= 10);
+            const currentGuess = guessed[guessed.length - 1]; 
+        
+            targetWord.split('').forEach(char => {
+                const slot = document.createElement('div');
+                slot.className = 'bee-slot'; 
                 
                 if (guessed.includes(char)) {
-                    span.textContent = char;
-                    // If this is the letter she JUST clicked, make it spectacular!
-                    if (char === currentGuess && isCorrect) {
-                        span.classList.add('pop-animation');
-                        playDingSound(); // Play the magic chime
+                    // Letter was correctly guessed
+                    slot.textContent = char;
+                    slot.classList.add('filled');
+                    
+                    if (char === currentGuess && !isGameOverLoss) {
+                        slot.classList.add('pop-anim');
+                        if (typeof playDingSound === "function") playDingSound();
                     }
+                } else if (isGameOverLoss) {
+                    // Show the missing letter in red because the game is lost
+                    slot.textContent = char;
+                    slot.classList.add('missed-letter');
+                    slot.classList.add('filled');
                 } else {
-                    span.textContent = '_';
+                    // Letter is still hidden
+                    slot.textContent = ''; 
                 }
-                display.appendChild(span);
-            }
+                wordDiv.appendChild(slot);
+            });
+            
+            display.appendChild(wordDiv);
         
-            // WIN/LOSS Logic
+            // --- WIN/LOSS LOGIC ---
             const isWon = targetWord.split('').every(char => guessed.includes(char));
             
-            if (isWon) {
+            if (isWon && gameActive) {
+                // Stop the game engine
                 gameActive = false; 
+                isSpelling = false; // Stop any ongoing spelling audio
+                
                 wins++; 
                 updateScoreUI(); 
-                celebrate(); 
-                playVictorySound();
+                
+                // --- TRIGGER CELEBRATION ---
+                if (typeof celebrate === "function") {
+                    celebrate(); 
+                }
+                
+                if (typeof playVictorySound === "function") {
+                    playVictorySound();
+                }
+        
                 document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
-                setTimeout(() => spk(targetWord, 'fr-FR'), 800);
-            } else if (mistakes >= 10) {
+                
+                // Pronounce the word in French after a short delay
+                setTimeout(() => spk(targetWord, 'fr-FR', true), 800);
+        
+            } else if (isGameOverLoss) {
                 gameActive = false; 
+                isSpelling = false;
                 losses++; 
                 updateScoreUI();
                 document.getElementById('gameMsg').textContent = "Good try! 👍"; 
                 
-                // Show the missing letters in red
-                display.innerHTML = '';
-                for (let char of targetWord) {
-                    const span = document.createElement('span');
-                    span.className = 'letter-slot';
-                    span.textContent = char;
-                    if (!guessed.includes(char)) span.style.color = '#ff6b8b';
-                    display.appendChild(span);
-                }
-                spk("Oups! " + targetWord, 'fr-FR', true);
+                // Pronounce the word they missed so they learn it
+                setTimeout(() => spk(targetWord, 'fr-FR', true), 500);
             }
         }
 
         function renderKeyboard() { 
             const kb = document.getElementById('keyboard'); 
             kb.innerHTML = ''; 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(l => { 
-                const k = document.createElement('div'); 
-                k.className = 'key' + (guessed.includes(l) ? ' used' : ''); 
-                k.textContent = l; 
-                k.setAttribute('data-letter', l);
-                
-                k.onclick = () => { 
-                    if (!gameActive || guessed.includes(l)) return; 
-                    
-                    // Add animation class for visual feedback
-                    k.classList.add('key-animate');
-                    
-                    guessed.push(l); 
-                    
-                    if (targetWord.includes(l)) { 
-                        spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true); 
-                    } else { 
-                        mistakes++; 
-                        drawHangman(mistakes); 
-                        spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true); 
-                    } 
-                    
-                    // Wait for animation to complete before updating UI
-                    setTimeout(() => {
-                        updateHangmanUI();
-                        renderKeyboard();
-                    }, 250); // Match animation duration
-                }; 
-                kb.appendChild(k); 
-            }); 
+            
+            FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
+                row.forEach(l => {
+                    const k = document.createElement('div'); 
+                    // PRESERVED: Keeping your .used logic for Hangman
+                    k.className = 'k-key' + (guessed.includes(l) ? ' used' : ''); 
+                    k.textContent = l; 
+                    k.setAttribute('data-key', l);
+                    k.onclick = () => handleHangmanInput(l); 
+                    rowDiv.appendChild(k);
+                });
+                kb.appendChild(rowDiv);
+            });
         }
 
-        // Handle physical keyboard input
+        // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
         function handleKeyPress(e) {
-            if (!gameActive) return;
+            let key = e.key.toUpperCase();
             
-            const key = e.key.toUpperCase();
+            // Support standard A-Z, space, and common French accents
+            const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛŒ' ".split('');
             
-            // Only process A-Z letters
-            if (!/^[A-Z]$/.test(key)) return;
-            
-            // Find the corresponding on-screen key
-            const keyElement = document.querySelector(`.key[data-letter="${key}"]`);
-            if (!keyElement) return;
-            
-            // Prevent default browser behavior (like typing in search bars)
-            e.preventDefault();
-            
-            // If letter already used, ignore
-            if (guessed.includes(key)) return;
-            
-            // Add animation class for visual feedback
-            keyElement.classList.add('key-animate');
-            
-            // Process the guess
-            guessed.push(key);
-            if (targetWord.includes(key)) {
-                spk(goodRes[Math.floor(Math.random()*goodRes.length)], 'fr-FR', true);
-            } else {
-                mistakes++;
-                drawHangman(mistakes);
-                spk(badRes[Math.floor(Math.random()*badRes.length)], 'fr-FR', true);
+            // SURGICAL TWEAK: Ligature support for laptop keyboards
+            if (key === 'O' || key === 'E') {
+                // We look at the global targetWord or the current spelling word
+                let activeWord = gameActive ? targetWord : (currentSpellingState ? currentSpellingState.words[currentSpellingState.currentWordIndex] : "");
+                let activeIndex = gameActive ? (guessed.length > 0 ? 0 : 0) : (currentSpellingState ? currentSpellingState.currentLetterIndex : 0);
+                
+                // If the game specifically needs 'Œ', treat 'O' or 'E' as a match
+                if (activeWord[activeIndex]?.toUpperCase() === 'Œ') key = 'Œ';
             }
-            
-            // Wait for animation to complete before updating UI
-            setTimeout(() => {
-                updateHangmanUI();
-                renderKeyboard();
-            }, 250); // Match animation duration
+        
+            if (!validKeys.includes(key)) return;
+        
+            if (gameActive) {
+                // Visual feedback for Hangman keys
+                const keyElem = document.querySelector(`#keyboard .k-key[data-key="${key}"]`);
+                if (keyElem) {
+                    keyElem.classList.add('key-pressed');
+                    setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+                }
+                handleHangmanInput(key);
+            } else if (currentSpellingState && !currentSpellingState.isWordVictory) {
+                // Visual feedback for Spelling Bee keys
+                const keyElem = document.querySelector(`#keyboard .k-key[data-key="${key}"]`);
+                if (keyElem) {
+                    keyElem.classList.add('key-pressed');
+                    setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+                }
+                handleSpellingInput(key);
+            }
         }
 
         function updateScoreUI() { 
@@ -3493,11 +3956,7 @@ async function translateOne(p) {
             gameActive = false; 
             
             // Clear any victory animations
-            victoryTimeouts.forEach(timeout => clearTimeout(timeout));
-            victoryTimeouts = [];
-            
-            // Remove any leftover victory elements from DOM
-            document.querySelectorAll('.victory-item').forEach(el => el.remove());
+            clearVictoryItems();
             
             if (musicNode) { 
                 musicNode.stop(); 
@@ -3505,8 +3964,13 @@ async function translateOne(p) {
                 document.getElementById('musicToggleBtn').textContent = "🎵 Music: Off"; 
             } 
             
-            // Remove keyboard listener
-            document.removeEventListener('keydown', handleKeyPress);
+            // Hide the Global Keyboard
+            const globalKb = document.getElementById('keyboard');
+            if (globalKb) globalKb.style.display = 'none';
+        
+            // Remove the scroll buffer from the drawer
+            const drawerContent = document.querySelector('#gameDrawer .overlay-content');
+            if (drawerContent) drawerContent.classList.remove('keyboard-buffer');
             
             closeOverlay('gameDrawer'); 
         }
@@ -3529,7 +3993,32 @@ async function translateOne(p) {
             if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
         }
 
-
+        function handleHangmanInput(l) {
+            if (!gameActive || guessed.includes(l)) return; 
+        
+            // 1. Visual feedback for Global Keyboard
+            const keyElem = document.querySelector(`#keyboard .k-key[data-key="${l}"]`);
+            if (keyElem) {
+                keyElem.classList.add('key-pressed');
+                setTimeout(() => keyElem.classList.remove('key-pressed'), 150);
+            }
+        
+            guessed.push(l); 
+            
+            if (targetWord.includes(l)) { 
+                // CORRECT: Instant Chime
+                playDingSound(); 
+            } else { 
+                // INCORRECT: Instant Buzz
+                mistakes++; 
+                drawHangman(mistakes); 
+                playBuzzSound();
+            } 
+            
+            updateHangmanUI();
+            renderKeyboard();
+        }
+                
         async function saveHW() {
             let name = document.getElementById('hwNameInput').value.trim();
             const words = document.getElementById('hwInput').value.trim();
@@ -3963,7 +4452,42 @@ async function translateOne(p) {
             });
         }
 
-       
+        function renderAlphabetCards(alphabetList) {
+            const container = document.getElementById('phrasesList');
+            container.innerHTML = '';
+            
+            const statusInfo = document.getElementById('stCountText');
+            if (statusInfo) {
+                statusInfo.innerHTML = '🔤 French Alphabet & Accents';
+            }
+            
+            alphabetList.forEach(letter => {
+                const pronunciation = FRENCH_LETTER_NAMES[letter] || "";
+                
+                const card = document.createElement('div');
+                card.className = 'phrase-card';
+                card.style.borderColor = '#4cd964';
+                card.style.background = 'linear-gradient(145deg, #ffffff, #f0fff4)';
+                // Added padding-top since we removed the icon
+                card.style.paddingTop = '40px'; 
+                
+                card.innerHTML = `
+                    <!-- Icon Removed for cleaner look -->
+                    <span class="french-text" style="font-size: 6rem; line-height: 1; color: #2d3748; display: block;">${letter}</span>
+                    <span class="pronunciation-text" style="font-size: 1.6rem; color: #4a5568; margin: 20px 0; display: block;">[ ${pronunciation} ]</span>
+                    
+                    <div class="card-btns" style="margin-top: 20px;">
+                        <button class="card-btn spk-fr" style="background: #4cd964; font-size: 1.3rem; grid-column: span 2; height: 60px;">
+                            🎤 Listen to Name
+                        </button>
+                    </div>
+                `;
+                
+                card.querySelector('.spk-fr').onclick = () => spk(letter, 'fr-FR', true);
+                container.appendChild(card);
+            });
+        }
+        
         function manualFixTranslation(p, currentEn) {
             openAppModal({
                 title: `🔧 Fix Translation: ${p}`,
@@ -3979,6 +4503,88 @@ async function translateOne(p) {
             });
         }
 
+        function startAutoPlay() {
+            isAutoPlaying = true;
+            document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
+            
+            if (currentScreenList && currentScreenList.length > 10) {
+                const floatBtn = document.getElementById('floatingStopBtn');
+                if (floatBtn) floatBtn.style.display = 'flex';
+            }
+            
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+            
+            playLine(0);
+        }
+        
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            if (autoPlayTimeout) {
+                clearTimeout(autoPlayTimeout);
+                autoPlayTimeout = null;
+            }
+            
+            const playBtn = document.getElementById('playAllBtn');
+            if (playBtn) playBtn.innerHTML = "▶️ Play All";
+            
+            // Always attempt to hide the floating button when stopping
+            const floatBtn = document.getElementById('floatingStopBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+            
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            window.speechSynthesis.cancel();
+        }
+        
+        function playLine(index) {
+            if (!isAutoPlaying) return;
+            
+            // Check if we reached the end of the list
+            if (index >= currentScreenList.length) {
+                if (loopMode) {
+                    playLine(0);
+                } else {
+                    stopAutoPlay();
+                }
+                return;
+            }
+            
+            const text = currentScreenList[index].split('|')[0].trim();
+            const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
+            
+            // 1. Highlight the current line
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            const currentEl = document.getElementById(`line-${index}`);
+            
+            if (currentEl) {
+                currentEl.classList.add('playing-now');
+                
+                // --- RESTORED: Simple Centering ---
+                // This makes the word jump to the middle of the screen smoothly.
+                currentEl.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }
+            
+            // 2. Pronunciation logic
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'fr-FR';
+            utterance.rate = speechSpeed;
+            
+            utterance.onend = () => {
+                if (isAutoPlaying) {
+                    autoPlayTimeout = setTimeout(() => {
+                        playLine(index + 1);
+                    }, userGap);
+                }
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
         function toggleAutoPlay() {
             const btn = document.getElementById('playAllBtn');
             if (isAutoPlaying) {
@@ -3988,26 +4594,6 @@ async function translateOne(p) {
                 // START logic
                 startAutoPlay();
             }
-        }
-        
-        function stopAutoPlay() {
-            isAutoPlaying = false;
-            clearTimeout(autoPlayTimeout);
-            document.getElementById('playAllBtn').innerHTML = "▶️ Play All";
-            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-            window.speechSynthesis.cancel();
-            // Removed all loop counter references
-        }
-        
-        function startAutoPlay() {
-            isAutoPlaying = true;
-            document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
-            
-            // Wake up speech engine
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
-            
-            playLine(0);
         }
 
         function toggleLoop() {
@@ -4022,50 +4608,7 @@ async function translateOne(p) {
                 loopBtn.style.border = '2px solid transparent'; // Keeps height consistent
             }
         }
-        
-        function playLine(index) {
-            if (!isAutoPlaying) return;
-            
-            if (index >= currentScreenList.length) {
-                if (loopMode) {
-                    playLine(0);
-                } else {
-                    stopAutoPlay();
-                }
-                return;
-            }
-            
-            const text = currentScreenList[index].split('|')[0].trim();
-            const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
-            
-            // Highlight current line
-            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-            const currentEl = document.getElementById(`line-${index}`);
-            if (currentEl) {
-                currentEl.classList.add('playing-now');
-                currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            
-            // Cancel any ongoing speech
-            window.speechSynthesis.cancel();
-            
-            // Create and speak the utterance
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'fr-FR';
-            utterance.rate = speechSpeed;
-            
-            // When speech ends, wait for the gap then play next
-            utterance.onend = () => {
-                if (isAutoPlaying) {
-                    autoPlayTimeout = setTimeout(() => {
-                        playLine(index + 1);
-                    }, userGap);
-                }
-            };
-            
-            window.speechSynthesis.speak(utterance);
-        }
-        
+               
         function openPrintSelection(words, homeworkName) {
             tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
             if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
@@ -4166,6 +4709,7 @@ async function translateOne(p) {
         }
         
         function openAppModal(config) {
+            resetAllSpellingCards();
             const titleEl = document.getElementById('appModalTitle');
             const statsEl = document.getElementById('appModalStats');
             const input = document.getElementById('appModalInput');
@@ -4414,7 +4958,7 @@ async function translateOne(p) {
         function shareApp() { 
             if (navigator.share) { 
                 navigator.share({ 
-                    title: 'French Fun V8.1', 
+                    title: 'French Fun V10.0', 
                     text: 'Check out this fun French learning app for kids!',
                     url: window.location.href 
                 }).catch(() => {}); 
@@ -4429,14 +4973,401 @@ async function translateOne(p) {
                 deferredPrompt = null; 
             }
         }
-
-        let deferredPrompt; 
-        window.addEventListener('beforeinstallprompt', (e) => { 
-            e.preventDefault(); 
-            deferredPrompt = e; 
-            document.getElementById('installBtn').style.display = 'block'; 
+    
+    function toggleSpellingMode(btn, fullPhrase) {
+        const card = btn.closest('.phrase-card');
+        const spellingZone = card.querySelector('.spelling-zone');
+        const enBtn = card.querySelector('.spk-en');
+        const globalKb = document.getElementById('keyboard'); 
+        
+        // 1. CLEANUP: Shut down any OTHER active spelling card
+        document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
+            if (otherCard !== card) {
+                otherCard.classList.remove('spelling-mode');
+                otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                    el.style.display = 'block';
+                });
+                const otherZone = otherCard.querySelector('.spelling-zone');
+                if (otherZone) otherZone.style.display = 'none';
+                
+                // Restore English label and logic on other cards
+                const otherEnBtn = otherCard.querySelector('.spk-en');
+                if (otherEnBtn) {
+                    otherEnBtn.innerHTML = '<span>English</span>';
+                    const otherEnText = otherCard.querySelector('.english-text').textContent;
+                    otherEnBtn.onclick = () => spk(otherEnText, 'en-US', true);
+                }
+            }
         });
+    
+        if (card.classList.contains('spelling-mode')) {
+            // --- EXIT SPELLING MODE ---
+            card.classList.remove('spelling-mode');
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                el.style.display = 'block';
+            });
+            spellingZone.style.display = 'none';
+            
+            // Restore standard label and logic
+            const enText = card.querySelector('.english-text').textContent;
+            enBtn.innerHTML = '<span>English</span>';
+            enBtn.onclick = () => spk(enText, 'en-US', true);
+            
+            if (globalKb) globalKb.style.display = 'none';
+            document.body.classList.remove('keyboard-buffer');
+            currentSpellingState = null;
+            window.speechSynthesis.cancel();
+        } else {
+            // --- ENTER SPELLING MODE ---
+            card.classList.add('spelling-mode');
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                el.style.display = 'none';
+            });
+            spellingZone.style.display = 'block';
+            
+            // SETUP: Text-only "Spell" button to keep it single-line
+            enBtn.innerHTML = '<span>Spell</span>';
+            enBtn.onclick = (e) => {
+                e.stopPropagation();
+                spellCurrentWord(); 
+            };
+    
+            if (globalKb) {
+                globalKb.style.display = 'flex';
+                renderMiniKeyboard(); 
+            }
+    
+            document.body.classList.add('keyboard-buffer');
+            startNewSpellingGame(card, fullPhrase);
+    
+            setTimeout(() => {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }
+    
+    function startNewSpellingGame(card, phrase) {
+        const cleanPhrase = phrase.split('|')[0].trim();
+        const words = cleanPhrase.split(/\s+/);
+        
+        currentSpellingState = {
+            card: card,
+            phrase: cleanPhrase,
+            words: words,
+            currentWordIndex: 0,
+            currentLetterIndex: 0,
+            isWordVictory: false // NEW: Track the transition state
+        };
+    
+        renderSpellingSlots();
+        renderMiniKeyboard();
+        
+        setTimeout(() => {
+            spk(words[0], 'fr-FR');
+        }, 500);
+    }
+    
+function renderSpellingSlots() {
+    if (!currentSpellingState) return;
+    const container = currentSpellingState.card.querySelector('.spelling-slots');
+    container.innerHTML = '';
 
+    currentSpellingState.words.forEach((word, wIdx) => {
+        const wordDiv = document.createElement('div');
+        wordDiv.className = 'word-box'; // CSS handles the horizontal row
+        
+        // --- CASES 1, 2, and 4: Text-based words (Past, Victory, Future) ---
+        if (wIdx < currentSpellingState.currentWordIndex || 
+            (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) ||
+            wIdx > currentSpellingState.currentWordIndex) {
+            
+            const wordSpan = document.createElement('span');
+            wordSpan.textContent = word;
+            
+            // Fixed height and inline-block prevent the card from jumping
+            wordSpan.style.fontSize = "1.8rem";
+            wordSpan.style.fontWeight = "900";
+            wordSpan.style.lineHeight = "38px"; 
+            wordSpan.style.display = "inline-block";
+            wordSpan.style.transition = "all 0.3s";
+
+            if (wIdx < currentSpellingState.currentWordIndex) {
+                wordSpan.style.color = "#4cd964"; // Completed words
+            } 
+            else if (wIdx === currentSpellingState.currentWordIndex && currentSpellingState.isWordVictory) {
+                wordSpan.className = "word-victory-anim"; // The Pop animation
+            } 
+            else {
+                wordSpan.style.opacity = "0.3"; // Future words
+                wordSpan.style.color = "#2d3748";
+            }
+            wordDiv.appendChild(wordSpan);
+        } 
+        // --- CASE 3: The Target word currently being spelled (The 3D Boxes) ---
+        else if (wIdx === currentSpellingState.currentWordIndex) {
+            wordDiv.className = 'word-box current-word'; // Adds the pulsing effect
+            
+            const letters = word.split('');
+            letters.forEach((char, lIdx) => {
+                const slot = document.createElement('div');
+                slot.className = 'bee-slot';
+                
+                const isPunctuation = /[.,!?;:''’\-]/.test(char);
+
+                // Show the character if it's already typed OR if it's punctuation
+                if (lIdx < currentSpellingState.currentLetterIndex || isPunctuation) {
+                    slot.textContent = char;
+                    slot.classList.add('filled');
+                    
+                    if (isPunctuation) {
+                        slot.style.border = 'none';
+                        slot.style.background = 'transparent';
+                        // NEW: Force punctuation to be narrow to save horizontal space
+                        slot.style.width = '12px'; 
+                        slot.style.boxShadow = 'none';
+                    }
+                } else {
+                    slot.textContent = ''; // Blank box
+                }
+                wordDiv.appendChild(slot);
+            });
+        }
+
+        container.appendChild(wordDiv);
+    });
+}
+
+function resetAllSpellingCards() {
+    // 1. Find all cards and restore their normal look
+    document.querySelectorAll('.phrase-card.spelling-mode').forEach(card => {
+        card.classList.remove('spelling-mode');
+        // Show text elements
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'block';
+        });
+        // Hide spelling area
+        const zone = card.querySelector('.spelling-zone');
+        if (zone) zone.style.display = 'none';
+        // Reset button label
+        const enBtn = card.querySelector('.spk-en');
+        if (enBtn) {
+            enBtn.innerHTML = '<span>English</span>';
+            // Restore English speech logic
+            const enText = card.querySelector('.english-text').textContent;
+            enBtn.onclick = () => spk(enText, 'en-US', true);
+        }
+    });
+
+    // 2. Hide Global Keyboard and Buffer
+    const globalKb = document.getElementById('keyboard');
+    if (globalKb) globalKb.style.display = 'none';
+    document.body.classList.remove('keyboard-buffer');
+
+    // 3. Clear logic state
+    currentSpellingState = null;
+}
+        
+function renderMiniKeyboard() {
+    if (!currentSpellingState) return;
+    
+    // FIX: Target the Global Container at the bottom of the page
+    const kbContainer = document.getElementById('keyboard');
+    if (!kbContainer) return;
+
+    kbContainer.innerHTML = '';
+    // Ensure it has the correct classes for your 3D styling
+    kbContainer.className = "unified-keyboard";
+    
+    FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
+        row.forEach(key => {
+            const k = document.createElement('div');
+            k.className = 'k-key';
+            k.textContent = key;
+            k.setAttribute('data-key', key);
+            // NEW: Accessibility
+            k.setAttribute('role', 'button');
+            k.setAttribute('aria-label', 'Key ' + key);
+            k.onclick = (e) => { 
+                e.stopPropagation(); 
+                if (gameActive) handleHangmanInput(key);
+                else handleSpellingInput(key); 
+            };
+            rowDiv.appendChild(k);
+        });
+        kbContainer.appendChild(rowDiv);
+    });
+}
+            
+function handleSpellingInput(inputLetter) {
+    // 1. Guard: Prevent input if no game is active or during the "Word Victory" celebration
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    let targetWord = currentSpellingState.words[currentSpellingState.currentWordIndex];
+    
+    // 2. Initial Skip Logic: If the current position is punctuation, skip it automatically.
+    // This handles cases where a word might start with punctuation.
+    while (currentSpellingState.currentLetterIndex < targetWord.length && 
+           /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
+        currentSpellingState.currentLetterIndex++;
+    }
+
+    // 3. Identify the letter she is supposed to type
+    let targetLetter = targetWord[currentSpellingState.currentLetterIndex]?.toUpperCase();
+    
+    // 4. Special Match Check: 
+    // - Check for direct match (e.g. A matches A)
+    // - Check for Ligature match (If box wants 'Œ', accept 'O' or 'E' from a laptop keyboard)
+    let isMatch = (inputLetter === targetLetter);
+    if (!isMatch && targetLetter === 'Œ' && (inputLetter === 'O' || inputLetter === 'E')) {
+        isMatch = true;
+    }
+
+    if (isMatch) {
+        // --- CORRECT LETTER ---
+        currentSpellingState.currentLetterIndex++;
+        if (typeof playDingSound === "function") playDingSound();
+        
+        // 5. Look-ahead Skip: If the letter typed is followed by punctuation (like an apostrophe),
+        // skip those symbols immediately so the next box is ready for her.
+        while (currentSpellingState.currentLetterIndex < targetWord.length && 
+               /[.,!?;:''’\-\(\)«»]/.test(targetWord[currentSpellingState.currentLetterIndex])) {
+            currentSpellingState.currentLetterIndex++;
+        }
+
+        // 6. Check if the current word is finished
+        if (currentSpellingState.currentLetterIndex >= targetWord.length) {
+            // Trigger the "Word Victory" state
+            currentSpellingState.isWordVictory = true; 
+            renderSpellingSlots(); // This draws the finished word in green with the Pop animation
+            
+            // Wait logic: shorter for the very last word, longer for middle words to let her see them
+            const isLastWord = currentSpellingState.currentWordIndex >= currentSpellingState.words.length - 1;
+            const waitTime = isLastWord ? 1000 : 2500; 
+
+            setTimeout(() => {
+                // Reset victory state and move to the next word
+                currentSpellingState.isWordVictory = false;
+                currentSpellingState.currentWordIndex++;
+                currentSpellingState.currentLetterIndex = 0;
+                
+                if (currentSpellingState.currentWordIndex >= currentSpellingState.words.length) {
+                    // --- FULL PHRASE SUCCESS ---
+                    if (typeof celebrate === "function") celebrate();
+                    if (typeof playVictorySound === "function") playVictorySound();
+                    
+                    // Pronounce the full phrase one last time
+                    setTimeout(() => spk(currentSpellingState.phrase, 'fr-FR', true), 600);
+
+                    // Auto-close Spelling Bee mode after 4 seconds
+                    setTimeout(() => {
+                        const beeBtn = currentSpellingState.card.querySelector('.bee-badge');
+                        if (beeBtn) toggleSpellingMode(beeBtn, currentSpellingState.phrase);
+                    }, 4000);
+                } else {
+                    // --- PREPARE NEXT WORD ---
+                    renderSpellingSlots();
+                    // Say the next word out loud to guide her
+                    setTimeout(() => {
+                        spk(currentSpellingState.words[currentSpellingState.currentWordIndex], 'fr-FR', true);
+                    }, 400);
+                }
+            }, waitTime);
+        } else {
+            // Word not finished, just update the boxes to show the letter typed
+            renderSpellingSlots();
+        }
+    } else {
+        // --- WRONG LETTER ---
+        const card = currentSpellingState.card;
+        // Instant Buzz sound
+        if (typeof playBuzzSound === "function") playBuzzSound(); 
+        
+        // Visual feedback: Shake the card
+        card.style.animation = 'shake 0.3s';
+        setTimeout(() => card.style.animation = '', 300);
+    }
+}
+        
+function spellCurrentWord() {
+    // 1. Guard: Don't spell if we are in a victory transition
+    if (!currentSpellingState || currentSpellingState.isWordVictory) return;
+
+    const word = currentSpellingState.words[currentSpellingState.currentWordIndex];
+    const letters = word.split('');
+    
+    // 2. Full Stop for existing speech
+    window.speechSynthesis.cancel();
+
+    const currentWordBox = currentSpellingState.card.querySelector('.word-box.current-word');
+    const slots = currentWordBox ? currentWordBox.querySelectorAll('.bee-slot') : [];
+
+    function speakNextLetter(index) {
+        // Exit check
+        if (index >= letters.length || !currentSpellingState) return;
+
+        const letter = letters[index];
+        const upper = letter.toUpperCase();
+        
+        // Punctuation/Symbols: Show instantly and move to next index immediately
+        const isAutoFill = /[.,!?;:''’\-\(\)«»]/.test(letter);
+        if (isAutoFill) {
+            if (slots[index]) {
+                slots[index].textContent = letter;
+                slots[index].style.border = 'none';
+                slots[index].style.background = 'transparent';
+            }
+            speakNextLetter(index + 1);
+            return;
+        }
+
+        // Prepare the letter name
+        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+        const u = new SpeechSynthesisUtterance(nameToSpeak);
+        u.lang = 'fr-FR';
+        u.rate = speechSpeed * 0.8; 
+        u.voice = selectedFrVoice;
+
+        // 3. Visual Highlight ON
+        if (slots[index]) {
+            slots[index].style.backgroundColor = '#FFD700'; // Gold
+            slots[index].style.transform = 'scale(1.15)';
+            slots[index].style.zIndex = '10';
+        }
+
+        // 4. THE FIX: Explicitly handle the transition to the next letter
+        u.onend = () => {
+            // Short delay (300ms) to ensure the engine is ready for the next letter
+            setTimeout(() => {
+                // Visual Highlight OFF
+                if (slots[index]) {
+                    // Restore background: green if already correctly typed, white otherwise
+                    slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
+                    slots[index].style.transform = '';
+                    slots[index].style.zIndex = '';
+                }
+                
+                // CRUCIAL: Check again if we are still in the same game state before continuing
+                if (currentSpellingState) {
+                    speakNextLetter(index + 1);
+                }
+            }, 300); // Increased from 200ms to 300ms for better "œ" to "u" transition
+        };
+
+        // Safety: If for some reason onend fails (browser bug), move on after 3 seconds
+        const backupTimer = setTimeout(() => {
+            u.onend();
+        }, 3000);
+
+        u.onstart = () => clearTimeout(backupTimer);
+
+        window.speechSynthesis.speak(u);
+    }
+
+    speakNextLetter(0);
+}
+     
 window.onload = () => {
     console.log('App loading...');
 
@@ -4573,9 +5504,37 @@ window.onload = () => {
     }, 100);
     
 };
-    </script>
-   <!-- This ensures the browser loads the KG font from your GitHub root immediately -->
-    <div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
-    <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
+
+// --- GLOBAL EVENT LISTENERS ---
+
+// Laptop Keyboard Support
+document.addEventListener('keydown', handleKeyPress);
+
+// iOS Speech Unlock
+document.addEventListener('touchstart', function wakeSpeech() {
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
+}, { once: true });
+
+// PWA Install
+window.addEventListener('beforeinstallprompt', (e) => { 
+    e.preventDefault(); 
+    deferredPrompt = e; 
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'block'; 
+});
+        
+</script>
+            
+<!-- This ensures the browser loads the KG font from your GitHub root immediately -->
+<div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
+<div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
+
+<!-- Floating Stop Button for Auto-Play -->
+<div id="floatingStopBtn" class="floating-stop-btn" onclick="stopAutoPlay()">⏹️</div>
+
+<!-- THE GLOBAL KEYBOARD CONTAINER -->
+<div id="keyboard" class="unified-keyboard"></div>
+
 </body>
 </html>
