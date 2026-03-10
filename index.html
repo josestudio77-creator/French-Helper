@@ -508,6 +508,43 @@
         font-weight: 700;
     }
 
+           /* --- AUTOPLAY SAFETY FEATURES --- */
+    
+    /* 1. Floating Stop Button: Only appears during Auto-Play */
+    .floating-stop-btn {
+        position: fixed;
+        bottom: 100px; /* Above the bottom nav bar */
+        right: 20px;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        background: #ff6b8b; /* Matches your header pink */
+        color: white;
+        border: 4px solid white;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        font-size: 2.2rem;
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 8600; /* Above the Sticky Panel but below Keyboard */
+        transition: transform 0.2s;
+        animation: pulseStop 2s infinite;
+    }
+    
+    .floating-stop-btn:active { transform: scale(1.2); }
+    
+    @keyframes pulseStop {
+        0% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        50% { transform: scale(1.1); box-shadow: 0 8px 25px rgba(255, 107, 139, 0.5); }
+        100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    }
+    
+    /* 2. List Cushion: Ensures the very last words can reach the center of the screen */
+    .condensed-card {
+        padding-bottom: 350px !important; 
+    }
+
        /* Condensed & Dialogue Mode Styles - CLEANED UP */
     .condensed-card {
         background: white;
@@ -4484,53 +4521,37 @@ async function translateOne(p) {
             });
         }
 
-        function toggleAutoPlay() {
-            const btn = document.getElementById('playAllBtn');
-            if (isAutoPlaying) {
-                // STOP logic
-                stopAutoPlay();
-            } else {
-                // START logic
-                startAutoPlay();
-            }
-        }
-        
-        function stopAutoPlay() {
-            isAutoPlaying = false;
-            // Clear the timer so it doesn't fire one last time
-            if (autoPlayTimeout) {
-                clearTimeout(autoPlayTimeout);
-                autoPlayTimeout = null;
-            }
-            const playBtn = document.getElementById('playAllBtn');
-            if (playBtn) playBtn.innerHTML = "▶️ Play All";
-            
-            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-            window.speechSynthesis.cancel();
-        }
-        
         function startAutoPlay() {
             isAutoPlaying = true;
             document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
             
-            // Wake up speech engine
+            // Show the floating safety button
+            const floatBtn = document.getElementById('floatingStopBtn');
+            if (floatBtn) floatBtn.style.display = 'flex';
+            
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
             
             playLine(0);
         }
-
-        function toggleLoop() {
-            loopMode = !loopMode;
-            const loopBtn = document.getElementById('loopBtn');
-            
-            if (loopMode) {
-                loopBtn.style.background = '#4cd964';
-                loopBtn.style.border = '2px solid #2ea44e';
-            } else {
-                loopBtn.style.background = '#ff9e6d';
-                loopBtn.style.border = '2px solid transparent'; // Keeps height consistent
+        
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            if (autoPlayTimeout) {
+                clearTimeout(autoPlayTimeout);
+                autoPlayTimeout = null;
             }
+            
+            // Reset buttons
+            const playBtn = document.getElementById('playAllBtn');
+            if (playBtn) playBtn.innerHTML = "▶️ Play All";
+            
+            // Hide the floating safety button
+            const floatBtn = document.getElementById('floatingStopBtn');
+            if (floatBtn) floatBtn.style.display = 'none';
+            
+            document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
+            window.speechSynthesis.cancel();
         }
         
         function playLine(index) {
@@ -4548,17 +4569,33 @@ async function translateOne(p) {
             const text = currentScreenList[index].split('|')[0].trim();
             const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
             
-            // Highlight current line
             document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
             const currentEl = document.getElementById(`line-${index}`);
             
             if (currentEl) {
                 currentEl.classList.add('playing-now');
                 
-                // --- SURGICAL FIX: Nearest Alignment ---
-                // Combined with the 'scroll-margin' CSS above, 'nearest' will now 
-                // keep the word perfectly between the Header and the Bottom Nav.
-                currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                // --- THE SURGICAL MATH FIX ---
+                // 1. Get the height of your fixed bars
+                const headerPanel = document.querySelector('.app-control-panel');
+                const headerHeight = headerPanel ? headerPanel.offsetHeight + 20 : 180;
+                const navHeight = 100; // Bottom nav height + some padding
+                
+                // 2. Calculate the "Center" of the safe area
+                const windowHeight = window.innerHeight;
+                const safeAreaHeight = windowHeight - headerHeight - navHeight;
+                
+                // 3. Find exactly where the phrase is
+                const elementRect = currentEl.getBoundingClientRect();
+                const elementTopRelative = elementRect.top + window.scrollY;
+                
+                // 4. Target position: Centers the phrase in the "Safe Zone"
+                const targetScroll = elementTopRelative - headerHeight - (safeAreaHeight / 2) + (elementRect.height / 2);
+                
+                window.scrollTo({
+                    top: targetScroll,
+                    behavior: 'smooth'
+                });
             }
             
             window.speechSynthesis.cancel();
@@ -4577,7 +4614,31 @@ async function translateOne(p) {
             
             window.speechSynthesis.speak(utterance);
         }
-        
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('playAllBtn');
+            if (isAutoPlaying) {
+                // STOP logic
+                stopAutoPlay();
+            } else {
+                // START logic
+                startAutoPlay();
+            }
+        }
+
+        function toggleLoop() {
+            loopMode = !loopMode;
+            const loopBtn = document.getElementById('loopBtn');
+            
+            if (loopMode) {
+                loopBtn.style.background = '#4cd964';
+                loopBtn.style.border = '2px solid #2ea44e';
+            } else {
+                loopBtn.style.background = '#ff9e6d';
+                loopBtn.style.border = '2px solid transparent'; // Keeps height consistent
+            }
+        }
+               
         function openPrintSelection(words, homeworkName) {
             tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
             if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
@@ -5499,11 +5560,15 @@ window.addEventListener('beforeinstallprompt', (e) => {
 <div style="font-family: 'KG Primary Penmanship Alt'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load KG Root</div>
 <div style="font-family: 'Playwrite US Trad'; opacity: 0; position: fixed; bottom: 0; pointer-events: none;">Force load Cursive</div>
 
+<!-- Floating Stop Button for Auto-Play -->
+<div id="floatingStopBtn" class="floating-stop-btn" onclick="stopAutoPlay()">⏹️</div>
+
 <!-- THE GLOBAL KEYBOARD CONTAINER -->
 <div id="keyboard" class="unified-keyboard"></div>
 
 </body>
 </html>
+
 
 
 
