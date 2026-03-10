@@ -1412,21 +1412,20 @@
         </div>
         <div id="phrasesList" class="phrases-container"></div>
         <div class="bottom-nav">
-            <!-- Tapping this icon acts like a "Home" button for the Practice cards -->
             <div class="nav-item" onclick="navJump(null)" style="color: #4cd964; background: #f0fff4;">
-                <span>📖</span><br>Practice
+                <span>📖</span>Practice
             </div>
             <div class="nav-item nav-presets" onclick="navJump('presetsOverlay')">
-                <span>🎨</span><br>Presets
+                <span>🎨</span>Presets
             </div>
             <div class="nav-item nav-game" onclick="navJump('gameDrawer')">
-                <span>🎮</span><br>Game
+                <span>🎮</span>Game
             </div>
             <div class="nav-item nav-backpack" onclick="navJump('bpModal')">
-                <span>🎒</span><br>Backpack
+                <span>🎒</span>Backpack
             </div>
             <div class="nav-item nav-parent" onclick="navJump('parentDrawer')">
-                <span>⚙️</span><br>Parent
+                <span>⚙️</span>Parent
             </div>
         </div>
         
@@ -3919,19 +3918,21 @@ async function translateOne(p) {
             });
         }
 
-         // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
+        // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
         function handleKeyPress(e) {
-            const key = e.key.toUpperCase();
+            let key = e.key.toUpperCase();
             
             // Support standard A-Z, space, and common French accents
             const validKeys = "ABCDEFGHIJKLMNOPQRSTUVWXYZÉÀÈÇÙÛŒ' ".split('');
             
-            // SURGICAL TWEAK: If the user types 'O' on a physical keyboard, 
-            // but the target letter is 'Œ', convert the input to 'Œ' automatically.
+            // SURGICAL TWEAK: Ligature support for laptop keyboards
             if (key === 'O' || key === 'E') {
-                const targetWord = gameActive ? targetWord : (currentSpellingState ? currentSpellingState.words[currentSpellingState.currentWordIndex] : "");
-                const targetLetter = targetWord[gameActive ? currentSpellingState.currentLetterIndex : currentSpellingState.currentLetterIndex]?.toUpperCase();
-                if (targetLetter === 'Œ') key = 'Œ';
+                // We look at the global targetWord or the current spelling word
+                let activeWord = gameActive ? targetWord : (currentSpellingState ? currentSpellingState.words[currentSpellingState.currentWordIndex] : "");
+                let activeIndex = gameActive ? (guessed.length > 0 ? 0 : 0) : (currentSpellingState ? currentSpellingState.currentLetterIndex : 0);
+                
+                // If the game specifically needs 'Œ', treat 'O' or 'E' as a match
+                if (activeWord[activeIndex]?.toUpperCase() === 'Œ') key = 'Œ';
             }
         
             if (!validKeys.includes(key)) return;
@@ -5548,3 +5549,4 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
