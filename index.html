@@ -2463,6 +2463,9 @@ function renderList(list) {
 }
 
     function shareWeek(weekName, wordsText, audioData = null) {
+        console.log('🟢 SHARE FUNCTION STARTED');
+        console.log('weekName:', weekName);
+        
         const phraseList = wordsText.split('\n').filter(p => p.trim() !== "");
         let existingData = { month: selectedBpMonth, isDialogue: false };
         try { existingData = JSON.parse(history[weekName]); } catch(e) {}
@@ -2965,6 +2968,9 @@ function toggleFavorite(name) {
 
 // 1. Triggered when clicking the 📁 icon (to move an item)
 function moveHomework(name) {
+    console.log('🟠 MOVE FUNCTION STARTED');
+    console.log('name:', name);
+    
     homeworkToMove = name; // Set the variable so the grid knows we are MOVING
     const subtitle = document.querySelector('#folderSelectionOverlay p');
     if (subtitle) subtitle.innerHTML = `Move "<span id="movingHwName">${name}</span>" to:`;
@@ -3150,6 +3156,9 @@ async function loadHomeworkForPractice(name, words, audio) {
 }
         
 function showNote(name) {
+    console.log('🟣 NOTE FUNCTION STARTED');
+    console.log('name:', name);
+    
     const note = homeworkNotes[name] || '';
     
     // If no note, go straight to editing
@@ -4295,6 +4304,9 @@ async function translateOne(p) {
         }
 
         function deleteHomeworkItem(name) {
+            console.log('🔴 DELETE FUNCTION STARTED');
+            console.log('name:', name);
+            
             openAppModal({
                 title: "🗑️ Delete Homework",
                 text: `Are you sure you want to delete "${name}"?`,
@@ -4659,6 +4671,10 @@ async function translateOne(p) {
         }
                
         function openPrintSelection(words, homeworkName) {
+            console.log('🔵 PRINT FUNCTION STARTED');
+            console.log('words:', words);
+            console.log('homeworkName:', homeworkName);
+            
             tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
             if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
             tempPrintName = homeworkName || currentSetName || "Français";
@@ -5587,6 +5603,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
