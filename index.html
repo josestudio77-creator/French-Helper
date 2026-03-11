@@ -4752,57 +4752,72 @@ async function translateOne(p) {
             runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
         }
         
-        function runPrintLogic(words, isCursive = false, repetitions = 3, includeHeader = false, printName = "Français", traceMode = 'first') {
+        function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+            // 1. Safety Guard: prevent multiple print triggers
             if (isPrinting) return;
             isPrinting = true;
         
-            let printArea = document.getElementById('printArea');
-            if (!printArea) {
-                printArea = document.createElement('div');
-                printArea.id = 'printArea';
-                document.body.prepend(printArea);
+            // 2. Setup the Print Area
+            let area = document.getElementById('printArea');
+            if (!area) {
+                area = document.createElement('div');
+                area.id = 'printArea';
+                document.body.prepend(area);
             }
             
-            printArea.innerHTML = ''; 
+            area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            // 3. Generate Header if requested
             let html = "";
-            if (includeHeader) {
+            if (header) {
                 html += `<div class="print-header-simple">
                     <div class="name-label">Nom:<span class="name-underline"></span></div>
-                    <div class="set-name-center">${printName}</div>
+                    <div class="set-name-center">${name}</div>
                     <div class="date-label">Date: ${today}</div>
                 </div>`;
             }
         
+            // 4. Process each phrase
             const phrases = words.split('\n').filter(p => p.trim() !== "");
             const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
         
             phrases.forEach((phrase, index) => {
-                const cleanPhrase = phrase.split('|')[0].trim();
-                const fontClass = isCursive ? 'cursive-font' : 'block-font';
-                let rows = "";
+                const clean = phrase.split('|')[0].trim();
+                const fClass = cursive ? 'cursive-font' : 'block-font';
                 
-                for (let i = 0; i < repetitions; i++) {
-                    // --- UPDATED TRACING LOGIC ---
-                    let shouldTrace = false;
-                    if (traceMode === 'all') shouldTrace = true;
-                    else if (traceMode === 'first' && i === 0) shouldTrace = true;
+                // Start the block container
+                html += `<div class="print-phrase-block">
+                    <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                    let traceHTML = shouldTrace ? `<div class="trace-text ${fontClass}">${cleanPhrase}</div>` : '';
-                    rows += `<div class="calligraphy-row">${traceHTML}</div>`; 
+                // 5. THE REFERENCE ROW (REPLACES OLD STANDALONE TEXT)
+                // This is always present and always solid black.
+                html += `<div class="calligraphy-row">
+                            <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
+                                ${clean}
+                            </div>
+                         </div>`;
+        
+                // 6. THE PRACTICE ROWS
+                // This loop still respects your repetition count and tracing choices
+                for (let i = 0; i < reps; i++) {
+                    let shouldTrace = false;
+                    if (trace === 'all') shouldTrace = true;
+                    else if (trace === 'first' && i === 0) shouldTrace = true;
+        
+                    let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
+                    html += `<div class="calligraphy-row">${tHTML}</div>`; 
                 }
         
-                html += `<div class="print-phrase-block">
-                    <span class="cute-decoration">${icons[index % icons.length]}</span>
-                    <div class="print-phrase-text ${fontClass}">${cleanPhrase}</div>
-                    ${rows}
-                </div>`;
+                html += `</div>`; // Close block
             });
         
-            printArea.innerHTML = html;
-      
+            area.innerHTML = html;
+        
+            // 7. Trigger the print with enough delay for fonts to render correctly
             setTimeout(() => {
                 window.print();
+                // Unlock the print button after a reasonable window
                 setTimeout(() => { isPrinting = false; }, 2000);
             }, 800);
         }
@@ -5637,6 +5652,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
