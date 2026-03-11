@@ -1839,79 +1839,92 @@
             if (isAutoPlaying) stopAutoPlay();
             document.querySelectorAll('audio').forEach(audio => {
                 audio.pause();
-                audio.currentTime = 0; // Reset audio positions
             });
         
-            // 2. Reset spelling cards so the keyboard doesn't "ghost" into other screens
+            // 2. Reset spelling cards
             if (id !== 'gameDrawer') {
                 resetAllSpellingCards();
             }
         
-            // 3. THE FIX: Hide other MAJOR drawers when opening a new one
-            // This prevents the "Print Selection" or "Folder Move" from being blocked by the Backpack
-            const majorDrawers = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer'];
-            if (majorDrawers.includes(id)) {
-                majorDrawers.forEach(drawerId => {
-                    if (drawerId !== id) document.getElementById(drawerId).style.display = 'none';
-                });
-            }
+            // 3. THE FIX: Hide ALL other overlays when opening a new one.
+            // This prevents the Backpack (z-3000) from blocking the Modal (z-8000)
+            // or stacking dark backgrounds.
+            const allOverlays = document.querySelectorAll('.overlay');
+            allOverlays.forEach(ov => {
+                if (ov.id !== id) ov.style.display = 'none';
+            });
         
             // 4. Lock the main screen scroll
             document.body.style.overflow = 'hidden';
             
-            // 5. SHOW THE OVERLAY
+            // 5. SHOW THE TARGET OVERLAY
             const overlay = document.getElementById(id);
             if (overlay) {
                 overlay.style.display = 'block'; 
-                // Force the content to the top
                 const content = overlay.querySelector('.overlay-content');
                 if (content) content.scrollTop = 0;
             }
             
-            // 6. SPECIFIC LOGIC (Your original code preserved)
+            // 6. SPECIFIC LOGIC (Preserved)
             if(id === 'gameDrawer') { 
-                wins = 0;
-                losses = 0;
-                updateScoreUI();
-        
+                wins = 0; losses = 0; updateScoreUI();
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'flex'; 
-                
                 const drawerContent = document.querySelector('#gameDrawer .overlay-content');
                 if (drawerContent) drawerContent.classList.add('keyboard-buffer');
-                
                 setTimeout(startHangman, 50); 
             } else if (id === 'bpModal') {
                 openBP();
+            } else if (id === 'hwDrawer') {
+                console.log('Homework drawer opened');
+                // No special logic needed, but we keep the case
             } else if (id === 'presetsOverlay') {
                 console.log('Presets overlay opened');
             } else if (id === 'parentDrawer') {
                 console.log('Parent drawer opened');
-            } else if (id === 'hwDrawer') {
-                console.log('Homework drawer opened');
             }
+            // For other overlays (printSelection, folderSelection, appModal, iconPicker, photoCropper)
+            // No special logic needed - they just need to be visible
         }
         
+                
         function closeOverlay(id) { 
-            document.getElementById(id).style.display = 'none'; 
+            const overlay = document.getElementById(id);
+            if (overlay) overlay.style.display = 'none'; 
             
-            // Hide keyboard if we are closing the game
+            // 1. Hide keyboard if closing game
             if (id === 'gameDrawer') {
                 const globalKb = document.getElementById('keyboard');
                 if (globalKb) globalKb.style.display = 'none';
+                document.body.classList.remove('keyboard-buffer');
             }
         
-            // Check if any other overlays are STILL open
+            // 2. INTELLIGENT RETURN: 
+            // If we just closed a sub-modal (like Delete or Print), 
+            // check if we should show the Backpack again.
+            const subModals = ['appModal', 'folderSelectionOverlay', 'printSelectionOverlay', 'iconPickerOverlay', 'photoCropperOverlay'];
+            if (subModals.includes(id)) {
+                // Check if we were in the backpack context
+                // We can check if the backpack was the last thing open by seeing if it exists in history
+                // For simplicity, if we're closing a sub-modal and no other overlays are open, show backpack
+                const anyOpenOverlays = Array.from(document.querySelectorAll('.overlay')).some(ov => ov.style.display === 'block');
+                if (!anyOpenOverlays) {
+                    openOverlay('bpModal');
+                }
+                return; 
+            }
+        
+            // 3. Check if anything is STILL open
             const allOverlays = document.querySelectorAll('.overlay');
             let somethingStillOpen = false;
             allOverlays.forEach(ov => {
                 if (ov.style.display === 'block') somethingStillOpen = true;
             });
         
-            // ONLY unlock the main screen scroll if no drawers are visible
+            // 4. If nothing is open, unlock the main screen scroll
             if (!somethingStillOpen) {
-                document.body.style.overflow = 'auto';
-                document.body.classList.remove('keyboard-buffer');
+                document.body.style.overflow = '';
+                document.body.style.overflowX = 'hidden';
             }
         }
 
@@ -5602,6 +5615,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
