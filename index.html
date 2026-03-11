@@ -4264,7 +4264,6 @@ async function translateOne(p) {
                         ${getCornerBadgesHTML(name)} 
         
                         <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
-                            <!-- ADDED CLASS: hw-clickable-title / REMOVED: inline onclick -->
                             <div class="hw-clickable-title" 
                                  style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                 ${name} ${hasAudio}
@@ -4288,20 +4287,32 @@ async function translateOne(p) {
                         </div>
                     `;
                     
-                    // LOGIC BINDING (Surgical Fixes here)
+                    // --- UPDATED LOGIC BINDING: Direct Class Targeting ---
+                    // This is much safer than index counting (icons[0], etc.)
                     const titleEl = div.querySelector('.hw-clickable-title');
                     if (titleEl) titleEl.onclick = () => renameHomework(name);
         
                     const practiceBtn = div.querySelector('.practice-big-btn');
-                    practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
+                    if (practiceBtn) practiceBtn.onclick = () => loadHomeworkForPractice(name, hwData.words, hwData.audio);
         
-                    const icons = div.querySelectorAll('.icon-btn');
-                    if (icons[0]) icons[0].onclick = () => editHomework(name);
-                    if (icons[1]) icons[1].onclick = () => openPrintSelection(hwData.words, name);
-                    if (icons[2]) icons[2].onclick = () => shareWeek(name, hwData.words, hwData.audio);
-                    if (icons[3]) icons[3].onclick = () => moveHomework(name);
-                    if (icons[4]) icons[4].onclick = () => showNote(name);
-                    if (icons[5]) icons[5].onclick = () => deleteHomeworkItem(name);
+                    // Target specific class names for the 6 utility buttons
+                    const btnEdit = div.querySelector('.edit-icon');
+                    if (btnEdit) btnEdit.onclick = () => editHomework(name);
+
+                    const btnPrint = div.querySelector('.print-icon');
+                    if (btnPrint) btnPrint.onclick = () => openPrintSelection(hwData.words, name);
+
+                    const btnShare = div.querySelector('.share-icon');
+                    if (btnShare) btnShare.onclick = () => shareWeek(name, hwData.words, hwData.audio);
+
+                    const btnMove = div.querySelector('.move-icon');
+                    if (btnMove) btnMove.onclick = () => moveHomework(name);
+
+                    const btnNote = div.querySelector('.note-icon');
+                    if (btnNote) btnNote.onclick = () => showNote(name);
+
+                    const btnDelete = div.querySelector('.delete-icon');
+                    if (btnDelete) btnDelete.onclick = () => deleteHomeworkItem(name);
                     
                     list.appendChild(div);
                 }
@@ -5626,6 +5637,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
