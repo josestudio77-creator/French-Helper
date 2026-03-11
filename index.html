@@ -119,13 +119,12 @@
     left: 0; 
     right: 0; 
     bottom: 0; 
-    /* Light tint instead of black so the gradient shows through */
-    background: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(10px); /* Modern blur effect */
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.85); /* Dark background */
     z-index: 8000; 
     padding: 15px; 
+    backdrop-filter: none; /* Remove the blur */
 }
+       
 /* 2. OVERLAY CONTENT: Ensure the drawer doesn't feel "pale" */
 .overlay-content {
     background: white; 
@@ -136,7 +135,7 @@
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     /* INCREASED padding to ensure buttons stay ABOVE the Nav Bar */
-    padding-bottom: 120px !important; 
+    padding-bottom: 80px !important; 
     position: relative;
 }
     #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 5px 0; outline: none; }
@@ -5603,6 +5602,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
