@@ -39,8 +39,7 @@
         opacity: 0; 
         transition: opacity 1.2s ease-in-out; 
     }
-
-    /* THE KEY: Makes the app appear */
+    
     .app-visible {
         opacity: 1 !important;
     }
@@ -5584,6 +5583,10 @@ function playWelcomeChime() {
 }
 
 function startAppTransition() {
+    // ARM THE EXIT GUARD: Pushing a state here ensures the back-button 
+    // works immediately after the splash screen is gone.
+    window.history.pushState('app-home', null, "");
+    
     const splash = document.getElementById('customSplash');
     const container = document.querySelector('.container');
     const icon = document.getElementById('splashIcon');
@@ -5612,43 +5615,47 @@ function startAppTransition() {
     }, 1500); 
 }
         
-// --- EXIT GUARD LOGIC ---
+let allowExit = false; // The "Key" to allow the browser to finally exit
+
 function initExitGuard() {
-    // 1. Push a state so there's "somewhere" to go back from
-    if (window.history.state !== 'app-running') {
-        window.history.pushState('app-running', null, null);
+    // 1. Push the initial "Home" state
+    if (window.history.state !== 'app-home') {
+        window.history.pushState('app-home', null, "");
     }
 
     // 2. Listen for the back swipe/button
     window.onpopstate = function(event) {
+        // If we have explicitly allowed exit, don't intercept anymore
+        if (allowExit) return;
+
         // Check if any overlays are currently visible
         const visibleOverlays = Array.from(document.querySelectorAll('.overlay'))
-                                     .filter(ov => ov.style.display === 'block');
+                                     .filter(ov => ov.style.display === 'block' && ov.id !== 'customSplash');
 
         if (visibleOverlays.length > 0) {
-            // SCENARIO A: A drawer is open. 
-            // Swipe back should just close the drawer, not the whole app.
+            // SCENARIO A: A drawer is open (Backpack, Settings, etc.)
+            // Swipe back should just close that specific drawer
             const topOverlayId = visibleOverlays[visibleOverlays.length - 1].id;
             closeOverlay(topOverlayId);
             
-            // Re-push state so the next swipe back triggers this logic again
-            window.history.pushState('app-running', null, null);
+            // Re-push the "Home" state so we are ready for the next back-action
+            window.history.pushState('app-home', null, "");
         } else {
-            // SCENARIO B: On the main screen.
-            // Show the confirmation modal.
+            // SCENARIO B: On the main screen
             openAppModal({
                 title: "🚪 Exit App?",
-                text: "Are you sure you want to leave French Fun?",
+                text: "Are you sure you want to leave French Phrases Helper?",
                 mode: 'view',
                 saveText: "Yes, Exit",
                 cancelText: "No, Stay",
                 onAction: () => {
-                    // User said Yes. Go back "for real" to exit.
-                    window.history.back();
+                    // USER CLICKED YES
+                    allowExit = true; 
+                    window.history.back(); // Now this will actually exit the app
                 },
                 onSecondaryAction: () => {
-                    // User said No. Stay here and re-arm the trap.
-                    window.history.pushState('app-running', null, null);
+                    // USER CLICKED NO - Re-trap them so the next swipe works again
+                    window.history.pushState('app-home', null, "");
                 }
             });
         }
@@ -5852,4 +5859,5 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
