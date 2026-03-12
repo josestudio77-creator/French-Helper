@@ -5481,9 +5481,54 @@ function spellCurrentWord() {
 
     speakNextLetter(0);
 }
+
+// --- EXIT GUARD LOGIC ---
+function initExitGuard() {
+    // 1. Push a state so there's "somewhere" to go back from
+    if (window.history.state !== 'app-running') {
+        window.history.pushState('app-running', null, null);
+    }
+
+    // 2. Listen for the back swipe/button
+    window.onpopstate = function(event) {
+        // Check if any overlays are currently visible
+        const visibleOverlays = Array.from(document.querySelectorAll('.overlay'))
+                                     .filter(ov => ov.style.display === 'block');
+
+        if (visibleOverlays.length > 0) {
+            // SCENARIO A: A drawer is open. 
+            // Swipe back should just close the drawer, not the whole app.
+            const topOverlayId = visibleOverlays[visibleOverlays.length - 1].id;
+            closeOverlay(topOverlayId);
+            
+            // Re-push state so the next swipe back triggers this logic again
+            window.history.pushState('app-running', null, null);
+        } else {
+            // SCENARIO B: On the main screen.
+            // Show the confirmation modal.
+            openAppModal({
+                title: "🚪 Exit App?",
+                text: "Are you sure you want to leave French Fun?",
+                mode: 'view',
+                saveText: "Yes, Exit",
+                cancelText: "No, Stay",
+                onAction: () => {
+                    // User said Yes. Go back "for real" to exit.
+                    window.history.back();
+                },
+                onSecondaryAction: () => {
+                    // User said No. Stay here and re-arm the trap.
+                    window.history.pushState('app-running', null, null);
+                }
+            });
+        }
+    };
+}
      
 window.onload = () => {
     console.log('App loading...');
+
+    initExitGuard();
 
     // ✅ THE SAFETY RESET: Clear any "ghost" print data from the last time the app was used
     const ghostPrint = document.getElementById('printArea');
@@ -5652,6 +5697,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
