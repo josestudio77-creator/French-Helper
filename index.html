@@ -27,7 +27,31 @@
        
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; overflow-x: hidden; }
-    .container { max-width: 500px; margin: 0 auto; }
+    
+.container { 
+    max-width: 500px; 
+    margin: 0 auto; 
+    position: relative; 
+    z-index: 1; 
+    
+    /* Cross-fade Logic: Start hidden so it can materialize */
+    opacity: 0; 
+    transition: opacity 1.2s ease-in-out; 
+}
+
+.app-visible {
+    opacity: 1 !important;
+}
+    
+    /* Cross-fade Logic: Start hidden so it can materialize */
+    opacity: 0; 
+    transition: opacity 1.2s ease-in-out; 
+}
+    
+    /* Cross-fade Logic: Start hidden so it can materialize */
+    opacity: 0; 
+    transition: opacity 1.2s ease-in-out; 
+}
        
     .header { 
         background: white; 
@@ -1290,9 +1314,6 @@
         100% { transform: scale(1); }
     }
 
-/* The main container should be at the bottom */
-.container { z-index: 1; position: relative; }
-
 /* Overlays: Standardizing the stack */
 .overlay {
     background: rgba(0, 0, 0, 0.8) !important; /* Darker tint */
@@ -1342,6 +1363,11 @@
     opacity: 0 !important;
     transform: translateY(-20px) !important;
     transition: all 0.6s ease-in !important;
+}
+
+#customSplash {
+    /* Controls the speed at which the colored background fades away */
+    transition: opacity 1s ease-in-out, visibility 1s !important;
 }
        
    </style>
@@ -5569,21 +5595,31 @@ function playWelcomeChime() {
 
 function startAppTransition() {
     const splash = document.getElementById('customSplash');
-    if (splash.style.display === 'none') return; // Already transitioned
-
-    playWelcomeChime();
-    
+    const container = document.querySelector('.container');
     const icon = document.getElementById('splashIcon');
     const text = document.getElementById('splashText');
+
+    if (splash.style.display === 'none') return;
+
+    // 1. Play the chime
+    playWelcomeChime();
     
-    // Apply the "Massive Zoom" and "Text Fade"
+    // 2. Start the massive icon zoom
     icon.classList.add('splash-immersive-zoom');
     text.classList.add('splash-text-fade');
-    splash.style.pointerEvents = 'none'; // Prevent double clicking
+    splash.style.pointerEvents = 'none';
 
+    // 3. MID-ZOOM: Start fading in the app content
+    // We wait 400ms so the icon has blurred enough to create a "background"
+    setTimeout(() => {
+        container.classList.add('app-visible');
+        splash.style.opacity = '0';
+    }, 400);
+
+    // 4. CLEANUP: Fully remove the splash layer
     setTimeout(() => {
         splash.style.display = 'none';
-    }, 1200); // Matches the CSS transition time
+    }, 1500); 
 }
         
 // --- EXIT GUARD LOGIC ---
@@ -5630,16 +5666,16 @@ function initExitGuard() {
 }
      
 window.onload = () => {
-    // 1. Show the logo initially
+    // 1. Initial Pop-in of Logo and Text
     setTimeout(() => {
         const icon = document.getElementById('splashIcon');
         const text = document.getElementById('splashText');
-        icon.classList.add('splash-pop-in');
-        text.style.opacity = "1";
-        text.style.transform = "translateY(0)";
+        if(icon) icon.classList.add('splash-pop-in');
+        if(text) text.style.opacity = "1";
+        if(text) text.style.transform = "translateY(0)";
     }, 100);
 
-    // 2. Auto-transition after 2.5 seconds (in case they don't click)
+    // 2. AUTO-TRANSITION: If they don't click, the app materializes after 2.5 seconds
     setTimeout(() => {
         startAppTransition();
     }, 2500);
@@ -5826,21 +5862,3 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
