@@ -1324,10 +1324,30 @@
         display: none !important;
     }
 }
+
+@keyframes iconPop {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+    70% { transform: scale(1.1) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.splash-animate-in {
+    animation: iconPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.splash-text-show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
        
    </style>
 </head>
 <body>
+
+<div id="customSplash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out;">
+    <img src="icon.png" id="splashIcon" style="width: 180px; height: 180px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0);">
+    <h2 style="color: #ff6b8b; margin-top: 25px; font-size: 1.8rem; font-weight: 900; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out 0.3s;">Bienvenue !</h2>
+</div>
 
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 5000; display: none;">
@@ -5110,6 +5130,12 @@ async function translateOne(p) {
         function installApp() {
             if (deferredPrompt) { 
                 deferredPrompt.prompt(); 
+                
+                // Hide the button immediately after the user sees the popup
+                // so they don't click it twice.
+                const btn = document.getElementById('installBtn');
+                if (btn) btn.style.display = 'none';
+                
                 deferredPrompt = null; 
             }
         }
@@ -5552,6 +5578,23 @@ function initExitGuard() {
 }
      
 window.onload = () => {
+    // 1. Start Splash Animation
+    const splash = document.getElementById('customSplash');
+    const icon = document.getElementById('splashIcon');
+    const welcomeText = splash.querySelector('h2');
+
+    // Trigger the pop and text slide-up
+    icon.classList.add('splash-animate-in');
+    welcomeText.classList.add('splash-text-show');
+
+    // 2. Wait 2.2 seconds, then fade out and remove
+    setTimeout(() => {
+        splash.style.opacity = '0';
+        setTimeout(() => {
+            splash.style.display = 'none';
+        }, 800); // Wait for fade transition to finish
+    }, 2200);
+    
     console.log('App loading...');
 
     initExitGuard();
@@ -5692,21 +5735,32 @@ window.onload = () => {
 
 // --- GLOBAL EVENT LISTENERS ---
 
-// Laptop Keyboard Support
+// 1. Laptop Keyboard Support
 document.addEventListener('keydown', handleKeyPress);
 
-// iOS Speech Unlock
+// 2. iOS Speech Unlock
 document.addEventListener('touchstart', function wakeSpeech() {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(' '));
 }, { once: true });
 
-// PWA Install
+// 3. Capture the PWA Install Prompt
 window.addEventListener('beforeinstallprompt', (e) => { 
+    // Prevent the browser's default bar from showing
     e.preventDefault(); 
+    // Save the event so it can be triggered later by your "Install" button
     deferredPrompt = e; 
+    // Show your custom install button in the Parent Drawer
     const btn = document.getElementById('installBtn');
     if (btn) btn.style.display = 'block'; 
+});
+
+// 4. NEW: Hide button instantly after a successful installation
+window.addEventListener('appinstalled', (evt) => {
+    console.log('✅ App was successfully installed');
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'none'; 
+    deferredPrompt = null;
 });
         
 </script>
@@ -5723,6 +5777,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
