@@ -32,26 +32,34 @@
     .header { 
         background: white; 
         border-radius: 20px; 
-        padding: 10px 5px; 
+        /* Increased side padding to make the white box feel "full" around the text */
+        padding: 10px 15px; 
         margin-bottom: 10px; 
         border: 4px solid #ff9e6d; 
         position: relative; 
-        /* Integrated safety: keeps the header behind all drawers */
         z-index: 5 !important; 
         display: flex; 
         justify-content: center;
+        align-items: center;
     }
     
     h1 { 
         color: #ff6b8b; 
-        /* clamp(min, preferred, max) - This is your "Smart Resizer" */
-        font-size: clamp(0.85rem, 4.4vw, 1.3rem); 
+        /* UPDATED CLAMP: 
+           1rem = minimum (bigger than before)
+           6.5vw = grows faster to fill side-to-side space
+           1.6rem = bigger maximum than your original 1.4rem 
+        */
+        font-size: clamp(1rem, 6.5vw, 1.6rem); 
+        
         white-space: nowrap; 
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px; 
+        /* Increased gap between icons and text for a more balanced look */
+        gap: 10px; 
         width: 100%;
+        font-weight: 900;
     }
     
     button:active, .key:active { transform: scale(1.15); }
@@ -5713,6 +5721,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
