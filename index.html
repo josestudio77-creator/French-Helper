@@ -1325,28 +1325,36 @@
     }
 }
 
-@keyframes iconPop {
-    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-    70% { transform: scale(1.1) rotate(5deg); opacity: 1; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+/* --- ENHANCED SPLASH ANIMATIONS --- */
+.splash-pop-in {
+    transform: scale(1) rotate(0deg) !important;
 }
 
-.splash-animate-in {
-    animation: iconPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+/* The Immersive Transition: Zoom in huge and fade out */
+.splash-immersive-zoom {
+    transform: scale(15) !important; /* Zooms into the colors of the logo */
+    filter: blur(20px);
+    opacity: 0 !important;
+    transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
 }
 
-.splash-text-show {
-    opacity: 1 !important;
-    transform: translateY(0) !important;
+.splash-text-fade {
+    opacity: 0 !important;
+    transform: translateY(-20px) !important;
+    transition: all 0.6s ease-in !important;
 }
        
    </style>
 </head>
 <body>
 
-<div id="customSplash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out;">
-    <img src="icon.png" id="splashIcon" style="width: 180px; height: 180px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0);">
-    <h2 style="color: #ff6b8b; margin-top: 25px; font-size: 1.8rem; font-weight: 900; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out 0.3s;">Bienvenue !</h2>
+<!-- THE IMMERSIVE SPLASH SCREEN (Replaces the previous one) -->
+<div id="customSplash" onclick="startAppTransition()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;">
+    <!-- The Icon: Set to zoom smoothly -->
+    <img src="icon.png" id="splashIcon" style="width: 180px; height: 180px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); transform: scale(0); transition: all 0.8s cubic-bezier(0.5, -0.5, 0.5, 1.5);">
+    
+    <!-- The Welcome Text -->
+    <h2 id="splashText" style="color: #ff6b8b; margin-top: 25px; font-size: 1.8rem; font-weight: 900; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out 0.3s;">Bienvenue !</h2>
 </div>
 
 <!-- Update the popup content area -->
@@ -5534,6 +5542,50 @@ function spellCurrentWord() {
     speakNextLetter(0);
 }
 
+function playWelcomeChime() {
+    if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (musicContext.state === 'suspended') musicContext.resume();
+    
+    const now = musicContext.currentTime;
+    // A beautiful "C-Major" uplifting chord
+    const notes = [261.63, 329.63, 392.00, 523.25]; 
+    
+    notes.forEach((freq, i) => {
+        const osc = musicContext.createOscillator();
+        const gain = musicContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + (i * 0.1)); // Arpeggio effect
+        
+        gain.gain.setValueAtTime(0, now + (i * 0.1));
+        gain.gain.linearRampToValueAtTime(0.1, now + (i * 0.1) + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+        
+        osc.connect(gain);
+        gain.connect(musicContext.destination);
+        osc.start(now + (i * 0.1));
+        osc.stop(now + 1.5);
+    });
+}
+
+function startAppTransition() {
+    const splash = document.getElementById('customSplash');
+    if (splash.style.display === 'none') return; // Already transitioned
+
+    playWelcomeChime();
+    
+    const icon = document.getElementById('splashIcon');
+    const text = document.getElementById('splashText');
+    
+    // Apply the "Massive Zoom" and "Text Fade"
+    icon.classList.add('splash-immersive-zoom');
+    text.classList.add('splash-text-fade');
+    splash.style.pointerEvents = 'none'; // Prevent double clicking
+
+    setTimeout(() => {
+        splash.style.display = 'none';
+    }, 1200); // Matches the CSS transition time
+}
+        
 // --- EXIT GUARD LOGIC ---
 function initExitGuard() {
     // 1. Push a state so there's "somewhere" to go back from
@@ -5578,22 +5630,19 @@ function initExitGuard() {
 }
      
 window.onload = () => {
-    // 1. Start Splash Animation
-    const splash = document.getElementById('customSplash');
-    const icon = document.getElementById('splashIcon');
-    const welcomeText = splash.querySelector('h2');
-
-    // Trigger the pop and text slide-up
-    icon.classList.add('splash-animate-in');
-    welcomeText.classList.add('splash-text-show');
-
-    // 2. Wait 2.2 seconds, then fade out and remove
+    // 1. Show the logo initially
     setTimeout(() => {
-        splash.style.opacity = '0';
-        setTimeout(() => {
-            splash.style.display = 'none';
-        }, 800); // Wait for fade transition to finish
-    }, 2200);
+        const icon = document.getElementById('splashIcon');
+        const text = document.getElementById('splashText');
+        icon.classList.add('splash-pop-in');
+        text.style.opacity = "1";
+        text.style.transform = "translateY(0)";
+    }, 100);
+
+    // 2. Auto-transition after 2.5 seconds (in case they don't click)
+    setTimeout(() => {
+        startAppTransition();
+    }, 2500);
     
     console.log('App loading...');
 
@@ -5777,6 +5826,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
 
 
