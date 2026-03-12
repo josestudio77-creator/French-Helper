@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🇫🇷 French Fun V10.0 🎉</title>
+    <title>🇫🇷 French Phrases Helper 🎉</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#FF6B8B">
@@ -1411,7 +1411,7 @@
     
     <div class="container">
         <div class="header">
-            <h1>🇫🇷 French Fun V10.0 🎉</h1>
+            <h1>🇫🇷 French Phrases Helper 🎉</h1>
         </div>
         
         <!-- App Control Panel -->
@@ -1498,6 +1498,10 @@
                 
                 <button onclick="nukeStorage()" style="background:#ff4d4d; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer;">
                     ⚠️ Reset Everything
+                </button>
+
+                <button onclick="window.open('privacy.html', '_blank')" style="background:#6b7280; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer; opacity: 0.8; font-size: 0.8rem;">
+                    📄 View Privacy Policy
                 </button>
             </div>
         </div>
@@ -1800,7 +1804,7 @@
         let isAutoPlaying = false;
         let autoPlayTimeout = null;
         let currentSetName = localStorage.getItem('currentSetName') || '';
-        let appVersion = "V10.0"; // NEW: Centralized versioning
+        let appVersion = "1.0.0"; // NEW: Centralized versioning
         let musicVolume = parseInt(localStorage.getItem('musicVolume') || '30'); // Default 30%
         let musicGainNode = null; // For volume control
         let homeworkNotes = JSON.parse(localStorage.getItem('homeworkNotes') || '{}');
@@ -2540,7 +2544,7 @@ openAppModal({
                     mode: 'view',
                     actionText: "💾 Save Backup",
                     onAction: () => {
-                        const data = { history, cache, customIcons, customPhotos, wins, losses, speechSpeed, homeworkNotes, appVersion: "French Fun V10.0" };
+                        const data = { history, cache, customIcons, customPhotos, wins, losses, speechSpeed, homeworkNotes, appVersion: "French Phrases Helper" };
                         attemptFileShare(JSON.stringify(data), `french-fun-full-backup.json`, '🇫🇷 French Fun Full Backup');
                     }
                 });
@@ -4998,7 +5002,7 @@ async function translateOne(p) {
                 mode: 'view',
                 actionText: "💾 Export File", 
                 onAction: () => {
-                    const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Fun V10.0" };
+                    const data = { history: monthHistory, homeworkNotes: monthNotes, customIcons: monthIcons, customPhotos: monthPhotos, appVersion: "French Phrases Helper" };
                     attemptFileShare(JSON.stringify(data), `french-fun-${currentMonthName.toLowerCase()}.json`, `🇫🇷 Folder: ${currentMonthName}`);
                 }
             });
@@ -5697,6 +5701,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 </body>
 </html>
+
 
 
 
