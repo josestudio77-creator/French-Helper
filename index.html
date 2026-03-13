@@ -1394,34 +1394,36 @@
         </div>
 
         <!-- Checkboxes for Header and Tracing -->
-        <div style="margin-bottom: 20px; text-align: left; padding-left: 10px;">
+        <div style="margin-bottom: 20px; text-align: left; padding-left: 5px;">
             
-            <!-- Header Toggle -->
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight: 900; color: #64748b; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
-                    <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.4);"> 📝 Include Name/Date Header
+            <!-- 1. Name/Date Toggle (Shortened to fit one line) -->
+            <div style="margin-bottom: 12px;">
+                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;">
+                    <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.3);"> Include Name/Date Header
                 </label>
             </div>
             
-            <!-- Tracing Options -->
-            <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.9rem;">✏️ Tracing Guide:</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #f8fafc; padding: 5px; border-radius: 12px; border: 2px solid #e2e8f0;">
-                
-                <!-- None Option -->
-                <label style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: #64748b;">
-                    <input type="radio" name="traceOption" value="none" style="display:none;" onchange="updateTraceUI('none')"> ❌ None
+            <!-- 2. Main Tracing Toggle -->
+            <div style="margin-bottom: 12px;">
+                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem;">
+                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.3);"> Include Tracing Guides
                 </label>
-                
-                <!-- First Line Option -->
-                <label id="labelTraceFirst" style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; background: #5a67d8; color: white;">
-                    <input type="radio" name="traceOption" value="first" checked style="display:none;" onchange="updateTraceUI('first')"> 1️⃣ First
-                </label>
-                
-                <!-- All Lines Option -->
-                <label id="labelTraceAll" style="cursor: pointer; padding: 8px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; color: #64748b;">
-                    <input type="radio" name="traceOption" value="all" style="display:none;" onchange="updateTraceUI('all')"> 🔄 All
-                </label>
-
+            </div>
+        
+            <!-- 3. Sub-Options (Only shows if Tracing is checked) -->
+            <div id="tracingOptionsDetail" style="background: #f8fafc; padding: 8px; border-radius: 12px; border: 2px solid #e2e8f0; margin-left: 25px;">
+                <p style="font-weight: 900; color: #64748b; margin-bottom: 8px; font-size: 0.75rem; text-transform: uppercase;">Tracing Mode:</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    
+                    <label id="labelTraceFirst" style="cursor: pointer; padding: 10px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; background: #5a67d8; color: white;">
+                        <input type="radio" name="traceOption" value="first" checked style="display:none;" onchange="updateTraceUI('first')"> 1️⃣ First Line
+                    </label>
+                    
+                    <label id="labelTraceAll" style="cursor: pointer; padding: 10px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800; background: #f1f5f9; color: #64748b;">
+                        <input type="radio" name="traceOption" value="all" style="display:none;" onchange="updateTraceUI('all')"> 🔄 All Lines
+                    </label>
+        
+                </div>
             </div>
         </div>
 
@@ -4815,23 +4817,45 @@ async function translateOne(p) {
                 window.navigator.vibrate(10);
             }
         }
+
+        // Shows or hides the First/All buttons based on the master checkbox
+        function toggleTracingDetail() {
+            const isChecked = document.getElementById('includeTracingToggle').checked;
+            const detailBox = document.getElementById('tracingOptionsDetail');
+            detailBox.style.display = isChecked ? 'block' : 'none';
+        }
+
+        function handlePrintChoice(choice) {
+            const reps = parseInt(document.getElementById('repeatCountInput').value);
+            const showHeader = document.getElementById('includeHeaderToggle').checked;
+            
+            // --- UPDATED TRACE LOGIC ---
+            let traceMode = 'none';
+            const tracingEnabled = document.getElementById('includeTracingToggle').checked;
+            
+            if (tracingEnabled) {
+                // If enabled, see if they picked 'first' or 'all'
+                traceMode = document.querySelector('input[name="traceOption"]:checked').value;
+            }
+            
+            closeOverlay('printSelectionOverlay');
+            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
+        }
         
         function updateTraceUI(choice) {
-            // Resets all buttons to default grey
-            const labels = document.querySelectorAll('input[name="traceOption"]');
-            labels.forEach(input => {
-                const parent = input.parentElement;
-                parent.style.background = "none";
-                parent.style.color = "#64748b";
+            const btnFirst = document.getElementById('labelTraceFirst');
+            const btnAll = document.getElementById('labelTraceAll');
+        
+            // Reset both to grey
+            [btnFirst, btnAll].forEach(btn => {
+                btn.style.background = "#f1f5f9";
+                btn.style.color = "#64748b";
             });
         
-            // Highlights the selected button
-            const selected = document.querySelector(`input[name="traceOption"][value="${choice}"]`);
-            if (selected) {
-                selected.checked = true;
-                selected.parentElement.style.background = "#5a67d8";
-                selected.parentElement.style.color = "white";
-            }
+            // Highlight the selected one
+            const selected = (choice === 'first') ? btnFirst : btnAll;
+            selected.style.background = "#5a67d8";
+            selected.style.color = "white";
         }
         
         function handlePrintChoice(choice) {
@@ -5897,6 +5921,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
 
 
