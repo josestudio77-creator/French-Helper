@@ -1877,6 +1877,7 @@
         let currentSpellingState = null;
         let targetWord = ""; // Global declaration for Hangman and Spelling logic
         let allowExit = false; // Controls the back-swipe logic
+        let exitAttempts = 0;
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -5577,9 +5578,11 @@ function playWelcomeChime() {
 }
 
 function startAppTransition() {
-    allowExit = false; // Reset guard on start
-    
-    // Clean history stack so "Back" works perfectly
+    // 1. Arm the Exit Guard immediately
+    allowExit = false; 
+    exitAttempts = 0;
+
+    // 2. Clean the history stack so the first swipe-back is captured
     window.history.replaceState('app-active', null, "");
     window.history.pushState('app-active', null, "");
 
@@ -5606,39 +5609,65 @@ function startAppTransition() {
 }
         
 function initExitGuard() {
-    // Initial Trap
+    // Initial history setup to catch the first swipe
     if (window.history.state !== 'app-active') {
+        window.history.replaceState('app-active', null, "");
         window.history.pushState('app-active', null, "");
     }
 
     window.onpopstate = function(event) {
-        if (allowExit) return; // Let the browser exit if flag is true
+        if (allowExit) return;
 
+        // 1. Check for open Drawers (Backpack, Settings, etc.)
         const visibleOverlays = Array.from(document.querySelectorAll('.overlay'))
                                      .filter(ov => ov.style.display === 'block' && ov.id !== 'customSplash');
 
         if (visibleOverlays.length > 0) {
-            // Swipe back closes drawers first
+            // SCENARIO A: A drawer is open. Close it and stay in the app.
             const topOverlayId = visibleOverlays[visibleOverlays.length - 1].id;
             closeOverlay(topOverlayId);
             window.history.pushState('app-active', null, "");
+            
         } else {
-            // Main screen swipe shows the exit modal
-            openAppModal({
-                title: "🚪 Exit App?",
-                text: "Are you sure you want to leave French Phrases Helper?",
-                mode: 'view',
-                saveText: "Yes, Exit",
-                cancelText: "No, Stay",
-                onAction: () => {
-                    allowExit = true; // UNLOCK
-                    window.history.back(); // EXIT
-                },
-                onSecondaryAction: () => {
-                    allowExit = false; // RE-LOCK
-                    window.history.pushState('app-active', null, "");
+            // 2. Check if we are inside a homework set or on the main list
+            // (If currentSetName is not empty, we are practicing a set)
+            const isPracticingSet = currentSetName && currentSetName !== '';
+            
+            if (isPracticingSet) {
+                // SCENARIO B: Inside a set. Swipe back goes to the main Practice List.
+                navJump(null); 
+                window.history.pushState('app-active', null, "");
+            } else {
+                // SCENARIO C: On the Main List. Show exit instructions.
+                exitAttempts++;
+                
+                if (exitAttempts === 1) {
+                    openAppModal({
+                        title: "👋 Leaving so soon?",
+                        text: "To close the app:\n\n• Mobile: Swipe up from the bottom of your phone.\n• Desktop: Close this browser tab.",
+                        mode: 'view',
+                        saveText: "Got it",
+                        onAction: () => {
+                            window.history.pushState('app-active', null, "");
+                            exitAttempts = 0;
+                        }
+                    });
+                } else {
+                    // If they swipe again immediately, give them a shorter reminder
+                    openAppModal({
+                        title: "📱 Just a reminder",
+                        text: "French Phrases Helper stays ready for you! Use your phone's Home gesture to exit.",
+                        mode: 'view',
+                        saveText: "OK",
+                        onAction: () => {
+                            window.history.pushState('app-active', null, "");
+                            exitAttempts = 0;
+                        }
+                    });
                 }
-            });
+                // Re-trap the history so the next swipe works
+                window.history.pushState('app-active', null, "");
+            }
         }
     };
 }
@@ -5840,6 +5869,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
 
 
