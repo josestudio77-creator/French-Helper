@@ -4243,6 +4243,13 @@ async function translateOne(p) {
             msgDiv.innerHTML = '<div class="success-message">✅ Saved Successfully!</div>';
             
             setTimeout(() => {
+                // Clear the inputs so the safety check doesn't trigger for the next one
+                document.getElementById('hwNameInput').value = "";
+                document.getElementById('hwInput').value = "";
+
+                // 2. Clear teacher audio UI (Add this line)
+                removeTeacherAudio(); 
+                
                 closeOverlay('hwDrawer');
                 
                 // Reset the edit tracker for next time
@@ -4261,15 +4268,47 @@ async function translateOne(p) {
                 }
             }, 800);
         }
+
+        // Returns true if there is unsaved text in the homework drawer
+        function hasUnsavedHomework() {
+            const drawer = document.getElementById('hwDrawer');
+            if (drawer.style.display !== 'block') return false;
+        
+            const name = document.getElementById('hwNameInput').value.trim();
+            const words = document.getElementById('hwInput').value.trim();
+        
+            // If both fields are empty, it's safe to close
+            return (name !== "" || words !== "");
+        }
         
         function cancelEdit() {
-            // Close the edit drawer
+            if (hasUnsavedHomework()) {
+                openAppModal({
+                    title: "⚠️ Discard Changes?",
+                    text: "You have unsaved homework. Are you sure you want to close without saving?",
+                    mode: 'view',
+                    saveText: "Discard",
+                    cancelText: "Keep Editing",
+                    onAction: () => {
+                        // User said Discard
+                        performCloseHwDrawer();
+                    },
+                    onSecondaryAction: () => {
+                        // User said Keep Editing - re-arm the exit guard
+                        window.history.pushState('app-active', null, "");
+                    }
+                });
+            } else {
+                performCloseHwDrawer();
+            }
+        }
+        
+        // Helper to handle the actual closing and cleanup
+        function performCloseHwDrawer() {
             closeOverlay('hwDrawer');
-            
-            // Open the backpack (where you came from)
             openOverlay('bpModal');
             
-            // Optional: Clear any unsaved changes
+            // Cleanup
             editingHomeworkName = null;
             currentWeekAudio = null;
             document.getElementById('teacherAudioFile').value = '';
@@ -5665,10 +5704,18 @@ function initExitGuard() {
                                      .filter(ov => ov.style.display === 'block' && ov.id !== 'customSplash');
 
         if (visibleOverlays.length > 0) {
-            // SCENARIO A: A drawer is open. Close it and stay in the app.
+            // SCENARIO A: A drawer is open. 
             const topOverlayId = visibleOverlays[visibleOverlays.length - 1].id;
-            closeOverlay(topOverlayId);
-            window.history.pushState('app-active', null, "");
+
+            // --- SAFETY CHECK FOR HOMEWORK DRAWER ---
+            if (topOverlayId === 'hwDrawer' && hasUnsavedHomework()) {
+                // Instead of closing, trigger the "Discard Changes?" modal
+                cancelEdit();
+            } else {
+                // For all other drawers (Backpack, Parent, etc.), just close normally
+                closeOverlay(topOverlayId);
+                window.history.pushState('app-active', null, "");
+            }
             
         } else {
             // 2. Check if we are inside a homework set or on the main list
