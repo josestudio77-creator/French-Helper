@@ -4774,12 +4774,18 @@ async function translateOne(p) {
             if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
             tempPrintName = homeworkName || currentSetName || "Français";
             
-            // Reset defaults
+            // 1. Reset Numeric Stepper
             document.getElementById('repeatCountInput').value = 3;
-            document.getElementById('includeHeaderToggle').checked = false; 
-            document.getElementById('includeTracingToggle').checked = true;
             
-            // Trigger the UI refresh for the buttons
+            // 2. Reset Checkboxes
+            document.getElementById('includeHeaderToggle').checked = false; 
+            document.getElementById('includeTracingToggle').checked = true; // Always start ON
+            
+            // 3. Reset Radio Buttons to "First Line"
+            const firstRadio = document.querySelector('input[name="traceOption"][value="first"]');
+            if (firstRadio) firstRadio.checked = true;
+        
+            // 4. Refresh visuals (this colors the buttons correctly)
             toggleTracingDetail();
             
             openOverlay('printSelectionOverlay');
@@ -4796,32 +4802,38 @@ async function translateOne(p) {
             input.value = newVal;
         }
 
-        // Shows or hides the First/All buttons based on the master checkbox
         function toggleTracingDetail() {
             const isEnabled = document.getElementById('includeTracingToggle').checked;
             const detailBox = document.getElementById('tracingOptionsDetail');
             
-            if (isEnabled) {
-                detailBox.style.opacity = "1";
-                detailBox.style.pointerEvents = "auto"; // Allows clicks
-            } else {
-                detailBox.style.opacity = "0.3";
-                detailBox.style.pointerEvents = "none"; // Blocks clicks
-            }
+            // Visual Grey-out
+            detailBox.style.opacity = isEnabled ? "1" : "0.3";
+            detailBox.style.pointerEvents = isEnabled ? "auto" : "none";
             
-            // Refresh the button colors
-            updateTraceUI(document.querySelector('input[name="traceOption"]:checked').value);
+            // Refresh the color of the selected button
+            const currentChoice = document.querySelector('input[name="traceOption"]:checked').value;
+            updateTraceUI(currentChoice);
         }
 
         function handlePrintChoice(choice) {
             const reps = parseInt(document.getElementById('repeatCountInput').value);
             const showHeader = document.getElementById('includeHeaderToggle').checked;
             
-            // If master checkbox is off, mode is 'none'. Otherwise, read the radio buttons.
+            // THE LOGIC FIX:
+            // First, check if the master "Include Tracing Guides" checkbox is ON.
             const tracingEnabled = document.getElementById('includeTracingToggle').checked;
-            const traceMode = tracingEnabled ? document.querySelector('input[name="traceOption"]:checked').value : 'none';
+            
+            let traceMode = 'none'; // Default to none
+            
+            if (tracingEnabled) {
+                // Only if enabled, we look at which radio button is selected
+                const selectedRadio = document.querySelector('input[name="traceOption"]:checked');
+                traceMode = selectedRadio ? selectedRadio.value : 'first';
+            }
             
             closeOverlay('printSelectionOverlay');
+            
+            // Send the final result to the print engine
             runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
         }
         
@@ -4830,19 +4842,19 @@ async function translateOne(p) {
             const btnFirst = document.getElementById('labelTraceFirst');
             const btnAll = document.getElementById('labelTraceAll');
         
-            // Default styles (when not selected or disabled)
+            // Reset both to standard grey
             [btnFirst, btnAll].forEach(btn => {
                 btn.style.background = "#f1f5f9";
                 btn.style.color = "#64748b";
-                btn.style.border = "1px solid #e2e8f0";
+                btn.style.border = "2px solid #e2e8f0";
             });
         
-            // Only apply the Indigo color if the master checkbox is ON
+            // Only apply the "Indigo" highlight if the master checkbox is actually ON
             if (isEnabled) {
                 const selected = (choice === 'first') ? btnFirst : btnAll;
                 selected.style.background = "#5a67d8";
                 selected.style.color = "white";
-                selected.style.border = "1px solid #434190";
+                selected.style.border = "2px solid #434190";
             }
         }
         
