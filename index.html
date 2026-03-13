@@ -5643,7 +5643,7 @@ function startAppTransition() {
     setTimeout(() => {
         container.classList.add('app-visible');
         splash.style.opacity = '0';
-    }, 400);
+    }, 200);
 
     setTimeout(() => {
         splash.style.display = 'none';
@@ -5727,7 +5727,7 @@ window.onload = () => {
     // 2. AUTO-TRANSITION: If they don't click, the app materializes after 2.5 seconds
     setTimeout(() => {
         startAppTransition();
-    }, 2500);
+    }, 1200);
     
     console.log('App loading...');
 
