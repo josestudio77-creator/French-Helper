@@ -4858,16 +4858,6 @@ async function translateOne(p) {
             }
         }
         
-        function handlePrintChoice(choice) {
-            // Number is guaranteed to be 1-12 because of the buttons
-            const reps = parseInt(document.getElementById('repeatCountInput').value);
-            const showHeader = document.getElementById('includeHeaderToggle').checked;
-            const traceMode = document.querySelector('input[name="traceOption"]:checked').value;
-            
-            closeOverlay('printSelectionOverlay');
-            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
-        }
-        
         function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             // 1. Safety Guard: prevent multiple print triggers
             if (isPrinting) return;
