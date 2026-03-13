@@ -1375,11 +1375,22 @@
     <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 90%; max-width: 400px; padding: 30px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h2 style="color: #9d4edd; margin-bottom: 20px;">🖨️ Print Settings</h2>
         
-        <!-- Repetition Input - Defaulted to 3 -->
+        <!-- THE STEPPER (Replaces old numeric input) -->
         <div style="margin-bottom: 15px; background: #fdf2ff; padding: 15px; border-radius: 15px; border: 2px dashed #9d4edd;">
             <p style="font-weight: 900; color: #9d4edd; margin-bottom: 10px; font-size: 1rem;">How many lines per phrase?</p>
-            <input type="number" id="repeatCountInput" value="3" min="1" max="10" 
-                   style="width: 80px; padding: 10px; font-size: 1.5rem; text-align: center; border-radius: 10px; border: 3px solid #9d4edd; font-weight: 900; outline: none;">
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <!-- Minus Button -->
+                <button onclick="changeReps(-1)" style="width: 45px; height: 45px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50; display: flex; align-items: center; justify-content: center; line-height: 0;">−</button>
+                
+                <!-- Display Box (Read Only so no keyboard pops up) -->
+                <input type="text" id="repeatCountInput" value="3" readonly 
+                       style="width: 65px; background: white; border: 3px solid #9d4edd; border-radius: 12px; padding: 8px; font-size: 1.8rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
+                
+                <!-- Plus Button -->
+                <button onclick="changeReps(1)" style="width: 45px; height: 45px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; display: flex; align-items: center; justify-content: center; line-height: 0;">+</button>
+            </div>
+            <p style="font-size: 0.75rem; color: #9d4edd; margin-top: 8px; font-weight: 800;">(Maximum 12 lines)</p>
         </div>
 
         <!-- Checkboxes for Header and Tracing -->
@@ -4787,6 +4798,24 @@ async function translateOne(p) {
             openOverlay('printSelectionOverlay');
         }
 
+        function changeReps(change) {
+            const input = document.getElementById('repeatCountInput');
+            let currentVal = parseInt(input.value);
+            
+            let newVal = currentVal + change;
+            
+            // Safety boundaries
+            if (newVal < 1) newVal = 1;
+            if (newVal > 12) newVal = 12;
+            
+            input.value = newVal;
+            
+            // Optional: Add a tiny "click" vibration for mobile
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
+        }
+        
         function updateTraceUI(choice) {
             // Resets all buttons to default grey
             const labels = document.querySelectorAll('input[name="traceOption"]');
@@ -4806,10 +4835,9 @@ async function translateOne(p) {
         }
         
         function handlePrintChoice(choice) {
-            const reps = parseInt(document.getElementById('repeatCountInput').value) || 3;
+            // Number is guaranteed to be 1-12 because of the buttons
+            const reps = parseInt(document.getElementById('repeatCountInput').value);
             const showHeader = document.getElementById('includeHeaderToggle').checked;
-            
-            // Get the tracing mode (none, first, or all)
             const traceMode = document.querySelector('input[name="traceOption"]:checked').value;
             
             closeOverlay('printSelectionOverlay');
@@ -5869,6 +5897,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
 
 
