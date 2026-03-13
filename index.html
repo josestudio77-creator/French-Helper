@@ -1371,64 +1371,56 @@
 </div>
 
 <!-- Update the popup content area -->
-<div id="printSelectionOverlay" class="overlay" style="z-index: 5000; display: none;">
-    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 90%; max-width: 400px; padding: 30px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-        <h2 style="color: #9d4edd; margin-bottom: 20px;">🖨️ Print Settings</h2>
+<div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
+    <!-- Fixed Style: Removed excessive padding-bottom to center it nicely -->
+    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92%; max-width: 420px; padding: 25px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); padding-bottom: 25px !important;">
         
-        <!-- THE STEPPER (Replaces old numeric input) -->
-        <div style="margin-bottom: 15px; background: #fdf2ff; padding: 15px; border-radius: 15px; border: 2px dashed #9d4edd;">
-            <p style="font-weight: 900; color: #9d4edd; margin-bottom: 10px; font-size: 1rem;">How many lines per phrase?</p>
-            
+        <h2 style="color: #9d4edd; margin-bottom: 20px; font-size: 1.5rem;">🖨️ Print Settings</h2>
+        
+        <!-- SECTION 1: REPETITION STEPPER -->
+        <div style="margin-bottom: 20px; background: #fdf2ff; padding: 15px; border-radius: 20px; border: 2px dashed #9d4edd;">
+            <p style="font-weight: 900; color: #9d4edd; margin-bottom: 12px; font-size: 1rem;">Lines per phrase:</p>
             <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <!-- Minus Button -->
-                <button onclick="changeReps(-1)" style="width: 45px; height: 45px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50; display: flex; align-items: center; justify-content: center; line-height: 0;">−</button>
-                
-                <!-- Display Box (Read Only so no keyboard pops up) -->
-                <input type="text" id="repeatCountInput" value="3" readonly 
-                       style="width: 65px; background: white; border: 3px solid #9d4edd; border-radius: 12px; padding: 8px; font-size: 1.8rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
-                
-                <!-- Plus Button -->
-                <button onclick="changeReps(1)" style="width: 45px; height: 45px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; display: flex; align-items: center; justify-content: center; line-height: 0;">+</button>
+                <button onclick="changeReps(-1)" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50; display: flex; align-items: center; justify-content: center; line-height: 0;">−</button>
+                <input type="text" id="repeatCountInput" value="3" readonly style="width: 70px; background: white; border: 3px solid #9d4edd; border-radius: 12px; padding: 8px; font-size: 1.8rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
+                <button onclick="changeReps(1)" style="width: 48px; height: 48px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; display: flex; align-items: center; justify-content: center; line-height: 0;">+</button>
             </div>
-            <p style="font-size: 0.75rem; color: #9d4edd; margin-top: 8px; font-weight: 800;">(Maximum 12 lines)</p>
         </div>
 
-        <!-- Checkboxes for Header and Tracing -->
-        <div style="margin-bottom: 20px; text-align: left; padding-left: 5px;">
-            
-            <!-- 1. Name/Date Toggle -->
+        <!-- SECTION 2: CHECKBOXES & GUIDES -->
+        <div style="margin-bottom: 25px; padding: 0 5px; text-align: left; border-top: 2px solid #f1f5f9; padding-top: 20px;">
             <div style="margin-bottom: 15px;">
-                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
-                    <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.3);"> Include Name/Date Header
+                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem;">
+                    <input type="checkbox" id="includeHeaderToggle" style="transform: scale(1.4);"> Include Name/Date Header
                 </label>
             </div>
             
-            <!-- 2. Main Tracing Toggle -->
             <div style="margin-bottom: 12px;">
-                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
-                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.3);"> Include Tracing Guides
+                <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem;">
+                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.4);"> Include Tracing Guides
                 </label>
             </div>
-        
-            <!-- 3. Sub-Options (Always visible, but greyed out if unchecked) -->
-            <div id="tracingOptionsDetail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-left: 30px; transition: opacity 0.2s;">
-                <label id="labelTraceFirst" style="cursor: pointer; padding: 10px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800;">
+
+            <div id="tracingOptionsDetail" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-left: 35px; transition: all 0.2s;">
+                <label id="labelTraceFirst" style="cursor: pointer; padding: 12px 2px; text-align: center; border-radius: 10px; font-size: 0.85rem; font-weight: 800; transition: all 0.2s;">
                     <input type="radio" name="traceOption" value="first" checked style="display:none;" onchange="updateTraceUI('first')"> 1️⃣ First Line
                 </label>
-                
-                <label id="labelTraceAll" style="cursor: pointer; padding: 10px 2px; text-align: center; border-radius: 8px; font-size: 0.8rem; font-weight: 800;">
+                <label id="labelTraceAll" style="cursor: pointer; padding: 12px 2px; text-align: center; border-radius: 10px; font-size: 0.85rem; font-weight: 800; transition: all 0.2s;">
                     <input type="radio" name="traceOption" value="all" style="display:none;" onchange="updateTraceUI('all')"> 🔄 All Lines
                 </label>
             </div>
         </div>
 
-        <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.9rem;">Choose Style:</p>
-        <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-            <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
-            <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
+        <!-- SECTION 3: STYLE SELECTION -->
+        <div style="border-top: 2px solid #f1f5f9; padding-top: 20px;">
+            <p style="font-weight: 900; color: #64748b; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Choose Handwriting Style:</p>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
+                <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
+            </div>
         </div>
         
-        <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 20px; background: #eee; color: #666; padding: 12px; width: 100%; border-radius: 10px; border: none; font-weight: bold; cursor: pointer;">Cancel</button>
+        <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 20px; background: #f1f5f9; color: #64748b; padding: 12px; width: 100%; border-radius: 12px; border: none; font-weight: 900; cursor: pointer;">Cancel</button>
     </div>
 </div>
 
@@ -4778,41 +4770,30 @@ async function translateOne(p) {
         }
                
         function openPrintSelection(words, homeworkName) {
-            console.log('🔵 PRINT FUNCTION STARTED');
-            console.log('words:', words);
-            console.log('homeworkName:', homeworkName);
-            
             tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
             if (!tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
             tempPrintName = homeworkName || currentSetName || "Français";
             
+            // Reset defaults
             document.getElementById('repeatCountInput').value = 3;
             document.getElementById('includeHeaderToggle').checked = false; 
+            document.getElementById('includeTracingToggle').checked = true;
             
-            // Reset Tracing to "First" as default
-            updateTraceUI('first');
+            // Trigger the UI refresh for the buttons
+            toggleTracingDetail();
             
-            document.getElementById('includeTracingToggle').checked = true; // Default to ON
-            toggleTracingDetail(); // This will set the initial button colors
             openOverlay('printSelectionOverlay');
         }
 
         function changeReps(change) {
             const input = document.getElementById('repeatCountInput');
-            let currentVal = parseInt(input.value);
-            
+            let currentVal = parseInt(input.value) || 3;
             let newVal = currentVal + change;
             
-            // Safety boundaries
             if (newVal < 1) newVal = 1;
             if (newVal > 12) newVal = 12;
             
             input.value = newVal;
-            
-            // Optional: Add a tiny "click" vibration for mobile
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(10);
-            }
         }
 
         // Shows or hides the First/All buttons based on the master checkbox
@@ -5928,6 +5909,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
+
 
 
 
