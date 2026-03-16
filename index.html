@@ -2281,26 +2281,27 @@ async function generateAIImage() {
     loader.style.display = "block";
     btn.innerHTML = "<span>🎨</span> Drawing...";
 
-    // 3. Build the CORRECT URL based on the API docs
+    // 3. Build the URL
     const prompt = `One single 3D cute clay ${englishWord} illustration, centered, vibrant colors, white background, minimalist educational app style`;
     const encodedPrompt = encodeURIComponent(prompt);
     
-    // ✅ CORRECT ENDPOINT: https://gen.pollinations.ai/image/{prompt}
+    // ✅ Using your publishable key
+    const API_KEY = 'pk_SrGFJfhef0swTvS2';
     const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true`;
 
     console.log("🎨 Requesting AI Image from:", imageUrl);
 
     try {
-        // 4. Use fetch to get the image
+        // 4. Fetch with your API key
         const response = await fetch(imageUrl, {
             headers: {
-                // You might need an API key! Get one from https://enter.pollinations.ai
-                // 'Authorization': 'Bearer YOUR_API_KEY'
+                'Authorization': `Bearer ${API_KEY}`
             }
         });
         
         if (!response.ok) {
-            throw new Error(`API returned ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API returned ${response.status}`);
         }
 
         // 5. Get the image as a blob
@@ -2320,10 +2321,15 @@ async function generateAIImage() {
         
         // Try with a different model as fallback
         try {
-            console.log("Trying fallback model...");
+            console.log("Trying fallback model zimage...");
             const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true`;
             
-            const fallbackResponse = await fetch(fallbackUrl);
+            const fallbackResponse = await fetch(fallbackUrl, {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`
+                }
+            });
+            
             if (!fallbackResponse.ok) throw new Error("Fallback also failed");
             
             const fallbackBlob = await fallbackResponse.blob();
@@ -2335,7 +2341,7 @@ async function generateAIImage() {
             reader.readAsDataURL(fallbackBlob);
             
         } catch (fallbackError) {
-            resetUI("AI image generation failed. You may need an API key from https://enter.pollinations.ai");
+            resetUI(`AI image generation failed: ${error.message}. Check your API key or try again later.`);
         }
     }
 
