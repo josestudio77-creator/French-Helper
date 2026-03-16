@@ -2269,7 +2269,7 @@ async function generateAIImage() {
     
     if (!phrase) return;
 
-    // 1. Get a clean English word for the AI
+    // 1. Get a clean English word
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
@@ -2280,33 +2280,25 @@ async function generateAIImage() {
     loader.style.display = "block";
     btn.innerHTML = "<span>🎨</span> Drawing...";
 
-    // 3. Build the URL
-    const prompt = `One single 3D cute clay ${englishWord} illustration, centered, vibrant colors, white background, minimalist educational app style`;
+    // 3. Better prompt for older learners
+    const seed = Math.floor(Math.random() * 10000000);
+    const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
     const encodedPrompt = encodeURIComponent(prompt);
     
-    // ✅ Using your publishable key
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
-    const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true`;
+    const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
 
-    console.log("🎨 Requesting AI Image from:", imageUrl);
+    console.log("🎨 Requesting NEW AI Image with seed:", seed);
 
     try {
-        // 4. Fetch with your API key
         const response = await fetch(imageUrl, {
-            headers: {
-                'Authorization': `Bearer ${API_KEY}`
-            }
+            headers: { 'Authorization': `Bearer ${API_KEY}` }
         });
         
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `API returned ${response.status}`);
-        }
+        if (!response.ok) throw new Error("API Busy");
 
-        // 5. Get the image as a blob
         const blob = await response.blob();
         
-        // 6. Convert blob to data URL for the cropper
         const reader = new FileReader();
         reader.onloadend = function() {
             const base64data = reader.result;
@@ -2317,30 +2309,15 @@ async function generateAIImage() {
 
     } catch (error) {
         console.error("AI Error:", error);
-        
-        // Try with a different model as fallback
         try {
-            console.log("Trying fallback model zimage...");
-            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true`;
-            
-            const fallbackResponse = await fetch(fallbackUrl, {
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}`
-                }
-            });
-            
-            if (!fallbackResponse.ok) throw new Error("Fallback also failed");
-            
-            const fallbackBlob = await fallbackResponse.blob();
+            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true&seed=${seed}`;
+            const fbResponse = await fetch(fallbackUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
+            const fbBlob = await fbResponse.blob();
             const reader = new FileReader();
-            reader.onloadend = function() {
-                openPhotoCropper(reader.result);
-                resetUI();
-            };
-            reader.readAsDataURL(fallbackBlob);
-            
-        } catch (fallbackError) {
-            resetUI(`AI image generation failed: ${error.message}. Check your API key or try again later.`);
+            reader.onloadend = () => { openPhotoCropper(reader.result); resetUI(); };
+            reader.readAsDataURL(fbBlob);
+        } catch (e) {
+            resetUI("Drawing is taking a while. Please wait 5 seconds and try one more time!");
         }
     }
 
