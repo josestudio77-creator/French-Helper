@@ -2111,17 +2111,17 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
-            currentAspectRatio = 4/3; // Reset to default landscape
+            currentAspectRatio = 4/3; 
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
             const image = document.getElementById('cropperImage');
             
-            // --- THE CRITICAL ORDER FIX ---
-            image.src = "";                   // 1. Clear old image first
-            image.crossOrigin = "anonymous";  // 2. Set permission SECOND
-            image.src = imageData;            // 3. Set the URL THIRD
+            // SECURITY FIX: Permission FIRST, then Source
+            image.src = ""; 
+            image.crossOrigin = "anonymous"; 
+            image.src = imageData;
             
             image.onload = function() {
                 if (cropper) cropper.destroy();
@@ -2129,15 +2129,14 @@
                 cropper = new Cropper(image, {
                     aspectRatio: currentAspectRatio === 0 ? NaN : currentAspectRatio,
                     viewMode: 1,
-                    checkCrossOrigin: true, // Tell the library to respect the permission
+                    checkCrossOrigin: true, // Security for AI images
                     autoCropArea: 0.8,
                     movable: true,
                     zoomable: true,
                     rotatable: true,
                     scalable: false,
                     cropBoxResizable: true,
-                    // FIXED TYPO BELOW:
-                    toggleDragModeOnDblclick: false, 
+                    toggleDragModeOnDblclick: false,
                     guides: true,
                     center: true,
                     highlight: true,
@@ -2145,10 +2144,10 @@
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
                     ready() {
-                        console.log('Cropper ready with AI image');
+                        console.log('Cropper ready');
+                        setAspectRatio(4/3); 
                     }
                 });
-                setAspectRatio(4/3); // This highlights your button visuals
             };
         }
         
