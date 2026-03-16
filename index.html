@@ -2269,9 +2269,12 @@ async function generateAIImage() {
     const loader = document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
-    // 1. Get English translation
+    // 1. Get English translation for a better prompt
     const data = getCardData(phrase);
-    const englishWord = data.en || phrase;
+    let englishWord = data.en || phrase;
+    
+    // Clean up the word (remove "A", "An", "The" or "Le/La" if they exist)
+    englishWord = englishWord.replace(/^(a|an|the|le|la|un|une)\s+/i, "");
 
     // 2. UI Loading State
     btn.disabled = true;
@@ -2279,38 +2282,46 @@ async function generateAIImage() {
     loader.style.display = "block";
     btn.innerHTML = "<span>🎨</span> Drawing...";
 
-    // 3. Construct the Prompt (Optimized for kid-friendly results)
+    // 3. Construct the Prompt
     const prompt = `One single ${englishWord}, centered, high quality 3d cute clay illustration, bright colors, white background, educational app style`;
     const encodedPrompt = encodeURIComponent(prompt);
-    
-    // Random seed ensures you get a NEW image every time you click the button
     const seed = Math.floor(Math.random() * 1000000);
     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}`;
 
-    // 4. Pre-load the image to make sure it exists before opening cropper
-    const img = new Image();
-    img.crossOrigin = "anonymous"; // <--- THIS IS THE FIX for the broken icon
-    
-    img.onload = function() {
-        // Image loaded successfully! Now open the cropper.
-        openPhotoCropper(imageUrl);
+    try {
+        // 4. THE ROBUST FETCH: This waits for the actual image data
+        const response = await fetch(imageUrl);
         
-        // Reset UI
+        if (!response.ok) throw new Error("AI Busy");
+
+        const blob = await response.blob();
+        
+        // 5. Convert the image to a local URL that the Cropper can "own"
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            const base64data = reader.result;
+            
+            // 6. Open the Cropper with the fully loaded image
+            openPhotoCropper(base64data);
+            
+            // Reset UI
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            loader.style.display = "none";
+            btn.innerHTML = "<span>🤖</span> Generate AI Image";
+        };
+        reader.readAsDataURL(blob);
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        alert("The AI is drawing as fast as it can! Please wait 2 seconds and try one more time.");
+        
+        // Reset UI so they can try again
         btn.disabled = false;
         btn.style.opacity = "1";
         loader.style.display = "none";
         btn.innerHTML = "<span>🤖</span> Generate AI Image";
-    };
-
-    img.onerror = function() {
-        alert("The AI is a bit slow right now. Please try clicking again!");
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        loader.style.display = "none";
-        btn.innerHTML = "<span>🤖</span> Generate AI Image";
-    };
-
-    img.src = imageUrl;
+    }
 }
         
 // ===== UPDATED getCardData (V10.7) - ALL FEATURES PRESERVED + CACHE PRIORITY =====
