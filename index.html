@@ -2358,9 +2358,9 @@ async function generateAIImage(isRefresh = false) {
 
     // 4. Generate unique seed for variety
     const seed = Math.floor(Math.random() * 10000000);
-    
-    // PRESERVED: Your realistic educational prompt
-    const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
+
+    // IMPROVED PROMPT: Explicitly forbid text in the image
+    const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning, no text or words in the image, no letters or typography`;
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
