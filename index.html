@@ -2281,37 +2281,73 @@ async function generateAIImage() {
     loader.style.display = "block";
     btn.innerHTML = "<span>🎨</span> Drawing...";
 
-    // 3. Build the URL (Using a more robust model path)
+    // 3. Build the URL
     const seed = Math.floor(Math.random() * 1000000);
     const prompt = `One single 3D cute clay ${englishWord} illustration, centered, vibrant colors, white background, minimalist educational app style`;
-    const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&model=flux&nologo=true`;
+    
+    // Try different API endpoints if one fails
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true&seed=${seed}`;
+    const fallbackUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&model=flux&nologo=true`;
 
     console.log("🎨 Requesting AI Image for:", englishWord);
 
-    // 4. THE FIX: Use a native Image object to wait for the drawing
-    const testImg = new Image();
-    testImg.crossOrigin = "anonymous"; // Important for security
+    // Try the first URL
+    tryLoadImage(imageUrl, fallbackUrl);
 
-    // Safety Timeout: if it takes more than 15 seconds, let the user try again
-    const safetyTimer = setTimeout(() => {
-        testImg.onload = null;
-        testImg.onerror = null;
-        resetUI("The AI is taking its time drawing. Please wait 5 seconds and click Generate again!");
-    }, 15000);
-
-    testImg.onload = function() {
-        clearTimeout(safetyTimer);
-        // Drawing is finished! Now open the cropper.
-        openPhotoCropper(imageUrl);
-        resetUI();
-    };
-
-    testImg.onerror = function() {
-        clearTimeout(safetyTimer);
-        resetUI("AI is still drawing. Click the button again in a moment!");
-    };
-
-    testImg.src = imageUrl;
+    function tryLoadImage(primaryUrl, fallbackUrl) {
+        const testImg = new Image();
+        let timeoutId;
+        
+        // Set a timeout
+        timeoutId = setTimeout(() => {
+            testImg.onload = null;
+            testImg.onerror = null;
+            
+            // Try the fallback URL
+            console.log("Primary URL timeout, trying fallback");
+            tryLoadFallback(fallbackUrl);
+        }, 8000); // 8 second timeout
+        
+        testImg.onload = function() {
+            clearTimeout(timeoutId);
+            console.log("✅ Image loaded successfully");
+            openPhotoCropper(primaryUrl);
+            resetUI();
+        };
+        
+        testImg.onerror = function() {
+            clearTimeout(timeoutId);
+            console.log("❌ Primary URL failed, trying fallback");
+            tryLoadFallback(fallbackUrl);
+        };
+        
+        testImg.src = primaryUrl;
+    }
+    
+    function tryLoadFallback(fallbackUrl) {
+        const testImg = new Image();
+        let timeoutId;
+        
+        timeoutId = setTimeout(() => {
+            testImg.onload = null;
+            testImg.onerror = null;
+            resetUI("AI image generation timed out. Please try again in a moment.");
+        }, 8000);
+        
+        testImg.onload = function() {
+            clearTimeout(timeoutId);
+            console.log("✅ Fallback image loaded successfully");
+            openPhotoCropper(fallbackUrl);
+            resetUI();
+        };
+        
+        testImg.onerror = function() {
+            clearTimeout(timeoutId);
+            resetUI("AI service is busy. Please try again in a few seconds.");
+        };
+        
+        testImg.src = fallbackUrl;
+    }
 
     function resetUI(msg) {
         if (msg) alert(msg);
