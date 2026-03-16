@@ -2111,7 +2111,7 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
-            currentAspectRatio = 4/3; 
+            currentAspectRatio = 4/3; // Reset to default landscape
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
@@ -2119,9 +2119,9 @@
             const image = document.getElementById('cropperImage');
             
             // --- THE CRITICAL ORDER FIX ---
-            image.src = ""; // Clear old image first
-            image.crossOrigin = "anonymous"; // 1. Set permission FIRST
-            image.src = imageData;           // 2. Set the URL SECOND
+            image.src = "";                   // 1. Clear old image first
+            image.crossOrigin = "anonymous";  // 2. Set permission SECOND
+            image.src = imageData;            // 3. Set the URL THIRD
             
             image.onload = function() {
                 if (cropper) cropper.destroy();
@@ -2136,7 +2136,8 @@
                     rotatable: true,
                     scalable: false,
                     cropBoxResizable: true,
-                    toggleDragMode onDblclick: false,
+                    // FIXED TYPO BELOW:
+                    toggleDragModeOnDblclick: false, 
                     guides: true,
                     center: true,
                     highlight: true,
@@ -2147,7 +2148,7 @@
                         console.log('Cropper ready with AI image');
                     }
                 });
-                setAspectRatio(4/3); 
+                setAspectRatio(4/3); // This highlights your button visuals
             };
         }
         
