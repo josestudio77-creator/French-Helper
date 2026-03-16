@@ -1752,9 +1752,18 @@
             <div style="margin-bottom:20px;">
                 <button onclick="openEmojiPicker()" style="background:#4cd964; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-bottom:10px;">😊 Choose Emoji</button>
                 <button onclick="openPhotoPicker()" style="background:#5a67d8; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-bottom:10px;">📷 Choose Photo</button>
+                <button id="btnAiGen" onclick="generateAIImage()" style="background: linear-gradient(135deg, #9d4edd, #ff6b8b); color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%; margin-bottom:10px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>🤖</span> Generate AI Image
+                </button>
                 <button onclick="resetToDefaultIcon()" style="background:#ff9e6d; color:white; padding:15px; border:none; border-radius:15px; font-weight:900; width:100%;">↺ Reset to Default</button>
             </div>
-            
+
+            <!-- Add a small loading status for the AI -->
+            <div id="aiLoadingStatus" style="display:none; color:#9d4edd; font-weight:900; margin-bottom:10px; font-size:0.8rem;">
+                <div class="loading-spinner" style="width:20px; height:20px; border-width:3px; display:inline-block; vertical-align:middle; margin-right:10px;"></div>
+                AI is drawing your image...
+            </div>
+                        
             <!-- Emoji Input (uses phone's native emoji keyboard) -->
             <div id="emojiInputSection" style="margin:20px 0; display:none;">
                 <p style="font-weight:800; color:#64748b; margin-bottom:10px;">Type any emoji using your keyboard:</p>
@@ -2193,7 +2202,7 @@
                 imageSmoothingQuality: 'high'
             });
             
-            const croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+            const croppedImageData = canvas.toDataURL('image/jpeg', 0.6);
             const normalizedPhrase = norm(currentPickerPhrase);
             
             customPhotos[normalizedPhrase] = {
@@ -2247,6 +2256,49 @@
             else if (ratio > 1) document.getElementById('ratio-landscape').classList.add('active');
             else if (ratio < 1) document.getElementById('ratio-portrait').classList.add('active');
         }
+
+async function generateAIImage() {
+    const btn = document.getElementById('btnAiGen');
+    const loader = document.getElementById('aiLoadingStatus');
+    const phrase = currentPickerPhrase;
+    
+    const data = getCardData(phrase);
+    const englishWord = data.en || phrase;
+
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    loader.style.display = "block";
+    // Add a blinking animation via code
+    btn.innerHTML = "<span>🎨</span> Drawing...";
+
+    const prompt = `One single ${englishWord}, centered, high quality 3d cute clay illustration, bright colors, white background, masterpiece, educational app style`;
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+
+    try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            const base64data = reader.result;
+            openPhotoCropper(base64data);
+            
+            // RESET BUTTON
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            loader.style.display = "none";
+            btn.innerHTML = "<span>🤖</span> Generate AI Image";
+        };
+        reader.readAsDataURL(blob);
+    } catch (error) {
+        alert("AI is a bit busy! Try again in a second.");
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        loader.style.display = "none";
+        btn.innerHTML = "<span>🤖</span> Generate AI Image";
+    }
+}
         
 // ===== UPDATED getCardData (V10.7) - ALL FEATURES PRESERVED + CACHE PRIORITY =====
 function getCardData(p) {
