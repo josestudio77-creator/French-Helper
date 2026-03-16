@@ -2111,14 +2111,13 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
-            currentAspectRatio = 4/3; 
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
             const image = document.getElementById('cropperImage');
             
-            // SECURITY FIX: Permission FIRST, then Source
+            // 1. SECURITY FIX: Required for AI images (Order matters!)
             image.src = ""; 
             image.crossOrigin = "anonymous"; 
             image.src = imageData;
@@ -2126,11 +2125,32 @@
             image.onload = function() {
                 if (cropper) cropper.destroy();
                 
+                // 2. DETECT NATURAL ORIENTATION
+                const naturalWidth = image.naturalWidth;
+                const naturalHeight = image.naturalHeight;
+                const imageRatio = naturalWidth / naturalHeight;
+                
+                // 3. Set the target ratio based on detection (using card-friendly 4:3)
+                let detectedRatio = 4/3; // Default to Landscape
+                if (imageRatio > 1.1) {
+                    detectedRatio = 4/3; // Landscape
+                    console.log("📷 Landscape image detected");
+                } else if (imageRatio < 0.9) {
+                    detectedRatio = 3/4; // Portrait
+                    console.log("📷 Portrait image detected");
+                } else {
+                    detectedRatio = 1; // Square
+                    console.log("📷 Square image detected");
+                }
+                
+                // Update the global state
+                currentAspectRatio = detectedRatio;
+                
                 cropper = new Cropper(image, {
-                    aspectRatio: currentAspectRatio === 0 ? NaN : currentAspectRatio,
+                    aspectRatio: detectedRatio, 
                     viewMode: 1,
-                    checkCrossOrigin: true, // Security for AI images
-                    autoCropArea: 0.8,
+                    checkCrossOrigin: true, // Security for AI
+                    autoCropArea: 0.9,      // Gives a little margin to see the edges
                     movable: true,
                     zoomable: true,
                     rotatable: true,
@@ -2144,8 +2164,9 @@
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
                     ready() {
-                        console.log('Cropper ready');
-                        setAspectRatio(4/3); 
+                        // 4. Update the UI buttons to show which one was auto-selected
+                        setAspectRatio(detectedRatio);
+                        console.log('Cropper ready with detected ratio:', detectedRatio);
                     }
                 });
             };
@@ -2246,21 +2267,29 @@
             reader.readAsDataURL(file);
         });
 
-        function setAspectRatio(ratio) {
-            currentAspectRatio = ratio;
-            if (cropper) cropper.setAspectRatio(ratio === 0 ? NaN : ratio);
-        
-            // 1. Turn off the light on ALL 4 buttons
-            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-        
-            // 2. Turn on the light ONLY for the one clicked
-            if (ratio === 1) document.getElementById('ratio-square').classList.add('active');
-            else if (ratio === 0) document.getElementById('ratio-free').classList.add('active');
-            else if (ratio > 1) document.getElementById('ratio-landscape').classList.add('active');
-            else if (ratio < 1) document.getElementById('ratio-portrait').classList.add('active');
-        }
+function setAspectRatio(ratio) {
+    currentAspectRatio = ratio;
+    
+    // If ratio is 0, we set it to NaN (Free Crop)
+    if (cropper) cropper.setAspectRatio(ratio === 0 ? NaN : ratio);
+    
+    // Update button UI visuals
+    document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    if (ratio === 1) {
+        document.getElementById('ratio-square').classList.add('active');
+    } else if (ratio === 0) {
+        document.getElementById('ratio-free').classList.add('active');
+    } else if (ratio > 1) {
+        // Any ratio greater than 1 (like 4/3 or 16/9) counts as landscape
+        document.getElementById('ratio-landscape').classList.add('active');
+    } else if (ratio < 1) {
+        // Any ratio less than 1 (like 3/4) counts as portrait
+        document.getElementById('ratio-portrait').classList.add('active');
+    }
+}
 
 async function generateAIImage() {
     const btn = document.getElementById('btnAiGen');
