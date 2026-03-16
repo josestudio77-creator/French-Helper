@@ -1777,13 +1777,13 @@
         </div>
     </div>
 
-    <!-- Photo Cropper Overlay with aspect ratio controls -->
-    <div id="photoCropperOverlay" class="overlay" style="z-index:2500;">
-        <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column;">
-            <h2 style="color:#9d4edd; margin-bottom:10px;">📷 Crop Your Photo</h2>
+<!-- Photo Cropper Overlay with aspect ratio controls -->
+    <div id="photoCropperOverlay" class="overlay" style="z-index:9700;">
+        <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column; max-width: 450px; margin: 5vh auto; height: 85vh;">
+            <h2 style="color:#9d4edd; margin-bottom:5px; font-size: 1.4rem;">📷 Crop Your Photo</h2>
             <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Choose shape and adjust</p>
             
-            <!-- Aspect Ratio Selector with specific classes -->
+            <!-- Aspect Ratio Selector -->
             <div style="display: flex; gap: 5px; justify-content: center; margin-bottom: 10px;">
                 <button id="ratio-square" onclick="setAspectRatio(1)" class="aspect-ratio-btn">⬛ Square</button>
                 <button id="ratio-landscape" onclick="setAspectRatio(4/3)" class="aspect-ratio-btn">🖼️ Landsc.</button>
@@ -1792,13 +1792,35 @@
             </div>
             
             <!-- Image container for cropping -->
-            <div style="flex:1; min-height:300px; background:#f0f0f0; border-radius:10px; overflow:hidden; margin-bottom:10px; position:relative;">
+            <div style="flex:1; min-height:280px; background:#f0f0f0; border-radius:15px; overflow:hidden; margin-bottom:10px; position:relative; border: 2px solid #e2e8f0;">
                 <img id="cropperImage" src="" style="max-width:100%; display:block;">
+                
+                <!-- INTERNAL LOADING OVERLAY: Shows during AI Redrawing -->
+                <div id="cropperLoading" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.85); z-index:100; flex-direction:column; align-items:center; justify-content:center;">
+                    <div class="loading-spinner" style="width:45px; height:45px;"></div>
+                    <p style="color:#9d4edd; font-weight:900; margin-top:15px; font-size:1rem;">AI is redrawing...</p>
+                </div>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
-                <button id="btnCancelCrop" class="cropper-main-btn" onclick="cancelCrop()">Cancel</button>
-                <button id="btnSaveCrop" class="cropper-main-btn" onclick="saveCroppedPhoto()">Save Crop</button>
+            <!-- BUTTON ACTION GRID -->
+            <div style="display:grid; grid-template-columns: 1fr 1.3fr 1fr; gap:8px; margin-top:5px;">
+                <!-- Left: Cancel -->
+                <button id="btnCancelCrop" class="cropper-main-btn" onclick="cancelCrop()" 
+                        style="background:#ff9e6d !important; padding: 12px 5px !important; font-size: 0.85rem !important;">
+                    Cancel
+                </button>
+                
+                <!-- Middle: REGENERATE (Hidden by default, shown by JS in AI Mode) -->
+                <button id="btnRegenAI" class="cropper-main-btn" onclick="generateAIImage(true)" 
+                        style="display:none; background:#9d4edd !important; padding: 12px 2px !important; font-size: 0.8rem !important; border: 2px solid white !important;">
+                    🔄 New Image
+                </button>
+                
+                <!-- Right: Save -->
+                <button id="btnSaveCrop" class="cropper-main-btn" onclick="saveCroppedPhoto()" 
+                        style="background:#4cd964 !important; padding: 12px 5px !important; font-size: 0.85rem !important;">
+                    Save
+                </button>
             </div>
         </div>
     </div>
@@ -1887,6 +1909,7 @@
         let targetWord = ""; // Global declaration for Hangman and Spelling logic
         let allowExit = false; // Controls the back-swipe logic
         let exitAttempts = 0;
+        let isAiMode = false; // Tracks if the current image is AI generated
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -2112,6 +2135,18 @@
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
             
+            // Ensure the loader is hidden when we first open the cropper
+            const loader = document.getElementById('cropperLoading');
+            if (loader) {
+                // Small delay to ensure smooth transition
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 100);
+            }
+        
+            // Show/Hide the "New AI Image" button based on how we got here
+            document.getElementById('btnRegenAI').style.display = isAiMode ? 'block' : 'none';
+            
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
@@ -2173,10 +2208,17 @@
         }
         
         function cancelCrop() {
-            if (cropper) cropper.destroy();
-            cropper = null;
-            document.getElementById('photoCropperOverlay').style.display = 'none';
-            // Don't reopen icon picker - stay on the main screen
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            isAiMode = false;
+            const loader = document.getElementById('cropperLoading');
+            if (loader) loader.style.display = 'none';
+            
+            // ✅ Call closeOverlay to manage scroll properly
+            closeOverlay('photoCropperOverlay');
         }
 
         function saveCroppedPhoto() {
@@ -2251,6 +2293,7 @@
 
         // Update photo picker to use cropper
         document.getElementById('photoPickerInput').addEventListener('change', function(e) {
+            isAiMode = false; // Disable AI refresh button for local photos
             const file = e.target.files[0];
             if (!file) return;
             
@@ -2291,71 +2334,95 @@ function setAspectRatio(ratio) {
     }
 }
 
-async function generateAIImage() {
-    const btn = document.getElementById('btnAiGen');
-    const loader = document.getElementById('aiLoadingStatus');
+async function generateAIImage(isRefresh = false) {
+    // 1. DYNAMIC UI TARGETING: Select which button and loader to use
+    const btn = isRefresh ? document.getElementById('btnRegenAI') : document.getElementById('btnAiGen');
+    const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
     if (!phrase) return;
 
-    // 1. Get a clean English word
+    // Track that we are in AI mode for the cropper's button visibility
+    isAiMode = true; 
+
+    // 2. Setup UI State
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    if (loader) loader.style.display = isRefresh ? "flex" : "block";
+    btn.innerHTML = isRefresh ? "Drawing..." : "<span>🎨</span> Drawing...";
+
+    // 3. Get clean English word
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
 
-    // 2. UI Loading State
-    btn.disabled = true;
-    btn.style.opacity = "0.5";
-    loader.style.display = "block";
-    btn.innerHTML = "<span>🎨</span> Drawing...";
-
-    // 3. Better prompt for older learners
+    // 4. Generate unique seed for variety
     const seed = Math.floor(Math.random() * 10000000);
+    
+    // PRESERVED: Your realistic educational prompt
     const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
 
-    console.log("🎨 Requesting NEW AI Image with seed:", seed);
+    console.log("🎨 Requesting AI Image. Refresh Mode:", isRefresh, "Seed:", seed);
 
     try {
+        // 5. Main Attempt (Flux Model)
         const response = await fetch(imageUrl, {
             headers: { 'Authorization': `Bearer ${API_KEY}` }
         });
         
-        if (!response.ok) throw new Error("API Busy");
+        if (!response.ok) throw new Error("Flux Busy");
 
         const blob = await response.blob();
-        
         const reader = new FileReader();
         reader.onloadend = function() {
-            const base64data = reader.result;
-            openPhotoCropper(base64data);
+            // Send to cropper and cleanup
+            openPhotoCropper(reader.result);
             resetUI();
         };
         reader.readAsDataURL(blob);
 
     } catch (error) {
-        console.error("AI Error:", error);
+        console.error("Main AI Error, trying fallback:", error);
+        
+        // 6. PRESERVED: Fallback Attempt (zimage Model)
         try {
             const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true&seed=${seed}`;
-            const fbResponse = await fetch(fallbackUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
+            const fbResponse = await fetch(fallbackUrl, {
+                headers: { 'Authorization': `Bearer ${API_KEY}` }
+            });
+            
+            if (!fbResponse.ok) throw new Error("Fallback failed");
+            
             const fbBlob = await fbResponse.blob();
             const reader = new FileReader();
-            reader.onloadend = () => { openPhotoCropper(reader.result); resetUI(); };
+            reader.onloadend = () => {
+                openPhotoCropper(reader.result);
+                resetUI();
+            };
             reader.readAsDataURL(fbBlob);
-        } catch (e) {
+            
+        } catch (fbError) {
             resetUI("Drawing is taking a while. Please wait 5 seconds and try one more time!");
         }
     }
 
+    // Helper to reset the UI elements based on the mode
     function resetUI(msg) {
         if (msg) alert(msg);
         btn.disabled = false;
         btn.style.opacity = "1";
-        loader.style.display = "none";
-        btn.innerHTML = "<span>🤖</span> Generate AI Image";
+        if (loader) loader.style.display = "none";
+        
+        // Restore the original button text
+        if (isRefresh) {
+            btn.innerHTML = "🔄 New Image";
+        } else {
+            btn.innerHTML = "<span>🤖</span> Generate AI Image";
+        }
     }
 }
         
