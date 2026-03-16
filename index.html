@@ -2095,7 +2095,7 @@
             photoInput.click();
         }
         
-        function resetToDefaultIcon() {
+        function resetToDefaultIcon() { 
             const normalizedPhrase = norm(currentPickerPhrase);
             
             if (customIcons[normalizedPhrase]) delete customIcons[normalizedPhrase];
@@ -2111,17 +2111,17 @@
         // ===== CROPPER FUNCTIONS =====
         function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
-            currentAspectRatio = 4/3; // Reset to default landscape
+            currentAspectRatio = 4/3; 
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
             
             const image = document.getElementById('cropperImage');
-
-            // --- ADDED LINE 1: Allows browser to read pixels from the AI server ---
-            image.crossOrigin = "anonymous"; 
             
-            image.src = imageData;
+            // --- THE CRITICAL ORDER FIX ---
+            image.src = ""; // Clear old image first
+            image.crossOrigin = "anonymous"; // 1. Set permission FIRST
+            image.src = imageData;           // 2. Set the URL SECOND
             
             image.onload = function() {
                 if (cropper) cropper.destroy();
@@ -2129,16 +2129,14 @@
                 cropper = new Cropper(image, {
                     aspectRatio: currentAspectRatio === 0 ? NaN : currentAspectRatio,
                     viewMode: 1,
-                    // --- ADDED LINE 2: Tells the library to handle the security check ---
-                    checkCrossOrigin: true, 
-                    
+                    checkCrossOrigin: true, // Tell the library to respect the permission
                     autoCropArea: 0.8,
                     movable: true,
                     zoomable: true,
                     rotatable: true,
                     scalable: false,
                     cropBoxResizable: true,
-                    toggleDragModeOnDblclick: false,
+                    toggleDragMode onDblclick: false,
                     guides: true,
                     center: true,
                     highlight: true,
@@ -2146,13 +2144,13 @@
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
                     ready() {
-                        console.log('Cropper ready with aspect ratio:', currentAspectRatio);
+                        console.log('Cropper ready with AI image');
                     }
                 });
-                setAspectRatio(4/3); // This highlights the Landscape button by default
+                setAspectRatio(4/3); 
             };
         }
-
+        
         function cancelCrop() {
             if (cropper) cropper.destroy();
             cropper = null;
@@ -2269,12 +2267,12 @@ async function generateAIImage() {
     const loader = document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
-    // 1. Get English translation for a better prompt
+    if (!phrase) return;
+
+    // 1. Get a clean English word for the AI
     const data = getCardData(phrase);
-    let englishWord = data.en || phrase;
-    
-    // Clean up the word (remove "A", "An", "The" or "Le/La" if they exist)
-    englishWord = englishWord.replace(/^(a|an|the|le|la|un|une)\s+/i, "");
+    let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
+    englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
 
     // 2. UI Loading State
     btn.disabled = true;
@@ -2282,41 +2280,40 @@ async function generateAIImage() {
     loader.style.display = "block";
     btn.innerHTML = "<span>🎨</span> Drawing...";
 
-    // 3. Construct the Prompt
-    const prompt = `One single ${englishWord}, centered, high quality 3d cute clay illustration, bright colors, white background, educational app style`;
-    const encodedPrompt = encodeURIComponent(prompt);
+    // 3. Build the URL (Using a more robust model path)
     const seed = Math.floor(Math.random() * 1000000);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true&seed=${seed}`;
+    const prompt = `One single 3D cute clay ${englishWord} illustration, centered, vibrant colors, white background, minimalist educational app style`;
+    const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&model=flux&nologo=true`;
 
-    try {
-        // 4. THE ROBUST FETCH: This waits for the actual image data
-        const response = await fetch(imageUrl);
-        
-        if (!response.ok) throw new Error("AI Busy");
+    console.log("🎨 Requesting AI Image for:", englishWord);
 
-        const blob = await response.blob();
-        
-        // 5. Convert the image to a local URL that the Cropper can "own"
-        const reader = new FileReader();
-        reader.onloadend = function() {
-            const base64data = reader.result;
-            
-            // 6. Open the Cropper with the fully loaded image
-            openPhotoCropper(base64data);
-            
-            // Reset UI
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            loader.style.display = "none";
-            btn.innerHTML = "<span>🤖</span> Generate AI Image";
-        };
-        reader.readAsDataURL(blob);
+    // 4. THE FIX: Use a native Image object to wait for the drawing
+    const testImg = new Image();
+    testImg.crossOrigin = "anonymous"; // Important for security
 
-    } catch (error) {
-        console.error("AI Error:", error);
-        alert("The AI is drawing as fast as it can! Please wait 2 seconds and try one more time.");
-        
-        // Reset UI so they can try again
+    // Safety Timeout: if it takes more than 15 seconds, let the user try again
+    const safetyTimer = setTimeout(() => {
+        testImg.onload = null;
+        testImg.onerror = null;
+        resetUI("The AI is taking its time drawing. Please wait 5 seconds and click Generate again!");
+    }, 15000);
+
+    testImg.onload = function() {
+        clearTimeout(safetyTimer);
+        // Drawing is finished! Now open the cropper.
+        openPhotoCropper(imageUrl);
+        resetUI();
+    };
+
+    testImg.onerror = function() {
+        clearTimeout(safetyTimer);
+        resetUI("AI is still drawing. Click the button again in a moment!");
+    };
+
+    testImg.src = imageUrl;
+
+    function resetUI(msg) {
+        if (msg) alert(msg);
         btn.disabled = false;
         btn.style.opacity = "1";
         loader.style.display = "none";
