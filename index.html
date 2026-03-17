@@ -2364,17 +2364,20 @@ async function generateAIImage(isRefresh = false) {
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
+    
+    // ✅ FIXED: Primary uses imagen-4, fallback uses flux
     const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
+    const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
 
     console.log("🎨 Requesting AI Image. Refresh Mode:", isRefresh, "Seed:", seed);
 
     try {
-        // 5. Main Attempt (Flux Model)
+        // 5. Main Attempt (imagen-4 Model)
         const response = await fetch(imageUrl, {
             headers: { 'Authorization': `Bearer ${API_KEY}` }
         });
         
-        if (!response.ok) throw new Error("Flux Busy");
+        if (!response.ok) throw new Error("imagen-4 Busy");
 
         const blob = await response.blob();
         const reader = new FileReader();
@@ -2388,9 +2391,8 @@ async function generateAIImage(isRefresh = false) {
     } catch (error) {
         console.error("Main AI Error, trying fallback:", error);
         
-        // 6. PRESERVED: Fallback Attempt (zimage Model)
+        // 6. ✅ FIXED: Fallback Attempt (flux Model - different from primary)
         try {
-            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
             const fbResponse = await fetch(fallbackUrl, {
                 headers: { 'Authorization': `Bearer ${API_KEY}` }
             });
