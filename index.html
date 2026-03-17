@@ -2340,13 +2340,11 @@ async function generateAIImage(isRefresh = false) {
     const phrase = currentPickerPhrase;
     
     if (!phrase) return;
-
     isAiMode = true; 
 
     btn.disabled = true;
     btn.style.opacity = "0.5";
     if (loader) loader.style.display = isRefresh ? "flex" : "block";
-    
     btn.innerHTML = isRefresh ? "Drawing..." : "<span>🎨</span> Drawing...";
     
     const loaderText = loader?.querySelector('p') || loader;
@@ -2356,43 +2354,95 @@ async function generateAIImage(isRefresh = false) {
 
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
-    englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
+    englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la |des |du |de la )\s+/i, "").trim();
+
+    // --- EXPANDED VISUAL MAPPING (NEW) ---
+    let visualDescription = englishWord;
+    const lowerWord = englishWord.toLowerCase();
+    
+    const visualMap = {
+        // Greetings & Social
+        'thank': 'person with grateful expression, hands on heart',
+        'thanks': 'person with grateful expression, hands on heart',
+        'merci': 'person with grateful expression, hands on heart',
+        'hello': 'person waving hand with friendly smile',
+        'bonjour': 'person waving hand with friendly smile',
+        'hi': 'person waving hand',
+        'goodbye': 'person waving goodbye',
+        'au revoir': 'person waving goodbye',
+        'bye': 'person waving hand',
+        'please': 'hands pressed together in a polite gesture',
+        'sorry': 'person looking apologetic, hand on chest',
+        'pardon': 'person looking apologetic, hand on chest',
+        'welcome': 'person opening arms in a welcoming gesture',
+        
+        // People & School
+        'friend': 'two children playing together happily',
+        'ami': 'two children playing together happily',
+        'family': 'parent and child holding hands',
+        'famille': 'parent and child holding hands',
+        'school': 'children sitting at desks learning',
+        'école': 'children sitting at desks learning',
+        'teacher': 'adult standing by a chalkboard teaching',
+        'professeur': 'adult standing by a chalkboard teaching',
+        'student': 'child holding a book and smiling',
+        'élève': 'child holding a book and smiling',
+        
+        // Actions
+        'sleep': 'person peacefully sleeping, eyes closed',
+        'dormir': 'person peacefully sleeping, eyes closed',
+        'eat': 'person enjoying a meal',
+        'manger': 'person enjoying a meal',
+        'run': 'child running fast in a park',
+        'courir': 'child running fast in a park',
+        'jump': 'child jumping high with joy',
+        'sauter': 'child jumping high with joy',
+        'read': 'child sitting and reading a colorful book',
+        'lire': 'child sitting and reading a colorful book',
+        'write': 'hand holding a pencil writing on paper',
+        'écrire': 'hand holding a pencil writing on paper',
+        'listen': 'person pointing to ear with a listening expression',
+        'écouter': 'person pointing to ear with a listening expression',
+        
+        // Abstract
+        'love': 'two red hearts intertwined',
+        'amour': 'two red hearts intertwined',
+        'happy': 'very happy smiling face with bright eyes',
+        'heureux': 'very happy smiling face with bright eyes',
+        'sad': 'person looking sad with a frown',
+        'triste': 'person looking sad with a frown',
+        'work': 'person busy writing at a desk',
+        'travail': 'person busy writing at a desk'
+    };
+    
+    // Check if the word or phrase contains any of our keys
+    for (const [key, value] of Object.entries(visualMap)) {
+        if (lowerWord.includes(key)) {
+            visualDescription = value;
+            console.log(`🎨 AI Prompt Mapping: "${key}" -> "${value}"`);
+            break;
+        }
+    }
 
     const seed = Math.floor(Math.random() * 10000000);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
+    const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
+    const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture, logo';
+    
+    const encodedPrompt = encodeURIComponent(prompt);
+    const encodedNegative = encodeURIComponent(negativePrompt);
+
     // TRY 1: imagen-4
     try {
-        if (loaderText) {
-            loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(imagen-4)</span>';
-        }
-        
-        // SUPER STRONG prompt to avoid text
-        const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
-        
-        const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture';
-        
-        const encodedPrompt = encodeURIComponent(prompt);
-        const encodedNegative = encodeURIComponent(negativePrompt);
+        if (loaderText) loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(model 4)</span>';
         
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
-        console.log("🎨 Using imagen-4 with STRICT no-text prompt");
-        
-        const response = await fetch(imageUrl, {
-            headers: { 'Authorization': `Bearer ${API_KEY}` }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`imagen-4 failed`);
-        }
+        const response = await fetch(imageUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
+        if (!response.ok) throw new Error(`imagen-4 failed`);
 
         const blob = await response.blob();
-        
-        if (blob.size < 500) {
-            throw new Error("Image too small");
-        }
-        
         const reader = new FileReader();
         const base64data = await new Promise((resolve, reject) => {
             reader.onloadend = () => resolve(reader.result);
@@ -2400,43 +2450,20 @@ async function generateAIImage(isRefresh = false) {
             reader.readAsDataURL(blob);
         });
         
-        console.log("✅ Success with imagen-4!");
-        
-        if (loaderText) {
-            loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#4cd964;">(imagen-4 ✓)</span>';
-            setTimeout(() => {
-                if (loaderText) loaderText.innerHTML = 'AI is drawing...';
-            }, 2000);
-        }
-        
         openPhotoCropper(base64data);
         resetUI();
         return;
         
     } catch (error) {
-        console.warn("imagen-4 failed, trying flux");
+        console.warn("imagen-4 failed, trying fallback model flux");
         
         // TRY 2: flux
         try {
-            if (loaderText) {
-                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(flux)</span>';
-            }
+            if (loaderText) loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(fallback)</span>';
+            const fluxUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
             
-            // For flux, instructions must be in main prompt
-            const fluxPrompt = `CRITICAL: ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS IN THIS IMAGE. Show a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors. NO TEXT WHATSOEVER.`;
-            
-            const encodedFluxPrompt = encodeURIComponent(fluxPrompt);
-            const fluxUrl = `https://gen.pollinations.ai/image/${encodedFluxPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
-            
-            console.log("🎨 Using flux with strict no-text prompt");
-            
-            const response = await fetch(fluxUrl, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`flux failed`);
-            }
+            const response = await fetch(fluxUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
+            if (!response.ok) throw new Error(`flux failed`);
             
             const blob = await response.blob();
             const reader = new FileReader();
@@ -2446,25 +2473,12 @@ async function generateAIImage(isRefresh = false) {
                 reader.readAsDataURL(blob);
             });
             
-            console.log("✅ Success with flux!");
-            
-            if (loaderText) {
-                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#4cd964;">(flux ✓)</span>';
-                setTimeout(() => {
-                    if (loaderText) loaderText.innerHTML = 'AI is drawing...';
-                }, 2000);
-            }
-            
             openPhotoCropper(base64data);
             resetUI();
-            return;
             
         } catch (fbError) {
             console.error("All models failed");
-            if (loaderText) {
-                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#ff6b8b;">(failed)</span>';
-            }
-            resetUI("Couldn't generate image. Please try again!");
+            resetUI("The AI server is very busy. Please wait 3 seconds and click Generate again!");
         }
     }
 
