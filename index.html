@@ -2358,66 +2358,115 @@ async function generateAIImage(isRefresh = false) {
 
     // 4. Generate unique seed
     const seed = Math.floor(Math.random() * 10000000);
-
-    const prompt = `Without including any text or words in the image, create a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
-    const encodedPrompt = encodeURIComponent(prompt);
     
+    // 5. Use visual descriptions for abstract words
+    let visualDescription = englishWord;
+    const lowerWord = englishWord.toLowerCase();
+    
+    const visualMap = {
+        'thank': 'person with grateful expression, hands on heart',
+        'thanks': 'person with grateful expression, hands on heart',
+        'merci': 'person with grateful expression, hands on heart',
+        'hello': 'person waving hand with friendly smile',
+        'bonjour': 'person waving hand with friendly smile',
+        'hi': 'person waving hand',
+        'goodbye': 'person waving goodbye',
+        'bye': 'person waving hand',
+        'sleep': 'person peacefully sleeping, eyes closed',
+        'dormir': 'person peacefully sleeping, eyes closed',
+        'eat': 'person enjoying a meal',
+        'manger': 'person enjoying a meal',
+        'love': 'two hearts intertwined',
+        'amour': 'two hearts intertwined'
+    };
+    
+    for (const [key, value] of Object.entries(visualMap)) {
+        if (lowerWord.includes(key)) {
+            visualDescription = value;
+            console.log(`🎨 Using visual description: "${value}" instead of "${englishWord}"`);
+            break;
+        }
+    }
+    
+    // 6. Strong no-text prompt
+    const prompt = `ZERO text, ZERO words, ZERO letters. Create a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. ABSOLUTELY NO TEXT.`;
+    
+    const encodedPrompt = encodeURIComponent(prompt);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // Try multiple models with timeout
-    const models = [
-        { name: 'imagen-4', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}` },
-        { name: 'flux', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}` },
-        { name: 'zimage', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true&seed=${seed}` }
-    ];
+    // 7. Try imagen-4 FIRST (with NO ABORTCONTROLLER - it's fast!)
+    try {
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
+        
+        console.log("🎨 Trying imagen-4 (fast mode)...");
+        
+        const response = await fetch(imageUrl, {
+            headers: { 'Authorization': `Bearer ${API_KEY}` }
+            // NO ABORTCONTROLLER HERE - it's fast enough!
+        });
+        
+        if (!response.ok) {
+            throw new Error(`imagen-4 failed with status ${response.status}`);
+        }
 
-    console.log("🎨 Requesting AI Image. Refresh Mode:", isRefresh, "Seed:", seed);
-
-    // Try each model in sequence with timeout
-    for (const model of models) {
+        const blob = await response.blob();
+        
+        if (blob.size < 500) {
+            throw new Error("Image too small");
+        }
+        
+        const reader = new FileReader();
+        const base64data = await new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+        
+        console.log("✅ Success with imagen-4!");
+        openPhotoCropper(base64data);
+        resetUI();
+        return;
+        
+    } catch (error) {
+        console.warn("imagen-4 failed, trying fallback:", error.message);
+        
+        // 8. Fallback to flux with timeout (slower model)
         try {
-            console.log(`Trying ${model.name}...`);
+            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
             
-            // ✅ FIX: Create timeout promise
+            console.log("🎨 Trying flux (with timeout)...");
+            
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
             
-            const response = await fetch(model.url, {
+            const response = await fetch(fallbackUrl, {
                 headers: { 'Authorization': `Bearer ${API_KEY}` },
                 signal: controller.signal
             });
             
-            clearTimeout(timeoutId); // Clear timeout if fetch completes
+            clearTimeout(timeoutId);
             
-            if (!response.ok) {
-                console.warn(`${model.name} returned ${response.status}`);
-                continue; // Try next model
-            }
-
+            if (!response.ok) throw new Error("Flux failed");
+            
             const blob = await response.blob();
             const reader = new FileReader();
-            
-            // Convert to data URL
             const base64data = await new Promise((resolve, reject) => {
                 reader.onloadend = () => resolve(reader.result);
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
             });
             
-            // Success! Open cropper and exit
+            console.log("✅ Success with flux!");
             openPhotoCropper(base64data);
             resetUI();
-            return; // Exit function on success
+            return;
             
-        } catch (error) {
-            console.warn(`${model.name} failed:`, error.message);
-            // Continue to next model
+        } catch (fbError) {
+            console.error("All models failed:", fbError);
+            resetUI("Couldn't generate image. Please try again!");
         }
     }
-    
-    // If we get here, all models failed
-    resetUI("The AI is taking longer than usual. Please wait a moment and try again!");
-    
+
     // Helper to reset UI
     function resetUI(msg) {
         if (msg) alert(msg);
