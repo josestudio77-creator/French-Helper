@@ -1563,6 +1563,10 @@
                     ⚠️ Reset Everything
                 </button>
 
+                <button id="btnToggleAi" onclick="toggleAiPreference()" style="background:#8B5CF6; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span>🤖</span> Default AI: Quality (Imagen-4)
+                </button>
+                
                 <button onclick="window.open('privacy.html', '_blank')" style="background:#6b7280; color:white; border:none; border-radius:15px; padding:15px; font-weight:900; cursor:pointer; opacity: 0.8; font-size: 0.8rem;">
                     📄 View Privacy Policy
                 </button>
@@ -1802,7 +1806,7 @@
                 </div>
             </div>
             
-            <!-- BUTTON ACTION GRID -->
+<!-- BUTTON ACTION GRID -->
             <div style="display:grid; grid-template-columns: 1fr 1.5fr 1fr; gap:8px; margin-top:5px;">
                 <!-- Left: Cancel -->
                 <button id="btnCancelCrop" class="cropper-main-btn" onclick="cancelCrop()" 
@@ -1810,8 +1814,8 @@
                     Cancel
                 </button>
                 
-                <!-- Middle: TWO REDRAW OPTIONS (Hidden by default, shown in AI Mode) -->
-                <div id="aiRedrawGroup" style="display:none; display:flex; flex-direction:column; gap:4px;">
+                <!-- Middle: TWO REDRAW OPTIONS (This was missing) -->
+                <div id="aiRedrawGroup" style="display:none; flex-direction:column; gap:4px;">
                     <button onclick="generateAIImage(true, 'flux')" 
                             style="background:#06B6D4; color:white; border:none; border-radius:8px; padding:6px; font-weight:900; font-size:0.7rem; cursor:pointer; border: 1.5px solid white;">
                         ⚡ Fast Redraw
@@ -1916,6 +1920,7 @@
         let allowExit = false; // Controls the back-swipe logic
         let exitAttempts = 0;
         let isAiMode = false; // Tracks if the current image is AI generated
+        let preferredAiModel = localStorage.getItem('preferredAiModel') || 'imagen-4';
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
