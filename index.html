@@ -2360,7 +2360,7 @@ async function generateAIImage(isRefresh = false) {
     const seed = Math.floor(Math.random() * 10000000);
 
     // IMPROVED PROMPT: Explicitly forbid text in the image
-    const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning, no text or words in the image, no letters or typography`;
+    const prompt = `Without including any text or words in the image, create a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
