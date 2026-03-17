@@ -2335,14 +2335,14 @@ function setAspectRatio(ratio) {
 }
 
 async function generateAIImage(isRefresh = false) {
-    // 1. DYNAMIC UI TARGETING: Select which button and loader to use
+    // 1. DYNAMIC UI TARGETING
     const btn = isRefresh ? document.getElementById('btnRegenAI') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
     if (!phrase) return;
 
-    // Track that we are in AI mode for the cropper's button visibility
+    // Track that we are in AI mode
     isAiMode = true; 
 
     // 2. Setup UI State
@@ -2356,75 +2356,75 @@ async function generateAIImage(isRefresh = false) {
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
 
-    // 4. Generate unique seed for variety
+    // 4. Generate unique seed
     const seed = Math.floor(Math.random() * 10000000);
 
-    // IMPROVED PROMPT: Explicitly forbid text in the image
     const prompt = `Without including any text or words in the image, create a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, suitable for language learning`;
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // ✅ FIXED: Primary uses imagen-4, fallback uses flux
-    const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
-    const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
+    // Try multiple models with timeout
+    const models = [
+        { name: 'imagen-4', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}` },
+        { name: 'flux', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}` },
+        { name: 'zimage', url: `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true&seed=${seed}` }
+    ];
 
     console.log("🎨 Requesting AI Image. Refresh Mode:", isRefresh, "Seed:", seed);
 
-    try {
-        // 5. Main Attempt (imagen-4 Model)
-        const response = await fetch(imageUrl, {
-            headers: { 'Authorization': `Bearer ${API_KEY}` }
-        });
-        
-        if (!response.ok) throw new Error("imagen-4 Busy");
-
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = function() {
-            // Send to cropper and cleanup
-            openPhotoCropper(reader.result);
-            resetUI();
-        };
-        reader.readAsDataURL(blob);
-
-    } catch (error) {
-        console.error("Main AI Error, trying fallback:", error);
-        
-        // 6. ✅ FIXED: Fallback Attempt (flux Model - different from primary)
+    // Try each model in sequence with timeout
+    for (const model of models) {
         try {
-            const fbResponse = await fetch(fallbackUrl, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
+            console.log(`Trying ${model.name}...`);
+            
+            // ✅ FIX: Create timeout promise
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            
+            const response = await fetch(model.url, {
+                headers: { 'Authorization': `Bearer ${API_KEY}` },
+                signal: controller.signal
             });
             
-            if (!fbResponse.ok) throw new Error("Fallback failed");
+            clearTimeout(timeoutId); // Clear timeout if fetch completes
             
-            const fbBlob = await fbResponse.blob();
+            if (!response.ok) {
+                console.warn(`${model.name} returned ${response.status}`);
+                continue; // Try next model
+            }
+
+            const blob = await response.blob();
             const reader = new FileReader();
-            reader.onloadend = () => {
-                openPhotoCropper(reader.result);
-                resetUI();
-            };
-            reader.readAsDataURL(fbBlob);
             
-        } catch (fbError) {
-            resetUI("Drawing is taking a while. Please wait 5 seconds and try one more time!");
+            // Convert to data URL
+            const base64data = await new Promise((resolve, reject) => {
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+            
+            // Success! Open cropper and exit
+            openPhotoCropper(base64data);
+            resetUI();
+            return; // Exit function on success
+            
+        } catch (error) {
+            console.warn(`${model.name} failed:`, error.message);
+            // Continue to next model
         }
     }
-
-    // Helper to reset the UI elements based on the mode
+    
+    // If we get here, all models failed
+    resetUI("The AI is taking longer than usual. Please wait a moment and try again!");
+    
+    // Helper to reset UI
     function resetUI(msg) {
         if (msg) alert(msg);
         btn.disabled = false;
         btn.style.opacity = "1";
         if (loader) loader.style.display = "none";
-        
-        // Restore the original button text
-        if (isRefresh) {
-            btn.innerHTML = "🔄 New Image";
-        } else {
-            btn.innerHTML = "<span>🤖</span> Generate AI Image";
-        }
+        btn.innerHTML = isRefresh ? "🔄 New Image" : "<span>🤖</span> Generate AI Image";
     }
 }
         
