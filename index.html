@@ -2364,7 +2364,7 @@ async function generateAIImage(isRefresh = false) {
     const encodedPrompt = encodeURIComponent(prompt);
     
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
-    const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
+    const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
 
     console.log("🎨 Requesting AI Image. Refresh Mode:", isRefresh, "Seed:", seed);
 
@@ -2390,7 +2390,7 @@ async function generateAIImage(isRefresh = false) {
         
         // 6. PRESERVED: Fallback Attempt (zimage Model)
         try {
-            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=zimage&nologo=true&seed=${seed}`;
+            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
             const fbResponse = await fetch(fallbackUrl, {
                 headers: { 'Authorization': `Bearer ${API_KEY}` }
             });
