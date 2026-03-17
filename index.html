@@ -2335,36 +2335,31 @@ function setAspectRatio(ratio) {
 }
 
 async function generateAIImage(isRefresh = false) {
-    // 1. DYNAMIC UI TARGETING
     const btn = isRefresh ? document.getElementById('btnRegenAI') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
     if (!phrase) return;
 
-    // Track that we are in AI mode
     isAiMode = true; 
 
-    // 2. Setup UI State
     btn.disabled = true;
     btn.style.opacity = "0.5";
     if (loader) loader.style.display = isRefresh ? "flex" : "block";
     btn.innerHTML = isRefresh ? "Drawing..." : "<span>🎨</span> Drawing...";
 
-    // 3. Get clean English word
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
 
-    // 4. Generate unique seed
     const seed = Math.floor(Math.random() * 10000000);
     
-    // 5. Use visual descriptions for abstract words
+    // Visual descriptions map for abstract words
     let visualDescription = englishWord;
     const lowerWord = englishWord.toLowerCase();
     
     const visualMap = {
-        'thank': 'person with grateful expression, hands on heart',
+        'thank': 'person with grateful expression, hands on heart, warm smile',
         'thanks': 'person with grateful expression, hands on heart',
         'merci': 'person with grateful expression, hands on heart',
         'hello': 'person waving hand with friendly smile',
@@ -2383,26 +2378,27 @@ async function generateAIImage(isRefresh = false) {
     for (const [key, value] of Object.entries(visualMap)) {
         if (lowerWord.includes(key)) {
             visualDescription = value;
-            console.log(`🎨 Using visual description: "${value}" instead of "${englishWord}"`);
+            console.log(`🎨 Using visual description: "${value}"`);
             break;
         }
     }
     
-    // 6. Strong no-text prompt
-    const prompt = `ZERO text, ZERO words, ZERO letters. Create a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. ABSOLUTELY NO TEXT.`;
-    
-    const encodedPrompt = encodeURIComponent(prompt);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // 7. Try imagen-4 FIRST (with NO ABORTCONTROLLER - it's fast!)
+    // PRIMARY: imagen-4 with negative_prompt (best for no-text)
     try {
-        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}`;
+        const prompt = `Clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration`;
+        const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy';
         
-        console.log("🎨 Trying imagen-4 (fast mode)...");
+        const encodedPrompt = encodeURIComponent(prompt);
+        const encodedNegative = encodeURIComponent(negativePrompt);
+        
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+        
+        console.log("🎨 Using imagen-4 (premium, best for no-text)...");
         
         const response = await fetch(imageUrl, {
             headers: { 'Authorization': `Bearer ${API_KEY}` }
-            // NO ABORTCONTROLLER HERE - it's fast enough!
         });
         
         if (!response.ok) {
@@ -2428,25 +2424,24 @@ async function generateAIImage(isRefresh = false) {
         return;
         
     } catch (error) {
-        console.warn("imagen-4 failed, trying fallback:", error.message);
+        console.warn("imagen-4 failed, trying flux:", error.message);
         
-        // 8. Fallback to flux with timeout (slower model)
+        // FALLBACK: flux with instructions in main prompt
         try {
-            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
+            const fluxPrompt = `Photo of ${visualDescription}, white background, educational style, detailed, accurate colors, professional illustration, no text, no words, no letters, no typography, absolutely no written content`;
             
-            console.log("🎨 Trying flux (with timeout)...");
+            const encodedFluxPrompt = encodeURIComponent(fluxPrompt);
+            const fluxUrl = `https://gen.pollinations.ai/image/${encodedFluxPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
             
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
+            console.log("🎨 Using flux (economical fallback)...");
             
-            const response = await fetch(fallbackUrl, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` },
-                signal: controller.signal
+            const response = await fetch(fluxUrl, {
+                headers: { 'Authorization': `Bearer ${API_KEY}` }
             });
             
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) throw new Error("Flux failed");
+            if (!response.ok) {
+                throw new Error(`flux failed with status ${response.status}`);
+            }
             
             const blob = await response.blob();
             const reader = new FileReader();
@@ -2467,7 +2462,6 @@ async function generateAIImage(isRefresh = false) {
         }
     }
 
-    // Helper to reset UI
     function resetUI(msg) {
         if (msg) alert(msg);
         btn.disabled = false;
