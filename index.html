@@ -2663,7 +2663,7 @@ function getCardData(p) {
 
     // 6. SIXTH: Smart icon logic (Preserving all your regex logic)
     const word = p.toLowerCase();
-    let smartIcon = "✨";
+    let smartIcon = "🖼️";
     
     if (word.match(/chat|chien|lapin|oiseau|poisson|vache|cheval|mouton|cochon|elephant|tigre|lion/)) smartIcon = "🐾";
     else if (word.match(/rouge|bleu|vert|jaune|orange|rose|noir|blanc|violet|marron|gris/)) smartIcon = "🎨";
@@ -2787,6 +2787,29 @@ function renderList(list) {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
+
+            // --- IMPROVED ICON LOGIC ---
+            let iconHTML;
+            if (data.isPhoto) {
+                // If it's a photo (Camera or AI), show the photo as normal
+                iconHTML = `<img src="${data.photoData}" class="card-photo ${data.photoOrientation}" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">`;
+            } else {
+                // If it's an emoji, check if it's the fallback "Picture Frame"
+                const isDefaultPlaceholder = (data.icon === "🖼️");
+                
+                // Create the robot badge only for the placeholder
+                const aiBadge = isDefaultPlaceholder ? 
+                    `<div style="position:absolute; bottom:0; right:0; font-size:1.1rem; background:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid #9d4edd; z-index: 2;">🤖</div>` 
+                    : '';
+                
+                // Wrap the emoji in a relative container so the badge stays attached to the corner
+                iconHTML = `
+                    <div style="position:relative; display:inline-block; margin-bottom: 10px;">
+                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        ${aiBadge}
+                    </div>`;
+            }
+            // --- END IMPROVED ICON LOGIC ---
             
             const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
             const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
