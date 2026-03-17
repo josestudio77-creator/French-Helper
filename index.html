@@ -2342,6 +2342,34 @@ function setAspectRatio(ratio) {
     }
 }
 
+function toggleAiPreference() {
+    // Switch between the two models
+    preferredAiModel = (preferredAiModel === 'imagen-4') ? 'flux' : 'imagen-4';
+    
+    // Save the choice so it's remembered even if the phone restarts
+    localStorage.setItem('preferredAiModel', preferredAiModel);
+    
+    // Update the button text and color so the parent sees the change
+    updateAiBtnUI();
+    
+    // Optional: tiny haptic feedback for mobile users
+    if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// 2. The function that handles the visual look of the button
+function updateAiBtnUI() {
+    const btn = document.getElementById('btnToggleAi');
+    if (!btn) return;
+    
+    if (preferredAiModel === 'imagen-4') {
+        btn.innerHTML = '<span>🤖</span> Default AI: Quality (Imagen-4)';
+        btn.style.background = '#8B5CF6'; // Purple for Quality
+    } else {
+        btn.innerHTML = '<span>⚡</span> Default AI: Speed (Flux)';
+        btn.style.background = '#06B6D4'; // Cyan for Speed
+    }
+}
+
 async function generateAIImage(isRefresh = false, modelOverride = null) {
     // 1. DYNAMIC UI TARGETING (Updated to handle the aiRedrawGroup container)
     const btn = isRefresh ? document.getElementById('aiRedrawGroup') : document.getElementById('btnAiGen');
@@ -6067,6 +6095,7 @@ window.onload = () => {
     console.log('App loading...');
 
     initExitGuard();
+    updateAiBtnUI();
 
     // ✅ THE SAFETY RESET: Clear any "ghost" print data from the last time the app was used
     const ghostPrint = document.getElementById('printArea');
