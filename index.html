@@ -1781,6 +1781,9 @@
     <div id="photoCropperOverlay" class="overlay" style="z-index:9700;">
         <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column; max-width: 450px; margin: 5vh auto; height: 85vh;">
             <h2 style="color:#9d4edd; margin-bottom:5px; font-size: 1.4rem;">📷 Crop Your Photo</h2>
+            <div id="modelBadge" style="display:none; position:absolute; top:15px; right:25px; background:rgba(157,78,221,0.9); color:white; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:900; box-shadow:0 2px 8px rgba(0,0,0,0.2); z-index:10;">
+                🤖 <span id="modelName">imagen-4</span>
+            </div>
             <p style="font-size:0.8rem; color:#64748b; margin-bottom:10px;">Choose shape and adjust</p>
             
             <!-- Aspect Ratio Selector -->
@@ -2132,8 +2135,22 @@
         }
 
         // ===== CROPPER FUNCTIONS =====
-        function openPhotoCropper(imageData) {
+        function openPhotoCropper(imageData, modelUsed = 'imagen-4') {
             tempPhotoData = imageData;
+            
+            // Show model badge if AI generated
+            const modelBadge = document.getElementById('modelBadge');
+            const modelNameSpan = document.getElementById('modelName');
+            if (modelBadge && modelNameSpan) {
+                if (isAiMode) {
+                    modelBadge.style.display = 'block';
+                    modelNameSpan.textContent = modelUsed;
+                    // Color code the badge based on model
+                    modelBadge.style.background = modelUsed === 'imagen-4' ? 'rgba(76, 217, 100, 0.9)' : 'rgba(157, 78, 221, 0.9)';
+                } else {
+                    modelBadge.style.display = 'none';
+                }
+            }
             
             // Ensure the loader is hidden when we first open the cropper
             const loader = document.getElementById('cropperLoading');
@@ -2346,48 +2363,31 @@ async function generateAIImage(isRefresh = false) {
     btn.disabled = true;
     btn.style.opacity = "0.5";
     if (loader) loader.style.display = isRefresh ? "flex" : "block";
+    
+    // Show which model we're trying
     btn.innerHTML = isRefresh ? "Drawing..." : "<span>🎨</span> Drawing...";
+    
+    // Add model indicator to loader text
+    const loaderText = loader?.querySelector('p') || loader;
+    if (loaderText) {
+        loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(preparing)</span>';
+    }
 
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la )\s+/i, "").trim();
 
     const seed = Math.floor(Math.random() * 10000000);
-    
-    // Visual descriptions map for abstract words
-    let visualDescription = englishWord;
-    const lowerWord = englishWord.toLowerCase();
-    
-    const visualMap = {
-        'thank': 'person with grateful expression, hands on heart, warm smile',
-        'thanks': 'person with grateful expression, hands on heart',
-        'merci': 'person with grateful expression, hands on heart',
-        'hello': 'person waving hand with friendly smile',
-        'bonjour': 'person waving hand with friendly smile',
-        'hi': 'person waving hand',
-        'goodbye': 'person waving goodbye',
-        'bye': 'person waving hand',
-        'sleep': 'person peacefully sleeping, eyes closed',
-        'dormir': 'person peacefully sleeping, eyes closed',
-        'eat': 'person enjoying a meal',
-        'manger': 'person enjoying a meal',
-        'love': 'two hearts intertwined',
-        'amour': 'two hearts intertwined'
-    };
-    
-    for (const [key, value] of Object.entries(visualMap)) {
-        if (lowerWord.includes(key)) {
-            visualDescription = value;
-            console.log(`🎨 Using visual description: "${value}"`);
-            break;
-        }
-    }
-    
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // PRIMARY: imagen-4 with negative_prompt (best for no-text)
+    // TRY 1: imagen-4
     try {
-        const prompt = `Clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration`;
+        // Update loader to show imagen-4
+        if (loaderText) {
+            loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(imagen-4)</span>';
+        }
+        
+        const prompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration`;
         const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy';
         
         const encodedPrompt = encodeURIComponent(prompt);
@@ -2395,14 +2395,14 @@ async function generateAIImage(isRefresh = false) {
         
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
-        console.log("🎨 Using imagen-4 (premium, best for no-text)...");
+        console.log("🎨 Using imagen-4");
         
         const response = await fetch(imageUrl, {
             headers: { 'Authorization': `Bearer ${API_KEY}` }
         });
         
         if (!response.ok) {
-            throw new Error(`imagen-4 failed with status ${response.status}`);
+            throw new Error(`imagen-4 failed`);
         }
 
         const blob = await response.blob();
@@ -2419,28 +2419,42 @@ async function generateAIImage(isRefresh = false) {
         });
         
         console.log("✅ Success with imagen-4!");
-        openPhotoCropper(base64data);
+        
+        // Show success with model name
+        if (loaderText) {
+            loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#4cd964;">(imagen-4 ✓)</span>';
+            setTimeout(() => {
+                if (loaderText) loaderText.innerHTML = 'AI is drawing...';
+            }, 1000);
+        }
+        
+        openPhotoCropper(base64data, 'imagen-4');
         resetUI();
         return;
         
     } catch (error) {
-        console.warn("imagen-4 failed, trying flux:", error.message);
+        console.warn("imagen-4 failed, trying flux");
         
-        // FALLBACK: flux with instructions in main prompt
+        // TRY 2: flux
         try {
-            const fluxPrompt = `Photo of ${visualDescription}, white background, educational style, detailed, accurate colors, professional illustration, no text, no words, no letters, no typography, absolutely no written content`;
+            // Update loader to show flux
+            if (loaderText) {
+                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(flux)</span>';
+            }
+            
+            const fluxPrompt = `Clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration, no text, no words, no letters, no typography`;
             
             const encodedFluxPrompt = encodeURIComponent(fluxPrompt);
             const fluxUrl = `https://gen.pollinations.ai/image/${encodedFluxPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
             
-            console.log("🎨 Using flux (economical fallback)...");
+            console.log("🎨 Using flux");
             
             const response = await fetch(fluxUrl, {
                 headers: { 'Authorization': `Bearer ${API_KEY}` }
             });
             
             if (!response.ok) {
-                throw new Error(`flux failed with status ${response.status}`);
+                throw new Error(`flux failed`);
             }
             
             const blob = await response.blob();
@@ -2452,12 +2466,24 @@ async function generateAIImage(isRefresh = false) {
             });
             
             console.log("✅ Success with flux!");
-            openPhotoCropper(base64data);
+            
+            // Show success with model name
+            if (loaderText) {
+                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#4cd964;">(flux ✓)</span>';
+                setTimeout(() => {
+                    if (loaderText) loaderText.innerHTML = 'AI is drawing...';
+                }, 1000);
+            }
+            
+            openPhotoCropper(base64data, 'flux');
             resetUI();
             return;
             
         } catch (fbError) {
-            console.error("All models failed:", fbError);
+            console.error("All models failed");
+            if (loaderText) {
+                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#ff6b8b;">(failed)</span>';
+            }
             resetUI("Couldn't generate image. Please try again!");
         }
     }
