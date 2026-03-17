@@ -2144,7 +2144,7 @@
         }
 
         // ===== CROPPER FUNCTIONS =====
-        function openPhotoCropper(imageData) {
+function openPhotoCropper(imageData) {
             tempPhotoData = imageData;
             
             // Ensure the loader is hidden when we first open the cropper
@@ -2154,6 +2154,9 @@
             const redrawGroup = document.getElementById('aiRedrawGroup');
             if (redrawGroup) {
                 redrawGroup.style.display = isAiMode ? 'flex' : 'none';
+                // --- ADDED FIX: Ensure buttons are clickable again ---
+                redrawGroup.style.pointerEvents = "auto"; 
+                redrawGroup.style.opacity = "1";
             }
             
             closeOverlay('iconPickerOverlay');
@@ -2169,32 +2172,31 @@
             image.onload = function() {
                 if (cropper) cropper.destroy();
                 
-                // 2. DETECT NATURAL ORIENTATION
+                // 2. DETECT NATURAL ORIENTATION (Preserved)
                 const naturalWidth = image.naturalWidth;
                 const naturalHeight = image.naturalHeight;
                 const imageRatio = naturalWidth / naturalHeight;
                 
-                // 3. Set the target ratio based on detection (using card-friendly 4:3)
-                let detectedRatio = 4/3; // Default to Landscape
+                // 3. Set the target ratio based on detection (Preserved)
+                let detectedRatio = 4/3; 
                 if (imageRatio > 1.1) {
-                    detectedRatio = 4/3; // Landscape
+                    detectedRatio = 4/3; 
                     console.log("📷 Landscape image detected");
                 } else if (imageRatio < 0.9) {
-                    detectedRatio = 3/4; // Portrait
+                    detectedRatio = 3/4; 
                     console.log("📷 Portrait image detected");
                 } else {
-                    detectedRatio = 1; // Square
+                    detectedRatio = 1; 
                     console.log("📷 Square image detected");
                 }
                 
-                // Update the global state
                 currentAspectRatio = detectedRatio;
                 
                 cropper = new Cropper(image, {
                     aspectRatio: detectedRatio, 
                     viewMode: 1,
-                    checkCrossOrigin: true, // Security for AI
-                    autoCropArea: 0.9,      // Gives a little margin to see the edges
+                    checkCrossOrigin: true, 
+                    autoCropArea: 0.9,      
                     movable: true,
                     zoomable: true,
                     rotatable: true,
@@ -2208,7 +2210,6 @@
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
                     ready() {
-                        // 4. Update the UI buttons to show which one was auto-selected
                         setAspectRatio(detectedRatio);
                         console.log('Cropper ready with detected ratio:', detectedRatio);
                     }
@@ -2216,31 +2217,35 @@
             };
         }
         
-        function cancelCrop() {
+function cancelCrop() {
             // 1. KILL THE AI TASK IMMEDIATELY
+            // This prevents the image from "popping up" later if you already left the screen
             if (aiAbortController) {
                 aiAbortController.abort();
                 aiAbortController = null;
             }
         
             // 2. Standard Cropper Cleanup
+            // Frees up device memory
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
             
             // 3. Reset UI States
+            // Ensures AI specific buttons don't show up on normal photos
             isAiMode = false;
             
-            // Hide the specific cropper loader
+            // Hide the specific cropper loader if it was active
             const loader = document.getElementById('cropperLoading');
             if (loader) loader.style.display = 'none';
             
-            // Hide the specific redraw buttons
+            // Hide the specific redraw buttons container
             const redrawGroup = document.getElementById('aiRedrawGroup');
             if (redrawGroup) redrawGroup.style.display = 'none';
             
             // 4. Close the window and unlock scroll (Preserved)
+            // Uses your established navigation logic
             closeOverlay('photoCropperOverlay');
         }
 
@@ -2386,7 +2391,7 @@ function updateAiBtnUI() {
 }
 
 async function generateAIImage(isRefresh = false, modelOverride = null) {
-    // 1. DYNAMIC UI TARGETING (Preserved)
+    // 1. DYNAMIC UI TARGETING (Full Logic Preserved)
     const btn = isRefresh ? document.getElementById('aiRedrawGroup') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
@@ -2399,8 +2404,9 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     aiAbortController = new AbortController();
     const signal = aiAbortController.signal;
 
-    // 2. Setup UI State (Preserved)
+    // 2. Setup UI State (Preserved & Fixed for clickability)
     if (isRefresh) {
+        // Disable the whole group container during redraw
         btn.style.pointerEvents = "none";
         btn.style.opacity = "0.5";
     } else {
@@ -2423,7 +2429,7 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la |des |du |de la )\s+/i, "").trim();
 
-    // 3. --- FULL EXPANDED VISUAL MAPPING (Preserved exactly) ---
+    // 3. --- FULL EXPANDED VISUAL MAPPING (Preserved 100%) ---
     let visualDescription = englishWord;
     const lowerWord = englishWord.toLowerCase();
     
@@ -2485,30 +2491,29 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     const seed = Math.floor(Math.random() * 10000000);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // 4. MODEL SELECTION
+    // 4. MODEL SELECTION (Quality vs Speed)
     const selectedModel = modelOverride || preferredAiModel;
     const fallbackModel = (selectedModel === 'imagen-4') ? 'flux' : 'imagen-4';
 
-    // 5. HELPER FUNCTION: This prevents "Text" instructions from leaking into Flux
-    function getSafePromptForModel(modelName, subject) {
+    // 5. THE PROMPT FACTORY: This is what stops Flux from writing "NO LETTERS"
+    function getModelPrompt(modelName, subject) {
         if (modelName === 'flux') {
-            // PURE VISUAL PROMPT: No mention of "No Text" to avoid confusing the model
+            // FLUX FIX: Use purely artistic descriptions. Never mention "Text" or "Letters".
             return `A high quality 3D cute clay ${subject} illustration, centered, vibrant colors, clean white background, minimalist educational style, professional illustration, masterpiece`;
         } else {
-            // STRICT INSTRUCTIONAL PROMPT: Smart models like Imagen-4 need the command
-            return `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${subject} on white background, educational style, detailed, accurate colors, professional illustration. CRITICAL: NO WRITTEN TEXT.`;
+            // IMAGEN-4: Is smart enough to follow negative instructions.
+            return `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${subject} on white background, educational style, detailed, accurate colors. CRITICAL: NO WRITTEN TEXT.`;
         }
     }
 
-    const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture, logo';
+    const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, written content, handwriting, font, characters, alphabet';
     const encodedNegative = encodeURIComponent(negativePrompt);
 
     // 6. ATTEMPT 1: PRIMARY MODEL
     try {
         if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${selectedModel})</span>`;
         
-        // --- FIX: Generate a model-specific prompt ---
-        const activePrompt = getSafePromptForModel(selectedModel, visualDescription);
+        const activePrompt = getModelPrompt(selectedModel, visualDescription);
         const imageUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(activePrompt)}?width=512&height=512&model=${selectedModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
         const response = await fetch(imageUrl, { 
@@ -2542,9 +2547,8 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         try {
             if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${fallbackModel})</span>`;
             
-            // --- FIX: Re-calculate the prompt specifically for the fallback model ---
-            const fallbackPrompt = getSafePromptForModel(fallbackModel, visualDescription);
-            
+            // Generate prompt specific to the fallback model
+            const fallbackPrompt = getModelPrompt(fallbackModel, visualDescription);
             const fallbackUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(fallbackPrompt)}?width=512&height=512&model=${fallbackModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
             
             const fbResponse = await fetch(fallbackUrl, { 
@@ -2575,11 +2579,13 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         }
     }
 
+    // 8. UI Reset Helper (FIXED: Added pointer-events restoration)
     function resetUI(msg) {
         if (msg) alert(msg);
+        const redrawGroup = document.getElementById('aiRedrawGroup');
         if (isRefresh) {
-            btn.style.pointerEvents = "auto";
-            btn.style.opacity = "1";
+            redrawGroup.style.pointerEvents = "auto";
+            redrawGroup.style.opacity = "1";
         } else {
             btn.disabled = false;
             btn.style.opacity = "1";
