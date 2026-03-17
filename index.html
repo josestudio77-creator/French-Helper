@@ -831,7 +831,7 @@
     }
     
     /* Unified Pop Animation Logic */
-    @keyframes letterPop {
+    @keyframes terPop {
         0% { transform: scale(0.5); opacity: 0; }
         50% { transform: scale(1.2); opacity: 1; }
         100% { transform: scale(1); opacity: 1; }
@@ -839,10 +839,10 @@
     
     /* Use these classes for any element that needs to "Pop" */
     .pop-anim, .pop-animation, .key-animate {
-        animation: letterPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation: terPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
-    @keyframes letterPop {
+    @keyframes terPop {
         0% { transform: scale(4); color: #4cd964; opacity: 0; filter: drop-shadow(0 0 20px #4cd964); }
         50% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 5px #4cd964); }
         100% { transform: scale(1); color: #2d3748; opacity: 1; }
@@ -1061,7 +1061,7 @@
         font-size: 57px !important; 
         line-height: 38px;
         top: 1px; 
-        letter-spacing: -1px;
+        ter-spacing: -1px;
         font-weight: 400 !important;
 
         /* THE THINNING HACK */
@@ -1192,12 +1192,12 @@
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
     }
 
-    /* Style for letters revealed after losing Hangman */
-    .bee-slot.missed-letter {
+    /* Style for ters revealed after losing Hangman */
+    .bee-slot.missed-ter {
         color: #ff6b8b !important; /* Soft Red/Pink */
         border-color: #ff6b8b !important;
         background: #fff5f5;
-        animation: letterPop 0.4s ease-out;
+        animation: terPop 0.4s ease-out;
     }   
        
  /* --- UPDATED UNIFIED 3D KEYBOARD --- */
@@ -1288,8 +1288,8 @@
         75% { transform: translateX(8px); }
     }
     
-    /* For individual letter feedback */
-    @keyframes letterPop {
+    /* For individual ter feedback */
+    @keyframes terPop {
         0% { transform: scale(0.5); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
@@ -1397,7 +1397,7 @@
             
             <div style="margin-bottom: 12px;">
                 <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem;">
-                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.4);"> Include Tracing Guides
+                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggracingDetail()" style="transform: scale(1.4);"> Include Tracing Guides
                 </label>
             </div>
 
@@ -1413,9 +1413,9 @@
 
         <!-- SECTION 3: STYLE SELECTION -->
         <div style="border-top: 2px solid #f1f5f9; padding-top: 20px;">
-            <p style="font-weight: 900; color: #64748b; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Choose Handwriting Style:</p>
+            <p style="font-weight: 900; color: #64748b; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; ter-spacing: 1px;">Choose Handwriting Style:</p>
             <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
+                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block ters</button>
                 <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
             </div>
         </div>
@@ -1454,7 +1454,7 @@
                 <div class="modal-btn-grid" id="appModalViewBtns">
                     <button id="appModalBtnAction" class="modal-btn" style="display:none; background:#4cd964; color:white; grid-column: span 2;">Confirm</button>
                     <button id="appModalBtnEdit" class="modal-btn" style="background:#118AB2; color:white;">✏️ Edit</button>
-                    <button id="appModalBtnDelete" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Delete</button>
+                    <button id="appModalBtnDee" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Dee</button>
                 </div>
             </div>
     
@@ -1663,7 +1663,7 @@
         <div id="clueEmoji" class="clue-emoji">💡</div>
         <canvas id="hangmanCanvas" width="200" height="150"></canvas>
         <div id="hangmanDisplay" class="hangman-word"></div>
-        <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a letter!</div>
+        <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a ter!</div>
         
         <!-- The Keyboard is here (Managed by JavaScript) -->
 
@@ -1842,7 +1842,7 @@
         const MASTER_DATA = {
             "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},
             "Un":{en:"One",icon:"1️⃣",pronunciation:"uhn"},"Deux":{en:"Two",icon:"2️⃣",pronunciation:"duh"},"Trois":{en:"Three",icon:"3️⃣",pronunciation:"twah"},"Quatre":{en:"Four",icon:"4️⃣",pronunciation:"KAH-truh"},"Cinq":{en:"Five",icon:"5️⃣",pronunciation:"sank"},"Six":{en:"Six",icon:"6️⃣",pronunciation:"seess"},"Sept":{en:"Seven",icon:"7️⃣",pronunciation:"set"},"Huit":{en:"Eight",icon:"8️⃣",pronunciation:"weet"},"Neuf":{en:"Nine",icon:"9️⃣",pronunciation:"nuhf"},"Dix":{en:"Ten",icon:"🔟",pronunciation:"deess"},
-            "Rouge":{en:"Red",icon:"🔴",pronunciation:"roozh"},"Bleu":{en:"Blue",icon:"🔵",pronunciation:"bluh"},"Vert":{en:"Green",icon:"🟢",pronunciation:"vehr"},"Jaune":{en:"Yellow",icon:"🟡",pronunciation:"zhohn"},"Orange":{en:"Orange",icon:"🟠",pronunciation:"oh-RAHNZH"},"Rose":{en:"Pink",icon:"🌸",pronunciation:"rohz"},"Noir":{en:"Black",icon:"⚫",pronunciation:"nwahr"},"Blanc":{en:"White",icon:"⚪",pronunciation:"blahn"},"Violet":{en:"Purple",icon:"🟣",pronunciation:"vee-oh-LEH"},"Marron":{en:"Brown",icon:"🟤",pronunciation:"mah-ROHN"},
+            "Rouge":{en:"Red",icon:"🔴",pronunciation:"roozh"},"Bleu":{en:"Blue",icon:"🔵",pronunciation:"bluh"},"Vert":{en:"Green",icon:"🟢",pronunciation:"vehr"},"Jaune":{en:"Yellow",icon:"🟡",pronunciation:"zhohn"},"Orange":{en:"Orange",icon:"🟠",pronunciation:"oh-RAHNZH"},"Rose":{en:"Pink",icon:"🌸",pronunciation:"rohz"},"Noir":{en:"Black",icon:"⚫",pronunciation:"nwahr"},"Blanc":{en:"White",icon:"⚪",pronunciation:"blahn"},"Vio":{en:"Purple",icon:"🟣",pronunciation:"vee-oh-LEH"},"Marron":{en:"Brown",icon:"🟤",pronunciation:"mah-ROHN"},
             "Maman":{en:"Mother",icon:"👩",g:"f",pronunciation:"mah-MAHN"},"Papa":{en:"Father",icon:"👨",g:"m",pronunciation:"pah-PAH"},"Ma sœur":{en:"Sister",icon:"👧",g:"f",pronunciation:"mah SUHR"},"Mon frère":{en:"Brother",icon:"👦",g:"m",pronunciation:"mohn FREHR"},"Grand-mère":{en:"Grandmother",icon:"👵",g:"f",pronunciation:"grahn-MEHR"},"Grand-père":{en:"Grandfather",icon:"👴",g:"m",pronunciation:"grahn-PEHR"},
             "La tête":{en:"Head",icon:"🙆",g:"f",pronunciation:"lah tet"},"Le nez":{en:"Nose",icon:"👃",g:"m",pronunciation:"luh nay"},"La bouche":{en:"Mouth",icon:"👄",g:"f",pronunciation:"lah boosh"},"Les yeux":{en:"Eyes",icon:"👀",g:"m",pronunciation:"lay zyuh"},"Les mains":{en:"Hands",icon:"✋",g:"f",pronunciation:"lay man"},"Les pieds":{en:"Feet",icon:"🦶",g:"m",pronunciation:"lay pee-AY"},"Les oreilles":{en:"Ears",icon:"👂",g:"f",pronunciation:"lay zoh-RAY"},"Le bras":{en:"Arm",icon:"💪",g:"m",pronunciation:"luh brah"},"Le doigt":{en:"Finger",icon:"☝️",g:"m",pronunciation:"luh dwah"},
             "Un chat":{en:"Cat",icon:"🐱",g:"m",pronunciation:"uhn shah"},"Un chien":{en:"Dog",icon:"🐶",g:"m",pronunciation:"uhn shee-EN"},"Un lapin":{en:"Rabbit",icon:"🐰",g:"m",pronunciation:"uhn lah-PAN"},"Un oiseau":{en:"Bird",icon:"🐦",g:"m",pronunciation:"uhn wah-ZOH"},"Un poisson":{en:"Fish",icon:"🐟",g:"m",pronunciation:"uhn pwah-SOHN"},"Une vache":{en:"Cow",icon:"🐮",g:"f",pronunciation:"ewn vahsh"},"Un cheval":{en:"Horse",icon:"🐎",g:"m",pronunciation:"uhn shuh-VAHL"},"Un mouton":{en:"Sheep",icon:"🐑",g:"m",pronunciation:"uhn moo-TOHN"},"Un cochon":{en:"Pig",icon:"🐷",g:"m",pronunciation:"uhn koh-SHOHN"},
@@ -1860,7 +1860,7 @@
             beginner:["Bonjour","Merci","Un","Deux","Trois","Rouge","Bleu","Un chat","Un chien","Une pomme"],
             greetings:["Bonjour","Salut","Merci","Au revoir","De rien"], 
             numbers:["Un","Deux","Trois","Quatre","Cinq","Six","Sept","Huit","Neuf","Dix"], 
-            colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir","Blanc","Violet","Marron"], 
+            colors:["Rouge","Bleu","Vert","Jaune","Orange","Rose","Noir","Blanc","Vio","Marron"], 
             family:["Maman","Papa","Ma sœur","Mon frère","Grand-mère","Grand-père"], 
             body:["La tête","Le nez","La bouche","Les yeux","Les mains","Les pieds","Les oreilles","Le bras","Le doigt"], 
             animals:["Un chat","Un chien","Un lapin","Un oiseau","Un poisson","Une vache","Un cheval","Un mouton","Un cochon"], 
@@ -1882,7 +1882,7 @@
             ]
         };
         
-        const FRENCH_LETTER_NAMES = {
+        const FRENCH_TER_NAMES = {
             'A': 'a', 'B': 'bé', 'C': 'cé', 'D': 'dé', 'E': 'e',
             'F': 'effe', 'G': 'gé', 'H': 'hache', 'I': 'i', 'J': 'ji',
             'K': 'ka', 'L': 'elle', 'M': 'emme', 'N': 'enne', 'O': 'o',
@@ -1894,7 +1894,7 @@
         };
 
         // ===== APP STATE =====
-        let speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.7');
+         speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.7');
         let currentWeekAudio = null;
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
@@ -1943,6 +1943,7 @@
         let selectedBpMonth = new Date().getMonth(); // Defaults to current month (0-11)
         let showFavsOnly = false;
         let homeworkToMove = ""; // Tracks which set we are moving
+        let aiAbortController = null; // The kill-switch for AI downloads
 
         const FRENCH_QWERTY_LAYOUT = [
             ["Q","W","E","R","T","Y","U","I","O","P"],
@@ -2216,21 +2217,30 @@
         }
         
         function cancelCrop() {
+            // 1. KILL THE AI TASK IMMEDIATELY
+            if (aiAbortController) {
+                aiAbortController.abort();
+                aiAbortController = null;
+            }
+        
+            // 2. Standard Cropper Cleanup
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
             
+            // 3. Reset UI States
             isAiMode = false;
             
-            // Hide the loader
+            // Hide the specific cropper loader
             const loader = document.getElementById('cropperLoading');
             if (loader) loader.style.display = 'none';
             
-            // HIDE THE REDRAW GROUP (Updated ID)
+            // Hide the specific redraw buttons
             const redrawGroup = document.getElementById('aiRedrawGroup');
             if (redrawGroup) redrawGroup.style.display = 'none';
             
+            // 4. Close the window and unlock scroll (Preserved)
             closeOverlay('photoCropperOverlay');
         }
 
@@ -2376,7 +2386,7 @@ function updateAiBtnUI() {
 }
 
 async function generateAIImage(isRefresh = false, modelOverride = null) {
-    // 1. DYNAMIC UI TARGETING (Updated to handle the aiRedrawGroup container)
+    // 1. DYNAMIC UI TARGETING
     const btn = isRefresh ? document.getElementById('aiRedrawGroup') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
@@ -2384,9 +2394,14 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     if (!phrase) return;
     isAiMode = true; 
 
-    // 2. Setup UI State based on interaction point
+    // --- NEW: INITIALIZE KILL-SWITCH ---
+    // If a drawing is already happening, stop it before starting a new one
+    if (aiAbortController) aiAbortController.abort(); 
+    aiAbortController = new AbortController();
+    const signal = aiAbortController.signal;
+
+    // 2. Setup UI State
     if (isRefresh) {
-        // Disable the whole group container during redraw to prevent double-clicks
         btn.style.pointerEvents = "none";
         btn.style.opacity = "0.5";
     } else {
@@ -2396,7 +2411,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
 
     if (loader) loader.style.display = isRefresh ? "flex" : "block";
     
-    // Maintain your specific button text logic
     if (!isRefresh) {
         btn.innerHTML = "<span>🎨</span> Drawing...";
     }
@@ -2408,10 +2422,9 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
 
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
-    // Expanded regex cleaning (Preserved & Enhanced)
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la |des |du |de la )\s+/i, "").trim();
 
-    // 3. --- EXPANDED VISUAL MAPPING (Preserved exactly as provided) ---
+    // 3. --- FULL EXPANDED VISUAL MAPPING (RESTORED) ---
     let visualDescription = englishWord;
     const lowerWord = englishWord.toLowerCase();
     
@@ -2478,33 +2491,40 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     const seed = Math.floor(Math.random() * 10000000);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // 4. PROMPT CONSTRUCTION (Preserved your Realistic/No-Text instructions)
-    const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
+    // 4. MODEL DETERMINATION
+    const selectedModel = modelOverride || preferredAiModel;
+    const fallbackModel = (selectedModel === 'imagen-4') ? 'flux' : 'imagen-4';
+
+    // 5. PROMPT CONSTRUCTION (Flux text-fix integrated)
+    let prompt;
+    if (selectedModel === 'flux') {
+        // Flux gets visually focused prompt (no "NO TEXT" words to avoid confusion)
+        prompt = `A high quality 3D cute clay ${visualDescription} illustration, centered, vibrant colors, clean white background, minimalist educational style, professional illustration, masterpiece`;
+    } else {
+        // Imagen-4 gets strict instructional prompt
+        prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
+    }
+
     const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture, logo';
-    
     const encodedPrompt = encodeURIComponent(prompt);
     const encodedNegative = encodeURIComponent(negativePrompt);
 
-    // 5. DETERMINING MODELS (New Dynamic Logic)
-    // If we have an override (from cropper buttons), use it. Otherwise, use global preference.
-    const firstModel = modelOverride || preferredAiModel;
-    const fallbackModel = (firstModel === 'imagen-4') ? 'flux' : 'imagen-4';
-
-    // 6. TRY 1: Primary Attempt (Based on preference or override)
+    // 6. ATTEMPT 1: PRIMARY MODEL
     try {
-        if (loaderText) {
-            loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${firstModel})</span>`;
-        }
+        if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${selectedModel})</span>`;
         
-        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${firstModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${selectedModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
-        const response = await fetch(imageUrl, {
-            headers: { 'Authorization': `Bearer ${API_KEY}` }
+        const response = await fetch(imageUrl, { 
+            headers: { 'Authorization': `Bearer ${API_KEY}` },
+            signal: signal 
         });
         
-        if (!response.ok) throw new Error(`${firstModel} failed`);
+        if (!response.ok) throw new Error(`${selectedModel} failed`);
 
         const blob = await response.blob();
+        if (signal.aborted) return; // Exit if user cancelled
+
         const reader = new FileReader();
         const base64data = await new Promise((resolve, reject) => {
             reader.onloadend = () => resolve(reader.result);
@@ -2512,50 +2532,59 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
             reader.readAsDataURL(blob);
         });
         
-        openPhotoCropper(base64data);
-        resetUI();
+        if (!signal.aborted) {
+            openPhotoCropper(base64data);
+            resetUI();
+        }
         return;
         
     } catch (error) {
-        console.warn(`${firstModel} failed, trying fallback model ${fallbackModel}`);
+        if (error.name === 'AbortError') return;
+        console.warn(`${selectedModel} failed, trying fallback model ${fallbackModel}`);
         
-        // 7. TRY 2: Fallback Attempt (Preserved logic, now dynamic)
+        // 7. ATTEMPT 2: FALLBACK MODEL (FULL LOGIC RESTORED)
         try {
-            if (loaderText) {
-                loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${fallbackModel})</span>`;
-            }
-            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${fallbackModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+            if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${fallbackModel})</span>`;
             
-            const response = await fetch(fallbackUrl, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
+            // Re-construct prompt for the fallback model if needed
+            let fallbackPrompt = prompt;
+            if (fallbackModel === 'flux') {
+                fallbackPrompt = `A high quality 3D cute clay ${visualDescription} illustration, centered, vibrant colors, clean white background, educational style`;
+            }
+            
+            const fallbackUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(fallbackPrompt)}?width=512&height=512&model=${fallbackModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+            
+            const fbResponse = await fetch(fallbackUrl, { 
+                headers: { 'Authorization': `Bearer ${API_KEY}` },
+                signal: signal 
             });
             
-            if (!response.ok) throw new Error(`${fallbackModel} failed`);
+            if (!fbResponse.ok) throw new Error(`${fallbackModel} failed`);
             
-            const blob = await response.blob();
+            const fbBlob = await fbResponse.blob();
+            if (signal.aborted) return;
+
             const reader = new FileReader();
-            const base64data = await new Promise((resolve, reject) => {
+            const fbBase64 = await new Promise((resolve, reject) => {
                 reader.onloadend = () => resolve(reader.result);
                 reader.onerror = reject;
-                reader.readAsDataURL(blob);
+                reader.readAsDataURL(fbBlob);
             });
             
-            openPhotoCropper(base64data);
-            resetUI();
+            if (!signal.aborted) {
+                openPhotoCropper(fbBase64);
+                resetUI();
+            }
             
         } catch (fbError) {
-            console.error("All models failed");
-            if (loaderText) {
-                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#ff6b8b;">(failed)</span>';
-            }
+            if (fbError.name === 'AbortError') return;
+            console.error("All AI models failed");
             resetUI("The AI server is very busy. Please wait 3 seconds and click Generate again!");
         }
     }
 
-    // 8. UI Reset Helper (Updated to handle different UI states)
     function resetUI(msg) {
         if (msg) alert(msg);
-        
         if (isRefresh) {
             btn.style.pointerEvents = "auto";
             btn.style.opacity = "1";
@@ -2564,7 +2593,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
             btn.style.opacity = "1";
             btn.innerHTML = "<span>🤖</span> Generate AI Image";
         }
-        
         if (loader) loader.style.display = "none";
     }
 }
