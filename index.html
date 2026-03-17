@@ -2386,7 +2386,7 @@ function updateAiBtnUI() {
 }
 
 async function generateAIImage(isRefresh = false, modelOverride = null) {
-    // 1. DYNAMIC UI TARGETING
+    // 1. DYNAMIC UI TARGETING (Preserved)
     const btn = isRefresh ? document.getElementById('aiRedrawGroup') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
@@ -2394,13 +2394,12 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     if (!phrase) return;
     isAiMode = true; 
 
-    // --- NEW: INITIALIZE KILL-SWITCH ---
-    // If a drawing is already happening, stop it before starting a new one
+    // INITIALIZE KILL-SWITCH (Preserved)
     if (aiAbortController) aiAbortController.abort(); 
     aiAbortController = new AbortController();
     const signal = aiAbortController.signal;
 
-    // 2. Setup UI State
+    // 2. Setup UI State (Preserved)
     if (isRefresh) {
         btn.style.pointerEvents = "none";
         btn.style.opacity = "0.5";
@@ -2424,12 +2423,11 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la |des |du |de la )\s+/i, "").trim();
 
-    // 3. --- FULL EXPANDED VISUAL MAPPING (RESTORED) ---
+    // 3. --- FULL EXPANDED VISUAL MAPPING (Preserved exactly) ---
     let visualDescription = englishWord;
     const lowerWord = englishWord.toLowerCase();
     
     const visualMap = {
-        // Greetings & Social
         'thank': 'person with grateful expression, hands on heart',
         'thanks': 'person with grateful expression, hands on heart',
         'merci': 'person with grateful expression, hands on heart',
@@ -2443,7 +2441,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         'sorry': 'person looking apologetic, hand on chest',
         'pardon': 'person looking apologetic, hand on chest',
         'welcome': 'person opening arms in a welcoming gesture',
-        // People & School
         'friend': 'two children playing together happily',
         'ami': 'two children playing together happily',
         'family': 'parent and child holding hands',
@@ -2454,7 +2451,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         'professeur': 'adult standing by a chalkboard teaching',
         'student': 'child holding a book and smiling',
         'élève': 'child holding a book and smiling',
-        // Actions
         'sleep': 'person peacefully sleeping, eyes closed',
         'dormir': 'person peacefully sleeping, eyes closed',
         'eat': 'person enjoying a meal',
@@ -2469,7 +2465,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         'écrire': 'hand holding a pencil writing on paper',
         'listen': 'person pointing to ear with a listening expression',
         'écouter': 'person pointing to ear with a listening expression',
-        // Abstract
         'love': 'two red hearts intertwined',
         'amour': 'two red hearts intertwined',
         'happy': 'very happy smiling face with bright eyes',
@@ -2483,7 +2478,6 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     for (const [key, value] of Object.entries(visualMap)) {
         if (lowerWord.includes(key)) {
             visualDescription = value;
-            console.log(`🎨 AI Prompt Mapping: "${key}" -> "${value}"`);
             break;
         }
     }
@@ -2491,29 +2485,31 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
     const seed = Math.floor(Math.random() * 10000000);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
-    // 4. MODEL DETERMINATION
+    // 4. MODEL SELECTION
     const selectedModel = modelOverride || preferredAiModel;
     const fallbackModel = (selectedModel === 'imagen-4') ? 'flux' : 'imagen-4';
 
-    // 5. PROMPT CONSTRUCTION (Flux text-fix integrated)
-    let prompt;
-    if (selectedModel === 'flux') {
-        // Flux gets visually focused prompt (no "NO TEXT" words to avoid confusion)
-        prompt = `A high quality 3D cute clay ${visualDescription} illustration, centered, vibrant colors, clean white background, minimalist educational style, professional illustration, masterpiece`;
-    } else {
-        // Imagen-4 gets strict instructional prompt
-        prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
+    // 5. HELPER FUNCTION: This prevents "Text" instructions from leaking into Flux
+    function getSafePromptForModel(modelName, subject) {
+        if (modelName === 'flux') {
+            // PURE VISUAL PROMPT: No mention of "No Text" to avoid confusing the model
+            return `A high quality 3D cute clay ${subject} illustration, centered, vibrant colors, clean white background, minimalist educational style, professional illustration, masterpiece`;
+        } else {
+            // STRICT INSTRUCTIONAL PROMPT: Smart models like Imagen-4 need the command
+            return `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${subject} on white background, educational style, detailed, accurate colors, professional illustration. CRITICAL: NO WRITTEN TEXT.`;
+        }
     }
 
     const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture, logo';
-    const encodedPrompt = encodeURIComponent(prompt);
     const encodedNegative = encodeURIComponent(negativePrompt);
 
     // 6. ATTEMPT 1: PRIMARY MODEL
     try {
         if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${selectedModel})</span>`;
         
-        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${selectedModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+        // --- FIX: Generate a model-specific prompt ---
+        const activePrompt = getSafePromptForModel(selectedModel, visualDescription);
+        const imageUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(activePrompt)}?width=512&height=512&model=${selectedModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
         const response = await fetch(imageUrl, { 
             headers: { 'Authorization': `Bearer ${API_KEY}` },
@@ -2523,7 +2519,7 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         if (!response.ok) throw new Error(`${selectedModel} failed`);
 
         const blob = await response.blob();
-        if (signal.aborted) return; // Exit if user cancelled
+        if (signal.aborted) return;
 
         const reader = new FileReader();
         const base64data = await new Promise((resolve, reject) => {
@@ -2542,15 +2538,12 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
         if (error.name === 'AbortError') return;
         console.warn(`${selectedModel} failed, trying fallback model ${fallbackModel}`);
         
-        // 7. ATTEMPT 2: FALLBACK MODEL (FULL LOGIC RESTORED)
+        // 7. ATTEMPT 2: FALLBACK MODEL
         try {
             if (loaderText) loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${fallbackModel})</span>`;
             
-            // Re-construct prompt for the fallback model if needed
-            let fallbackPrompt = prompt;
-            if (fallbackModel === 'flux') {
-                fallbackPrompt = `A high quality 3D cute clay ${visualDescription} illustration, centered, vibrant colors, clean white background, educational style`;
-            }
+            // --- FIX: Re-calculate the prompt specifically for the fallback model ---
+            const fallbackPrompt = getSafePromptForModel(fallbackModel, visualDescription);
             
             const fallbackUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(fallbackPrompt)}?width=512&height=512&model=${fallbackModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
             
@@ -2578,8 +2571,7 @@ async function generateAIImage(isRefresh = false, modelOverride = null) {
             
         } catch (fbError) {
             if (fbError.name === 'AbortError') return;
-            console.error("All AI models failed");
-            resetUI("The AI server is very busy. Please wait 3 seconds and click Generate again!");
+            resetUI("The AI server is very busy. Please wait 3 seconds and try again!");
         }
     }
 
