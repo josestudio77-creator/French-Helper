@@ -1803,18 +1803,24 @@
             </div>
             
             <!-- BUTTON ACTION GRID -->
-            <div style="display:grid; grid-template-columns: 1fr 1.3fr 1fr; gap:8px; margin-top:5px;">
+            <div style="display:grid; grid-template-columns: 1fr 1.5fr 1fr; gap:8px; margin-top:5px;">
                 <!-- Left: Cancel -->
                 <button id="btnCancelCrop" class="cropper-main-btn" onclick="cancelCrop()" 
                         style="background:#ff9e6d !important; padding: 12px 5px !important; font-size: 0.85rem !important;">
                     Cancel
                 </button>
                 
-                <!-- Middle: REGENERATE (Hidden by default, shown by JS in AI Mode) -->
-                <button id="btnRegenAI" class="cropper-main-btn" onclick="generateAIImage(true)" 
-                        style="display:none; background:#9d4edd !important; padding: 12px 2px !important; font-size: 0.8rem !important; border: 2px solid white !important;">
-                    🔄 New Image
-                </button>
+                <!-- Middle: TWO REDRAW OPTIONS (Hidden by default, shown in AI Mode) -->
+                <div id="aiRedrawGroup" style="display:none; display:flex; flex-direction:column; gap:4px;">
+                    <button onclick="generateAIImage(true, 'flux')" 
+                            style="background:#06B6D4; color:white; border:none; border-radius:8px; padding:6px; font-weight:900; font-size:0.7rem; cursor:pointer; border: 1.5px solid white;">
+                        ⚡ Fast Redraw
+                    </button>
+                    <button onclick="generateAIImage(true, 'imagen-4')" 
+                            style="background:#8B5CF6; color:white; border:none; border-radius:8px; padding:6px; font-weight:900; font-size:0.7rem; cursor:pointer; border: 1.5px solid white;">
+                        ✨ Quality Redraw
+                    </button>
+                </div>
                 
                 <!-- Right: Save -->
                 <button id="btnSaveCrop" class="cropper-main-btn" onclick="saveCroppedPhoto()" 
@@ -2137,15 +2143,12 @@
             
             // Ensure the loader is hidden when we first open the cropper
             const loader = document.getElementById('cropperLoading');
-            if (loader) {
-                // Small delay to ensure smooth transition
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 100);
-            }
+            if (loader) loader.style.display = 'none';
         
-            // Show/Hide the "New AI Image" button based on how we got here
-            document.getElementById('btnRegenAI').style.display = isAiMode ? 'block' : 'none';
+            const redrawGroup = document.getElementById('aiRedrawGroup');
+            if (redrawGroup) {
+                redrawGroup.style.display = isAiMode ? 'flex' : 'none';
+            }
             
             closeOverlay('iconPickerOverlay');
             document.getElementById('photoCropperOverlay').style.display = 'block';
@@ -2214,10 +2217,15 @@
             }
             
             isAiMode = false;
+            
+            // Hide the loader
             const loader = document.getElementById('cropperLoading');
             if (loader) loader.style.display = 'none';
             
-            // ✅ Call closeOverlay to manage scroll properly
+            // HIDE THE REDRAW GROUP (Updated ID)
+            const redrawGroup = document.getElementById('aiRedrawGroup');
+            if (redrawGroup) redrawGroup.style.display = 'none';
+            
             closeOverlay('photoCropperOverlay');
         }
 
@@ -2334,18 +2342,31 @@ function setAspectRatio(ratio) {
     }
 }
 
-async function generateAIImage(isRefresh = false) {
-    const btn = isRefresh ? document.getElementById('btnRegenAI') : document.getElementById('btnAiGen');
+async function generateAIImage(isRefresh = false, modelOverride = null) {
+    // 1. DYNAMIC UI TARGETING (Updated to handle the aiRedrawGroup container)
+    const btn = isRefresh ? document.getElementById('aiRedrawGroup') : document.getElementById('btnAiGen');
     const loader = isRefresh ? document.getElementById('cropperLoading') : document.getElementById('aiLoadingStatus');
     const phrase = currentPickerPhrase;
     
     if (!phrase) return;
     isAiMode = true; 
 
-    btn.disabled = true;
-    btn.style.opacity = "0.5";
+    // 2. Setup UI State based on interaction point
+    if (isRefresh) {
+        // Disable the whole group container during redraw to prevent double-clicks
+        btn.style.pointerEvents = "none";
+        btn.style.opacity = "0.5";
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+    }
+
     if (loader) loader.style.display = isRefresh ? "flex" : "block";
-    btn.innerHTML = isRefresh ? "Drawing..." : "<span>🎨</span> Drawing...";
+    
+    // Maintain your specific button text logic
+    if (!isRefresh) {
+        btn.innerHTML = "<span>🎨</span> Drawing...";
+    }
     
     const loaderText = loader?.querySelector('p') || loader;
     if (loaderText) {
@@ -2354,9 +2375,10 @@ async function generateAIImage(isRefresh = false) {
 
     const data = getCardData(phrase);
     let englishWord = (data.en && data.en !== "...") ? data.en : phrase;
+    // Expanded regex cleaning (Preserved & Enhanced)
     englishWord = englishWord.replace(/^(a|an|the|le|la|un|une|l'|le |la |des |du |de la )\s+/i, "").trim();
 
-    // --- EXPANDED VISUAL MAPPING (NEW) ---
+    // 3. --- EXPANDED VISUAL MAPPING (Preserved exactly as provided) ---
     let visualDescription = englishWord;
     const lowerWord = englishWord.toLowerCase();
     
@@ -2375,7 +2397,6 @@ async function generateAIImage(isRefresh = false) {
         'sorry': 'person looking apologetic, hand on chest',
         'pardon': 'person looking apologetic, hand on chest',
         'welcome': 'person opening arms in a welcoming gesture',
-        
         // People & School
         'friend': 'two children playing together happily',
         'ami': 'two children playing together happily',
@@ -2387,7 +2408,6 @@ async function generateAIImage(isRefresh = false) {
         'professeur': 'adult standing by a chalkboard teaching',
         'student': 'child holding a book and smiling',
         'élève': 'child holding a book and smiling',
-        
         // Actions
         'sleep': 'person peacefully sleeping, eyes closed',
         'dormir': 'person peacefully sleeping, eyes closed',
@@ -2403,7 +2423,6 @@ async function generateAIImage(isRefresh = false) {
         'écrire': 'hand holding a pencil writing on paper',
         'listen': 'person pointing to ear with a listening expression',
         'écouter': 'person pointing to ear with a listening expression',
-        
         // Abstract
         'love': 'two red hearts intertwined',
         'amour': 'two red hearts intertwined',
@@ -2415,7 +2434,6 @@ async function generateAIImage(isRefresh = false) {
         'travail': 'person busy writing at a desk'
     };
     
-    // Check if the word or phrase contains any of our keys
     for (const [key, value] of Object.entries(visualMap)) {
         if (lowerWord.includes(key)) {
             visualDescription = value;
@@ -2427,20 +2445,31 @@ async function generateAIImage(isRefresh = false) {
     const seed = Math.floor(Math.random() * 10000000);
     const API_KEY = 'pk_SrGFJfhef0swTvS2';
     
+    // 4. PROMPT CONSTRUCTION (Preserved your Realistic/No-Text instructions)
     const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${visualDescription} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
     const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture, logo';
     
     const encodedPrompt = encodeURIComponent(prompt);
     const encodedNegative = encodeURIComponent(negativePrompt);
 
-    // TRY 1: imagen-4
+    // 5. DETERMINING MODELS (New Dynamic Logic)
+    // If we have an override (from cropper buttons), use it. Otherwise, use global preference.
+    const firstModel = modelOverride || preferredAiModel;
+    const fallbackModel = (firstModel === 'imagen-4') ? 'flux' : 'imagen-4';
+
+    // 6. TRY 1: Primary Attempt (Based on preference or override)
     try {
-        if (loaderText) loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(model 4)</span>';
+        if (loaderText) {
+            loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${firstModel})</span>`;
+        }
         
-        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=imagen-4&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${firstModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
         
-        const response = await fetch(imageUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
-        if (!response.ok) throw new Error(`imagen-4 failed`);
+        const response = await fetch(imageUrl, {
+            headers: { 'Authorization': `Bearer ${API_KEY}` }
+        });
+        
+        if (!response.ok) throw new Error(`${firstModel} failed`);
 
         const blob = await response.blob();
         const reader = new FileReader();
@@ -2455,15 +2484,20 @@ async function generateAIImage(isRefresh = false) {
         return;
         
     } catch (error) {
-        console.warn("imagen-4 failed, trying fallback model flux");
+        console.warn(`${firstModel} failed, trying fallback model ${fallbackModel}`);
         
-        // TRY 2: flux
+        // 7. TRY 2: Fallback Attempt (Preserved logic, now dynamic)
         try {
-            if (loaderText) loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(fallback)</span>';
-            const fluxUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
+            if (loaderText) {
+                loaderText.innerHTML = `AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(${fallbackModel})</span>`;
+            }
+            const fallbackUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=512&height=512&model=${fallbackModel}&nologo=true&seed=${seed}&negative_prompt=${encodedNegative}`;
             
-            const response = await fetch(fluxUrl, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
-            if (!response.ok) throw new Error(`flux failed`);
+            const response = await fetch(fallbackUrl, {
+                headers: { 'Authorization': `Bearer ${API_KEY}` }
+            });
+            
+            if (!response.ok) throw new Error(`${fallbackModel} failed`);
             
             const blob = await response.blob();
             const reader = new FileReader();
@@ -2478,16 +2512,27 @@ async function generateAIImage(isRefresh = false) {
             
         } catch (fbError) {
             console.error("All models failed");
+            if (loaderText) {
+                loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; color:#ff6b8b;">(failed)</span>';
+            }
             resetUI("The AI server is very busy. Please wait 3 seconds and click Generate again!");
         }
     }
 
+    // 8. UI Reset Helper (Updated to handle different UI states)
     function resetUI(msg) {
         if (msg) alert(msg);
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        
+        if (isRefresh) {
+            btn.style.pointerEvents = "auto";
+            btn.style.opacity = "1";
+        } else {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.innerHTML = "<span>🤖</span> Generate AI Image";
+        }
+        
         if (loader) loader.style.display = "none";
-        btn.innerHTML = isRefresh ? "🔄 New Image" : "<span>🤖</span> Generate AI Image";
     }
 }
         
