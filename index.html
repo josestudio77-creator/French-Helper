@@ -2368,9 +2368,9 @@ async function generateAIImage(isRefresh = false) {
         }
         
         // SUPER STRONG prompt to avoid text
-        const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a person with hands on heart, grateful expression, warm smile, conveying gratitude visually. White background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
+        const prompt = `Create an image with ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS. Show a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors, professional illustration. THIS IS CRITICAL: THE IMAGE MUST NOT CONTAIN ANY WRITTEN TEXT WHATSOEVER.`;
         
-        const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, "Thank you", "Merci", any written content, handwriting, font, calligraphy, characters, alphabet, scripture';
+        const negativePrompt = 'text, words, letters, typography, caption, label, watermark, signature, any written content, handwriting, font, calligraphy, characters, alphabet, scripture';
         
         const encodedPrompt = encodeURIComponent(prompt);
         const encodedNegative = encodeURIComponent(negativePrompt);
@@ -2423,7 +2423,7 @@ async function generateAIImage(isRefresh = false) {
             }
             
             // For flux, instructions must be in main prompt
-            const fluxPrompt = `CRITICAL: ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS IN THIS IMAGE. Show a person with hands on heart, grateful expression, conveying gratitude. White background, educational style, detailed, accurate colors. NO TEXT WHATSOEVER.`;
+            const fluxPrompt = `CRITICAL: ABSOLUTELY NO TEXT, NO WORDS, NO LETTERS IN THIS IMAGE. Show a clear, realistic ${englishWord} on white background, educational style, detailed, accurate colors. NO TEXT WHATSOEVER.`;
             
             const encodedFluxPrompt = encodeURIComponent(fluxPrompt);
             const fluxUrl = `https://gen.pollinations.ai/image/${encodedFluxPrompt}?width=512&height=512&model=flux&nologo=true&seed=${seed}`;
