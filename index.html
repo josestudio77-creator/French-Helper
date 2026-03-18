@@ -1846,7 +1846,10 @@
             <div id="emojiInputSection" style="display:none; width: 100%; background:#f8fafc; padding:12px; border-radius:20px; border:2px solid #e2e8f0; margin-top: 10px;">
                 <p style="font-weight:800; color:#64748b; margin-bottom:8px; font-size:0.8rem;">Type an emoji:</p>
                 <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
-                    <input type="text" id="emojiInput" maxlength="2" style="width:60px; padding:8px; font-size:1.8rem; text-align:center; border:3px solid #9d4edd; border-radius:12px; background:white;" placeholder="😊">
+                    <input type="text" id="emojiInput" maxlength="2" 
+                       enterkeyhint="done" 
+                       placeholder="😊"
+                   style="width:70px; padding:10px; font-size:2rem; text-align:center; border:3px solid #9d4edd; border-radius:15px; background:white;">
                     <button onclick="submitEmoji()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; flex: 1;">Use Emoji</button>
                 </div>
             </div>
@@ -2160,10 +2163,7 @@
         }
 
         function openEmojiPicker() {
-            document.getElementById('emojiInputSection').style.display = 'block';
-            document.getElementById('emojiInput').focus();
-            
-            // Detect the user's device
+            // 1. Detect the user's device (Preserved from your previous logic)
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             const isAndroid = /Android/.test(navigator.userAgent);
             const isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(navigator.userAgent);
@@ -2171,16 +2171,31 @@
             let msg = "";
             
             if (isIOS || isAndroid) {
-                msg = "📱 Mobile: Tap the smiley face (😊) button on your keyboard to browse emojis!";
+                msg = "Tap the smiley face (😊) button on your keyboard to browse and pick an emoji!";
             } else if (isMac) {
-                msg = "💻 Mac: Press Command (⌘) + Control + Space to open the emoji picker!";
+                msg = "Press Command (⌘) + Control + Space to open the emoji picker!";
             } else {
-                msg = "💻 Windows: Press the Windows Key + . (period) to open the emoji picker!";
+                msg = "Press the Windows Key + . (period) to open the emoji picker!";
             }
             
-            setTimeout(() => {
-                alert(msg);
-            }, 500);
+            // 2. THE FIX: Use your professional appModal instead of the system alert
+            openAppModal({
+                title: "😊 Add an Emoji",
+                text: msg,
+                mode: 'view',
+                saveText: "Got it!",
+                onAction: () => {
+                    // 3. When they click "Got it", show the input and trigger the keyboard
+                    const inputSection = document.getElementById('emojiInputSection');
+                    const inputField = document.getElementById('emojiInput');
+                    
+                    if (inputSection) inputSection.style.display = 'block';
+                    if (inputField) {
+                        inputField.value = ''; // Clear previous
+                        inputField.focus();    // Pop the keyboard
+                    }
+                }
+            });
         }
 
         function submitEmoji() {
