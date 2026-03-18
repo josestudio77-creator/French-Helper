@@ -739,6 +739,37 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transition: transform 0.2s;
     }
+
+    /* THE SMART AI CANVAS: Replaces the confusing picture emoji */
+    .ai-placeholder-box {
+        width: 8rem;
+        height: 6rem;
+        border: 3px dashed #a3e4d7; /* Matches card border color */
+        background: #f0fff4; /* Light green tint */
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        margin: 0 auto 10px auto;
+        transition: all 0.2s;
+    }
+    
+    .ai-placeholder-box:active {
+        transform: scale(0.95);
+        background: #e6fffa;
+    }
+
+    .ai-badge-label {
+        font-size: 0.65rem;
+        font-weight: 900;
+        color: #9d4edd;
+        text-transform: uppercase;
+        margin-top: 5px;
+        letter-spacing: 0.5px;
+    }
     
     /* Landscape orientation */
     .card-photo.landscape {
@@ -2788,38 +2819,38 @@ function renderList(list) {
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
 
-            // --- THE FIX: MERGED ROBOT BADGE & FREE CROP LOGIC ---
             let visualHTML;
             if (data.isPhoto) {
-                // Determine style for Photo (handling Free Crop and Orientation)
+                // If it's a photo (Camera or AI), show the photo as normal
                 let orientationClass = data.photoOrientation || 'landscape';
                 let inlineStyle = '';
-                
                 if (data.isFreeCrop && data.customRatio) {
                     const baseHeight = 7;
                     const calculatedWidth = Math.min(baseHeight * data.customRatio, 12); 
                     inlineStyle = `style="height: ${baseHeight}rem; width: ${calculatedWidth.toFixed(2)}rem; object-fit: cover;"`;
                     orientationClass = '';
                 }
-                
                 visualHTML = `<img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">`;
             } else {
-                // Determine style for Emoji (handling Robot Badge)
+                // THE NEW SMART CANVAS LOGIC
                 const isDefaultPlaceholder = /🖼️/.test(data.icon);
                 
-                const robotBadge = isDefaultPlaceholder ? 
-                    `<div style="position:absolute; bottom:-4px; right:-4px; font-size:1.2rem; background:white; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); border: 2.5px solid #9d4edd; z-index: 10;">🤖</div>` 
-                    : '';
-                
-                visualHTML = `
-                    <div style="position:relative; display:inline-block; margin-bottom: 10px;">
-                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                        ${robotBadge}
-                    </div>`;
+                if (isDefaultPlaceholder) {
+                    // This replaces the 🖼️ with a professional "Add Image" outline
+                    visualHTML = `
+                        <div class="ai-placeholder-box" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                            <span style="font-size: 2.2rem; line-height: 1;">🤖</span>
+                            <span class="ai-badge-label">AI DRAW</span>
+                            <div style="position:absolute; top: 8px; right: 10px; font-size: 0.8rem; opacity: 0.6;">✨</div>
+                        </div>`;
+                } else {
+                    // Standard Emojis (recognized words like 🐶 or 🐱) remain the same
+                    visualHTML = `
+                        <div style="position:relative; display:inline-block; margin-bottom: 10px;">
+                            <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        </div>`;
+                }
             }
-            
-            const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
-            const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
             // --- FINAL TEMPLATE: Now using the unified visualHTML ---
             card.innerHTML = `
