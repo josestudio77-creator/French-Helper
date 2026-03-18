@@ -1061,7 +1061,7 @@
         font-size: 57px !important; 
         line-height: 38px;
         top: 1px; 
-        ter-spacing: -1px;
+        letter-spacing: -1px;
         font-weight: 400 !important;
 
         /* THE THINNING HACK */
@@ -1397,7 +1397,7 @@
             
             <div style="margin-bottom: 12px;">
                 <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem;">
-                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggracingDetail()" style="transform: scale(1.4);"> Include Tracing Guides
+                    <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.4);"> Include Tracing Guides
                 </label>
             </div>
 
@@ -1413,9 +1413,9 @@
 
         <!-- SECTION 3: STYLE SELECTION -->
         <div style="border-top: 2px solid #f1f5f9; padding-top: 20px;">
-            <p style="font-weight: 900; color: #64748b; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; ter-spacing: 1px;">Choose Handwriting Style:</p>
+            <p style="font-weight: 900; color: #64748b; margin-bottom: 15px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Choose Handwriting Style:</p>
             <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block ters</button>
+                <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
                 <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
             </div>
         </div>
@@ -1454,7 +1454,7 @@
                 <div class="modal-btn-grid" id="appModalViewBtns">
                     <button id="appModalBtnAction" class="modal-btn" style="display:none; background:#4cd964; color:white; grid-column: span 2;">Confirm</button>
                     <button id="appModalBtnEdit" class="modal-btn" style="background:#118AB2; color:white;">✏️ Edit</button>
-                    <button id="appModalBtnDee" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Dee</button>
+                    <button id="appModalBtnDelete" class="modal-btn" style="background:#fee2e2; color:#ef4444;">🗑️ Delete</button>
                 </div>
             </div>
     
@@ -1882,7 +1882,7 @@
             ]
         };
         
-        const FRENCH_TER_NAMES = {
+        const FRENCH_LETTER_NAMES = {
             'A': 'a', 'B': 'bé', 'C': 'cé', 'D': 'dé', 'E': 'e',
             'F': 'effe', 'G': 'gé', 'H': 'hache', 'I': 'i', 'J': 'ji',
             'K': 'ka', 'L': 'elle', 'M': 'emme', 'N': 'enne', 'O': 'o',
@@ -1894,7 +1894,7 @@
         };
 
         // ===== APP STATE =====
-         speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.7');
+        speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.7');
         let currentWeekAudio = null;
         let cache = JSON.parse(localStorage.getItem('phraseTranslations') || '{}');
         let history = JSON.parse(localStorage.getItem('frenchHistory') || '{}');
