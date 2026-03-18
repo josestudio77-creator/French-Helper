@@ -1860,7 +1860,8 @@
         
         <!-- 4. FOOTER SECTION -->
         <div style="margin-top: 15px; border-top: 2px solid #f1f5f9; padding-top: 15px;">
-            <button onclick="closeOverlay('iconPickerOverlay')" style="background: #f1f5f9; color: #64748b; padding: 14px; width: 100%; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: background 0.2s;">
+            <!-- UPDATED: Now calls cancelIconPicker() instead of just closeOverlay -->
+            <button onclick="cancelIconPicker()" style="background: #f1f5f9; color: #64748b; padding: 14px; width: 100%; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: background 0.2s;">
                 Cancel
             </button>
         </div>
@@ -2486,6 +2487,30 @@ function updateAiBtnUI() {
         btn.innerHTML = '<span>⚡</span> Default AI: Speed (Flux)';
         btn.style.background = '#06B6D4'; // Cyan for Speed
     }
+}
+
+function cancelIconPicker() {
+    // This is the "Stop" signal that your generateAIImage is waiting for
+    if (aiAbortController) {
+        aiAbortController.abort(); // This makes 'signal.aborted' true
+        aiAbortController = null;
+        console.log("🛑 AI Task killed by user");
+    }
+    
+    // Hide the loading status immediately
+    const loader = document.getElementById('aiLoadingStatus');
+    if (loader) loader.style.display = 'none';
+
+    // Reset the main Generate button state
+    const genBtn = document.getElementById('btnAiGen');
+    if (genBtn) {
+        genBtn.disabled = false;
+        genBtn.style.opacity = "1";
+        genBtn.innerHTML = "<span>🤖</span> Generate AI Image";
+    }
+
+    // Close the window
+    closeOverlay('iconPickerOverlay');
 }
 
 async function generateAIImage(isRefresh = false, modelOverride = null) {
