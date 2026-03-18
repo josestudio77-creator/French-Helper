@@ -1799,53 +1799,58 @@
         </div>
     </div>
 
-    <!-- Icon/Photo Picker Overlay - Balanced and Professional -->
-    <div id="iconPickerOverlay" class="overlay">
-        <div class="overlay-content" style="max-width: 400px; margin: 8vh auto; padding: 25px;">
-            <!-- Updated Header: More creative and handles long words better -->
-            <h2 style="color:#9d4edd; margin-bottom:25px; font-size: 1.3rem; line-height: 1.3;">
-                ✨ Personalize:<br>
-                <span id="pickerPhrase" style="color:#ff6b8b; font-size: 1.6rem; word-break: break-word;"></span>
-            </h2>
+<!-- Icon/Photo Picker Overlay - Perfectly Centered to match Print Settings -->
+<div id="iconPickerOverlay" class="overlay" style="z-index: 9600; display: none;">
+    <!-- Fixed Style: Exactly matching your Print Settings window -->
+    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92%; max-width: 420px; padding: 25px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); padding-bottom: 25px !important;">
+        
+        <!-- SECTION 1: HEADER -->
+        <h2 style="color:#9d4edd; margin-bottom:20px; font-size: 1.3rem; line-height: 1.3;">
+            ✨ Personalize:<br>
+            <span id="pickerPhrase" style="color:#ff6b8b; font-size: 1.6rem; word-break: break-word;"></span>
+        </h2>
+        
+        <!-- SECTION 2: CREATIVE OPTIONS -->
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; border-top: 2px solid #f1f5f9; padding-top: 20px;">
+            <button onclick="openEmojiPicker()" style="background:#4cd964; color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #2e8b57; cursor:pointer;">
+                😊 Choose Emoji
+            </button>
             
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
-                <!-- Main Creative Buttons -->
-                <button onclick="openEmojiPicker()" style="background:#4cd964; color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #2e8b57; cursor:pointer;">
-                    😊 Choose Emoji
-                </button>
-                
-                <button onclick="openPhotoPicker()" style="background:#5a67d8; color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #434190; cursor:pointer;">
-                    📷 Choose Photo
-                </button>
-                
-                <button id="btnAiGen" onclick="generateAIImage()" style="background: linear-gradient(135deg, #9d4edd, #ff6b8b); color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #7b3eb3; display: flex; align-items: center; justify-content: center; gap: 10px; cursor:pointer;">
-                    <span>🤖</span> Generate AI Image
-                </button>
-    
-                <!-- Restore Button: Styled as a subtle secondary option -->
-                <button onclick="resetToDefaultIcon()" style="background:none; color:#ff9e6d; padding:12px; border: 2.5px solid #ff9e6d; border-radius: 18px; font-weight:900; width:100%; margin-top: 10px; cursor:pointer;">
-                    ↺ Restore Original
-                </button>
-            </div>
-    
-            <!-- AI Loading Status (Preserved) -->
-            <div id="aiLoadingStatus" style="display:none; color:#9d4edd; font-weight:900; margin-bottom:20px;">
-                <div class="loading-spinner" style="width:25px; height:25px; border-width:4px; display:inline-block; vertical-align:middle; margin-right:10px;"></div>
-                AI is drawing for you...
-            </div>
+            <button onclick="openPhotoPicker()" style="background:#5a67d8; color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #434190; cursor:pointer;">
+                📷 Choose Photo
+            </button>
             
-            <!-- Emoji Input Section (Preserved) -->
-            <div id="emojiInputSection" style="margin:20px 0; display:none; background:#f8fafc; padding:15px; border-radius:20px; border:2px solid #e2e8f0;">
-                <p style="font-weight:800; color:#64748b; margin-bottom:12px; font-size:0.9rem;">Type any emoji below:</p>
-                <input type="text" id="emojiInput" maxlength="2" style="width:80px; padding:10px; font-size:2rem; text-align:center; border:3px solid #9d4edd; border-radius:15px; background:white;" placeholder="😊">
-                <button onclick="submitEmoji()" style="background:#4cd964; color:white; padding:12px 25px; border:none; border-radius:12px; font-weight:900; margin-top:15px; width:100%;">Use This Emoji</button>
-            </div>
-            
-            <input type="file" id="photoPickerInput" accept="image/*" style="display:none;">
-            
-            <button onclick="closeOverlay('iconPickerOverlay')" style="margin-top:10px; background:#f1f5f9; color:#64748b; padding:15px; width:100%; border-radius:20px; border:none; font-weight:900; cursor:pointer;">Cancel</button>
+            <button id="btnAiGen" onclick="generateAIImage()" style="background: linear-gradient(135deg, #9d4edd, #ff6b8b); color:white; padding:16px; border:none; border-radius:18px; font-weight:900; width:100%; box-shadow: 0 4px 0 #7b3eb3; display: flex; align-items: center; justify-content: center; gap: 10px; cursor:pointer;">
+                <span>🤖</span> Generate AI Image
+            </button>
         </div>
+
+        <!-- SECTION 3: UTILITY (Restore) -->
+        <div style="border-top: 2px solid #f1f5f9; padding-top: 15px; margin-bottom: 10px;">
+            <button onclick="resetToDefaultIcon()" style="background:none; color:#ff9e6d; padding:10px; border: 2.5px solid #ff9e6d; border-radius: 18px; font-weight:900; width:100%; cursor:pointer;">
+                ↺ Restore Original
+            </button>
+        </div>
+
+        <!-- AI Loading Status (Integrated neatly) -->
+        <div id="aiLoadingStatus" style="display:none; color:#9d4edd; font-weight:900; margin: 10px 0;">
+            <div class="loading-spinner" style="width:20px; height:20px; border-width:3px; display:inline-block; vertical-align:middle; margin-right:8px;"></div>
+            AI is drawing...
+        </div>
+        
+        <!-- Emoji Input Section (Shows inside the centered box) -->
+        <div id="emojiInputSection" style="margin:15px 0; display:none; background:#f8fafc; padding:15px; border-radius:20px; border:2px solid #e2e8f0;">
+            <p style="font-weight:800; color:#64748b; margin-bottom:10px; font-size:0.85rem;">Type an emoji:</p>
+            <input type="text" id="emojiInput" maxlength="2" style="width:70px; padding:10px; font-size:2rem; text-align:center; border:3px solid #9d4edd; border-radius:15px; background:white;" placeholder="😊">
+            <button onclick="submitEmoji()" style="background:#4cd964; color:white; padding:12px; border:none; border-radius:12px; font-weight:900; margin-top:10px; width:100%;">Use This Emoji</button>
+        </div>
+        
+        <input type="file" id="photoPickerInput" accept="image/*" style="display:none;">
+        
+        <!-- Footer Action -->
+        <button onclick="closeOverlay('iconPickerOverlay')" style="margin-top: 15px; background: #f1f5f9; color: #64748b; padding: 12px; width: 100%; border-radius: 12px; border: none; font-weight: 900; cursor: pointer;">Cancel</button>
     </div>
+</div>
 
 <!-- Photo Cropper Overlay with aspect ratio controls -->
     <div id="photoCropperOverlay" class="overlay" style="z-index:9700;">
