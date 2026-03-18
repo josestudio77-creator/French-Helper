@@ -5381,12 +5381,10 @@ async function translateOne(p) {
             }
         }
         
-function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
-            // 1. Safety Guard: prevent multiple print triggers (Preserved)
+    function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             if (isPrinting) return;
             isPrinting = true;
         
-            // 2. Setup the Print Area (Preserved)
             let area = document.getElementById('printArea');
             if (!area) {
                 area = document.createElement('div');
@@ -5397,8 +5395,9 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
             area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // 3. Generate Header if requested (Preserved)
-            let html = "";
+            // --- 1. START PAGE WRAPPER (Centers everything vertically on the sheet) ---
+            let html = `<div style="display: flex; flex-direction: column; justify-content: center; min-height: 10in; width: 100%; box-sizing: border-box; padding: 0.2in 0;">`;
+
             if (header) {
                 html += `<div class="print-header-simple">
                     <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -5407,15 +5406,17 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                 </div>`;
             }
 
-            // --- UPDATED: 14-ROW BLANK WORKSHEET LOGIC ---
+            // --- 2. BLANK WORKSHEET LOGIC ---
             if (typeof cursive === 'string' && cursive.startsWith("blank")) {
                 const fClass = cursive.includes("cursive") ? 'cursive-font' : 'block-font';
                 
-                // ADJUSTMENT: 12 rows with header, 14 rows without header
+                // ADJUSTED LOGIC:
+                // With Header: 12 rows, 8.2 inch height (leaves room for header)
+                // No Header: 14 rows, 9.6 inch height (fills the page)
                 const rowCount = header ? 12 : 14; 
+                const blockHeight = header ? "8.2in" : "9.6in";
                 
-                // height set to 9.4in to balance 14 rows perfectly on one page
-                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: 9.4in; padding: 25px 40px; box-sizing: border-box; border: 2.5px solid #333;">
+                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: ${blockHeight}; padding: 25px 40px; box-sizing: border-box; border: 2.5px solid #333;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
@@ -5424,7 +5425,7 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                 
                 html += `</div>`;
             } 
-            // --- 4. Process each phrase (Preserved EXACTLY as provided) ---
+            // --- 3. PHRASE-BASED PRINTING (Preserved Logic) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5436,7 +5437,6 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                    // Reference Row (Solid Black)
                     html += `<div class="calligraphy-row">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
@@ -5447,7 +5447,6 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                         let shouldTrace = false;
                         if (trace === 'all') shouldTrace = true;
                         else if (trace === 'first' && i === 0) shouldTrace = true;
-        
                         let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
                         html += `<div class="calligraphy-row">${tHTML}</div>`; 
                     }
@@ -5455,9 +5454,10 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                 });
             }
         
+            html += `</div>`; // --- CLOSE PAGE WRAPPER ---
+
             area.innerHTML = html;
         
-            // 5. Trigger the print with delay (Preserved)
             setTimeout(() => {
                 window.print();
                 setTimeout(() => { isPrinting = false; }, 2000);
