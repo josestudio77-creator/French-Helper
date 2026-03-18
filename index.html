@@ -5381,7 +5381,7 @@ async function translateOne(p) {
             }
         }
         
-    function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+       function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             if (isPrinting) return;
             isPrinting = true;
         
@@ -5395,9 +5395,8 @@ async function translateOne(p) {
             area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // --- 1. START PAGE WRAPPER (Centers everything vertically on the sheet) ---
-            let html = `<div style="display: flex; flex-direction: column; justify-content: center; min-height: 10in; width: 100%; box-sizing: border-box; padding: 0.2in 0;">`;
-
+            let html = "";
+            // We removed the Page Wrapper so it starts from the top as requested
             if (header) {
                 html += `<div class="print-header-simple">
                     <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -5406,26 +5405,27 @@ async function translateOne(p) {
                 </div>`;
             }
 
-            // --- 2. BLANK WORKSHEET LOGIC ---
+            // --- NEW: SYNCHRONIZED BLANK WORKSHEET LOGIC ---
             if (typeof cursive === 'string' && cursive.startsWith("blank")) {
                 const fClass = cursive.includes("cursive") ? 'cursive-font' : 'block-font';
                 
-                // ADJUSTED LOGIC:
-                // With Header: 12 rows, 8.2 inch height (leaves room for header)
-                // No Header: 14 rows, 9.6 inch height (fills the page)
-                const rowCount = header ? 12 : 14; 
-                const blockHeight = header ? "8.2in" : "9.6in";
+                // MATCHING YOUR "PERFECT" LAYOUT:
+                // 13 rows (1+12) if header exists, 15 rows if header is gone.
+                const rowCount = header ? 13 : 15; 
                 
-                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: ${blockHeight}; padding: 25px 40px; box-sizing: border-box; border: 2.5px solid #333;">
+                // We use your standard phrase-block container
+                html += `<div class="print-phrase-block" style="padding-top: 30px; margin-bottom: 0;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
-                    html += `<div class="calligraphy-row ${fClass}" style="margin-bottom: 0;"></div>`;
+                    // We use the standard row class so it inherits the exact 25px margin from your CSS
+                    // This makes it identical to the phrase version
+                    html += `<div class="calligraphy-row ${fClass}"></div>`;
                 }
                 
                 html += `</div>`;
             } 
-            // --- 3. PHRASE-BASED PRINTING (Preserved Logic) ---
+            // --- 4. Process each phrase (Preserved EXACTLY) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5437,12 +5437,14 @@ async function translateOne(p) {
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
+                    // The Reference Row (Solid Black)
                     html += `<div class="calligraphy-row">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
                                 </div>
                              </div>`;
         
+                    // The Practice Rows (Respects reps and trace Mode)
                     for (let i = 0; i < reps; i++) {
                         let shouldTrace = false;
                         if (trace === 'all') shouldTrace = true;
@@ -5454,8 +5456,6 @@ async function translateOne(p) {
                 });
             }
         
-            html += `</div>`; // --- CLOSE PAGE WRAPPER ---
-
             area.innerHTML = html;
         
             setTimeout(() => {
