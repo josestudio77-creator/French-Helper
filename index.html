@@ -739,37 +739,6 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transition: transform 0.2s;
     }
-
-    /* THE SMART AI CANVAS: Replaces the confusing picture emoji */
-    .ai-placeholder-box {
-        width: 8rem;
-        height: 6rem;
-        border: 3px dashed #a3e4d7; /* Matches card border color */
-        background: #f0fff4; /* Light green tint */
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        cursor: pointer;
-        margin: 0 auto 10px auto;
-        transition: all 0.2s;
-    }
-    
-    .ai-placeholder-box:active {
-        transform: scale(0.95);
-        background: #e6fffa;
-    }
-
-    .ai-badge-label {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #9d4edd;
-        text-transform: uppercase;
-        margin-top: 5px;
-        letter-spacing: 0.5px;
-    }
     
     /* Landscape orientation */
     .card-photo.landscape {
@@ -2718,13 +2687,13 @@ function renderList(list) {
     if (!container) return;
     container.innerHTML = '';
     
-    // --- 1. Manage Autoplay UI visibility FIRST (Preserved) ---
+    // --- 1. Manage Autoplay UI visibility FIRST (Fixes the Alphabet bug) ---
     const autoPlayUI = document.getElementById('autoplayControls');
     if (autoPlayUI) {
         autoPlayUI.style.display = (viewMode === 'dialogue' && !currentWeekAudio) ? 'block' : 'none';
     }
 
-    // --- 2. Alphabet Detection (Preserved) ---
+    // --- 2. Alphabet Detection ---
     const isAlphabet = (list.length >= 26 && list.length <= 31) && list.includes('A') && list.includes('Z');
     if (isAlphabet && viewMode === 'cards') {
         renderAlphabetCards(list);
@@ -2734,7 +2703,7 @@ function renderList(list) {
     const existingBanner = document.querySelector('.teacher-audio-banner');
     if (existingBanner) existingBanner.remove();
 
-    // --- 3. Dialogue button label logic (Preserved) ---
+    // --- 3. Dialogue button label logic ---
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
         if (currentWeekAudio) {
@@ -2744,7 +2713,7 @@ function renderList(list) {
         }
     }
     
-    // --- 4. Update Status Bar & Badges (Preserved) ---
+    // --- 4. Update Status Bar & Badges ---
     const statusInfo = document.getElementById('stCountText');
     const controlPanel = document.querySelector('.app-control-panel');
     controlPanel.querySelectorAll('.corner-badge').forEach(b => b.remove());
@@ -2762,7 +2731,7 @@ function renderList(list) {
 
     const hasTeacherAudio = !!currentWeekAudio && !!currentWeekAudio.data;
     
-    // --- BRANCH A: TEACHER RECORDING MODE (Preserved) ---
+    // --- BRANCH A: TEACHER RECORDING MODE ---
     if (hasTeacherAudio && list.length > 0 && viewMode === 'dialogue') {
         const banner = document.createElement('div');
         banner.className = 'teacher-audio-banner';
@@ -2783,7 +2752,7 @@ function renderList(list) {
         container.appendChild(card);
         
     } 
-    // --- BRANCH B: DIALOGUE / LIST MODE (Preserved) ---
+    // --- BRANCH B: DIALOGUE / LIST MODE ---
     else if (viewMode === 'dialogue' && !hasTeacherAudio) {
         const diagCard = document.createElement('div');
         diagCard.className = 'condensed-card';
@@ -2812,59 +2781,46 @@ function renderList(list) {
         });
         container.appendChild(diagCard);
     } 
-    // --- BRANCH C: STANDARD CARDS MODE (FIXED & MERGED) ---
+    // --- BRANCH C: STANDARD CARDS MODE ---
     else {
         list.forEach(p => {
             const data = getCardData(p); 
             const card = document.createElement('div'); 
             card.className = 'phrase-card';
 
-            let visualHTML;
+            // --- IMPROVED ICON LOGIC ---
+            let iconHTML;
             if (data.isPhoto) {
                 // If it's a photo (Camera or AI), show the photo as normal
-                let orientationClass = data.photoOrientation || 'landscape';
-                let inlineStyle = '';
-                if (data.isFreeCrop && data.customRatio) {
-                    const baseHeight = 7;
-                    const calculatedWidth = Math.min(baseHeight * data.customRatio, 12); 
-                    inlineStyle = `style="height: ${baseHeight}rem; width: ${calculatedWidth.toFixed(2)}rem; object-fit: cover;"`;
-                    orientationClass = '';
-                }
-                visualHTML = `<img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">`;
+                iconHTML = `<img src="${data.photoData}" class="card-photo ${data.photoOrientation}" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">`;
             } else {
-                // THE NEW SMART CANVAS LOGIC
-                const isDefaultPlaceholder = /🖼️/.test(data.icon);
+                // If it's an emoji, check if it's the fallback "Picture Frame"
+                const isDefaultPlaceholder = (data.icon === "🖼️");
                 
-                if (isDefaultPlaceholder) {
-                    // This replaces the 🖼️ with a professional "Add Image" outline
-                    visualHTML = `
-                        <div class="ai-placeholder-box" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
-                            <span style="font-size: 2.2rem; line-height: 1;">🤖</span>
-                            <span class="ai-badge-label">AI DRAW</span>
-                            <div style="position:absolute; top: 8px; right: 10px; font-size: 0.8rem; opacity: 0.6;">✨</div>
-                        </div>`;
-                } else {
-                    // Standard Emojis (recognized words like 🐶 or 🐱) remain the same
-                    visualHTML = `
-                        <div style="position:relative; display:inline-block; margin-bottom: 10px;">
-                            <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
-                        </div>`;
-                }
+                // Create the robot badge only for the placeholder
+                const aiBadge = isDefaultPlaceholder ? 
+                    `<div style="position:absolute; bottom:0; right:0; font-size:1.1rem; background:white; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid #9d4edd; z-index: 2;">🤖</div>` 
+                    : '';
+                
+                // Wrap the emoji in a relative container so the badge stays attached to the corner
+                iconHTML = `
+                    <div style="position:relative; display:inline-block; margin-bottom: 10px;">
+                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        ${aiBadge}
+                    </div>`;
             }
+            // --- END IMPROVED ICON LOGIC ---
+            
+            const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
+            const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
 
-            // --- FINAL TEMPLATE: Now using the unified visualHTML ---
-            card.innerHTML = `
-                <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
-                ${gIcon}
-                <div class="card-main-content">
-                    ${visualHTML}
-                    <span class="french-text">${p}</span>
-                    ${pGuide}
-                    <span class="english-text">${data.en}</span>
-                </div>
+            const spellingHTML = `
                 <div class="spelling-zone" style="display:none; padding: 0;">
                     <div class="spelling-slots"></div>
                 </div>
+            `;
+
+            const buttonHTML = `
                 <div class="card-btns">
                     <button class="card-btn spk-fr" style="position: relative;">
                         <span class="snail-corner">🐌</span>
@@ -2876,7 +2832,49 @@ function renderList(list) {
                 </div>
             `;
 
-            // --- Bind interactions (Preserved) ---
+            // PRESERVED: Complex Photo logic for orientations
+            if (data.isPhoto) {
+                let orientationClass = data.photoOrientation || 'landscape';
+                let inlineStyle = '';
+                
+                if (data.isFreeCrop && data.customRatio) {
+                    const baseHeight = 7;
+                    const calculatedWidth = baseHeight * data.customRatio;
+                    const finalWidth = Math.min(calculatedWidth, 12); 
+                    inlineStyle = `style="height: ${baseHeight}rem; width: ${finalWidth.toFixed(2)}rem; object-fit: cover;"`;
+                    orientationClass = '';
+                } else {
+                    orientationClass = data.photoOrientation;
+                }
+                
+                card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
+                    ${gIcon}
+                    <div class="card-main-content">
+                        <img src="${data.photoData}" class="card-photo ${orientationClass}" ${inlineStyle} alt="photo" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
+                    ${buttonHTML}
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
+                    ${gIcon}
+                    <div class="card-main-content">
+                        <span class="card-icon" onclick="openIconPicker('${p.replace(/'/g, "\\'")}')">${data.icon}</span>
+                        <span class="french-text">${p}</span>
+                        ${pGuide}
+                        <span class="english-text">${data.en}</span>
+                    </div>
+                    ${spellingHTML}
+                    ${buttonHTML}
+                `;
+            }
+
+            // Bind interactions
             card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
             card.querySelector('.snail-corner').onclick = (e) => {
                 e.stopPropagation();
@@ -2886,6 +2884,7 @@ function renderList(list) {
             const engTextEl = card.querySelector('.english-text');
             const engBtnEl = card.querySelector('.spk-en');
             
+            // PRESERVED: Manual Fix Translation logic
             const triggerFix = (e) => {
                 e.preventDefault();
                 manualFixTranslation(p, data.en);
@@ -2910,6 +2909,7 @@ function renderList(list) {
             container.appendChild(card);
         }); 
     } 
+}
 
     function shareWeek(weekName, wordsText, audioData = null) {
         console.log('🟢 SHARE FUNCTION STARTED');
@@ -6329,10 +6329,3 @@ window.addEventListener('appinstalled', (evt) => {
 
 </body>
 </html>
-
-
-
-
-
-
-
