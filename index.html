@@ -5381,10 +5381,12 @@ async function translateOne(p) {
             }
         }
         
-        function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+            // 1. Safety Guard: prevent multiple print triggers (Preserved)
             if (isPrinting) return;
             isPrinting = true;
         
+            // 2. Setup the Print Area (Preserved)
             let area = document.getElementById('printArea');
             if (!area) {
                 area = document.createElement('div');
@@ -5395,6 +5397,7 @@ async function translateOne(p) {
             area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
+            // 3. Generate Header if requested (Preserved)
             let html = "";
             if (header) {
                 html += `<div class="print-header-simple">
@@ -5404,13 +5407,15 @@ async function translateOne(p) {
                 </div>`;
             }
 
-            // --- NEW: BALANCED BLANK WORKSHEET ---
+            // --- UPDATED: 14-ROW BLANK WORKSHEET LOGIC ---
             if (typeof cursive === 'string' && cursive.startsWith("blank")) {
                 const fClass = cursive.includes("cursive") ? 'cursive-font' : 'block-font';
-                const rowCount = header ? 12 : 13; // 12 if header exists, 13 if full page
                 
-                // We use flexbox with space-between to fill the page exactly
-                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: 9.2in; padding: 20px 40px; box-sizing: border-box;">
+                // ADJUSTMENT: 12 rows with header, 14 rows without header
+                const rowCount = header ? 12 : 14; 
+                
+                // height set to 9.4in to balance 14 rows perfectly on one page
+                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: 9.4in; padding: 25px 40px; box-sizing: border-box; border: 2.5px solid #333;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
@@ -5419,7 +5424,7 @@ async function translateOne(p) {
                 
                 html += `</div>`;
             } 
-            // --- PRESERVED: PHRASE-BASED PRINTING (NO CHANGES) ---
+            // --- 4. Process each phrase (Preserved EXACTLY as provided) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5431,6 +5436,7 @@ async function translateOne(p) {
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
+                    // Reference Row (Solid Black)
                     html += `<div class="calligraphy-row">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
@@ -5451,6 +5457,7 @@ async function translateOne(p) {
         
             area.innerHTML = html;
         
+            // 5. Trigger the print with delay (Preserved)
             setTimeout(() => {
                 window.print();
                 setTimeout(() => { isPrinting = false; }, 2000);
