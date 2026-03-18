@@ -743,8 +743,8 @@
     .ai-placeholder-box {
         width: 8rem;
         height: 6rem;
-        border: 3px dashed #a3e4d7; /* Matches card border color */
-        background: #f0fff4; /* Light green tint */
+        border: 3px dashed #a3e4d7;
+        background: #f0fff4;
         border-radius: 20px;
         display: flex;
         flex-direction: column;
@@ -755,6 +755,13 @@
         margin: 0 auto 10px auto;
         transition: all 0.2s;
         box-sizing: border-box;
+        animation: softReveal 1.8s ease-out 1;
+    }
+    
+    @keyframes softReveal {
+        0% { opacity: 0.7; transform: scale(0.98); }
+        50% { opacity: 1; transform: scale(1.02); background: #e6fffa; }
+        100% { opacity: 0.9; transform: scale(1); }
     }
     
     .ai-placeholder-box:active {
