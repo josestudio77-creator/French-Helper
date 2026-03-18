@@ -5380,7 +5380,7 @@ async function translateOne(p) {
             }
         }
         
-        function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             // 1. Safety Guard: prevent multiple print triggers (Preserved)
             if (isPrinting) return;
             isPrinting = true;
@@ -5406,21 +5406,21 @@ async function translateOne(p) {
                 </div>`;
             }
 
-            // --- NEW: BLANK GUIDELINES LOGIC ---
-            // If the style is set to "blank", we ignore the phrases and just draw lines
+            // --- NEW: BLANK FULL-PAGE GUIDELINES ---
             if (cursive === "blank") {
-                const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸"];
+                // We create ONE single block that acts as a full-page frame
+                html += `<div class="print-phrase-block" style="height: 900px; padding-top: 30px;">
+                            <span class="cute-decoration">✏️</span>`;
+                
+                // Add exactly 12 empty sets of guidelines inside this one block
                 for (let i = 0; i < 12; i++) {
-                    html += `
-                        <div class="print-phrase-block" style="margin-bottom: 12px;">
-                            <span class="cute-decoration">${icons[i % icons.length]}</span>
-                            <div class="calligraphy-row"></div>
-                            <div class="calligraphy-row"></div>
-                            <div class="calligraphy-row"></div>
-                        </div>`;
+                    // We use the standard calligraphy-row class so the lines look identical to practice mode
+                    html += `<div class="calligraphy-row" style="margin-bottom: 35px;"></div>`;
                 }
+                
+                html += `</div>`;
             } 
-            // --- 4. Process each phrase (Preserved EXACTLY as your current version) ---
+            // --- 4. Process each phrase (Preserved EXACTLY as your version) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
