@@ -1472,6 +1472,8 @@
             <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
                 <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
                 <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
+                <button onclick="handlePrintChoice('blank')" style="background: #64748b; color: white; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #334155; margin-top: 5px;">📄 Blank Practice Sheet (12 sets)
+        </button>            
             </div>
         </div>
         
@@ -5335,23 +5337,26 @@ async function translateOne(p) {
         function handlePrintChoice(choice) {
             const reps = parseInt(document.getElementById('repeatCountInput').value);
             const showHeader = document.getElementById('includeHeaderToggle').checked;
-            
-            // THE LOGIC FIX:
-            // First, check if the master "Include Tracing Guides" checkbox is ON.
             const tracingEnabled = document.getElementById('includeTracingToggle').checked;
             
-            let traceMode = 'none'; // Default to none
-            
+            let traceMode = 'none'; 
             if (tracingEnabled) {
-                // Only if enabled, we look at which radio button is selected
                 const selectedRadio = document.querySelector('input[name="traceOption"]:checked');
                 traceMode = selectedRadio ? selectedRadio.value : 'first';
             }
             
             closeOverlay('printSelectionOverlay');
-            
-            // Send the final result to the print engine
-            runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
+
+            // --- THE FIX: Handle the 'blank' choice ---
+            if (choice === 'blank') {
+                // We pass an empty string for words, and a special 'blank' flag for the style.
+                // We set reps to 2 (1 reference + 2 practice = 3 rows per block)
+                // 12 blocks * 3 rows = 36 rows, which fills a Letter/A4 page perfectly.
+                runPrintLogic("", "blank", 2, showHeader, "Pratique de l'écriture", "none");
+            } else {
+                // Regular Block or Cursive logic
+                runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
+            }
         }
         
         function updateTraceUI(choice) {
@@ -5376,11 +5381,11 @@ async function translateOne(p) {
         }
         
         function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
-            // 1. Safety Guard: prevent multiple print triggers
+            // 1. Safety Guard: prevent multiple print triggers (Preserved)
             if (isPrinting) return;
             isPrinting = true;
         
-            // 2. Setup the Print Area
+            // 2. Setup the Print Area (Preserved)
             let area = document.getElementById('printArea');
             if (!area) {
                 area = document.createElement('div');
@@ -5391,7 +5396,7 @@ async function translateOne(p) {
             area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // 3. Generate Header if requested
+            // 3. Generate Header if requested (Preserved)
             let html = "";
             if (header) {
                 html += `<div class="print-header-simple">
@@ -5400,47 +5405,59 @@ async function translateOne(p) {
                     <div class="date-label">Date: ${today}</div>
                 </div>`;
             }
-        
-            // 4. Process each phrase
-            const phrases = words.split('\n').filter(p => p.trim() !== "");
-            const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
-        
-            phrases.forEach((phrase, index) => {
-                const clean = phrase.split('|')[0].trim();
-                const fClass = cursive ? 'cursive-font' : 'block-font';
-                
-                // Start the block container
-                html += `<div class="print-phrase-block">
-                    <span class="cute-decoration">${icons[index % icons.length]}</span>`;
-        
-                // 5. THE REFERENCE ROW (REPLACES OLD STANDALONE TEXT)
-                // This is always present and always solid black.
-                html += `<div class="calligraphy-row">
-                            <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
-                                ${clean}
-                            </div>
-                         </div>`;
-        
-                // 6. THE PRACTICE ROWS
-                // This loop still respects your repetition count and tracing choices
-                for (let i = 0; i < reps; i++) {
-                    let shouldTrace = false;
-                    if (trace === 'all') shouldTrace = true;
-                    else if (trace === 'first' && i === 0) shouldTrace = true;
-        
-                    let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
-                    html += `<div class="calligraphy-row">${tHTML}</div>`; 
+
+            // --- NEW: BLANK GUIDELINES LOGIC ---
+            // If the style is set to "blank", we ignore the phrases and just draw lines
+            if (cursive === "blank") {
+                const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸"];
+                for (let i = 0; i < 12; i++) {
+                    html += `
+                        <div class="print-phrase-block" style="margin-bottom: 12px;">
+                            <span class="cute-decoration">${icons[i % icons.length]}</span>
+                            <div class="calligraphy-row"></div>
+                            <div class="calligraphy-row"></div>
+                            <div class="calligraphy-row"></div>
+                        </div>`;
                 }
+            } 
+            // --- 4. Process each phrase (Preserved EXACTLY as your current version) ---
+            else {
+                const phrases = words.split('\n').filter(p => p.trim() !== "");
+                const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
         
-                html += `</div>`; // Close block
-            });
+                phrases.forEach((phrase, index) => {
+                    const clean = phrase.split('|')[0].trim();
+                    const fClass = cursive ? 'cursive-font' : 'block-font';
+                    
+                    html += `<div class="print-phrase-block">
+                        <span class="cute-decoration">${icons[index % icons.length]}</span>`;
+        
+                    // 5. THE REFERENCE ROW (Solid Black) (Preserved)
+                    html += `<div class="calligraphy-row">
+                                <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
+                                    ${clean}
+                                </div>
+                             </div>`;
+        
+                    // 6. THE PRACTICE ROWS (Preserved)
+                    for (let i = 0; i < reps; i++) {
+                        let shouldTrace = false;
+                        if (trace === 'all') shouldTrace = true;
+                        else if (trace === 'first' && i === 0) shouldTrace = true;
+        
+                        let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
+                        html += `<div class="calligraphy-row">${tHTML}</div>`; 
+                    }
+        
+                    html += `</div>`; 
+                });
+            }
         
             area.innerHTML = html;
         
-            // 7. Trigger the print with enough delay for fonts to render correctly
+            // 7. Trigger the print with delay (Preserved)
             setTimeout(() => {
                 window.print();
-                // Unlock the print button after a reasonable window
                 setTimeout(() => { isPrinting = false; }, 2000);
             }, 800);
         }
