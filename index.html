@@ -5334,7 +5334,7 @@ async function translateOne(p) {
             updateTraceUI(currentChoice);
         }
 
-        function handlePrintChoice(choice) {
+       function handlePrintChoice(choice) {
             const reps = parseInt(document.getElementById('repeatCountInput').value);
             const showHeader = document.getElementById('includeHeaderToggle').checked;
             const tracingEnabled = document.getElementById('includeTracingToggle').checked;
@@ -5347,14 +5347,15 @@ async function translateOne(p) {
             
             closeOverlay('printSelectionOverlay');
 
-            // --- THE FIX: Handle the 'blank' choice ---
             if (choice === 'blank') {
-                // We pass an empty string for words, and a special 'blank' flag for the style.
-                // We set reps to 2 (1 reference + 2 practice = 3 rows per block)
-                // 12 blocks * 3 rows = 36 rows, which fills a Letter/A4 page perfectly.
-                runPrintLogic("", "blank", 2, showHeader, "Pratique de l'écriture", "none");
+                // Determine if we should use Block or Cursive lines for the blank sheet
+                // We check which button was last "active" or simply default to block
+                const isCursive = document.querySelector('button[onclick*="cursive"]').classList.contains('active');
+                
+                // Pass "blank-block" or "blank-cursive" as the choice
+                const blankType = isCursive ? "blank-cursive" : "blank-block";
+                runPrintLogic("", blankType, 0, showHeader, "Pratique de l'écriture", "none");
             } else {
-                // Regular Block or Cursive logic
                 runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
             }
         }
@@ -5380,12 +5381,10 @@ async function translateOne(p) {
             }
         }
         
-function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
-            // 1. Safety Guard: prevent multiple print triggers (Preserved)
+        function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             if (isPrinting) return;
             isPrinting = true;
         
-            // 2. Setup the Print Area (Preserved)
             let area = document.getElementById('printArea');
             if (!area) {
                 area = document.createElement('div');
@@ -5396,7 +5395,6 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
             area.innerHTML = ''; 
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
-            // 3. Generate Header if requested (Preserved)
             let html = "";
             if (header) {
                 html += `<div class="print-header-simple">
@@ -5406,21 +5404,22 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                 </div>`;
             }
 
-            // --- NEW: BLANK FULL-PAGE GUIDELINES ---
-            if (cursive === "blank") {
-                // We create ONE single block that acts as a full-page frame
-                html += `<div class="print-phrase-block" style="height: 900px; padding-top: 30px;">
+            // --- NEW: BALANCED BLANK WORKSHEET ---
+            if (typeof cursive === 'string' && cursive.startsWith("blank")) {
+                const fClass = cursive.includes("cursive") ? 'cursive-font' : 'block-font';
+                const rowCount = header ? 12 : 13; // 12 if header exists, 13 if full page
+                
+                // We use flexbox with space-between to fill the page exactly
+                html += `<div class="print-phrase-block" style="display: flex; flex-direction: column; justify-content: space-between; height: 9.2in; padding: 20px 40px; box-sizing: border-box;">
                             <span class="cute-decoration">✏️</span>`;
                 
-                // Add exactly 12 empty sets of guidelines inside this one block
-                for (let i = 0; i < 12; i++) {
-                    // We use the standard calligraphy-row class so the lines look identical to practice mode
-                    html += `<div class="calligraphy-row" style="margin-bottom: 35px;"></div>`;
+                for (let i = 0; i < rowCount; i++) {
+                    html += `<div class="calligraphy-row ${fClass}" style="margin-bottom: 0;"></div>`;
                 }
                 
                 html += `</div>`;
             } 
-            // --- 4. Process each phrase (Preserved EXACTLY as your version) ---
+            // --- PRESERVED: PHRASE-BASED PRINTING (NO CHANGES) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5432,14 +5431,12 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                    // 5. THE REFERENCE ROW (Solid Black) (Preserved)
                     html += `<div class="calligraphy-row">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
                                 </div>
                              </div>`;
         
-                    // 6. THE PRACTICE ROWS (Preserved)
                     for (let i = 0; i < reps; i++) {
                         let shouldTrace = false;
                         if (trace === 'all') shouldTrace = true;
@@ -5448,14 +5445,12 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
                         let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
                         html += `<div class="calligraphy-row">${tHTML}</div>`; 
                     }
-        
                     html += `</div>`; 
                 });
             }
         
             area.innerHTML = html;
         
-            // 7. Trigger the print with delay (Preserved)
             setTimeout(() => {
                 window.print();
                 setTimeout(() => { isPrinting = false; }, 2000);
