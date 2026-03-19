@@ -955,6 +955,47 @@
 /* Hide the print area on screen ALWAYS to prevent it appearing during practice */
     #printArea { display: none !important; }
 
+    /* 2. The Container for the small square buttons */
+    .trace-type-btn {
+        width: 44px;
+        height: 34px;
+        border: 2px solid #cbd5e0;
+        border-radius: 8px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    /* 3. The look when a button is selected */
+    .trace-type-btn.active {
+        border-color: #5a67d8; /* Indigo */
+        background: #e0e7ff;
+        box-shadow: 0 0 8px rgba(90, 103, 216, 0.2);
+    }
+    
+    /* 4. The little lines inside the buttons */
+    .mini-line { 
+        width: 22px; 
+        height: 2px; 
+        background: #e2e8f0; /* Faint grey for background lines */
+        border-radius: 2px;
+    }
+    
+    /* 5. The "Dark" line represents where the tracing text will be */
+    .mini-line.dark { 
+        background: #a0aec0; /* Medium grey */
+    }
+    
+    /* 6. Highlight the dark lines when the button is active */
+    .active .mini-line.dark { 
+        background: #5a67d8; 
+    }
+
 /* --- PRINT ONLY STYLES --- */
 @media print {
     @page { 
