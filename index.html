@@ -5350,15 +5350,11 @@ async function translateOne(p) {
             closeOverlay('printSelectionOverlay');
         
             if (choice === 'blank') {
-                // PER YOUR REQUEST: 
-                // With Header: 1 Ref Row + 12 Practice = 13 total.
-                // No Header: 1 Ref Row + 13 Practice = 14 total.
                 const effectiveReps = showHeader ? 12 : 13;
                 
-                // We pass a non-breaking space "\u00A0" as the word so the lines don't collapse
-                runPrintLogic("\u00A0", "blank", effectiveReps, showHeader, "Pratique de l'écriture", "none");
+                // Use the special keyword [BLANK] to trigger the lines
+                runPrintLogic("[BLANK]", "blank", effectiveReps, showHeader, "Pratique de l'écriture", "none");
             } else {
-                // Regular Block or Cursive logic
                 runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
             }
         }
@@ -5407,30 +5403,30 @@ async function translateOne(p) {
                 </div>`;
             }
         
-            const phrases = words.split('\n').filter(p => p.trim() !== "");
+            // THE FIX: We updated the filter to allow our [BLANK] keyword to pass through
+            const phrases = words.split('\n').filter(p => p.trim() !== "" || p === "[BLANK]");
             const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸", "🦁", "🐯"];
         
             phrases.forEach((phrase, index) => {
-                const clean = phrase.split('|')[0].trim();
+                // If it's a blank sheet, we treat the 'word' as an empty string for the lines
+                const isBlankSheet = (phrase === "[BLANK]");
+                const clean = isBlankSheet ? "" : phrase.split('|')[0].trim();
                 
-                // --- STYLE DETECTION ---
-                let fClass = 'block-font'; // Default
+                // STYLE DETECTION
+                let fClass = 'block-font'; 
                 if (cursive === true) fClass = 'cursive-font';
-                if (cursive === 'blank') fClass = 'blank-line'; // 50% Midline for blank sheets
+                if (cursive === 'blank') fClass = 'blank-line'; // Triggers 50% midline
         
-                // SMART ROW LIMIT FOR PHRASES:
-                // If header is on and user wants 13 reps, we cap the FIRST block at 12
-                // This ensures your 12/13 split works for standard homework cards too!
+                // SMART ROW LIMIT: Page 1 with header gets 12 reps, others get 13
                 let effectiveReps = reps;
                 if (index === 0 && header && reps === 13) {
                     effectiveReps = 12;
                 }
                 
                 html += `<div class="print-phrase-block">
-                    <span class="cute-decoration">${icons[index % icons.length]}</span>`;
+                    <span class="cute-decoration">${isBlankSheet ? "✏️" : icons[index % icons.length]}</span>`;
         
                 // THE REFERENCE ROW
-                // Using &nbsp; ensures the row never collapses if the 'clean' text is a space
                 html += `<div class="calligraphy-row ${fClass}">
                             <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                 ${clean}
@@ -5440,8 +5436,10 @@ async function translateOne(p) {
                 // THE PRACTICE ROWS
                 for (let i = 0; i < effectiveReps; i++) {
                     let shouldTrace = false;
-                    if (trace === 'all') shouldTrace = true;
-                    else if (trace === 'first' && i === 0) shouldTrace = true;
+                    if (!isBlankSheet) {
+                        if (trace === 'all') shouldTrace = true;
+                        else if (trace === 'first' && i === 0) shouldTrace = true;
+                    }
         
                     let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
                     html += `<div class="calligraphy-row ${fClass}">${tHTML}&nbsp;</div>`; 
