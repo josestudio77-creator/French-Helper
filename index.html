@@ -1062,37 +1062,32 @@
     }
     
     /* Guideline Rows */
-        .calligraphy-row {
-            height: 38px; 
-            width: 100%; 
-            margin-bottom: 27px; /* Your sweet spot */
-            border-bottom: 2px solid black;
-            border-top: 1px solid #aaa; 
-            position: relative;
-        }
-    
-        /* This defines the dotted line for ALL rows */
-        .calligraphy-row::after { 
-            content: ""; 
-            position: absolute; 
-            top: 40%; /* Default for Block */
-            left: 0; 
-            width: 100%; 
-            border-top: 1.2px dashed #bbb; 
-            height: 0;
-        }
-    
-        /* CURSIVE OVERRIDE: Moves line to 45% */
-        .print-phrase-text.cursive-font ~ .calligraphy-row::after,
-        .calligraphy-row.cursive-font::after {
-            top: 45% !important;
-        }
-    
-        /* BLANK SHEET OVERRIDE: Moves line to 50% and ensures it shows up */
-        .calligraphy-row.blank-line::after {
-            top: 50% !important;
-            display: block !important;
-        }
+    .calligraphy-row {
+        height: 38px; 
+        width: 100%; 
+        margin-bottom: 27px; 
+        border-bottom: 2px solid black;
+        border-top: 1px solid #aaa; 
+        position: relative;
+    }
+
+    /* 2. This draws the dotted line for EVERY row automatically */
+    .calligraphy-row::after { 
+        content: ""; 
+        position: absolute; 
+        left: 0; 
+        width: 100%; 
+        border-top: 1.2px dashed #bbb; 
+        height: 0;
+        display: block !important;
+        /* Default position */
+        top: 40%; 
+    }
+
+    /* 3. Specific position overrides */
+    .calligraphy-row.block-font::after { top: 40% !important; }
+    .calligraphy-row.cursive-font::after { top: 45% !important; }
+    .calligraphy-row.blank-line::after { top: 50% !important; }
     
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
@@ -5341,7 +5336,7 @@ async function translateOne(p) {
             updateTraceUI(currentChoice);
         }
 
-       function handlePrintChoice(choice) {
+        function handlePrintChoice(choice) {
             const reps = parseInt(document.getElementById('repeatCountInput').value);
             const showHeader = document.getElementById('includeHeaderToggle').checked;
             const tracingEnabled = document.getElementById('includeTracingToggle').checked;
@@ -5353,15 +5348,9 @@ async function translateOne(p) {
             }
             
             closeOverlay('printSelectionOverlay');
-
+        
             if (choice === 'blank') {
-                // Determine if we should use Block or Cursive lines for the blank sheet
-                // We check which button was last "active" or simply default to block
-                const isCursive = document.querySelector('button[onclick*="cursive"]').classList.contains('active');
-                
-                // Pass "blank-block" or "blank-cursive" as the choice
-                const blankType = isCursive ? "blank-cursive" : "blank-block";
-                runPrintLogic("", blankType, 0, showHeader, "Pratique de l'écriture", "none");
+                runPrintLogic("", "blank", 13, showHeader, "Pratique de l'écriture", "none");
             } else {
                 runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
             }
@@ -5411,23 +5400,21 @@ async function translateOne(p) {
                 </div>`;
             }
         
-            // --- 1. BLANK WORKSHEET LOGIC (FIXED) ---
+            // --- 1. BLANK WORKSHEET LOGIC ---
             if (cursive === "blank") {
-                // Your logic: 12 rows if header exists, 13 if no header
+                // SMART SPLIT: 12 rows if header exists, 13 if no header
                 const rowCount = header ? 12 : 13;
                 
-                // Use the standard frame but ensure it doesn't have a bottom margin that pushes to page 2
-                html += `<div class="print-phrase-block" style="padding-top: 30px; margin-bottom: 0; border: 2.5px solid #333;">
+                html += `<div class="print-phrase-block" style="padding-top: 30px; border: 2.5px solid #333;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
-                    // We use the 'blank-line' class which we just fixed in the CSS
-                    html += `<div class="calligraphy-row blank-line"></div>`;
+                    // THE FIX: Adding &nbsp; ensures the row is not "empty" so the lines show up
+                    html += `<div class="calligraphy-row blank-line">&nbsp;</div>`;
                 }
-                
                 html += `</div>`;
             } 
-            // --- 2. PHRASE-BASED PRINTING (With Smart 12/13 split) ---
+            // --- 2. PHRASE-BASED PRINTING (Preserved Logic) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5436,9 +5423,7 @@ async function translateOne(p) {
                     const clean = phrase.split('|')[0].trim();
                     const fClass = cursive ? 'cursive-font' : 'block-font';
                     
-                    // SMART ROW LOGIC:
-                    // If header is on and user wants 13 reps, we cap the FIRST block at 12
-                    // to ensure the header + lines fit on one page.
+                    // SMART SPLIT: On first page with header, limit 13 to 12
                     let effectiveReps = reps;
                     if (index === 0 && header && reps === 13) {
                         effectiveReps = 12;
@@ -5447,11 +5432,12 @@ async function translateOne(p) {
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                    // Reference Row
-                    html += `<div class="calligraphy-row">
+                    // Reference Row (Solid Black)
+                    // Added &nbsp; here too as a safety measure
+                    html += `<div class="calligraphy-row ${fClass}">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
-                                </div>
+                                </div>&nbsp;
                              </div>`;
         
                     // Practice Rows
@@ -5461,7 +5447,7 @@ async function translateOne(p) {
                         else if (trace === 'first' && i === 0) shouldTrace = true;
         
                         let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
-                        html += `<div class="calligraphy-row">${tHTML}</div>`; 
+                        html += `<div class="calligraphy-row ${fClass}">${tHTML}&nbsp;</div>`; 
                     }
                     html += `</div>`; 
                 });
