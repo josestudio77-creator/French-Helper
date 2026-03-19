@@ -5411,21 +5411,23 @@ async function translateOne(p) {
                 </div>`;
             }
         
-            // --- 1. BLANK WORKSHEET LOGIC ---
+            // --- 1. BLANK WORKSHEET LOGIC (FIXED) ---
             if (cursive === "blank") {
-                // Logic: 12 rows if header exists, 13 if no header
+                // Your logic: 12 rows if header exists, 13 if no header
                 const rowCount = header ? 12 : 13;
                 
+                // Use the standard frame but ensure it doesn't have a bottom margin that pushes to page 2
                 html += `<div class="print-phrase-block" style="padding-top: 30px; margin-bottom: 0; border: 2.5px solid #333;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
-                    // Use the new 'blank-line' class for a perfect 50% center line
+                    // We use the 'blank-line' class which we just fixed in the CSS
                     html += `<div class="calligraphy-row blank-line"></div>`;
                 }
+                
                 html += `</div>`;
             } 
-            // --- 2. PHRASE-BASED PRINTING (With Smart Row-Counting) ---
+            // --- 2. PHRASE-BASED PRINTING (With Smart 12/13 split) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5435,8 +5437,8 @@ async function translateOne(p) {
                     const fClass = cursive ? 'cursive-font' : 'block-font';
                     
                     // SMART ROW LOGIC:
-                    // If this is the FIRST phrase block, AND there is a header, 
-                    // AND user selected 13 reps, we cap THIS block at 12 practice rows.
+                    // If header is on and user wants 13 reps, we cap the FIRST block at 12
+                    // to ensure the header + lines fit on one page.
                     let effectiveReps = reps;
                     if (index === 0 && header && reps === 13) {
                         effectiveReps = 12;
@@ -5457,6 +5459,7 @@ async function translateOne(p) {
                         let shouldTrace = false;
                         if (trace === 'all') shouldTrace = true;
                         else if (trace === 'first' && i === 0) shouldTrace = true;
+        
                         let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
                         html += `<div class="calligraphy-row">${tHTML}</div>`; 
                     }
