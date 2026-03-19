@@ -1472,7 +1472,7 @@
             <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
                 <button onclick="handlePrintChoice('block')" style="background: #118AB2; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #086d8d;">ABC Block Letters</button>
                 <button onclick="handlePrintChoice('cursive')" style="background: #ff6b8b; color: white; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 4px 0 #d6335c;">Cursive Writing</button>
-                <button onclick="handlePrintChoice('blank')" style="background: #64748b; color: white; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #334155; margin-top: 5px;">📄 Blank Practice Sheet (12 sets)
+                <button onclick="handlePrintChoice('blank')" style="background: #64748b; color: white; padding: 15px; border-radius: 15px; font-weight: 900; font-size: 1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #334155; margin-top: 5px;">📄 Blank Practice Sheet
         </button>            
             </div>
         </div>
@@ -5316,7 +5316,7 @@ async function translateOne(p) {
             let newVal = currentVal + change;
             
             if (newVal < 1) newVal = 1;
-            if (newVal > 12) newVal = 12;
+            if (newVal > 13) newVal = 13;
             
             input.value = newVal;
         }
@@ -5381,7 +5381,7 @@ async function translateOne(p) {
             }
         }
         
-       function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
+        function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
             if (isPrinting) return;
             isPrinting = true;
         
@@ -5396,7 +5396,6 @@ async function translateOne(p) {
             const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             
             let html = "";
-            // We removed the Page Wrapper so it starts from the top as requested
             if (header) {
                 html += `<div class="print-header-simple">
                     <div class="name-label">Nom:<span class="name-underline"></span></div>
@@ -5404,28 +5403,22 @@ async function translateOne(p) {
                     <div class="date-label">Date: ${today}</div>
                 </div>`;
             }
-
-            // --- NEW: SYNCHRONIZED BLANK WORKSHEET LOGIC ---
-            if (typeof cursive === 'string' && cursive.startsWith("blank")) {
-                const fClass = cursive.includes("cursive") ? 'cursive-font' : 'block-font';
+        
+            // --- 1. BLANK WORKSHEET LOGIC ---
+            if (cursive === "blank") {
+                // Logic: 12 rows if header exists, 13 if no header
+                const rowCount = header ? 12 : 13;
                 
-                // MATCHING YOUR "PERFECT" LAYOUT:
-                // 13 rows (1+12) if header exists, 15 rows if header is gone.
-                const rowCount = header ? 13 : 14; 
-                
-                // We use your standard phrase-block container
-                html += `<div class="print-phrase-block" style="padding-top: 30px; margin-bottom: 0;">
+                html += `<div class="print-phrase-block" style="padding-top: 30px; margin-bottom: 0; border: 2.5px solid #333;">
                             <span class="cute-decoration">✏️</span>`;
                 
                 for (let i = 0; i < rowCount; i++) {
-                    // We use the standard row class so it inherits the exact 25px margin from your CSS
-                    // This makes it identical to the phrase version
-                    html += `<div class="calligraphy-row ${fClass}"></div>`;
+                    // Use the new 'blank-line' class for a perfect 50% center line
+                    html += `<div class="calligraphy-row blank-line"></div>`;
                 }
-                
                 html += `</div>`;
             } 
-            // --- 4. Process each phrase (Preserved EXACTLY) ---
+            // --- 2. PHRASE-BASED PRINTING (With Smart Row-Counting) ---
             else {
                 const phrases = words.split('\n').filter(p => p.trim() !== "");
                 const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
@@ -5434,18 +5427,26 @@ async function translateOne(p) {
                     const clean = phrase.split('|')[0].trim();
                     const fClass = cursive ? 'cursive-font' : 'block-font';
                     
+                    // SMART ROW LOGIC:
+                    // If this is the FIRST phrase block, AND there is a header, 
+                    // AND user selected 13 reps, we cap THIS block at 12 practice rows.
+                    let effectiveReps = reps;
+                    if (index === 0 && header && reps === 13) {
+                        effectiveReps = 12;
+                    }
+        
                     html += `<div class="print-phrase-block">
                         <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                    // The Reference Row (Solid Black)
+                    // Reference Row
                     html += `<div class="calligraphy-row">
                                 <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
                                     ${clean}
                                 </div>
                              </div>`;
         
-                    // The Practice Rows (Respects reps and trace Mode)
-                    for (let i = 0; i < reps; i++) {
+                    // Practice Rows
+                    for (let i = 0; i < effectiveReps; i++) {
                         let shouldTrace = false;
                         if (trace === 'all') shouldTrace = true;
                         else if (trace === 'first' && i === 0) shouldTrace = true;
