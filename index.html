@@ -5350,8 +5350,15 @@ async function translateOne(p) {
             closeOverlay('printSelectionOverlay');
         
             if (choice === 'blank') {
-                runPrintLogic("", "blank", 13, showHeader, "Pratique de l'écriture", "none");
+                // PER YOUR REQUEST: 
+                // With Header: 1 Ref Row + 12 Practice = 13 total.
+                // No Header: 1 Ref Row + 13 Practice = 14 total.
+                const effectiveReps = showHeader ? 12 : 13;
+                
+                // We pass a non-breaking space "\u00A0" as the word so the lines don't collapse
+                runPrintLogic("\u00A0", "blank", effectiveReps, showHeader, "Pratique de l'écriture", "none");
             } else {
+                // Regular Block or Cursive logic
                 runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
             }
         }
@@ -5400,58 +5407,47 @@ async function translateOne(p) {
                 </div>`;
             }
         
-            // --- 1. BLANK WORKSHEET LOGIC ---
-            if (cursive === "blank") {
-                // SMART SPLIT: 12 rows if header exists, 13 if no header
-                const rowCount = header ? 12 : 13;
+            const phrases = words.split('\n').filter(p => p.trim() !== "");
+            const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸", "🦁", "🐯"];
+        
+            phrases.forEach((phrase, index) => {
+                const clean = phrase.split('|')[0].trim();
                 
-                html += `<div class="print-phrase-block" style="padding-top: 30px; border: 2.5px solid #333;">
-                            <span class="cute-decoration">✏️</span>`;
-                
-                for (let i = 0; i < rowCount; i++) {
-                    // THE FIX: Adding &nbsp; ensures the row is not "empty" so the lines show up
-                    html += `<div class="calligraphy-row blank-line">&nbsp;</div>`;
+                // --- STYLE DETECTION ---
+                let fClass = 'block-font'; // Default
+                if (cursive === true) fClass = 'cursive-font';
+                if (cursive === 'blank') fClass = 'blank-line'; // 50% Midline for blank sheets
+        
+                // SMART ROW LIMIT FOR PHRASES:
+                // If header is on and user wants 13 reps, we cap the FIRST block at 12
+                // This ensures your 12/13 split works for standard homework cards too!
+                let effectiveReps = reps;
+                if (index === 0 && header && reps === 13) {
+                    effectiveReps = 12;
                 }
-                html += `</div>`;
-            } 
-            // --- 2. PHRASE-BASED PRINTING (Preserved Logic) ---
-            else {
-                const phrases = words.split('\n').filter(p => p.trim() !== "");
-                const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥"];
+                
+                html += `<div class="print-phrase-block">
+                    <span class="cute-decoration">${icons[index % icons.length]}</span>`;
         
-                phrases.forEach((phrase, index) => {
-                    const clean = phrase.split('|')[0].trim();
-                    const fClass = cursive ? 'cursive-font' : 'block-font';
-                    
-                    // SMART SPLIT: On first page with header, limit 13 to 12
-                    let effectiveReps = reps;
-                    if (index === 0 && header && reps === 13) {
-                        effectiveReps = 12;
-                    }
+                // THE REFERENCE ROW
+                // Using &nbsp; ensures the row never collapses if the 'clean' text is a space
+                html += `<div class="calligraphy-row ${fClass}">
+                            <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
+                                ${clean}
+                            </div>&nbsp;
+                         </div>`;
         
-                    html += `<div class="print-phrase-block">
-                        <span class="cute-decoration">${icons[index % icons.length]}</span>`;
+                // THE PRACTICE ROWS
+                for (let i = 0; i < effectiveReps; i++) {
+                    let shouldTrace = false;
+                    if (trace === 'all') shouldTrace = true;
+                    else if (trace === 'first' && i === 0) shouldTrace = true;
         
-                    // Reference Row (Solid Black)
-                    // Added &nbsp; here too as a safety measure
-                    html += `<div class="calligraphy-row ${fClass}">
-                                <div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">
-                                    ${clean}
-                                </div>&nbsp;
-                             </div>`;
-        
-                    // Practice Rows
-                    for (let i = 0; i < effectiveReps; i++) {
-                        let shouldTrace = false;
-                        if (trace === 'all') shouldTrace = true;
-                        else if (trace === 'first' && i === 0) shouldTrace = true;
-        
-                        let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
-                        html += `<div class="calligraphy-row ${fClass}">${tHTML}&nbsp;</div>`; 
-                    }
-                    html += `</div>`; 
-                });
-            }
+                    let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
+                    html += `<div class="calligraphy-row ${fClass}">${tHTML}&nbsp;</div>`; 
+                }
+                html += `</div>`; 
+            });
         
             area.innerHTML = html;
         
