@@ -5351,8 +5351,6 @@ async function translateOne(p) {
         
             if (choice === 'blank') {
                 const effectiveReps = showHeader ? 12 : 13;
-                
-                // Use the special keyword [BLANK] to trigger the lines
                 runPrintLogic("[BLANK]", "blank", effectiveReps, showHeader, "Pratique de l'écriture", "none");
             } else {
                 runPrintLogic(tempWordsToPrint, choice === 'cursive', reps, showHeader, tempPrintName, traceMode);
@@ -5402,11 +5400,11 @@ async function translateOne(p) {
                     <div class="date-label">Date: ${today}</div>
                 </div>`;
             }
-
-            // Filter logic: allows the [BLANK] keyword to start the loop
+        
+            // UPDATED FILTER: allows our [BLANK] keyword to start the loop
             const phrases = words.split('\n').filter(p => p.trim() !== "" || p === "[BLANK]");
             const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸", "🦁", "🐯"];
-
+        
             phrases.forEach((phrase, index) => {
                 const isBlankSheet = (phrase === "[BLANK]");
                 const clean = isBlankSheet ? "" : phrase.split('|')[0].trim();
@@ -5414,44 +5412,39 @@ async function translateOne(p) {
                 let fClass = 'block-font'; 
                 if (cursive === true) fClass = 'cursive-font';
                 if (cursive === 'blank') fClass = 'blank-line';
-
+        
+                // --- PROTECTION FOR PHRASE SHEETS ---
+                // If a parent selects 13 reps for a WORD, we still shrink the first page 
+                // to 12 reps to fit the header.
                 let effectiveReps = reps;
-                if (index === 0 && header && reps === 13) {
+                if (!isBlankSheet && index === 0 && header && reps === 13) {
                     effectiveReps = 12;
                 }
                 
                 html += `<div class="print-phrase-block">
                     <span class="cute-decoration">${isBlankSheet ? "✏️" : icons[index % icons.length]}</span>`;
-
-                // THE REFERENCE ROW
-                // The ' ' and style settings make this a "Real" object for CorelDRAW
-                html += `<div class="calligraphy-row ${fClass}" style="line-height: 38px;">
+        
+                // REFERENCE ROW
+                html += `<div class="calligraphy-row ${fClass}">
                             ${clean ? `<div class="trace-text ${fClass}" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">${clean}</div>` : ''}
-                            <span style="visibility: hidden;">.</span>
                          </div>`;
-
-                // THE PRACTICE ROWS
+        
+                // PRACTICE ROWS
                 for (let i = 0; i < effectiveReps; i++) {
                     let shouldTrace = false;
                     if (!isBlankSheet) {
                         if (trace === 'all') shouldTrace = true;
                         else if (trace === 'first' && i === 0) shouldTrace = true;
                     }
-
+        
                     let tHTML = shouldTrace ? `<div class="trace-text ${fClass}">${clean}</div>` : '';
-                    
-                    // We add a hidden period inside the row. 
-                    // This forces the PDF engine to create a valid bounding box for CorelDRAW.
-                    html += `<div class="calligraphy-row ${fClass}" style="line-height: 38px;">
-                                ${tHTML}
-                                <span style="visibility: hidden;">.</span>
-                             </div>`; 
+                    html += `<div class="calligraphy-row ${fClass}">${tHTML}</div>`; 
                 }
                 html += `</div>`; 
             });
-
+        
             area.innerHTML = html;
-
+        
             setTimeout(() => {
                 window.print();
                 setTimeout(() => { isPrinting = false; }, 2000);
