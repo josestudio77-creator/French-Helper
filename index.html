@@ -1062,35 +1062,37 @@
     }
     
     /* Guideline Rows */
-    .calligraphy-row {
-        height: 38px; 
-        width: 100%; 
-        margin-bottom: 27px; /* Updated from 25px */
-        border-bottom: 2px solid black;
-        border-top: 1px solid #aaa; 
-        position: relative;
-    }
+        .calligraphy-row {
+            height: 38px; 
+            width: 100%; 
+            margin-bottom: 27px; /* Your sweet spot */
+            border-bottom: 2px solid black;
+            border-top: 1px solid #aaa; 
+            position: relative;
+        }
     
-    /* 2. Add this class for the Blank Sheet's 50% center line */
-    .calligraphy-row.blank-line::after {
-        top: 50% !important;
-    }
-
-    /* Dotted Center Line - Reset to 50% for KG proportions */
-    .calligraphy-row::after { 
-        content: ""; 
-        position: absolute; 
-        top: 40%; 
-        left: 0; 
-        width: 100%; 
-        border-top: 1.2px dashed #bbb; 
-        height: 0;
-    }
-
-    /* CURSIVE OVERRIDE: Moves the line lower (to 50%) only when the phrase is Cursive */
-    .print-phrase-text.cursive-font ~ .calligraphy-row::after {
-        top: 45% !important; /* This moves the dotted line to the middle for Cursive only */
-    }
+        /* This defines the dotted line for ALL rows */
+        .calligraphy-row::after { 
+            content: ""; 
+            position: absolute; 
+            top: 40%; /* Default for Block */
+            left: 0; 
+            width: 100%; 
+            border-top: 1.2px dashed #bbb; 
+            height: 0;
+        }
+    
+        /* CURSIVE OVERRIDE: Moves line to 45% */
+        .print-phrase-text.cursive-font ~ .calligraphy-row::after,
+        .calligraphy-row.cursive-font::after {
+            top: 45% !important;
+        }
+    
+        /* BLANK SHEET OVERRIDE: Moves line to 50% and ensures it shows up */
+        .calligraphy-row.blank-line::after {
+            top: 50% !important;
+            display: block !important;
+        }
     
     .calligraphy-row:last-child { margin-bottom: 5px; }
     .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
