@@ -1065,10 +1065,15 @@
     .calligraphy-row {
         height: 38px; 
         width: 100%; 
-        margin-bottom: 27px; 
+        margin-bottom: 27px; /* Updated from 25px */
         border-bottom: 2px solid black;
         border-top: 1px solid #aaa; 
         position: relative;
+    }
+    
+    /* 2. Add this class for the Blank Sheet's 50% center line */
+    .calligraphy-row.blank-line::after {
+        top: 50% !important;
     }
 
     /* Dotted Center Line - Reset to 50% for KG proportions */
