@@ -1242,12 +1242,10 @@ body.mode-spelling .unified-keyboard {
         body.mode-spelling::after {
             content: "";
             position: fixed;
-            top: 0; left: 0; 
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); /* Slightly darker for better focus */
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 7000; /* Lowered so everything else can be above it */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); /* Dimming overlay */
+            backdrop-filter: blur(4px); /* Blur the "audience" */
+            z-index: 8000;
             pointer-events: none;
         }
     
@@ -1273,23 +1271,11 @@ body.mode-spelling .unified-keyboard {
     .bee-badge:active { transform: scale(1.2); }
     
 .phrase-card.spelling-mode {
-    position: fixed !important; /* Pop out of the container */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Center perfectly */
-    width: 90%;
-    max-width: 450px;
-    margin: 0 !important;
-    z-index: 9000 !important; /* Above the blur, below the banner */
-    background: #fffdf0 !important;
+    position: relative;
+    z-index: 9999 !important;
+    background: #fffdf0 !important; /* Brighter yellow */
     border-color: #FFD700 !important;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    animation: theaterCardPop 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-}
-       
-@keyframes theaterCardPop {
-    from { opacity: 0; transform: translate(-50%, -30%); }
-    to { opacity: 1; transform: translate(-50%, -50%); }
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
     
 .spelling-slots {
@@ -1386,18 +1372,18 @@ body.mode-spelling .unified-keyboard {
  /* --- UPDATED UNIFIED 3D KEYBOARD --- */
 .unified-keyboard {
     position: fixed;
-    bottom: -100%; /* Start off-screen */
+    bottom: -100%; /* CHANGE THIS: Start it off-screen at the bottom */
     left: 0;
     right: 0;
     background: #f8fafc;
     padding: 15px 5px 30px 5px; 
     border-top: 4px solid #FFD700;
     box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
-    z-index: 9500; /* Above the blur */
-    display: flex; /* Always flex so it can animate */
+    z-index: 9500;
+    display: flex; /* CHANGE THIS: Keep it flex so it can slide */
     flex-direction: column;
     gap: 8px;
-    transition: bottom 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: bottom 0.9s cubic-bezier(0.19, 1, 0.22, 1); /* Add this for the slide */
 }
 
 .keyboard-buffer {
@@ -5898,58 +5884,69 @@ async function translateOne(p) {
             const spellingZone = card.querySelector('.spelling-zone');
             const enBtn = card.querySelector('.spk-en');
             
+            // Safety check: Is this already in spelling mode?
             if (!card.classList.contains('spelling-mode')) {
+                
+                // 1. Play the Orchestral Chime
                 playTheaterIntro(); 
                 
-                // 1. Setup Theater visuals
-                document.body.classList.add('mode-spelling');
-                card.classList.add('spelling-mode');
-                
-                // 2. Hide all other cards
+                // 2. Hide all other cards so the stage is clear
                 document.querySelectorAll('.phrase-card').forEach(c => {
-                    if (c !== card) c.style.display = 'none';
+                    if (c !== card) {
+                        c.style.display = 'none';
+                    }
                 });
         
-                // 3. Transform card content
+                // 3. Setup the Body and Card for Theater Mode
+                document.body.classList.add('mode-spelling'); // This slides banner down & keyboard up
+                card.classList.add('spelling-mode');
+                
+                // Hide the Bee button so it's not in the way
                 btn.style.opacity = "0";
                 btn.style.pointerEvents = "none";
+        
+                // 4. Transform the Card Internals
                 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                     el.style.display = 'none';
                 });
                 spellingZone.style.display = 'block';
                 enBtn.innerHTML = '<span>Spell</span>';
                 
-                // 4. Start Game
+                // 5. Show keyboard and start the Spelling Game logic
                 renderMiniKeyboard(); 
                 startNewSpellingGame(card, fullPhrase);
                 
-                // 5. Hide the normal bottom nav so it doesn't peek through
-                document.querySelector('.bottom-nav').style.display = 'none';
+                // 6. Force the card to the top of the "Stage"
+                window.scrollTo(0, 0);
             }
         }
         
         // THE ROLLBACK: This exits the play and returns to the audience
         function exitSpellingTheater() {
+            // 1. Remove the Theater Class (Banner slides UP, Keyboard slides DOWN)
             document.body.classList.remove('mode-spelling');
             
+            // 2. Wait for the 0.9s animation to finish
             setTimeout(() => {
+                // Find the card that was in the theater
                 const card = document.querySelector('.phrase-card.spelling-mode');
                 if (card) {
+                    // Restore its normal appearance
                     card.classList.remove('spelling-mode');
-                    card.style.display = ''; // Reset display style
-                    
                     const beeBtn = card.querySelector('.bee-badge');
                     if (beeBtn) {
                         beeBtn.style.opacity = "1";
                         beeBtn.style.pointerEvents = "auto";
                     }
                     
+                    // Restore internal texts
                     card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                         el.style.display = 'block';
                     });
                     const spellingZone = card.querySelector('.spelling-zone');
                     if (spellingZone) spellingZone.style.display = 'none';
                     
+                    // Restore the English button
                     const enBtn = card.querySelector('.spk-en');
                     if (enBtn) {
                         enBtn.innerHTML = '<span>English</span>';
@@ -5958,12 +5955,13 @@ async function translateOne(p) {
                     }
                 }
                 
-                // Restore standard UI
-                document.querySelector('.bottom-nav').style.display = 'flex';
+                // 3. Bring back ALL other cards
                 renderList(currentScreenList);
+                
+                // 4. Stop speech and reset game state
                 currentSpellingState = null;
                 window.speechSynthesis.cancel();
-            }, 850);
+            }, 900);
         }
     
     function startNewSpellingGame(card, phrase) {
