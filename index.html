@@ -1359,6 +1359,11 @@
     .bee-badge:active { 
         transform: scale(1.2); 
     }
+
+    /* Make sure spelling zone has height */
+    .spelling-zone {
+        min-height: 100px;
+    }
     
     /* Card when in spelling mode */
     .phrase-card.spelling-mode {
@@ -1366,6 +1371,7 @@
         background: #fffdf0 !important;
         margin: 80px auto 30px auto;
         transition: margin 0.3s ease;
+        min-height: 200px;
     }
     
     /* Spelling slots container */
@@ -6318,11 +6324,9 @@ async function translateOne(p) {
             
             document.body.classList.add('keyboard-buffer');
             
-            // Start the spelling game after a tiny delay for smooth animation
-            setTimeout(() => {
-                startNewSpellingGame(card, fullPhrase);
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 150);
+            // Start the spelling game immediately so the card gets content
+            startNewSpellingGame(card, fullPhrase);
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
     
@@ -6336,12 +6340,14 @@ async function translateOne(p) {
             words: words,
             currentWordIndex: 0,
             currentLetterIndex: 0,
-            isWordVictory: false // NEW: Track the transition state
+            isWordVictory: false
         };
-    
+        
+        // Render slots immediately (this gives the card height)
         renderSpellingSlots();
         renderMiniKeyboard();
         
+        // Then speak the word
         setTimeout(() => {
             spk(words[0], 'fr-FR');
         }, 500);
