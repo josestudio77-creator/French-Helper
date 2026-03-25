@@ -6244,6 +6244,7 @@ async function translateOne(p) {
                 el.style.display = 'block';
             });
             spellingZone.style.display = 'none';
+            card.style.display = 'block'; 
             
             // Restore English button
             const enText = card.querySelector('.english-text').textContent;
@@ -6296,6 +6297,7 @@ async function translateOne(p) {
             
             // Setup the card
             card.classList.add('spelling-mode');
+            card.style.display = 'block'; 
             card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'none';
             });
