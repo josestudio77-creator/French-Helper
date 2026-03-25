@@ -14,21 +14,42 @@
     <!-- Cropper.js for photo cropping -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     
-   <style>
+<style>
 
+    /* ==================== FONTS & GLOBAL RESET ==================== */
+    
     @font-face {
         font-family: 'KG Primary Penmanship Alt';
-        /* Updated path: looking for the file in the same folder as your index.html */
         src: url('./KGPrimaryPenmanshipAlt.woff2') format('woff2');
         font-weight: normal;
         font-style: normal;
         font-display: swap;
     }
        
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); padding: 10px; padding-bottom: 95px; min-height: 100vh; text-align: center; overflow-x: hidden; }
+    * { 
+        box-sizing: border-box; 
+        margin: 0; 
+        padding: 0; 
+        font-family: 'Nunito', sans-serif; 
+        -webkit-tap-highlight-color: transparent; 
+    }
     
-    /* THE MAIN CONTAINER: Start hidden for the cross-fade effect */
+    body { 
+        background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); 
+        padding: 10px; 
+        padding-bottom: 95px; 
+        min-height: 100vh; 
+        text-align: center; 
+        overflow-x: hidden; 
+    }
+    
+    button:active, .key:active { 
+        transform: scale(1.15); 
+    }
+    
+    
+    /* ==================== MAIN CONTAINER & APP VISIBILITY ==================== */
+    
     .container { 
         max-width: 500px; 
         margin: 0 auto; 
@@ -37,12 +58,14 @@
         opacity: 0; 
         transition: opacity 1.2s ease-in-out; 
     }
-
-    /* THE KEY: Triggered by JS to show the app */
+    
     .app-visible {
         opacity: 1 !important;
     }
-       
+    
+    
+    /* ==================== HEADER ==================== */
+    
     .header { 
         background: white; 
         border-radius: 20px; 
@@ -68,25 +91,77 @@
         font-weight: 900;
     }
     
-    button:active, .key:active { transform: scale(1.15); }
-    .phrase-card { background: white; border-radius: 25px; padding: 20px; margin: 15px 0; border: 5px solid #a3e4d7; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.08); position: relative; }
     
-    .card-icon { font-size: 4.5rem; display: block; margin-bottom: 10px; cursor: pointer; }
-    .card-icon:active { transform: scale(1.1); }
+    /* ==================== PHRASE CARD ==================== */
     
-    .french-text { font-size: 1.8rem; font-weight: 900; color: #2d3748; display: block; margin-bottom: 5px; }
+    .phrase-card { 
+        background: white; 
+        border-radius: 25px; 
+        padding: 20px; 
+        margin: 15px 0; 
+        border: 5px solid #a3e4d7; 
+        text-align: center; 
+        box-shadow: 0 6px 12px rgba(0,0,0,0.08); 
+        position: relative; 
+    }
     
-    .english-text { font-size: 1.3rem; color: #5a67d8; font-weight: 800; display: block; min-height: 1.6rem; border-radius: 12px; padding: 5px; margin-bottom: 20px; }
-    .gender-icon { position: absolute; top: 12px; right: 12px; font-size: 2.2rem; pointer-events: none; }
-    /* 1. The Grid Container */
+    .card-icon { 
+        font-size: 4.5rem; 
+        display: block; 
+        margin-bottom: 10px; 
+        cursor: pointer; 
+    }
+    
+    .card-icon:active { 
+        transform: scale(1.1); 
+    }
+    
+    .french-text { 
+        font-size: 1.8rem; 
+        font-weight: 900; 
+        color: #2d3748; 
+        display: block; 
+        margin-bottom: 5px; 
+    }
+    
+    .english-text { 
+        font-size: 1.3rem; 
+        color: #5a67d8; 
+        font-weight: 800; 
+        display: block; 
+        min-height: 1.6rem; 
+        border-radius: 12px; 
+        padding: 5px; 
+        margin-bottom: 20px; 
+    }
+    
+    .gender-icon { 
+        position: absolute; 
+        top: 12px; 
+        right: 12px; 
+        font-size: 2.2rem; 
+        pointer-events: none; 
+    }
+    
+    .pronunciation-text {
+        display: block;
+        font-size: 0.9rem;
+        color: #718096;
+        font-style: italic;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    
+    
+    /* ==================== CARD BUTTONS ==================== */
+    
     .card-btns { 
         display: grid; 
-        grid-template-columns: 1.8fr 1fr; /* French button gets more space */
+        grid-template-columns: 1.8fr 1fr;
         gap: 8px; 
         position: relative;
     }
-
-    /* 2. General button styles (Standard padding) */
+    
     .card-btn { 
         border: none; 
         border-radius: 18px; 
@@ -97,16 +172,28 @@
         font-size: 1rem; 
         box-shadow: 0 4px 0 rgba(0,0,0,0.15); 
         transition: transform 0.1s; 
-        /* Approved Optimization: Global Centering */
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px; /* Space between icon and text */
+        gap: 8px;
     }
-
-    .spk-fr { background: #4cd964; }
-    .spk-en { background: #ff9e6d; }
-
+    
+    .card-btn:active { 
+        transform: translateY(2px); 
+        box-shadow: 0 2px 0 rgba(0,0,0,0.15); 
+    }
+    
+    .spk-fr { 
+        background: #4cd964; 
+    }
+    
+    .spk-en { 
+        background: #ff9e6d; 
+    }
+    
+    
+    /* ==================== BOTTOM NAVIGATION ==================== */
+    
     .bottom-nav { 
         position: fixed; 
         bottom: 0; 
@@ -115,10 +202,10 @@
         background: white; 
         border-top: 4px solid #5a67d8; 
         display: flex; 
-        z-index: 9000; /* Stays above the drawers */
+        z-index: 9000;
         height: 80px; 
     }
-
+    
     .nav-item { 
         flex: 1; 
         display: flex; 
@@ -128,142 +215,153 @@
         font-weight: 900; 
         cursor: pointer; 
         font-size: 0.85rem; 
-        gap: 2px; /* Tight gap between icon and label */
+        gap: 2px;
         line-height: 1;
-
-        /* FIXED: These must be INSIDE the .nav-item braces */
         transition: all 0.2s ease;
         border-top: 6px solid transparent; 
     }
-
-    /* THE NEW ACTIVE INDICATOR */
+    
     .nav-item.active {
-        background: white !important; /* Stand out from the faint background colors */
-        border-top: 6px solid currentColor; /* Uses the specific color of the nav item */
-        padding-top: 4px; /* Compensate for the thick border */
+        background: white !important;
+        border-top: 6px solid currentColor;
+        padding-top: 4px;
     }
-
+    
     .nav-item.active span {
-        transform: scale(1.2); /* Make the icon pop */
+        transform: scale(1.2);
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
     }
        
     .nav-item span {
-        font-size: 1.7rem; /* Large visible icons */
+        font-size: 1.7rem;
         display: block;
         line-height: 1;
-        transition: transform 0.2s ease; /* Smooth icon scaling */
+        transition: transform 0.2s ease;
     }
-
-    /* Preserving your existing section colors */
-    .nav-presets { color: #ff9e6d; background: #fff5f0; }
-    .nav-game { color: #ff6b8b; background: #fff5f7; }
-    .nav-backpack { color: #9d4edd; background: #fdf2ff; }
-    .nav-parent { color: #118AB2; background: #f0f9ff; }
-
-    /* 1. OVERLAY: Changed from solid black to a modern "Glass" blur 
-    This keeps your pink gradient visible on all screens! */
-.overlay { 
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    bottom: 0; 
-    background: rgba(0,0,0,0.85); /* Dark background */
-    z-index: 8000; 
-    padding: 15px; 
-    backdrop-filter: none; /* Remove the blur */
-}
-       
-/* 2. OVERLAY CONTENT: Ensure the drawer doesn't feel "pale" */
-.overlay-content {
-    background: white; 
-    border-radius: 30px; 
-    padding: 15px; 
-    height: 90vh; 
-    overflow-y: auto; 
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    /* INCREASED padding to ensure buttons stay ABOVE the Nav Bar */
-    padding-bottom: 80px !important; 
-    position: relative;
-}
-    #hwInput { width: 100%; height: 300px !important; font-size: 1.3rem; padding: 20px; border-radius: 20px; border: 4px solid #9d4edd; margin: 5px 0; outline: none; }
-
-/* Snail Badge: Floating Top-Left with 3D Effect */
-.snail-corner {
-    position: absolute;
-    top: -18px;      /* Move up off the edge */
-    left: -18px;     /* Move left off the edge */
-    width: 44px;     /* Match corner-badge size */
-    height: 44px;
-    background: #5bc0de;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Floating shadow to match Star/Notes */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.4);
-    z-index: 10;
-    font-size: 1.6rem; 
-    border: 2px solid white; 
-    cursor: pointer;
-    transition: transform 0.1s, background-color 0.2s;
-    animation: snailPulse 2s infinite ease-in-out;
-}
-
-.snail-corner:active {
-    transform: scale(1.2);
-    background-color: #ff6b8b !important;
-}
-
-@keyframes snailPulse {
-    0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-    50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
-    100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-}
-
-    #hangmanCanvas { background: #f8fafc; border-radius: 15px; margin: 5px auto; display: block; border: 2px solid #e2e8f0; width: 180px; height: 140px; }
-    .clue-emoji { font-size: 4rem; display: block; margin: 5px 0; }
-    @keyframes floatUp { 
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
-        100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } 
+    
+    .nav-presets { 
+        color: #ff9e6d; 
+        background: #fff5f0; 
     }
-    .victory-item { 
+    
+    .nav-game { 
+        color: #ff6b8b; 
+        background: #fff5f7; 
+    }
+    
+    .nav-backpack { 
+        color: #9d4edd; 
+        background: #fdf2ff; 
+    }
+    
+    .nav-parent { 
+        color: #118AB2; 
+        background: #f0f9ff; 
+    }
+    
+    
+    /* ==================== OVERLAYS & DRAWERS ==================== */
+    
+    .overlay { 
+        display: none; 
         position: fixed; 
-        bottom: -60px; 
-        font-size: 3rem; 
-        /* HIGHEST Z-INDEX: Higher than Nav (9000) and Keyboard (9500) */
-        z-index: 10000; 
-        pointer-events: none; 
-        animation: floatUp 4s linear forwards; 
-    }
-    
-/* History items */
-    .history-item { 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        background: rgba(0,0,0,0.85);
+        z-index: 8000; 
         padding: 15px; 
-        border: 3px solid #9d4edd;
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        background: #ffffff;
-        border-radius: 20px; 
-        margin-bottom: 15px; 
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
     }
     
-    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .preset-btn { background: white; border: 3px solid #ff9e6d; border-radius: 20px; padding: 15px 5px; font-size: 0.9rem; font-weight: 900; cursor: pointer; color: #2d3748; position: relative; }
-    .preset-btn.active { background: #5a67d8 !important; color: white !important; border-color: #434190; }
-    .preset-btn.beginner { border-color: #4cd964; }
-    .difficulty-badge { position: absolute; top: -8px; right: -8px; background: #4cd964; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid white; }
-    .error-message { background: #fee2e2; border: 2px solid #ef4444; border-radius: 15px; padding: 15px; margin: 10px 0; color: #991b1b; font-weight: 700; }
-    .success-message { background: #d1fae5; border: 2px solid #10b981; border-radius: 15px; padding: 15px; margin: 10px 0; color: #065f46; font-weight: 700; }
-    .loading-spinner { border: 4px solid #f3f4f6; border-top: 4px solid #5a67d8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    /* Game Layout Styles */
+    .overlay-content {
+        background: white; 
+        border-radius: 30px; 
+        padding: 15px; 
+        height: 90vh; 
+        overflow-y: auto; 
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        padding-bottom: 80px !important; 
+        position: relative;
+    }
+    
+    /* Z-Index Hierarchy */
+    #bpModal, #gameDrawer, #parentDrawer, #presetsOverlay, #hwDrawer {
+        z-index: 8500 !important; 
+    }
+    
+    #printSelectionOverlay, #folderSelectionOverlay, #iconPickerOverlay, #photoCropperOverlay {
+        z-index: 9500 !important; 
+    }
+    
+    #appModal {
+        z-index: 9999 !important; 
+    }
+    
+    
+    /* ==================== SNAIL CORNER BADGE ==================== */
+    
+    .snail-corner {
+        position: absolute;
+        top: -18px;
+        left: -18px;
+        width: 44px;
+        height: 44px;
+        background: #5bc0de;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.4);
+        z-index: 10;
+        font-size: 1.6rem; 
+        border: 2px solid white; 
+        cursor: pointer;
+        transition: transform 0.1s, background-color 0.2s;
+        animation: snailPulse 2s infinite ease-in-out;
+    }
+    
+    .snail-corner:active {
+        transform: scale(1.2);
+        background-color: #ff6b8b !important;
+    }
+    
+    @keyframes snailPulse {
+        0% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        50% { transform: scale(1.08); box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
+        100% { transform: scale(1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+    }
+    
+    
+    /* ==================== HANGMAN GAME ==================== */
+    
+    #hangmanCanvas { 
+        background: #f8fafc; 
+        border-radius: 15px; 
+        margin: 5px auto; 
+        display: block; 
+        border: 2px solid #e2e8f0; 
+        width: 150px; 
+        height: 110px; 
+    }
+    
+    .clue-emoji { 
+        font-size: 3rem; 
+        display: block; 
+        margin: 2px 0; 
+    }
+    
+    .hangman-word { 
+        font-size: 1.6rem; 
+        margin: 10px 0; 
+    }
+    
+    
+    /* ==================== GAME LAYOUT STYLES ==================== */
+    
     .game-hints { 
         display: flex; 
         gap: 6px; 
@@ -283,7 +381,7 @@
         cursor: pointer;
         white-space: nowrap;
     }
-
+    
     .game-actions {
         display: flex;
         gap: 10px;
@@ -303,39 +401,30 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        white-space: nowrap; /* Safety: prevents wrapping */
+        white-space: nowrap;
     }
     
     .game-actions button:active {
         transform: translateY(2px);
         box-shadow: 0 2px 0 rgba(0,0,0,0.15);
     }
-       
-    #hangmanCanvas { 
-        width: 150px; 
-        height: 110px; 
-        margin: 2px auto; 
-    }
-    .clue-emoji { font-size: 3rem; margin: 2px 0; }
-    .hangman-word { font-size: 1.6rem; margin: 10px 0; }
-       
-    /* UPDATED: Sticky Panel ensures controls are always reachable */
+    
+    
+    /* ==================== CONTROL PANEL & AUTOPLAY ==================== */
+    
     .app-control-panel {
-        background: white !important; /* Ensure it's not transparent */
+        background: white !important;
         border-radius: 25px;
         padding: 12px 15px;
         margin-bottom: 15px;
         border: 3px solid #118AB2;
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        
-        /* FIX: Sticky behavior */
-        position: -webkit-sticky; /* Support for Safari */
+        position: -webkit-sticky;
         position: sticky;
-        top: 5px;       /* Lock it to the very top of the viewport */
-        z-index: 8500;  /* Below Nav (9000) but above everything else */
+        top: 5px;
+        z-index: 8500;
     }
     
-    /* Ensure the autoplay controls inside the panel look clean when sticking */
     #autoplayControls {
         background: #f8fafc;
         padding: 10px;
@@ -358,7 +447,7 @@
         text-overflow: ellipsis;
         max-width: 100%;
     }
-
+    
     .speech-speed-label { 
         font-weight: 800; 
         font-size: 0.75rem; 
@@ -369,7 +458,7 @@
         gap: 6px;
         margin-bottom: 5px;
     }
-
+    
     .speech-speed-slider { 
         width: 100%; 
         -webkit-appearance: none;
@@ -378,7 +467,7 @@
         border-radius: 4px;
         outline: none;
     }
-
+    
     .speech-speed-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: 24px;
@@ -390,217 +479,30 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
-    /* Homework screen buttons */
-    .hw-buttons-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
-        margin: 15px 0;
-    }
-    .hw-btn {
-        padding: 12px 5px;
-        border-radius: 12px;
-        font-weight: 900;
-        border: none;
-        cursor: pointer;
-        font-size: 0.85rem;
-    }
-
-    /* Container for the title */
-    #hwDrawerTitle {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        margin-bottom: 5px;
-        width: 100%;
-    }
-    
-    /* The floating pencil icon */
-    .hw-title-emoji {
-        position: absolute;
-        left: 5px;
-        top: 0;                    
-        font-size: 1.2rem;
-        line-height: 1;
-    }
-
-    /* Title text */
-    .hw-title-text {
-        display: inline-block;
-        max-width: 220px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        margin: 0 5px;
-        font-size: 1.4rem;
-        font-weight: 900;
-    }
-        
-    /* The Navigation Container for the Month */
-    .hw-month-nav {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 5px;
-        width: 100%;
-    }
-    
-    .hw-nav-btn {
-        background: #f0f4f8;
-        border: 1px solid #cbd5e0;
-        border-radius: 6px;
-        font-size: 1rem;          /* Increased from 0.8rem */
-        padding: 4px 10px;         /* Slightly larger padding for bigger buttons */
-        cursor: pointer;
-        color: #9d4edd;
-        font-weight: 900;          /* Make arrows bold too */
-    }
-    
-    .hw-month-subtitle {
-        font-size: 1rem;          /* Increased from 0.8rem */
-        color: #9d4edd;
-        opacity: 0.8;
-        font-weight: 900;         /* Made bolder */
-        white-space: nowrap;
-        min-width: 70px;          /* Ensures consistent width for month names */
-        text-align: center;
-    }
-
-    .folder-card {
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 15px;
-        padding: 10px 5px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative; /* For the badge */
-        cursor: pointer;
-        transition: transform 0.1s, border-color 0.2s;
-    }
-    
-    .folder-card:active {
-        transform: scale(0.95);
-        background: #e0f2fe;
-    }
-    
-    .folder-icon { font-size: 2rem; margin-bottom: 5px; }
-    
-    .folder-label {
-        font-size: 0.7rem;
-        font-weight: 900;
-        color: #475569;
-        text-transform: uppercase;
-    }
-    
-    /* The little number badge */
-    .folder-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: #118AB2;
-        color: white;
-        font-size: 0.65rem;
-        font-weight: 900;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* Corner Badges for Backpack Cards */
-    .corner-badge {
-        position: absolute;
-        width: 38px;
-        height: 38px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        z-index: 10;
-        cursor: pointer;
-        border: 2px solid #fdf2ff;
-        transition: transform 0.1s;
-    }
-    
-    .corner-badge:active {
-        transform: scale(1.2);
-    }
-    
-    .badge-left {
-        top: -12px;
-        left: -12px;
-    }
-    
-    .badge-right {
-        top: -12px;
-        right: -12px;
-        border-color: #e0f2fe;
-    }
-
-        /* Optimized for 6 buttons in the Backpack */
-    .history-item .load-btn, .history-item .del-btn {
-        flex: 1 1 calc(33.33% - 10px); /* Forces 3 buttons per row */
-        min-width: 85px;
-        font-size: 0.8rem;
-        padding: 12px 5px !important;
-        margin: 2px;
-        border-radius: 12px;
-        border: none;
-        font-weight: 900;
-        cursor: pointer;
-    }
-    
-    /* Specific color for the trash can in the new grid */
-    .history-item .del-btn {
-        background: #fee2e2;
-        color: #ef4444;
-    }
-       
-    /* Phonetic reference */
-    .pronunciation-text {
-        display: block;
-        font-size: 0.9rem;
-        color: #718096;
-        font-style: italic;
-        margin-bottom: 10px;
-        font-weight: 700;
-    }
-
-           /* --- AUTOPLAY SAFETY FEATURES --- */
-    
-    /* 1. Floating Stop Button: Only appears during Auto-Play */
     .floating-stop-btn {
         position: fixed;
-        bottom: 100px; /* Above the bottom nav bar */
+        bottom: 100px;
         right: 20px;
         width: 65px;
         height: 65px;
         border-radius: 50%;
-        background: #ff6b8b; /* Matches your header pink */
+        background: #ff6b8b;
         color: white;
         border: 4px solid white;
         box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         font-size: 2.2rem;
-        display: none; /* Hidden by default */
+        display: none;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        z-index: 8600; /* Above the Sticky Panel but below Keyboard */
+        z-index: 8600;
         transition: transform 0.2s;
         animation: pulseStop 2s infinite;
     }
     
-    .floating-stop-btn:active { transform: scale(1.2); }
+    .floating-stop-btn:active { 
+        transform: scale(1.2); 
+    }
     
     @keyframes pulseStop {
         0% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
@@ -608,18 +510,20 @@
         100% { transform: scale(1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
     }
     
-       /* Condensed & Dialogue Mode Styles - CLEANED UP */
+    
+    /* ==================== CONDENSED & DIALOGUE MODE ==================== */
+    
     .condensed-card {
         background: white;
         border-radius: 25px;
-        padding: 20px 15px;  /* Equal padding top/bottom */
+        padding: 20px 15px;
         margin: 15px 0;
         border: 5px solid #a3e4d7;
         text-align: left;
         box-shadow: 0 6px 12px rgba(0,0,0,0.08);
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Centers content vertically */
+        justify-content: center;
     }
     
     .dialogue-line {
@@ -639,17 +543,14 @@
         position: relative;
         scroll-margin-top: 100px; 
         scroll-margin-bottom: 100px; 
-        transition: all 0.2s;
     }
     
-    /* Remove top margin from first line */
-    .condensed-card .dialogue-line:first-child {
-        margin-top: 0;
+    .condensed-card .dialogue-line:first-child { 
+        margin-top: 0; 
     }
     
-    /* Remove bottom margin from last line */
-    .condensed-card .dialogue-line:last-child {
-        margin-bottom: 0;
+    .condensed-card .dialogue-line:last-child { 
+        margin-bottom: 0; 
     }
        
     .dialogue-line:active {
@@ -658,14 +559,14 @@
         color: white !important;
         border-color: #2ea44e;
     }
-
+    
     .line-left {
         align-self: flex-start;
         border-bottom-left-radius: 4px;
         background: #f0fdf4;
         border-color: #dcfce7;
     }
-
+    
     .line-right {
         margin-left: auto;
         text-align: right;
@@ -673,7 +574,7 @@
         background: #f5f3ff;
         border-color: #ede9fe;
     }
-
+    
     .line-center {
         margin-left: auto;
         margin-right: auto;
@@ -682,8 +583,7 @@
         border-color: #bee3f8;
         width: 95%;
     }
-
-    /* Auto-play highlight */
+    
     .playing-now {
         background: #4cd964 !important;
         color: white !important;
@@ -691,15 +591,14 @@
         transform: scale(1.03);
         box-shadow: 0 0 15px rgba(76, 217, 100, 0.5);
     }
-
-    /* View Switcher */
+    
     .view-switcher {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin-top: 10px;
     }
-
+    
     .view-btn {
         background: #edf2f7;
         border: 2px solid #cbd5e0;
@@ -708,23 +607,22 @@
         font-weight: 900;
         font-size: 0.7rem;
         cursor: pointer;
-        height: 36px;           /* Fixed height to prevent jumping */
-        box-sizing: border-box; /* Include border in height calculation */
+        height: 36px;
+        box-sizing: border-box;
     }
-
+    
     .view-btn.active {
         background: #5a67d8;
         color: white;
         border-color: #434190;
     }
-
+    
     .phrases-container {
         margin-top: 20px;
         margin-bottom: 20px;
         width: 100%;
     }
-
-    /* Gap Slider */
+    
     .gap-control {
         background: #f8fafc;
         padding: 10px;
@@ -733,24 +631,24 @@
         border: 2px solid #e2e8f0;
         display: none;
     }
-
-    /* Fix button height consistency for Play All and Loop buttons */
+    
     #playAllBtn, #loopBtn {
-        height: 42px;           /* Fixed height */
-        box-sizing: border-box; /* Include padding/border in height */
+        height: 42px;
+        box-sizing: border-box;
         line-height: 1.2;
     }
-
-    /* Loop button specific - always keep border for consistent height */
+    
     #loopBtn {
-        border: 2px solid transparent; /* Transparent border when off */
+        border: 2px solid transparent;
     }
     
     #loopBtn[style*="background:#4cd964"] {
-        border: 2px solid #2ea44e !important; /* Green border when on */
+        border: 2px solid #2ea44e !important;
     }
-
-   /* Base styles for all photos */
+    
+    
+    /* ==================== PHOTO STYLES ==================== */
+    
     .card-photo {
         border-radius: 15px;
         object-fit: cover;
@@ -761,20 +659,60 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transition: transform 0.2s;
     }
-
-/* 1. The "Breathing" effect: Focuses on color and subtle shadow rather than heavy movement */
+    
+    .card-photo.landscape { 
+        width: 8rem; 
+        height: 6rem; 
+    }
+    
+    .card-photo.portrait { 
+        width: 6rem; 
+        height: 8rem; 
+    }
+    
+    .card-photo.square { 
+        width: 7rem; 
+        height: 7rem; 
+    }
+    
+    .card-photo:active { 
+        transform: scale(0.95); 
+    }
+    
+    .card-photo.top { 
+        object-position: top; 
+    }
+    
+    .card-photo.bottom { 
+        object-position: bottom; 
+    }
+    
+    .card-photo.left { 
+        object-position: left; 
+    }
+    
+    .card-photo.right { 
+        object-position: right; 
+    }
+    
+    .card-photo.center { 
+        object-position: center; 
+    }
+    
+    
+    /* ==================== AI PLACEHOLDER & ANIMATIONS ==================== */
+    
     @keyframes aiBreath {
         0% { border-color: #a3e4d7; box-shadow: 0 0 0px rgba(163, 228, 215, 0); }
         50% { border-color: #9d4edd; background: #fdf2ff; box-shadow: 0 0 15px rgba(157, 78, 221, 0.2); }
         100% { border-color: #a3e4d7; box-shadow: 0 0 0px rgba(163, 228, 215, 0); }
     }
-
-    /* 2. The Sparkle Pulse: Makes the ✨ icon move independently */
+    
     @keyframes sparkleFloat {
         0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
         50% { transform: scale(1.3) translate(-2px, -2px); opacity: 1; }
     }
-
+    
     .ai-placeholder-box {
         width: 8rem;
         height: 6rem;
@@ -790,7 +728,6 @@
         margin: 0 auto 10px auto;
         transition: all 0.3s ease;
         box-sizing: border-box;
-        /* Trigger the Breathing animation */
         animation: aiBreath 3s ease-in-out infinite;
     }
     
@@ -798,8 +735,7 @@
         transform: scale(0.92);
         background: #e6fffa !important;
     }
-
-    /* Target the sparkle specifically inside the box */
+    
     .ai-placeholder-box span:last-child {
         animation: sparkleFloat 2s ease-in-out infinite;
     }
@@ -813,34 +749,9 @@
         letter-spacing: 1px;
     }
     
-    /* Landscape orientation */
-    .card-photo.landscape {
-    width: 8rem;
-    height: 6rem;
-    }
     
-    .card-photo.portrait {
-        width: 6rem;
-        height: 8rem;
-    }
+    /* ==================== CROPPER STYLES ==================== */
     
-    .card-photo.square {
-        width: 7rem;
-        height: 7rem;
-    }
-    
-    .card-photo:active {
-        transform: scale(0.95);
-    }
-    
-    /* Photo position classes */
-    .card-photo.top { object-position: top; }
-    .card-photo.bottom { object-position: bottom; }
-    .card-photo.left { object-position: left; }
-    .card-photo.right { object-position: right; }
-    .card-photo.center { object-position: center; }
-    
-    /* Cropper custom styles */
     .cropper-container {
         max-height: 50vh !important;
     }
@@ -858,7 +769,6 @@
         background-color: #4cd964 !important;
     }
     
-    /* 1. Base style for the 4 mode buttons */
     .aspect-ratio-btn {
         flex: 1;
         background: #f1f5f9 !important; 
@@ -869,17 +779,21 @@
         font-weight: 900;
         font-size: 0.7rem !important;
         cursor: pointer;
-        box-shadow: none !important; /* Removes the orange shadow */
+        box-shadow: none !important;
     }
     
-    /* 2. Highlight for the selected mode */
     .aspect-ratio-btn.active {
-        background: #5a67d8 !important; /* Bright Indigo */
+        background: #5a67d8 !important;
         color: white !important;
         border-color: #434190 !important;
     }
     
-    /* 3. Specific styles for the BOTTOM buttons only */
+    .aspect-ratio-btn.free-btn {
+        background: #fef3c7 !important;
+        color: #92400e !important;
+        border: 2px solid #f59e0b !important;
+    }
+    
     .cropper-main-btn {
         padding: 15px !important;
         border: none !important;
@@ -888,96 +802,434 @@
         color: white !important;
     }
     
-    #btnCancelCrop { background: #ff9e6d !important; } /* Orange */
-    #btnSaveCrop { background: #4cd964 !important; }   /* Green */
-    
-    .aspect-ratio-btn.free-btn {
-        background: #fef3c7 !important;
-        color: #92400e !important;
-        border: 2px solid #f59e0b !important;
+    #btnCancelCrop { 
+        background: #ff9e6d !important; 
     }
     
-    @keyframes keyFlash {
-        0% { transform: scale(1); background-color: #f0f4f8; }
-        50% { transform: scale(1.3); background-color: #4cd964; color: white; z-index: 10; }
-        100% { transform: scale(1); background-color: #e2e8f0; }
+    #btnSaveCrop { 
+        background: #4cd964 !important; 
     }
     
-    /* Unified Pop Animation Logic */
-    @keyframes terPop {
-        0% { transform: scale(0.5); opacity: 0; }
-        50% { transform: scale(1.2); opacity: 1; }
-        100% { transform: scale(1); opacity: 1; }
-    }
     
-    /* Use these classes for any element that needs to "Pop" */
-    .pop-anim, .pop-animation, .key-animate {
-        animation: terPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    @keyframes terPop {
-        0% { transform: scale(4); color: #4cd964; opacity: 0; filter: drop-shadow(0 0 20px #4cd964); }
-        50% { transform: scale(1.5); opacity: 1; filter: drop-shadow(0 0 5px #4cd964); }
-        100% { transform: scale(1); color: #2d3748; opacity: 1; }
-    }
-       
-    /* Merged and Optimized Icon Buttons */
+    /* ==================== ICON BUTTONS & GROUPS ==================== */
+    
     .icon-btn {
         background: none !important;
         border: none !important;
-        /* 1.2rem ensures 6 icons fit side-by-side on smaller phones */
         font-size: 1.2rem !important; 
         padding: 4px !important;
-        margin: 0 2px !important; /* Kept from first definition for spacing */
+        margin: 0 2px !important;
         cursor: pointer;
         color: #4a5568 !important;
         box-shadow: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.1s; /* Kept from first definition for "click" feel */
+        transition: transform 0.1s;
     }
-    .icon-btn:active { transform: scale(1.2); }
+    
+    .icon-btn:active { 
+        transform: scale(1.2); 
+    }
+    
     .icon-label { 
-        font-size: 0.5rem; /* Makes labels smaller */
+        font-size: 0.5rem;
         font-weight: 800; 
         color: #718096; 
         margin-top: 2px; 
-        white-space: nowrap; /* Prevents text from overlapping */
+        white-space: nowrap;
     }
-    .icon-group { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    
+    .icon-group { 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        gap: 8px; 
+        margin-top: 10px; 
+        flex-wrap: wrap; 
+    }
+    
     .icon-wrapper { 
         display: flex; 
         flex-direction: column; 
         align-items: center; 
         flex: 1; 
-        min-width: 0; /* Important for the 6-icon row */
+        min-width: 0;
     }
-
-    #appModal { z-index: 8000; }
+    
+    
+    /* ==================== MODAL STYLES ==================== */
+    
     .modal-box {
-        background: white; border-radius: 30px; padding: 25px; border: 5px solid #9d4edd;
-        max-width: 400px; margin: 15vh auto; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+        background: white; 
+        border-radius: 30px; 
+        padding: 25px; 
+        border: 5px solid #9d4edd;
+        max-width: 400px; 
+        margin: 15vh auto; 
+        text-align: center; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+        position: relative;
     }
-    .modal-title { color: #9d4edd; margin-bottom: 15px; font-size: 1.3rem; font-weight: 900; }
+    
+    .modal-title { 
+        color: #9d4edd; 
+        margin-bottom: 15px; 
+        font-size: 1.3rem; 
+        font-weight: 900; 
+    }
+    
     .modal-display {
-        background: #fdf2ff; padding: 20px; border-radius: 20px; margin-bottom: 20px;
-        border: 2px solid #e2e8f0; font-weight: 700; color: #2d3748; line-height: 1.5; 
-        min-height: 60px; word-break: break-word;
-        white-space: pre-wrap; /* ADD THIS LINE: Respects \n line breaks */
+        background: #fdf2ff; 
+        padding: 20px; 
+        border-radius: 20px; 
+        margin-bottom: 20px;
+        border: 2px solid #e2e8f0; 
+        font-weight: 700; 
+        color: #2d3748; 
+        line-height: 1.5; 
+        min-height: 60px; 
+        word-break: break-word;
+        white-space: pre-wrap;
     }
+    
     .modal-input {
-        width: 100%; padding: 15px; border-radius: 15px; border: 3px solid #9d4edd;
-        font-family: inherit; font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; outline: none; resize: none;
+        width: 100%; 
+        padding: 15px; 
+        border-radius: 15px; 
+        border: 3px solid #9d4edd;
+        font-family: inherit; 
+        font-weight: 700; 
+        font-size: 1.1rem; 
+        margin-bottom: 20px; 
+        outline: none; 
+        resize: none;
     }
-    .modal-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .modal-btn { padding: 15px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; transition: transform 0.1s; font-size: 1rem; }
-    .modal-btn:active { transform: scale(0.95); }
-
-/* Hide the print area on screen ALWAYS to prevent it appearing during practice */
-    #printArea { display: none !important; }
-
-/* 2. The Container for the small square buttons (UI Component) */
+    
+    .modal-btn-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 10px; 
+        margin-bottom: 10px; 
+    }
+    
+    .modal-btn { 
+        padding: 15px; 
+        border-radius: 15px; 
+        border: none; 
+        font-weight: 900; 
+        cursor: pointer; 
+        transition: transform 0.1s; 
+        font-size: 1rem; 
+    }
+    
+    .modal-btn:active { 
+        transform: scale(0.95); 
+    }
+    
+    
+    /* ==================== HOMEWORK / BACKPACK STYLES ==================== */
+    
+    #hwInput { 
+        width: 100%; 
+        height: 300px !important; 
+        font-size: 1.3rem; 
+        padding: 20px; 
+        border-radius: 20px; 
+        border: 4px solid #9d4edd; 
+        margin: 5px 0; 
+        outline: none; 
+    }
+    
+    .hw-buttons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin: 15px 0;
+    }
+    
+    .hw-btn {
+        padding: 12px 5px;
+        border-radius: 12px;
+        font-weight: 900;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    
+    #hwDrawerTitle {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+    
+    .hw-title-emoji {
+        position: absolute;
+        left: 5px;
+        top: 0;                    
+        font-size: 1.2rem;
+        line-height: 1;
+    }
+    
+    .hw-title-text {
+        display: inline-block;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0 5px;
+        font-size: 1.4rem;
+        font-weight: 900;
+    }
+    
+    .hw-month-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 5px;
+        width: 100%;
+    }
+    
+    .hw-nav-btn {
+        background: #f0f4f8;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        font-size: 1rem;
+        padding: 4px 10px;
+        cursor: pointer;
+        color: #9d4edd;
+        font-weight: 900;
+    }
+    
+    .hw-month-subtitle {
+        font-size: 1rem;
+        color: #9d4edd;
+        opacity: 0.8;
+        font-weight: 900;
+        white-space: nowrap;
+        min-width: 70px;
+        text-align: center;
+    }
+    
+    .folder-card {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 10px 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.1s, border-color 0.2s;
+    }
+    
+    .folder-card:active {
+        transform: scale(0.95);
+        background: #e0f2fe;
+    }
+    
+    .folder-icon { 
+        font-size: 2rem; 
+        margin-bottom: 5px; 
+    }
+    
+    .folder-label {
+        font-size: 0.7rem;
+        font-weight: 900;
+        color: #475569;
+        text-transform: uppercase;
+    }
+    
+    .folder-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #118AB2;
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 900;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .corner-badge {
+        position: absolute;
+        width: 38px;
+        height: 38px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+        cursor: pointer;
+        border: 2px solid #fdf2ff;
+        transition: transform 0.1s;
+    }
+    
+    .corner-badge:active { 
+        transform: scale(1.2); 
+    }
+    
+    .badge-left { 
+        top: -12px; 
+        left: -12px; 
+    }
+    
+    .badge-right { 
+        top: -12px; 
+        right: -12px; 
+        border-color: #e0f2fe; 
+    }
+    
+    .history-item { 
+        padding: 15px; 
+        border: 3px solid #9d4edd;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        background: #ffffff;
+        border-radius: 20px; 
+        margin-bottom: 15px; 
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    
+    .history-item .load-btn, .history-item .del-btn {
+        flex: 1 1 calc(33.33% - 10px);
+        min-width: 85px;
+        font-size: 0.8rem;
+        padding: 12px 5px !important;
+        margin: 2px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 900;
+        cursor: pointer;
+    }
+    
+    .history-item .del-btn {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+    
+    
+    /* ==================== PRESETS STYLES ==================== */
+    
+    .preset-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 10px; 
+        margin-bottom: 20px; 
+    }
+    
+    .preset-btn { 
+        background: white; 
+        border: 3px solid #ff9e6d; 
+        border-radius: 20px; 
+        padding: 15px 5px; 
+        font-size: 0.9rem; 
+        font-weight: 900; 
+        cursor: pointer; 
+        color: #2d3748; 
+        position: relative; 
+    }
+    
+    .preset-btn.active { 
+        background: #5a67d8 !important; 
+        color: white !important; 
+        border-color: #434190; 
+    }
+    
+    .preset-btn.beginner { 
+        border-color: #4cd964; 
+    }
+    
+    .difficulty-badge { 
+        position: absolute; 
+        top: -8px; 
+        right: -8px; 
+        background: #4cd964; 
+        color: white; 
+        border-radius: 50%; 
+        width: 24px; 
+        height: 24px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 0.7rem; 
+        border: 2px solid white; 
+    }
+    
+    
+    /* ==================== MESSAGES & SPINNERS ==================== */
+    
+    .error-message { 
+        background: #fee2e2; 
+        border: 2px solid #ef4444; 
+        border-radius: 15px; 
+        padding: 15px; 
+        margin: 10px 0; 
+        color: #991b1b; 
+        font-weight: 700; 
+    }
+    
+    .success-message { 
+        background: #d1fae5; 
+        border: 2px solid #10b981; 
+        border-radius: 15px; 
+        padding: 15px; 
+        margin: 10px 0; 
+        color: #065f46; 
+        font-weight: 700; 
+    }
+    
+    .loading-spinner { 
+        border: 4px solid #f3f4f6; 
+        border-top: 4px solid #5a67d8; 
+        border-radius: 50%; 
+        width: 40px; 
+        height: 40px; 
+        animation: spin 1s linear infinite; 
+        margin: 20px auto; 
+    }
+    
+    @keyframes spin { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
+    }
+    
+    
+    /* ==================== VICTORY & FLOATING ANIMATIONS ==================== */
+    
+    @keyframes floatUp { 
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+        100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; } 
+    }
+    
+    .victory-item { 
+        position: fixed; 
+        bottom: -60px; 
+        font-size: 3rem; 
+        z-index: 10000; 
+        pointer-events: none; 
+        animation: floatUp 4s linear forwards; 
+    }
+    
+    
+    /* ==================== TRACE TYPE BUTTONS ==================== */
+    
     .trace-type-btn {
         width: 44px;
         height: 34px;
@@ -1013,164 +1265,9 @@
     .active .mini-line.dark { 
         background: #5a67d8; 
     }
-
-/* --- PRINT ONLY STYLES --- */
-@media print {
-    @page { 
-        margin: 0.5in 0.5in 0.4in 0.5in;
-        size: auto;
-        @top-center { content: "" !important; }
-        @bottom-center { content: "" !important; }
-    }
-    @page :first { margin-top: 1.5cm; }
     
-    html, body { 
-        background: white !important; 
-        margin: 0 !important; 
-        padding: 0 !important; 
-        height: auto; 
-        visibility: hidden !important;
-        text-align: left !important;
-    }
-
-    .container, .overlay, .bottom-nav, .header, button, 
-    .app-control-panel, .gap-control, .view-switcher, 
-    .nav-item, .overlay-content { display: none !important; }
-
-    #printArea { 
-        display: block !important; 
-        visibility: visible !important; 
-        background: white !important;
-        width: 100%;
-        box-sizing: border-box;
-        position: absolute;
-        top: 0;
-        left: 0;
-        text-align: left !important;
-    }
-
-    #printArea * { visibility: visible !important; }
-
-    .print-header-simple {
-        width: 100%; 
-        border-bottom: 2px solid black; 
-        display: flex;
-        justify-content: space-between; 
-        align-items: center; 
-        padding-bottom: 10px; 
-        margin-bottom: 30px;
-    }
-    .name-label { font-size: 13pt; font-weight: 900; }
-    .name-underline { border-bottom: 1.5px solid black; width: 220px; display: inline-block; margin-left: 5px; height: 14pt; }
-    .set-name-center { font-weight: 900; font-size: 11pt; }
-    .date-label { font-size: 11pt; font-weight: 700; }
-
-    .print-phrase-block { 
-        margin-bottom: 28px; 
-        padding: 15px 20px; 
-        border: 2.5px solid #333;
-        border-radius: 20px; 
-        page-break-inside: avoid; 
-        break-inside: avoid;
-        position: relative; 
-        background: white !important; 
-        text-align: left !important;
-    }
-    .print-phrase-block:last-child { margin-bottom: 0 !important; }
     
-    .print-phrase-text { 
-        margin-bottom: 16px; 
-        color: #000; 
-        text-align: left !important; 
-        display: block; 
-        width: 100%;
-        line-height: 1.2;
-    }
-
-    .block-font { 
-        font-family: "KG Primary Penmanship Alt", sans-serif !important;
-        font-weight: 400 !important;
-        font-size: 46px !important; 
-        text-align: left !important;
-        margin-bottom: 16px;
-        -webkit-font-smoothing: antialiased;
-        font-variant-ligatures: common-ligatures; 
-    }
-
-    .cursive-font { 
-        font-family: "Playwrite US Trad", cursive !important; 
-        font-weight: 400 !important;
-        font-size: 28px !important; 
-        word-spacing: 5pt !important; 
-        font-variant-ligatures: common-ligatures;
-    }
-    
-    .calligraphy-row {
-        height: 38px; 
-        width: 100%; 
-        margin-bottom: 29px; /* Preserved 29px Gap */
-        border-bottom: 2px solid black;
-        border-top: 1px solid #aaa; 
-        position: relative;
-    }
-
-    .calligraphy-row::after { 
-        content: ""; 
-        position: absolute; 
-        left: 0; 
-        width: 100%; 
-        border-top: 1.2px dashed #bbb; 
-        height: 0;
-        display: block !important;
-        top: 40%; 
-    }
-
-    /* Midline Offsets (Preserved) */
-    .calligraphy-row.block-font::after { top: 40% !important; }
-    .calligraphy-row.cursive-font::after { top: 45% !important; }
-    .calligraphy-row.blank-line::after { top: 50% !important; }
-    
-    .calligraphy-row:last-child { margin-bottom: 5px; }
-    .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
-
-    .trace-text {
-        position: absolute;
-        left: 0;
-        width: 100%;
-        color: #dfdfdf !important; 
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        opacity: 0.8;
-        pointer-events: none;
-        white-space: nowrap;
-        overflow: visible !important; 
-        display: block;
-        text-align: left !important;
-    }
-
-    .trace-text.block-font { 
-        font-size: 57px !important; 
-        line-height: 38px;
-        top: 1px; 
-        letter-spacing: -1px;
-        font-weight: 400 !important;
-        -webkit-text-stroke: 1.5px white !important; /* Preserved Thinning Hack */
-        paint-order: stroke fill;
-        font-variant-ligatures: common-ligatures;
-    }
-
-    /* FIXED: Cursive Alignment for Mobile Baseline */
-    .trace-text.cursive-font { 
-        font-size: 34px !important;  
-        line-height: 38px;
-        top: 0px !important; 
-        transform: translateY(0px) !important; /* Fixed floating baseline */
-        font-variant-ligatures: common-ligatures;
-        text-rendering: geometricPrecision;
-    }
-}
-
-/* --- SPELLING BEE MODE STYLES --- */
+    /* ==================== SPELLING BEE MODE ==================== */
     
     .bee-badge {
         position: absolute;
@@ -1191,39 +1288,49 @@
         transition: transform 0.1s;
     }
     
-    .bee-badge:active { transform: scale(1.2); }
+    .bee-badge:active { 
+        transform: scale(1.2); 
+    }
     
     .phrase-card.spelling-mode {
         border-color: #FFD700 !important;
         background: #fffdf0 !important;
     }
     
-.spelling-slots {
-    display: flex;
-    flex-direction: row; /* Force horizontal words */
-    flex-wrap: wrap;     /* Allow the phrase to wrap to a new line if it's long */
-    justify-content: center;
-    align-items: center;
-    gap: 10px;           /* Gap between words */
-    margin: 0 0 30px 0; 
-    width: 100%;
-    min-height: 42px;
-}
-
-    /* Pulsing effect for the active word's boxes */
-    .word-box.current-word .bee-slot:not(.filled) {
-        animation: gentlePulse 1.5s infinite;
-        border-color: #FFD700; /* Gold color to match the Bee */
+    .spelling-slots {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 30px 0;
+        width: 100%;
+        min-height: 42px;
     }
     
-        @keyframes gentlePulse {
-            0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
-            50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.5); border-color: #FFD700; transform: scale(1.02); }
-            100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
-        }
-       
-    /* FIX: Force the Hangman word to stay horizontal and centered */
-     #hangmanDisplay {
+    .word-box {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 2px;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .word-box.current-word .bee-slot:not(.filled) {
+        animation: gentlePulse 1.5s infinite;
+        border-color: #FFD700;
+    }
+    
+    @keyframes gentlePulse {
+        0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+        50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.5); border-color: #FFD700; transform: scale(1.02); }
+        100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
+    }
+    
+    #hangmanDisplay {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -1232,33 +1339,19 @@
         margin: 15px 0;
     }
     
-    .word-box {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap; 
-        gap: 4px;
-        padding: 2px;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Specific fix for punctuation boxes to save space */
     .bee-slot[style*="border: none"] {
         width: auto !important;
         min-width: 10px;
         padding: 0 2px;
     }
     
-    /* Ensure slots look good in both modes */
     .bee-slot {
-        /* CLAMP: Minimum 22px, Preferred 7% of screen, Maximum 32px */
-        width: clamp(22px, 7.5vw, 32px); 
+        width: clamp(22px, 7.5vw, 32px);
         height: 42px;
         border: 2px solid #cbd5e0;
         border-radius: 8px;
         background: white;
-        /* Font size scales slightly with the box */
-        font-size: clamp(1.2rem, 4vw, 1.8rem); 
+        font-size: clamp(1.2rem, 4vw, 1.8rem);
         font-weight: 900;
         display: flex;
         align-items: center;
@@ -1267,7 +1360,7 @@
         text-transform: uppercase;
         transition: all 0.2s, background-color 0.3s;
         box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05);
-        flex-shrink: 1; /* Allows boxes to squish slightly to fit the row */
+        flex-shrink: 1;
     }
     
     .bee-slot.filled {
@@ -1275,182 +1368,359 @@
         background: #f0fdf4;
     }
     
+    .bee-slot.missed-ter {
+        color: #ff6b8b !important;
+        border-color: #ff6b8b !important;
+        background: #fff5f5;
+        animation: terPop 0.4s ease-out;
+    }
+    
     .word-victory-anim {
         animation: wordPop 0.6s ease-out;
         color: #4cd964 !important;
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
     }
-
-    /* Style for ters revealed after losing Hangman */
-    .bee-slot.missed-ter {
-        color: #ff6b8b !important; /* Soft Red/Pink */
-        border-color: #ff6b8b !important;
-        background: #fff5f5;
-        animation: terPop 0.4s ease-out;
-    }   
-       
- /* --- UPDATED UNIFIED 3D KEYBOARD --- */
-.unified-keyboard {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #f8fafc;
-    padding: 15px 5px 30px 5px; 
-    border-top: 4px solid #FFD700;
-    box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
-    z-index: 9500; /* HIGHEST: Covers the Nav Bar when active */
-    display: none;
-    flex-direction: column;
-    gap: 8px;
-    animation: slideUp 0.3s ease-out;
-}
-
-.keyboard-buffer {
-    padding-bottom: 300px !important; /* Adjust based on keyboard height */
-    transition: padding-bottom 0.3s ease;
-}
-       
-.keyboard-row {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    width: 100%;
-}
-       
- .k-key {
-    /* FIXED WIDTH LOGIC: 10% of screen ensures all rows align perfectly */
-    flex: 0 0 calc(10% - 6px); 
-    height: 48px;
-    background: white;
-    border: 1px solid #cbd5e0;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 1.1rem;
-    cursor: pointer;
-    color: #2d3748;
-    user-select: none;
-    transition: all 0.1s;
     
-    /* 3D "Pushable" Effect */
-    box-shadow: 0 4px 0 #cbd5e0;
-}
-
-.k-key:active, .k-key.key-pressed { 
-    transform: translateY(3px); 
-    box-shadow: 0 1px 0 #cbd5e0;
-    background: #e0f2fe;
-}
-
-/* Gray out used keys for Hangman */
-/* Gray out used keys for Hangman game */
-.k-key.used {
-    opacity: 0.4;
-    background: #e2e8f0;
-    pointer-events: none;
-    box-shadow: none;
-}
-       
-/* Specific styling for accents row */
-.keyboard-row.accents .k-key {
-    background: #fffdf0;
-    height: 42px;
-    font-size: 0.9rem;
-    border-color: #ffe082;
-}
     
-     /* --- ANIMATIONS --- */
+    /* ==================== UNIFIED KEYBOARD ==================== */
     
-    /* For the Floating Keyboard to enter smoothly */
+    .unified-keyboard {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #f8fafc;
+        padding: 15px 5px 30px 5px;
+        border-top: 4px solid #FFD700;
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
+        z-index: 9500;
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        animation: slideUp 0.3s ease-out;
+    }
+    
+    .keyboard-buffer {
+        padding-bottom: 300px !important;
+        transition: padding-bottom 0.3s ease;
+    }
+    
+    .keyboard-row {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        width: 100%;
+    }
+    
+    .k-key {
+        flex: 0 0 calc(10% - 6px);
+        height: 48px;
+        background: white;
+        border: 1px solid #cbd5e0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.1rem;
+        cursor: pointer;
+        color: #2d3748;
+        user-select: none;
+        transition: all 0.1s;
+        box-shadow: 0 4px 0 #cbd5e0;
+    }
+    
+    .k-key:active, .k-key.key-pressed { 
+        transform: translateY(3px); 
+        box-shadow: 0 1px 0 #cbd5e0;
+        background: #e0f2fe;
+    }
+    
+    .k-key.used {
+        opacity: 0.4;
+        background: #e2e8f0;
+        pointer-events: none;
+        box-shadow: none;
+    }
+    
+    .keyboard-row.accents .k-key {
+        background: #fffdf0;
+        height: 42px;
+        font-size: 0.9rem;
+        border-color: #ffe082;
+    }
+    
+    
+    /* ==================== ANIMATIONS ==================== */
+    
     @keyframes slideUp {
         from { transform: translateY(100%); }
         to { transform: translateY(0); }
     }
     
-    /* For when she makes a mistake */
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-8px); }
         75% { transform: translateX(8px); }
     }
     
-    /* For individual ter feedback */
     @keyframes terPop {
         0% { transform: scale(0.5); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
     
-    /* For the Word Victory celebration */
     @keyframes wordPop {
         0% { transform: scale(1); }
         50% { transform: scale(1.2); }
         100% { transform: scale(1); }
     }
-
-/* Overlays: Standardizing the stack */
-.overlay {
-    background: rgba(0, 0, 0, 0.8) !important; /* Darker tint */
-    backdrop-filter: blur(5px); /* Adds polish */
-    -webkit-backdrop-filter: blur(5px);
-}
-
-/* --- UPDATED HIERARCHY --- */
-
-/* 1. Standard Overlays (Backpack, Parent, etc) */
-#bpModal, #gameDrawer, #parentDrawer, #presetsOverlay, #hwDrawer {
-    z-index: 8500 !important; 
-}
-
-/* 2. Navigation Bar: Sits above standard drawers */
-.bottom-nav { 
-    z-index: 9000 !important; 
-}
-
-/* 3. Task Focus Windows: Must cover the Navigation Bar (9500+) */
-#printSelectionOverlay, #folderSelectionOverlay, #iconPickerOverlay, #photoCropperOverlay {
-    z-index: 9500 !important; 
-}
-
-/* 4. Critical Modals: Always on the absolute top */
-#appModal {
-    z-index: 9999 !important; 
-}
-
-/* Hides the install button if the app is already running as an installed app */
-@media all and (display-mode: standalone) {
-    #installBtn {
-        display: none !important;
+    
+    @keyframes keyFlash {
+        0% { transform: scale(1); background-color: #f0f4f8; }
+        50% { transform: scale(1.3); background-color: #4cd964; color: white; z-index: 10; }
+        100% { transform: scale(1); background-color: #e2e8f0; }
     }
-}
+    
+    .pop-anim, .pop-animation, .key-animate {
+        animation: terPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    
+    
+    /* ==================== PRINT STYLES ==================== */
+    
+    #printArea { 
+        display: none !important; 
+    }
+    
+    @media print {
+        @page { 
+            margin: 0.5in 0.5in 0.4in 0.5in;
+            size: auto;
+            @top-center { content: "" !important; }
+            @bottom-center { content: "" !important; }
+        }
+        @page :first { margin-top: 1.5cm; }
+        
+        html, body { 
+            background: white !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            height: auto; 
+            visibility: hidden !important;
+            text-align: left !important;
+        }
+        
+        .container, .overlay, .bottom-nav, .header, button, 
+        .app-control-panel, .gap-control, .view-switcher, 
+        .nav-item, .overlay-content { 
+            display: none !important; 
+        }
+        
+        #printArea { 
+            display: block !important; 
+            visibility: visible !important; 
+            background: white !important;
+            width: 100%;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: left !important;
+        }
+        
+        #printArea * { 
+            visibility: visible !important; 
+        }
+        
+        .print-header-simple {
+            width: 100%; 
+            border-bottom: 2px solid black; 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            padding-bottom: 10px; 
+            margin-bottom: 30px;
+        }
+        
+        .name-label { 
+            font-size: 13pt; 
+            font-weight: 900; 
+        }
+        
+        .name-underline { 
+            border-bottom: 1.5px solid black; 
+            width: 220px; 
+            display: inline-block; 
+            margin-left: 5px; 
+            height: 14pt; 
+        }
+        
+        .set-name-center { 
+            font-weight: 900; 
+            font-size: 11pt; 
+        }
+        
+        .date-label { 
+            font-size: 11pt; 
+            font-weight: 700; 
+        }
+        
+        .print-phrase-block { 
+            margin-bottom: 28px; 
+            padding: 15px 20px; 
+            border: 2.5px solid #333;
+            border-radius: 20px; 
+            page-break-inside: avoid; 
+            break-inside: avoid;
+            position: relative; 
+            background: white !important; 
+            text-align: left !important;
+        }
+        
+        .print-phrase-block:last-child { 
+            margin-bottom: 0 !important; 
+        }
+        
+        .print-phrase-text { 
+            margin-bottom: 16px; 
+            color: #000; 
+            text-align: left !important; 
+            display: block; 
+            width: 100%;
+            line-height: 1.2;
+        }
+        
+        .block-font { 
+            font-family: "KG Primary Penmanship Alt", sans-serif !important;
+            font-weight: 400 !important;
+            font-size: 46px !important; 
+            text-align: left !important;
+            margin-bottom: 16px;
+            -webkit-font-smoothing: antialiased;
+            font-variant-ligatures: common-ligatures; 
+        }
+        
+        .cursive-font { 
+            font-family: "Playwrite US Trad", cursive !important; 
+            font-weight: 400 !important;
+            font-size: 28px !important; 
+            word-spacing: 5pt !important; 
+            font-variant-ligatures: common-ligatures;
+        }
+        
+        .calligraphy-row {
+            height: 38px; 
+            width: 100%; 
+            margin-bottom: 29px;
+            border-bottom: 2px solid black;
+            border-top: 1px solid #aaa; 
+            position: relative;
+        }
+        
+        .calligraphy-row::after { 
+            content: ""; 
+            position: absolute; 
+            left: 0; 
+            width: 100%; 
+            border-top: 1.2px dashed #bbb; 
+            height: 0;
+            display: block !important;
+            top: 40%; 
+        }
+        
+        .calligraphy-row.block-font::after { 
+            top: 40% !important; 
+        }
+        
+        .calligraphy-row.cursive-font::after { 
+            top: 45% !important; 
+        }
+        
+        .calligraphy-row.blank-line::after { 
+            top: 50% !important; 
+        }
+        
+        .calligraphy-row:last-child { 
+            margin-bottom: 5px; 
+        }
+        
+        .cute-decoration { 
+            position: absolute; 
+            top: 12px; 
+            right: 15px; 
+            font-size: 20pt; 
+        }
+        
+        .trace-text {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            color: #dfdfdf !important; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            opacity: 0.8;
+            pointer-events: none;
+            white-space: nowrap;
+            overflow: visible !important; 
+            display: block;
+            text-align: left !important;
+        }
+        
+        .trace-text.block-font { 
+            font-size: 57px !important; 
+            line-height: 38px;
+            top: 1px; 
+            letter-spacing: -1px;
+            font-weight: 400 !important;
+            -webkit-text-stroke: 1.5px white !important;
+            paint-order: stroke fill;
+            font-variant-ligatures: common-ligatures;
+        }
+        
+        .trace-text.cursive-font { 
+            font-size: 34px !important;  
+            line-height: 38px;
+            top: 0px !important; 
+            transform: translateY(0px) !important;
+            font-variant-ligatures: common-ligatures;
+            text-rendering: geometricPrecision;
+        }
+    }
+    
+    
+    /* ==================== SPLASH SCREEN ==================== */
+    
+    .splash-pop-in {
+        transform: scale(1) rotate(0deg) !important;
+    }
+    
+    .splash-immersive-zoom {
+        transform: scale(15) !important;
+        filter: blur(20px);
+        opacity: 0 !important;
+        transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+    }
+    
+    .splash-text-fade {
+        opacity: 0 !important;
+        transform: translateY(-20px) !important;
+        transition: all 0.6s ease-in !important;
+    }
+    
+    #customSplash {
+        transition: opacity 1s ease-in-out, visibility 1s !important;
+    }
+    
+    
+    /* ==================== RESPONSIVE / UTILITY ==================== */
+    
+    @media all and (display-mode: standalone) {
+        #installBtn {
+            display: none !important;
+        }
+    }
 
-/* --- ENHANCED SPLASH ANIMATIONS --- */
-.splash-pop-in {
-    transform: scale(1) rotate(0deg) !important;
-}
-
-/* The Immersive Transition: Zoom in huge and fade out */
-.splash-immersive-zoom {
-    transform: scale(15) !important; /* Zooms into the colors of the logo */
-    filter: blur(20px);
-    opacity: 0 !important;
-    transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
-}
-
-.splash-text-fade {
-    opacity: 0 !important;
-    transform: translateY(-20px) !important;
-    transition: all 0.6s ease-in !important;
-}
-
-#customSplash {
-    /* Controls the speed at which the colored background fades away */
-    transition: opacity 1s ease-in-out, visibility 1s !important;
-}
-       
-   </style>
+</style>
 </head>
 <body>
 
