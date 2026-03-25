@@ -1334,8 +1334,6 @@
         transform: scale(1.1);
     }
     
-    /* ========== SPELLING MODE STYLES ========== */
-    
     /* The Bee Badge on cards */
     .bee-badge {
         position: absolute;
@@ -1359,19 +1357,38 @@
     .bee-badge:active { 
         transform: scale(1.2); 
     }
-
+    
     /* Make sure spelling zone has height */
     .spelling-zone {
         min-height: 100px;
     }
     
-    /* Card when in spelling mode */
+    /* Card when in spelling mode - MERGED */
     .phrase-card.spelling-mode {
         border-color: #FFD700 !important;
         background: #fffdf0 !important;
-        margin: 80px auto 30px auto;
+        margin: 140px auto 20px auto !important;
+        max-width: 95%;
+        z-index: 1000;
+        position: relative;
         transition: margin 0.3s ease;
         min-height: 200px;
+    }
+    
+    /* Make sure the phrases container is visible in spelling mode */
+    body.mode-spelling #phrasesList {
+        display: block !important;
+        margin-top: 0;
+    }
+    
+    /* Force keyboard to top layer */
+    #keyboard.unified-keyboard {
+        z-index: 11000 !important;
+    }
+    
+    /* Hide header in spelling mode */
+    body.mode-spelling .header {
+        display: none;
     }
     
     /* Spelling slots container */
@@ -1386,7 +1403,7 @@
         width: 100%;
         min-height: 42px;
     }
-    
+        
     /* Word box container */
     .word-box {
         display: flex;
@@ -2021,6 +2038,7 @@
             oninput="document.getElementById('gapValue').innerText = this.value; localStorage.setItem('gapValue', this.value);">
         </div>
         <div id="phrasesList" class="phrases-container"></div>
+        </div>
         <div class="bottom-nav">
                 <div id="nav-practice" class="nav-item active" onclick="navJump(null)" style="color: #4cd964; background: #f0fff4;">
                     <span>📖</span>Practice
