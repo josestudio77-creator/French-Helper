@@ -1490,17 +1490,9 @@
         margin: 15px 0 25px 0;
     }
     
-    /* Immersive warm background */
-    body.mode-spelling::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: radial-gradient(circle at center, #fff0d6, #ffebc2);
-        z-index: -1;
-        pointer-events: none;
+    /* Warm stage background - not covering the card */
+    body.mode-spelling {
+        background: #fff8e7;
     }
     
     
@@ -6588,6 +6580,31 @@ function exitSpellingTheater() {
                 toggleSpellingMode(beeBtn, frenchText.textContent);
             }
         }
+    } else {
+        // Fallback - just remove the classes
+        document.body.classList.remove('mode-spelling');
+        const stage = document.getElementById('spellingTheaterStage');
+        const exitBtn = document.getElementById('exitSpellingTheaterBtn');
+        if (stage) stage.classList.remove('active');
+        if (exitBtn) exitBtn.classList.remove('visible');
+        
+        // Show all cards
+        document.querySelectorAll('.phrase-card').forEach(c => {
+            c.style.display = 'block';
+        });
+        
+        // Show control panel and nav
+        const controlPanel = document.querySelector('.app-control-panel');
+        const bottomNav = document.querySelector('.bottom-nav');
+        if (controlPanel) controlPanel.style.display = 'block';
+        if (bottomNav) bottomNav.style.display = 'flex';
+        
+        // Hide keyboard
+        const globalKb = document.getElementById('keyboard');
+        if (globalKb) globalKb.style.display = 'none';
+        document.body.classList.remove('keyboard-buffer');
+        currentSpellingState = null;
+        window.speechSynthesis.cancel();
     }
 }
         
