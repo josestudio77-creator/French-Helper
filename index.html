@@ -1267,8 +1267,82 @@
     }
     
     
-    /* ==================== SPELLING BEE MODE ==================== */
+    /* ==================== SPELLING BEE THEATER MODE ==================== */
     
+    /* The Stage Container - Starts hidden above screen */
+    #spellingTheaterStage {
+        position: fixed;
+        top: -150px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        z-index: 10000;
+        transition: top 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+        pointer-events: none;
+    }
+    
+    /* When active - slides down */
+    #spellingTheaterStage.active {
+        top: 15px;
+        pointer-events: auto;
+    }
+    
+    /* The Bee Image Container */
+    #beeStageImage {
+        background: linear-gradient(135deg, #FFD700, #FFB700);
+        border-radius: 80px;
+        padding: 8px 35px 8px 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #beeStageImage img {
+        height: 70px;
+        width: auto;
+        display: block;
+        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+    }
+    
+    /* Exit Button - Top Right Corner */
+    #exitSpellingTheaterBtn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #ff4d4d;
+        color: white;
+        border: 3px solid white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: transform 0.2s, opacity 0.3s;
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    #exitSpellingTheaterBtn.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    #exitSpellingTheaterBtn:active {
+        transform: scale(1.1);
+    }
+    
+    /* ========== SPELLING MODE STYLES ========== */
+    
+    /* The Bee Badge on cards */
     .bee-badge {
         position: absolute;
         top: -12px;
@@ -1292,11 +1366,15 @@
         transform: scale(1.2); 
     }
     
+    /* Card when in spelling mode */
     .phrase-card.spelling-mode {
         border-color: #FFD700 !important;
         background: #fffdf0 !important;
+        margin: 80px auto 30px auto;
+        transition: margin 0.3s ease;
     }
     
+    /* Spelling slots container */
     .spelling-slots {
         display: flex;
         flex-direction: row;
@@ -1304,11 +1382,12 @@
         justify-content: center;
         align-items: center;
         gap: 10px;
-        margin: 0 0 30px 0;
+        margin: 0 0 25px 0;
         width: 100%;
         min-height: 42px;
     }
     
+    /* Word box container */
     .word-box {
         display: flex;
         flex-direction: row;
@@ -1319,6 +1398,7 @@
         justify-content: center;
     }
     
+    /* Pulsing effect for active word */
     .word-box.current-word .bee-slot:not(.filled) {
         animation: gentlePulse 1.5s infinite;
         border-color: #FFD700;
@@ -1330,21 +1410,7 @@
         100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0.2); border-color: #cbd5e0; transform: scale(1); }
     }
     
-    #hangmanDisplay {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        min-height: 60px;
-        margin: 15px 0;
-    }
-    
-    .bee-slot[style*="border: none"] {
-        width: auto !important;
-        min-width: 10px;
-        padding: 0 2px;
-    }
-    
+    /* Individual letter slots */
     .bee-slot {
         width: clamp(22px, 7.5vw, 32px);
         height: 42px;
@@ -1375,10 +1441,72 @@
         animation: terPop 0.4s ease-out;
     }
     
+    /* Punctuation slots - no border, narrower */
+    .bee-slot[style*="border: none"] {
+        width: auto !important;
+        min-width: 10px;
+        padding: 0 2px;
+    }
+    
     .word-victory-anim {
         animation: wordPop 0.6s ease-out;
         color: #4cd964 !important;
         text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
+    }
+    
+    /* ========== THEATER MODE OVERRIDES ========== */
+    
+    /* When spelling mode is active on body */
+    body.mode-spelling {
+        overflow: hidden !important;
+    }
+    
+    /* Hide control panel and nav in spelling mode */
+    body.mode-spelling .app-control-panel {
+        display: none;
+    }
+    
+    body.mode-spelling .bottom-nav {
+        display: none;
+    }
+    
+    /* Make keyboard shorter in spelling mode */
+    body.mode-spelling .unified-keyboard {
+        padding: 8px 5px 20px 5px;
+    }
+    
+    body.mode-spelling .k-key {
+        height: 42px;
+        font-size: 1rem;
+    }
+    
+    body.mode-spelling .keyboard-row {
+        gap: 3px;
+    }
+    
+    /* Make spelling slots slightly more compact */
+    body.mode-spelling .bee-slot {
+        height: 38px;
+        width: clamp(28px, 7vw, 40px);
+        font-size: clamp(1rem, 3.5vw, 1.4rem);
+    }
+    
+    body.mode-spelling .spelling-slots {
+        gap: 8px;
+        margin: 15px 0 25px 0;
+    }
+    
+    /* Immersive warm background */
+    body.mode-spelling::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, #fff0d6, #ffebc2);
+        z-index: -1;
+        pointer-events: none;
     }
     
     
@@ -1732,6 +1860,17 @@
     <!-- The Welcome Text -->
     <h2 id="splashText" style="color: #ff6b8b; margin-top: 25px; font-size: 1.8rem; font-weight: 900; opacity: 0; transform: translateY(20px); transition: all 0.5s ease-out 0.3s;">Bienvenue !</h2>
 </div>
+
+<!-- ========== SPELLING BEE THEATER STAGE ========== -->
+<div id="spellingTheaterStage">
+    <!-- The Bee Image that slides down -->
+    <div id="beeStageImage">
+        <img src="assets/Banner_spelling_bee.png" alt="Spelling Bee">
+    </div>
+</div>
+
+<!-- The Exit Button (Top Right Corner of Screen) -->
+<button id="exitSpellingTheaterBtn" aria-label="Exit Spelling Mode">✖</button>
 
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
@@ -2332,6 +2471,7 @@
         let exitAttempts = 0;
         let isAiMode = false; // Tracks if the current image is AI generated
         let preferredAiModel = localStorage.getItem('preferredAiModel') || 'imagen-4';
+        let theaterAudioCtx = null;
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -4475,6 +4615,40 @@ async function translateIfNeeded(words, showProgress = true) {
             });
         }
 
+        function playTheaterIntro() {
+            if (!theaterAudioCtx) {
+                theaterAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // Resume if suspended (browser policy)
+            if (theaterAudioCtx.state === 'suspended') {
+                theaterAudioCtx.resume();
+            }
+            
+            const now = theaterAudioCtx.currentTime;
+            // A magical ascending arpeggio: C - E - G - C
+            const notes = [261.63, 329.63, 392.00, 523.25];
+            
+            notes.forEach((freq, index) => {
+                const osc = theaterAudioCtx.createOscillator();
+                const gain = theaterAudioCtx.createGain();
+                
+                osc.type = 'triangle'; // Soft, bell-like sound
+                osc.frequency.setValueAtTime(freq, now + (index * 0.15));
+                
+                // Volume envelope: fade in quickly, then fade out
+                gain.gain.setValueAtTime(0, now + (index * 0.15));
+                gain.gain.linearRampToValueAtTime(0.25, now + (index * 0.15) + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                
+                osc.connect(gain);
+                gain.connect(theaterAudioCtx.destination);
+                
+                osc.start(now + (index * 0.15));
+                osc.stop(now + 1.2);
+            });
+        }
+
         function playDingSound() {
             if (!musicContext) musicContext = new (window.AudioContext || window.webkitAudioContext)();
             if (musicContext.state === 'suspended') musicContext.resume();
@@ -6063,71 +6237,104 @@ async function translateOne(p) {
         const card = btn.closest('.phrase-card');
         const spellingZone = card.querySelector('.spelling-zone');
         const enBtn = card.querySelector('.spk-en');
-        const globalKb = document.getElementById('keyboard'); 
+        const globalKb = document.getElementById('keyboard');
+        const stage = document.getElementById('spellingTheaterStage');
+        const exitBtn = document.getElementById('exitSpellingTheaterBtn');
         
-        // 1. CLEANUP: Shut down any OTHER active spelling card
-        document.querySelectorAll('.phrase-card.spelling-mode').forEach(otherCard => {
-            if (otherCard !== card) {
-                otherCard.classList.remove('spelling-mode');
-                otherCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-                    el.style.display = 'block';
-                });
-                const otherZone = otherCard.querySelector('.spelling-zone');
-                if (otherZone) otherZone.style.display = 'none';
-                
-                // Restore English label and logic on other cards
-                const otherEnBtn = otherCard.querySelector('.spk-en');
-                if (otherEnBtn) {
-                    otherEnBtn.innerHTML = '<span>English</span>';
-                    const otherEnText = otherCard.querySelector('.english-text').textContent;
-                    otherEnBtn.onclick = () => spk(otherEnText, 'en-US', true);
-                }
-            }
-        });
-    
         if (card.classList.contains('spelling-mode')) {
-            // --- EXIT SPELLING MODE ---
+            // --- EXIT SPELLING MODE: Curtains Close ---
+            
+            // Remove active classes
             card.classList.remove('spelling-mode');
+            if (stage) stage.classList.remove('active');
+            if (exitBtn) exitBtn.classList.remove('visible');
+            document.body.classList.remove('mode-spelling');
+            
+            // Hide the keyboard
+            if (globalKb) globalKb.style.display = 'none';
+            
+            // Restore all text elements
             card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'block';
             });
             spellingZone.style.display = 'none';
             
-            // Restore standard label and logic
+            // Restore English button
             const enText = card.querySelector('.english-text').textContent;
             enBtn.innerHTML = '<span>English</span>';
             enBtn.onclick = () => spk(enText, 'en-US', true);
             
-            if (globalKb) globalKb.style.display = 'none';
+            // Show all other cards
+            document.querySelectorAll('.phrase-card').forEach(c => {
+                c.style.display = 'block';
+            });
+            
+            // Show control panel and nav
+            const controlPanel = document.querySelector('.app-control-panel');
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (controlPanel) controlPanel.style.display = 'block';
+            if (bottomNav) bottomNav.style.display = 'flex';
+            
+            // Reset state
             document.body.classList.remove('keyboard-buffer');
             currentSpellingState = null;
             window.speechSynthesis.cancel();
+            
         } else {
-            // --- ENTER SPELLING MODE ---
+            // --- ENTER SPELLING MODE: Curtains Open! ---
+            
+            // Play theatrical sound
+            playTheaterIntro();
+            
+            // Hide all other cards
+            document.querySelectorAll('.phrase-card').forEach(c => {
+                if (c !== card) {
+                    c.style.display = 'none';
+                }
+            });
+            
+            // Hide control panel and nav
+            const controlPanel = document.querySelector('.app-control-panel');
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (controlPanel) controlPanel.style.display = 'none';
+            if (bottomNav) bottomNav.style.display = 'none';
+            
+            // Show the bee stage (slides down)
+            if (stage) stage.classList.add('active');
+            
+            // Show exit button (fades in)
+            if (exitBtn) exitBtn.classList.add('visible');
+            
+            // Add the mode class
+            document.body.classList.add('mode-spelling');
+            
+            // Setup the card
             card.classList.add('spelling-mode');
             card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'none';
             });
             spellingZone.style.display = 'block';
             
-            // SETUP: Text-only "Spell" button to keep it single-line
+            // Setup Spell button
             enBtn.innerHTML = '<span>Spell</span>';
             enBtn.onclick = (e) => {
                 e.stopPropagation();
-                spellCurrentWord(); 
+                spellCurrentWord();
             };
-    
+            
+            // Show and setup keyboard
             if (globalKb) {
                 globalKb.style.display = 'flex';
-                renderMiniKeyboard(); 
+                renderMiniKeyboard();
             }
-    
+            
             document.body.classList.add('keyboard-buffer');
-            startNewSpellingGame(card, fullPhrase);
-    
+            
+            // Start the spelling game after a tiny delay for smooth animation
             setTimeout(() => {
+                startNewSpellingGame(card, fullPhrase);
                 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 300);
+            }, 150);
         }
     }
     
@@ -6372,6 +6579,21 @@ function handleSpellingInput(inputLetter) {
         // Visual feedback: Shake the card
         card.style.animation = 'shake 0.3s';
         setTimeout(() => card.style.animation = '', 300);
+    }
+}
+
+function exitSpellingTheater() {
+    // Find the active spelling card
+    const activeCard = document.querySelector('.phrase-card.spelling-mode');
+    if (activeCard) {
+        const beeBtn = activeCard.querySelector('.bee-badge');
+        if (beeBtn) {
+            // Get the phrase from the card
+            const frenchText = activeCard.querySelector('.french-text');
+            if (frenchText) {
+                toggleSpellingMode(beeBtn, frenchText.textContent);
+            }
+        }
     }
 }
         
