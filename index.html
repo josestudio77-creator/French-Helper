@@ -1290,21 +1290,15 @@
     
     /* The Bee Image Container */
     #beeStageImage {
-        background: linear-gradient(135deg, #FFD700, #FFB700);
-        border-radius: 80px;
-        padding: 8px 35px 8px 25px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        border: 3px solid white;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
     #beeStageImage img {
-        height: 70px;
+        height: 80px;
         width: auto;
         display: block;
-        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
     }
     
     /* Exit Button - Top Right Corner */
@@ -1870,7 +1864,7 @@
 </div>
 
 <!-- The Exit Button (Top Right Corner of Screen) -->
-<button id="exitSpellingTheaterBtn" aria-label="Exit Spelling Mode">✖</button>
+<button id="exitSpellingTheaterBtn" aria-label="Exit Spelling Mode" onclick="exitSpellingTheater()">✖</button>
 
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
