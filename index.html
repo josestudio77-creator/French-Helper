@@ -1325,6 +1325,15 @@
         transition: transform 0.2s, opacity 0.3s;
         opacity: 0;
         pointer-events: none;
+        background: rgba(255, 77, 77, 0.9);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        width: 44px; /* Slightly smaller for elegance */
+        height: 44px;
+        top: 15px;
+        right: 15px;
+        border: 2px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
     #exitSpellingTheaterBtn.visible {
@@ -1364,17 +1373,36 @@
     .spelling-zone {
         min-height: 100px;
     }
+
+    body.mode-spelling .container {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
     
     /* Card when in spelling mode - MERGED */
     .phrase-card.spelling-mode {
+        /* Colors & Borders */
         border-color: #FFD700 !important;
         background: #fffdf0 !important;
-        margin: 140px auto 20px auto !important;
-        max-width: 95%;
+        
+        /* Layering & Animation */
         z-index: 1000;
         position: relative;
-        transition: margin 0.3s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15); /* Adds depth for the "Stage" look */
+    
+        /* Spacing: This centers it and leaves room for the Bee (top) and Keyboard (bottom) */
+        margin: 130px auto 10px auto !important; 
+        width: 92%;
+        max-width: 450px; /* Keeps it from getting too wide on tablets */
+    
+        /* Height Control: Crucial so the keyboard doesn't hide the card */
         min-height: 200px;
+        max-height: 45vh; 
+        overflow-y: auto; /* If the phrase is very long, the card becomes scrollable */
     }
     
     /* Make sure the phrases container is visible in spelling mode */
@@ -6601,43 +6629,32 @@ function handleSpellingInput(inputLetter) {
 }
 
 function exitSpellingTheater() {
-    // Find the active spelling card
+    window.speechSynthesis.cancel(); // Stop the voice
+    
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
+    
     if (activeCard) {
         const beeBtn = activeCard.querySelector('.bee-badge');
-        if (beeBtn) {
-            // Get the phrase from the card
-            const frenchText = activeCard.querySelector('.french-text');
-            if (frenchText) {
-                toggleSpellingMode(beeBtn, frenchText.textContent);
-            }
+        const frenchText = activeCard.querySelector('.french-text');
+        
+        // Safety: Only try to toggle if both elements exist
+        if (beeBtn && frenchText) {
+            toggleSpellingMode(beeBtn, frenchText.textContent);
         }
     } else {
-        // Fallback - just remove the classes
+        // SAFETY NET: If no card is found, force the UI to reset manually
         document.body.classList.remove('mode-spelling');
-        const stage = document.getElementById('spellingTheaterStage');
-        const exitBtn = document.getElementById('exitSpellingTheaterBtn');
-        if (stage) stage.classList.remove('active');
-        if (exitBtn) exitBtn.classList.remove('visible');
+        document.getElementById('spellingTheaterStage').classList.remove('active');
+        document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
         
-        // Show all cards
-        document.querySelectorAll('.phrase-card').forEach(c => {
-            c.style.display = 'block';
-        });
-        
-        // Show control panel and nav
-        const controlPanel = document.querySelector('.app-control-panel');
-        const bottomNav = document.querySelector('.bottom-nav');
-        if (controlPanel) controlPanel.style.display = 'block';
-        if (bottomNav) bottomNav.style.display = 'flex';
-        
-        // Hide keyboard
-        const globalKb = document.getElementById('keyboard');
-        if (globalKb) globalKb.style.display = 'none';
-        document.body.classList.remove('keyboard-buffer');
-        currentSpellingState = null;
-        window.speechSynthesis.cancel();
+        // Ensure the normal UI is visible again
+        document.querySelector('.header').style.display = 'flex';
+        document.querySelector('.bottom-nav').style.display = 'flex';
+        document.querySelector('.app-control-panel').style.display = 'block';
     }
+    
+    // Reset the screen to the top
+    setTimeout(() => { window.scrollTo(0, 0); }, 50);
 }
         
 function spellCurrentWord() {
