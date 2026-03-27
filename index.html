@@ -1345,33 +1345,54 @@
         transform: scale(1.1);
     }
     
-    /* The Bee Badge on cards */
+    /* 1. THE BADGE: Floating outside, identical to your other corner badges */
     .bee-badge {
         position: absolute;
-        top: -12px;
-        left: -12px;
-        width: 42px;
-        height: 42px;
+        top: -18px;   /* Floating above the top border */
+        left: -18px;  /* Floating outside the left border */
+        width: 44px;
+        height: 44px;
         background: #FFD700;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 2px 2px rgba(255,255,255,0.5);
-        z-index: 100;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 2px 2px rgba(255,255,255,0.5);
+        z-index: 1001; /* High z-index so it sits on top of everything */
         cursor: pointer;
         border: 3px solid white;
-        transition: transform 0.1s;
+        transition: all 0.2s ease;
     }
-
-    /* This targets the badge ONLY when the card is in spelling mode */
+    
+    /* 2. THE CARD FRAME: Stays still, overflow visible so the badge shows */
+    .phrase-card.spelling-mode {
+        border-color: #FFD700 !important;
+        background: #fffdf0 !important;
+        margin: 130px auto 10px auto !important;
+        width: 92%;
+        max-width: 450px;
+        position: relative;
+        z-index: 1000;
+        overflow: visible !important; /* This allows the Bee/X to float outside */
+        min-height: 180px;
+    }
+    
+    /* 3. THE INTERNAL CONTENT: This is what handles the scrolling */
+    .phrase-card.spelling-mode .card-main-content, 
+    .phrase-card.spelling-mode .spelling-zone {
+        max-height: 42vh; /* Limits height so it doesn't hit the keyboard */
+        overflow-y: auto; /* Adds a scrollbar ONLY to the text/slots */
+        padding: 10px;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for iPhone */
+    }
+    
+    /* 4. THE "X" STATE: Applied automatically when in spelling mode */
     .phrase-card.spelling-mode .bee-badge {
-        background: #ff4d4d !important; /* Red for exit */
-        color: white;
-        font-size: 1.2rem;
-        border: 2px solid white;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        background: #ff4d4d !important; /* Turns Red */
+        color: white !important;
+        box-shadow: 0 6px 12px rgba(255, 77, 77, 0.4);
+        animation: none; /* Stop pulsing when it's an X */
     }
     
     .bee-badge:active { 
@@ -6279,109 +6300,80 @@ async function translateOne(p) {
             }
         }
     
-function toggleSpellingMode(btn, fullPhrase) {
-    const card = btn.closest('.phrase-card');
-    const spellingZone = card.querySelector('.spelling-zone');
-    const enBtn = card.querySelector('.spk-en');
-    const globalKb = document.getElementById('keyboard');
-    const stage = document.getElementById('spellingTheaterStage');
+    function toggleSpellingMode(btn, fullPhrase) {
+        const card = btn.closest('.phrase-card');
+        const spellingZone = card.querySelector('.spelling-zone');
+        const enBtn = card.querySelector('.spk-en');
+        const globalKb = document.getElementById('keyboard');
+        const stage = document.getElementById('spellingTheaterStage');
+        
+        const controlPanel = document.querySelector('.app-control-panel');
+        const bottomNav = document.querySelector('.bottom-nav');
+        const header = document.querySelector('.header');
     
-    // UI Elements to hide/show
-    const controlPanel = document.querySelector('.app-control-panel');
-    const bottomNav = document.querySelector('.bottom-nav');
-    const header = document.querySelector('.header');
-
-    if (card.classList.contains('spelling-mode')) {
-        // --- EXIT SPELLING MODE: Curtains Close ---
-        
-        // 1. Restore the Badge (Turn X back into Bee)
-        btn.innerHTML = "🐝";
-        btn.style.background = "#FFD700";
-
-        // 2. Remove classes and hide theater stage
-        card.classList.remove('spelling-mode');
-        if (stage) stage.classList.remove('active');
-        document.body.classList.remove('mode-spelling');
-        
-        // 3. Hide the keyboard
-        if (globalKb) globalKb.style.display = 'none';
-        
-        // 4. Restore card text and hide spelling zone
-        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-            el.style.display = 'block';
-        });
-        spellingZone.style.display = 'none';
-        
-        // 5. Restore English button logic
-        const enText = card.querySelector('.english-text').textContent;
-        enBtn.innerHTML = '<span>English</span>';
-        enBtn.onclick = () => spk(enText, 'en-US', true);
-        
-        // 6. Show all other cards and main UI
-        document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
-        if (controlPanel) controlPanel.style.display = 'block';
-        if (bottomNav) bottomNav.style.display = 'flex';
-        if (header) header.style.display = 'flex';
-        
-        // 7. Reset logic state
-        document.body.classList.remove('keyboard-buffer');
-        currentSpellingState = null;
-        window.speechSynthesis.cancel();
-
-        // 8. Snap back to top of list
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-    } else {
-        // --- ENTER SPELLING MODE: Curtains Open! ---
-        
-        playTheaterIntro();
-
-        // 1. Transform the Badge (Turn Bee into X)
-        btn.innerHTML = "✖";
-        btn.style.background = "#ff4d4d"; // Red background for the exit button
-        
-        // 2. Hide main UI elements
-        if (controlPanel) controlPanel.style.display = 'none';
-        if (bottomNav) bottomNav.style.display = 'none';
-        if (header) header.style.display = 'none';
-        
-        // 3. Hide all other cards
-        document.querySelectorAll('.phrase-card').forEach(c => {
-            if (c !== card) c.style.display = 'none';
-        });
-        
-        // 4. Activate the Stage (Bee slides down)
-        if (stage) stage.classList.add('active');
-        document.body.classList.add('mode-spelling');
-        
-        // 5. Setup the current card
-        card.classList.add('spelling-mode');
-        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-            el.style.display = 'none';
-        });
-        spellingZone.style.display = 'block';
-        
-        // 6. Setup "Spell" button
-        enBtn.innerHTML = '<span>Spell</span>';
-        enBtn.onclick = (e) => {
-            e.stopPropagation();
-            spellCurrentWord();
-        };
-        
-        // 7. Show and render keyboard
-        if (globalKb) {
-            globalKb.style.display = 'flex';
-            renderMiniKeyboard();
+        if (card.classList.contains('spelling-mode')) {
+            // --- EXIT SPELLING MODE ---
+            btn.innerHTML = "🐝"; // Snap emoji back to Bee
+    
+            card.classList.remove('spelling-mode');
+            if (stage) stage.classList.remove('active');
+            document.body.classList.remove('mode-spelling');
+            if (globalKb) globalKb.style.display = 'none';
+            
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => el.style.display = 'block');
+            spellingZone.style.display = 'none';
+            
+            const enText = card.querySelector('.english-text').textContent;
+            enBtn.innerHTML = '<span>English</span>';
+            enBtn.onclick = () => spk(enText, 'en-US', true);
+            
+            document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
+            if (controlPanel) controlPanel.style.display = 'block';
+            if (bottomNav) bottomNav.style.display = 'flex';
+            if (header) header.style.display = 'flex';
+            
+            document.body.classList.remove('keyboard-buffer');
+            currentSpellingState = null;
+            window.speechSynthesis.cancel();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+        } else {
+            // --- ENTER SPELLING MODE ---
+            playTheaterIntro();
+            
+            btn.innerHTML = "✖"; // Transform emoji into X
+    
+            if (controlPanel) controlPanel.style.display = 'none';
+            if (bottomNav) bottomNav.style.display = 'none';
+            if (header) header.style.display = 'none';
+            
+            document.querySelectorAll('.phrase-card').forEach(c => {
+                if (c !== card) c.style.display = 'none';
+            });
+            
+            if (stage) stage.classList.add('active');
+            document.body.classList.add('mode-spelling');
+            
+            card.classList.add('spelling-mode');
+            card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => el.style.display = 'none');
+            spellingZone.style.display = 'block';
+            
+            enBtn.innerHTML = '<span>Spell</span>';
+            enBtn.onclick = (e) => {
+                e.stopPropagation();
+                spellCurrentWord();
+            };
+            
+            if (globalKb) {
+                globalKb.style.display = 'flex';
+                renderMiniKeyboard();
+            }
+            document.body.classList.add('keyboard-buffer');
+            
+            startNewSpellingGame(card, fullPhrase);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        document.body.classList.add('keyboard-buffer');
-        
-        // 8. Start Game Logic
-        startNewSpellingGame(card, fullPhrase);
-        
-        // 9. Force view to top so card is centered under Bee
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-}
     
     function startNewSpellingGame(card, phrase) {
         const cleanPhrase = phrase.split('|')[0].trim();
