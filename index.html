@@ -2462,6 +2462,8 @@ body.mode-spelling .spelling-slots {
         let isAiMode = false; // Tracks if the current image is AI generated
         let preferredAiModel = localStorage.getItem('preferredAiModel') || 'imagen-4';
         let theaterAudioCtx = null;
+        let savedSpeechSpeed = null;  // To store the original speed when entering spelling mode
+        let isInSpellingMode = false;  // Track if we're in spelling mode (optional)
         
         // NEW: Custom icon/photo state
         let customIcons = JSON.parse(localStorage.getItem('customIcons') || '{}');
@@ -6223,83 +6225,142 @@ async function translateOne(p) {
             }
         }
     
-        function toggleSpellingMode(btn, fullPhrase) {
-            const card = btn.closest('.phrase-card');
-            const spellingZone = card.querySelector('.spelling-zone');
-            const mainContent = card.querySelector('.card-main-content');
-            const enBtn = card.querySelector('.spk-en');
-            const globalKb = document.getElementById('keyboard');
-            const stage = document.getElementById('spellingTheaterStage');
-            
-            const controlPanel = document.querySelector('.app-control-panel');
-            const bottomNav = document.querySelector('.bottom-nav');
-            const header = document.querySelector('.header');
-        
-            if (card.classList.contains('spelling-mode')) {
-                // --- EXIT SPELLING MODE ---
-                btn.innerHTML = "🐝"; // Snap back to Bee
-        
-                card.classList.remove('spelling-mode');
-                if (stage) stage.classList.remove('active');
-                document.body.classList.remove('mode-spelling');
-                if (globalKb) globalKb.style.display = 'none';
-                
-                card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => el.style.display = 'block');
-                if (mainContent) mainContent.style.display = 'block';
-                spellingZone.style.display = 'none';
-                
-                const enText = card.querySelector('.english-text').textContent;
-                enBtn.innerHTML = '<span>English</span>';
-                enBtn.onclick = () => spk(enText, 'en-US', true);
-                
-                // Restore Normal UI
-                document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
-                if (controlPanel) controlPanel.style.display = 'block';
-                if (bottomNav) bottomNav.style.display = 'flex';
-                if (header) header.style.display = 'flex';
-                
-                document.body.classList.remove('keyboard-buffer');
-                currentSpellingState = null;
-                window.speechSynthesis.cancel();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-            } else {
-                // --- ENTER SPELLING MODE ---
-                playTheaterIntro();
-                btn.innerHTML = "✖"; // Transform into X
-        
-                // Hide UI
-                if (controlPanel) controlPanel.style.display = 'none';
-                if (bottomNav) bottomNav.style.display = 'none';
-                if (header) header.style.display = 'none';
-                
-                document.querySelectorAll('.phrase-card').forEach(c => {
-                    if (c !== card) c.style.display = 'none';
-                });
-                
-                if (stage) stage.classList.add('active');
-                document.body.classList.add('mode-spelling');
-                
-                card.classList.add('spelling-mode');
-                if (mainContent) mainContent.style.display = 'none'; 
-                spellingZone.style.display = 'block';
-                
-                enBtn.innerHTML = '<span>Spell</span>';
-                enBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    spellCurrentWord();
-                };
-                
-                if (globalKb) {
-                    globalKb.style.display = 'flex';
-                    renderMiniKeyboard();
-                }
-                document.body.classList.add('keyboard-buffer');
-                
-                startNewSpellingGame(card, fullPhrase);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+function toggleSpellingMode(btn, fullPhrase) {
+    const card = btn.closest('.phrase-card');
+    const spellingZone = card.querySelector('.spelling-zone');
+    const enBtn = card.querySelector('.spk-en');
+    const frBtn = card.querySelector('.spk-fr');
+    const globalKb = document.getElementById('keyboard');
+    const stage = document.getElementById('spellingTheaterStage');
+    
+    const controlPanel = document.querySelector('.app-control-panel');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const header = document.querySelector('.header');
+
+    if (card.classList.contains('spelling-mode')) {
+        // --- EXIT SPELLING MODE ---
+        btn.innerHTML = "🐝";
+
+        // RESTORE ORIGINAL SPEECH SPEED
+        if (savedSpeechSpeed !== null) {
+            speechSpeed = savedSpeechSpeed;
+            // Update the slider to reflect the restored speed
+            const slider = document.getElementById('speedSlider');
+            const speedDisplay = document.getElementById('speedValue');
+            if (slider) slider.value = speechSpeed;
+            if (speedDisplay) speedDisplay.textContent = speechSpeed.toFixed(2);
+            localStorage.setItem('speechSpeed', speechSpeed);
+            savedSpeechSpeed = null;
         }
+        
+        isInSpellingMode = false;
+
+        card.classList.remove('spelling-mode');
+        if (stage) stage.classList.remove('active');
+        document.body.classList.remove('mode-spelling');
+        if (globalKb) globalKb.style.display = 'none';
+        
+        // Re-enable icon click when exiting spelling mode
+        const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+        if (iconElement) {
+            iconElement.style.pointerEvents = 'auto';
+            iconElement.style.cursor = 'pointer';
+        }
+        
+        // Restore ALL text elements (french, english, pronunciation)
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'block';
+        });
+        spellingZone.style.display = 'none';
+        
+        // Restore English button to normal function
+        const enText = card.querySelector('.english-text').textContent;
+        enBtn.innerHTML = '<span>English</span>';
+        enBtn.onclick = () => spk(enText, 'en-US', true);
+        
+        // Restore French button to normal function
+        const frenchText = card.querySelector('.french-text').textContent;
+        frBtn.onclick = () => spk(frenchText, 'fr-FR', true);
+        
+        document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
+        if (controlPanel) controlPanel.style.display = 'block';
+        if (bottomNav) bottomNav.style.display = 'flex';
+        if (header) header.style.display = 'flex';
+        
+        document.body.classList.remove('keyboard-buffer');
+        currentSpellingState = null;
+        window.speechSynthesis.cancel();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+    } else {
+        // --- ENTER SPELLING MODE ---
+        playTheaterIntro();
+        btn.innerHTML = "✖";
+
+        // SAVE ORIGINAL SPEECH SPEED AND SET SPELLING SPEED
+        if (savedSpeechSpeed === null) {
+            savedSpeechSpeed = speechSpeed;  // Store original
+        }
+        // Set to a clear, moderate speed for spelling practice (0.75 works well)
+        speechSpeed = 0.75;
+        // Optional: Update the slider display (even though it's hidden, keep it accurate)
+        const slider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedValue');
+        if (slider) slider.value = speechSpeed;
+        if (speedDisplay) speedDisplay.textContent = speechSpeed.toFixed(2);
+        
+        isInSpellingMode = true;
+
+        // Hide UI
+        if (controlPanel) controlPanel.style.display = 'none';
+        if (bottomNav) bottomNav.style.display = 'none';
+        if (header) header.style.display = 'none';
+        
+        document.querySelectorAll('.phrase-card').forEach(c => {
+            if (c !== card) c.style.display = 'none';
+        });
+        
+        if (stage) stage.classList.add('active');
+        document.body.classList.add('mode-spelling');
+        
+        card.classList.add('spelling-mode');
+        card.style.display = 'block';
+        
+        // Disable icon click during spelling mode
+        const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+        if (iconElement) {
+            iconElement.style.pointerEvents = 'none';
+            iconElement.style.cursor = 'default';
+        }
+        
+        // ONLY HIDE TEXT - keep the VISUAL (emoji/photo) visible!
+        card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        spellingZone.style.display = 'block';
+        
+        // Update buttons to SPELLING MODE behavior
+        enBtn.innerHTML = '<span>Spell</span>';
+        enBtn.onclick = (e) => {
+            e.stopPropagation();
+            spellCurrentWord();
+        };
+        
+        // French button speaks the word at the new spelling speed
+        const frenchText = card.querySelector('.french-text').textContent;
+        frBtn.onclick = () => spk(frenchText, 'fr-FR', true);
+        
+        if (globalKb) {
+            globalKb.style.display = 'flex';
+            renderMiniKeyboard();
+        }
+        document.body.classList.add('keyboard-buffer');
+        
+        startNewSpellingGame(card, fullPhrase);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
     
     function startNewSpellingGame(card, phrase) {
         const cleanPhrase = phrase.split('|')[0].trim();
@@ -6548,7 +6609,7 @@ function handleSpellingInput(inputLetter) {
 }
 
 function exitSpellingTheater() {
-    window.speechSynthesis.cancel(); // Stop the voice
+    window.speechSynthesis.cancel();
     
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
     
@@ -6556,23 +6617,19 @@ function exitSpellingTheater() {
         const beeBtn = activeCard.querySelector('.bee-badge');
         const frenchText = activeCard.querySelector('.french-text');
         
-        // Safety: Only try to toggle if both elements exist
         if (beeBtn && frenchText) {
             toggleSpellingMode(beeBtn, frenchText.textContent);
         }
     } else {
-        // SAFETY NET: If no card is found, force the UI to reset manually
         document.body.classList.remove('mode-spelling');
         document.getElementById('spellingTheaterStage').classList.remove('active');
         document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
         
-        // Ensure the normal UI is visible again
         document.querySelector('.header').style.display = 'flex';
         document.querySelector('.bottom-nav').style.display = 'flex';
         document.querySelector('.app-control-panel').style.display = 'block';
     }
     
-    // Reset the screen to the top
     setTimeout(() => { window.scrollTo(0, 0); }, 50);
 }
         
