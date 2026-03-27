@@ -1364,6 +1364,15 @@
         border: 3px solid white;
         transition: transform 0.1s;
     }
+
+    /* This targets the badge ONLY when the card is in spelling mode */
+    .phrase-card.spelling-mode .bee-badge {
+        background: #ff4d4d !important; /* Red for exit */
+        color: white;
+        font-size: 1.2rem;
+        border: 2px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
     
     .bee-badge:active { 
         transform: scale(1.2); 
@@ -1907,9 +1916,6 @@
         <img src="assets/Banner_spelling_bee.png" alt="Spelling Bee">
     </div>
 </div>
-
-<!-- The Exit Button (Top Right Corner of Screen) -->
-<button id="exitSpellingTheaterBtn" aria-label="Exit Spelling Mode" onclick="exitSpellingTheater()">✖</button>
 
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
@@ -6279,105 +6285,100 @@ function toggleSpellingMode(btn, fullPhrase) {
     const enBtn = card.querySelector('.spk-en');
     const globalKb = document.getElementById('keyboard');
     const stage = document.getElementById('spellingTheaterStage');
-    const exitBtn = document.getElementById('exitSpellingTheaterBtn');
     
+    // UI Elements to hide/show
+    const controlPanel = document.querySelector('.app-control-panel');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const header = document.querySelector('.header');
+
     if (card.classList.contains('spelling-mode')) {
         // --- EXIT SPELLING MODE: Curtains Close ---
         
-        // Remove active classes
+        // 1. Restore the Badge (Turn X back into Bee)
+        btn.innerHTML = "🐝";
+        btn.style.background = "#FFD700";
+
+        // 2. Remove classes and hide theater stage
         card.classList.remove('spelling-mode');
         if (stage) stage.classList.remove('active');
-        if (exitBtn) exitBtn.classList.remove('visible');
         document.body.classList.remove('mode-spelling');
         
-        // Hide the keyboard
+        // 3. Hide the keyboard
         if (globalKb) globalKb.style.display = 'none';
         
-        // Restore all text elements
+        // 4. Restore card text and hide spelling zone
         card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
             el.style.display = 'block';
         });
         spellingZone.style.display = 'none';
-        card.style.display = 'block';
         
-        // Restore English button
+        // 5. Restore English button logic
         const enText = card.querySelector('.english-text').textContent;
         enBtn.innerHTML = '<span>English</span>';
         enBtn.onclick = () => spk(enText, 'en-US', true);
         
-        // Show all other cards
-        document.querySelectorAll('.phrase-card').forEach(c => {
-            c.style.display = 'block';
-        });
-        
-        // Show control panel, nav, and header
-        const controlPanel = document.querySelector('.app-control-panel');
-        const bottomNav = document.querySelector('.bottom-nav');
-        const header = document.querySelector('.header');
+        // 6. Show all other cards and main UI
+        document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
         if (controlPanel) controlPanel.style.display = 'block';
         if (bottomNav) bottomNav.style.display = 'flex';
         if (header) header.style.display = 'flex';
         
-        // Reset state
+        // 7. Reset logic state
         document.body.classList.remove('keyboard-buffer');
         currentSpellingState = null;
         window.speechSynthesis.cancel();
+
+        // 8. Snap back to top of list
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
     } else {
         // --- ENTER SPELLING MODE: Curtains Open! ---
         
-        // Play theatrical sound
         playTheaterIntro();
+
+        // 1. Transform the Badge (Turn Bee into X)
+        btn.innerHTML = "✖";
+        btn.style.background = "#ff4d4d"; // Red background for the exit button
         
-        // Hide control panel, nav, and header
-        const controlPanel = document.querySelector('.app-control-panel');
-        const bottomNav = document.querySelector('.bottom-nav');
-        const header = document.querySelector('.header');
+        // 2. Hide main UI elements
         if (controlPanel) controlPanel.style.display = 'none';
         if (bottomNav) bottomNav.style.display = 'none';
         if (header) header.style.display = 'none';
         
-        // Hide all other cards
+        // 3. Hide all other cards
         document.querySelectorAll('.phrase-card').forEach(c => {
-            if (c !== card) {
-                c.style.display = 'none';
-            }
+            if (c !== card) c.style.display = 'none';
         });
         
-        // Show the bee stage (slides down)
+        // 4. Activate the Stage (Bee slides down)
         if (stage) stage.classList.add('active');
-        
-        // Show exit button (fades in)
-        if (exitBtn) exitBtn.classList.add('visible');
-        
-        // Add the mode class
         document.body.classList.add('mode-spelling');
         
-        // Setup the card
+        // 5. Setup the current card
         card.classList.add('spelling-mode');
-        card.style.display = 'block';
         card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
             el.style.display = 'none';
         });
         spellingZone.style.display = 'block';
         
-        // Setup Spell button
+        // 6. Setup "Spell" button
         enBtn.innerHTML = '<span>Spell</span>';
         enBtn.onclick = (e) => {
             e.stopPropagation();
             spellCurrentWord();
         };
         
-        // Show and setup keyboard
+        // 7. Show and render keyboard
         if (globalKb) {
             globalKb.style.display = 'flex';
             renderMiniKeyboard();
         }
-        
         document.body.classList.add('keyboard-buffer');
         
-        // Start the spelling game immediately
+        // 8. Start Game Logic
         startNewSpellingGame(card, fullPhrase);
+        
+        // 9. Force view to top so card is centered under Bee
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
