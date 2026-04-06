@@ -3626,7 +3626,6 @@ openAppModal({
                 renderList(weekData.words.split('\n').filter(w => w.trim()));
             });
             
-            window.location.hash = '';
             openBP();
 
             setTimeout(() => {
@@ -3820,74 +3819,74 @@ openAppModal({
             });
         }
 
-        function checkForImport() {
-            const hash = window.location.hash;
-            if (hash.startsWith('#import=')) {
-                try {
-                    const encodedData = hash.substring(8);
-                    const decodedData = decodeURIComponent(atob(encodedData));
-                    const weekData = JSON.parse(decodedData);
-                    
-                    const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
-                    const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
-                    
-                    // Build the stats string
-                    let importInfo = `📝 ${weekData.words.split('\n').length} phrases`;
-                    if (iconCount > 0) importInfo += ` | 😊 ${iconCount} icons`;
-                    if (photoCount > 0) importInfo += ` | 📷 ${photoCount} photos`;
-        
-                    openAppModal({
-                        title: "📥 Import Homework",
-                        text: weekData.name,
-                        mode: 'edit',
-                        placeholder: "Name this homework",
-                        onSave: (nameChoice) => {
-                            if (!nameChoice) {
-                                window.location.hash = ''; // ← CLEAR HASH ON CANCEL
-                                return false;
-                            }
-        
-                            if (history[nameChoice]) {
-                                const existingData = JSON.parse(history[nameChoice]);
-                                const existingMonth = monthNames[existingData.month || 0];
-        
-                                closeOverlay('appModal');
-        
-                                setTimeout(() => {
-                                    openAppModal({
-                                        title: "⚠️ Name Already Exists",
-                                        text: `"${nameChoice}" is already in your ${existingMonth} folder.`,
-                                        mode: 'view',
-                                        saveText: "🔄 Replace",
-                                        cancelText: "✏️ Edit Name", // ✅ Updated Label
-                                        onAction: () => executeImportProcess(nameChoice, weekData),
-                                        onSecondaryAction: () => { 
-                                            // ✅ FIX: Go back to the naming modal instead of auto-renaming
-                                            closeOverlay('appModal');
-                                            setTimeout(() => {
-                                                // Re-run the naming part of checkForImport
-                                                checkForImport(); 
-                                            }, 300);
-                                        }
-                                    });
-                                }, 300); 
-                                return false; 
-                            }
-        
-                            executeImportProcess(nameChoice, weekData);
-                            return true;
-                        }
-                    });
-        
-                    // ✅ THE FIX: Put the info in the Stats area so it stays visible during Edit mode
-                    document.getElementById('appModalStats').innerText = importInfo;
-        
-                } catch (e) {
-                    console.error('Import error:', e);
-                    window.location.hash = '';
+function checkForImport() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#import=')) {
+        try {
+            const encodedData = hash.substring(8);
+            const decodedData = decodeURIComponent(atob(encodedData));
+            const weekData = JSON.parse(decodedData);
+            
+            // --- THE FIX: REMOVE HASH IMMEDIATELY ---
+            // This prevents the modal from reappearing if the user refreshes
+            history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            
+            const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
+            const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
+
+            let importInfo = `📝 ${weekData.words.split('\n').length} phrases`;
+            if (iconCount > 0) importInfo += ` | 😊 ${iconCount} icons`;
+            if (photoCount > 0) importInfo += ` | 📷 ${photoCount} photos`;
+
+            openAppModal({
+                title: "📥 Import Homework",
+                text: weekData.name,
+                mode: 'edit',
+                placeholder: "Name this homework",
+                onSave: (nameChoice) => {
+                    if (!nameChoice) return false;
+
+                    if (history[nameChoice]) {
+                        const existingData = JSON.parse(history[nameChoice]);
+                        const existingMonth = monthNames[existingData.month || 0];
+
+                        closeOverlay('appModal');
+
+                        setTimeout(() => {
+                            openAppModal({
+                                title: "⚠️ Name Already Exists",
+                                text: `"${nameChoice}" is already in your ${existingMonth} folder.`,
+                                mode: 'view',
+                                saveText: "🔄 Replace",
+                                cancelText: "✏️ Edit Name",
+                                onAction: () => executeImportProcess(nameChoice, weekData),
+                                onSecondaryAction: () => { 
+                                    closeOverlay('appModal');
+                                    setTimeout(() => {
+                                        // Re-trigger the import modal with the data we already have
+                                        window.location.hash = hash; // Briefly put hash back
+                                        checkForImport(); // Re-run
+                                    }, 300);
+                                }
+                            });
+                        }, 300); 
+                        return false; 
+                    }
+
+                    executeImportProcess(nameChoice, weekData);
+                    return true;
                 }
-            }
+            });
+
+            document.getElementById('appModalStats').innerText = importInfo;
+
+        } catch (e) {
+            console.error('Import error:', e);
+            // Clean URL even on error
+            history.replaceState(null, document.title, window.location.pathname + window.location.search);
         }
+    }
+}
 
 function addNewHomework() {
     editingHomeworkName = null; 
