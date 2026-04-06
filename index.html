@@ -3822,6 +3822,10 @@ openAppModal({
 function checkForImport() {
     const hash = window.location.hash;
     if (hash.startsWith('#import=')) {
+        // --- THE "LOOP" FIX: STRIP HASH IMMEDIATELY ---
+        // This removes the data from the URL bar so a refresh won't see it again.
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+
         try {
             const encodedData = hash.substring(8);
             const decodedData = decodeURIComponent(atob(encodedData));
@@ -3840,12 +3844,7 @@ function checkForImport() {
                 mode: 'edit',
                 placeholder: "Name this homework",
                 onSave: (nameChoice) => {
-                    if (!nameChoice) {
-                        // User clicked save but provided no name? 
-                        // Just clear hash and close
-                        history.replaceState(null, document.title, window.location.pathname);
-                        return true; 
-                    }
+                    if (!nameChoice) return true; 
 
                     if (history[nameChoice]) {
                         const existingData = JSON.parse(history[nameChoice]);
@@ -3859,43 +3858,47 @@ function checkForImport() {
                                 mode: 'view',
                                 saveText: "🔄 Replace",
                                 cancelText: "✏️ Edit Name",
-                                onAction: () => {
-                                    // SUCCESS: Clear URL and execute
-                                    history.replaceState(null, document.title, window.location.pathname);
-                                    executeImportProcess(nameChoice, weekData);
-                                },
+                                onAction: () => executeImportProcess(nameChoice, weekData),
                                 onSecondaryAction: () => { 
                                     closeOverlay('appModal');
-                                    setTimeout(() => checkForImport(), 300); // Re-run naming
+                                    // Re-trigger naming without needing the hash
+                                    setTimeout(() => checkForImportManual(weekData), 300);
                                 }
                             });
                         }, 300); 
                         return false; 
                     }
 
-                    // SUCCESS: Clear URL and execute
-                    history.replaceState(null, document.title, window.location.pathname);
                     executeImportProcess(nameChoice, weekData);
                     return true;
                 }
             });
 
-            // If the user clicks the "Close" or background of the modal without saving
-            const btnClose = document.getElementById('appModalBtnClose');
-            const originalClose = btnClose.onclick;
-            btnClose.onclick = () => {
-                history.replaceState(null, document.title, window.location.pathname);
-                if (originalClose) originalClose();
-                closeOverlay('appModal');
-            };
-
             document.getElementById('appModalStats').innerText = importInfo;
 
         } catch (e) {
             console.error('Import error:', e);
-            history.replaceState(null, document.title, window.location.pathname);
         }
     }
+}
+
+// Helper to allow re-naming if a conflict occurs without needing the URL hash
+function checkForImportManual(weekData) {
+    window.location.hash = "#import-active"; // Temporary flag to prevent BP from auto-opening
+    const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
+    
+    openAppModal({
+        title: "📥 Import Homework",
+        text: weekData.name,
+        mode: 'edit',
+        placeholder: "Name this homework",
+        onSave: (nameChoice) => {
+            if (!nameChoice) return true;
+            executeImportProcess(nameChoice, weekData);
+            return true;
+        }
+    });
+    document.getElementById('appModalStats').innerText = `📝 ${weekData.words.split('\n').length} phrases`;
 }
 
 function addNewHomework() {
@@ -6749,22 +6752,27 @@ function playWelcomeChime() {
 }
 
 function startAppTransition() {
-    // 1. Arm the Exit Guard immediately
+    // If the transition has already happened, stop
+    const splash = document.getElementById('customSplash');
+    if (!splash || splash.style.display === 'none') return;
+
+    // Arm the Exit Guard
     allowExit = false; 
     exitAttempts = 0;
-
-    // 2. Clean the history stack so the first swipe-back is captured
     window.history.replaceState('app-active', null, "");
     window.history.pushState('app-active', null, "");
 
-    const splash = document.getElementById('customSplash');
-    const container = document.querySelector('.container');
     const icon = document.getElementById('splashIcon');
     const text = document.getElementById('splashText');
+    const container = document.querySelector('.container');
 
-    if (!splash || splash.style.display === 'none') return;
+    // --- THE MUSIC FIX ---
+    // Only play the chime if a modal isn't already blocking the view
+    const isModalOpen = document.getElementById('appModal').style.display === 'block';
+    if (!isModalOpen) {
+        playWelcomeChime();
+    }
 
-    playWelcomeChime();
     icon.classList.add('splash-immersive-zoom');
     text.classList.add('splash-text-fade');
     splash.style.pointerEvents = 'none';
@@ -6861,10 +6869,16 @@ window.onload = () => {
         if(text) text.style.transform = "translateY(0)";
     }, 100);
 
-    // 2. AUTO-TRANSITION: If they don't click, the app materializes after 2.5 seconds
-    setTimeout(() => {
-        startAppTransition();
-    }, 1200);
+    // --- NEW: IMPORT DETECTION ---
+    const isImporting = window.location.hash.startsWith('#import=');
+
+    // 2. AUTO-TRANSITION: Only fire if NOT importing
+    // This keeps the Splash screen blurred/static while the child names the homework
+    if (!isImporting) {
+        setTimeout(() => {
+            startAppTransition();
+        }, 1200);
+    }
     
     console.log('App loading...');
 
@@ -6951,7 +6965,7 @@ window.onload = () => {
         displayAudioPlayer();
 
         // THE FIX: Only open the Backpack automatically if we are NOT importing a link
-        if (!window.location.hash.startsWith('#import=')) {
+        if (!isImporting) {
             // 1. Find the best month to show
             selectedBpMonth = findMonthWithHomework();
             
@@ -6960,7 +6974,7 @@ window.onload = () => {
                 openOverlay('bpModal');
             }, 200); 
         } else {
-            console.log('Import link detected, staying on practice screen for modal.');
+            console.log('Import link detected, staying on splash screen for modal.');
         }
     }
     
@@ -6978,14 +6992,17 @@ window.onload = () => {
         document.getElementById('gapSlider').value = savedGap;
         document.getElementById('gapValue').innerText = savedGap;
     } else {
+        // Default to 1.0
         document.getElementById('gapValue').innerText = '1.0';
     }
     
+    // Load saved music volume
     const savedVolume = localStorage.getItem('musicVolume');
     if (savedVolume) {
         musicVolume = parseInt(savedVolume);
     }
     
+    // Load homework notes
     const savedNotes = localStorage.getItem('homeworkNotes');
     if (savedNotes) {
         try {
@@ -6995,15 +7012,18 @@ window.onload = () => {
         }
     }
     
+    // Sync the view mode buttons
     setTimeout(() => {
         setViewMode(viewMode);
+        
+        // Double-check the audio display after view mode is set
         displayAudioPlayer();
         
+        // If we have audio but somehow ended up in cards mode, fix it
         if (currentWeekAudio && viewMode !== 'dialogue') {
             setViewMode('dialogue');
         }
     }, 100);
-    
 };
 
 // --- GLOBAL EVENT LISTENERS ---
