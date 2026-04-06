@@ -298,7 +298,7 @@
     }
     
     #appModal {
-        z-index: 9999 !important; 
+        z-index: 30000 !important; 
     }
     
     
@@ -3827,10 +3827,6 @@ function checkForImport() {
             const decodedData = decodeURIComponent(atob(encodedData));
             const weekData = JSON.parse(decodedData);
             
-            // --- THE FIX: REMOVE HASH IMMEDIATELY ---
-            // This prevents the modal from reappearing if the user refreshes
-            history.replaceState(null, document.title, window.location.pathname + window.location.search);
-            
             const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
             const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
 
@@ -3844,12 +3840,16 @@ function checkForImport() {
                 mode: 'edit',
                 placeholder: "Name this homework",
                 onSave: (nameChoice) => {
-                    if (!nameChoice) return false;
+                    if (!nameChoice) {
+                        // User clicked save but provided no name? 
+                        // Just clear hash and close
+                        history.replaceState(null, document.title, window.location.pathname);
+                        return true; 
+                    }
 
                     if (history[nameChoice]) {
                         const existingData = JSON.parse(history[nameChoice]);
                         const existingMonth = monthNames[existingData.month || 0];
-
                         closeOverlay('appModal');
 
                         setTimeout(() => {
@@ -3859,31 +3859,41 @@ function checkForImport() {
                                 mode: 'view',
                                 saveText: "🔄 Replace",
                                 cancelText: "✏️ Edit Name",
-                                onAction: () => executeImportProcess(nameChoice, weekData),
+                                onAction: () => {
+                                    // SUCCESS: Clear URL and execute
+                                    history.replaceState(null, document.title, window.location.pathname);
+                                    executeImportProcess(nameChoice, weekData);
+                                },
                                 onSecondaryAction: () => { 
                                     closeOverlay('appModal');
-                                    setTimeout(() => {
-                                        // Re-trigger the import modal with the data we already have
-                                        window.location.hash = hash; // Briefly put hash back
-                                        checkForImport(); // Re-run
-                                    }, 300);
+                                    setTimeout(() => checkForImport(), 300); // Re-run naming
                                 }
                             });
                         }, 300); 
                         return false; 
                     }
 
+                    // SUCCESS: Clear URL and execute
+                    history.replaceState(null, document.title, window.location.pathname);
                     executeImportProcess(nameChoice, weekData);
                     return true;
                 }
             });
 
+            // If the user clicks the "Close" or background of the modal without saving
+            const btnClose = document.getElementById('appModalBtnClose');
+            const originalClose = btnClose.onclick;
+            btnClose.onclick = () => {
+                history.replaceState(null, document.title, window.location.pathname);
+                if (originalClose) originalClose();
+                closeOverlay('appModal');
+            };
+
             document.getElementById('appModalStats').innerText = importInfo;
 
         } catch (e) {
             console.error('Import error:', e);
-            // Clean URL even on error
-            history.replaceState(null, document.title, window.location.pathname + window.location.search);
+            history.replaceState(null, document.title, window.location.pathname);
         }
     }
 }
@@ -6932,7 +6942,7 @@ window.onload = () => {
         
     } else {
         // --- UPDATED LANDING LOGIC ---
-        console.log('No homework found in storage. Landing on Backpack.');
+        console.log('No homework found in storage. Checking for import or landing on BP.');
         currentSetName = '';
         localStorage.removeItem('currentSetName');
         currentIsDialogue = false;
@@ -6940,19 +6950,27 @@ window.onload = () => {
         localStorage.removeItem('currentWeekAudio');
         displayAudioPlayer();
 
-        // 1. Find the best month to show
-        selectedBpMonth = findMonthWithHomework();
-        
-        // 2. Open the backpack automatically
-        setTimeout(() => {
-            openOverlay('bpModal');
-        }, 200); 
+        // THE FIX: Only open the Backpack automatically if we are NOT importing a link
+        if (!window.location.hash.startsWith('#import=')) {
+            // 1. Find the best month to show
+            selectedBpMonth = findMonthWithHomework();
+            
+            // 2. Open the backpack automatically
+            setTimeout(() => {
+                openOverlay('bpModal');
+            }, 200); 
+        } else {
+            console.log('Import link detected, staying on practice screen for modal.');
+        }
     }
     
     initVoices();
     initSpeechSpeed();
     initAudioUpload();
+    
+    // IMPORTANT: checkForImport must run AFTER the landing logic above
     checkForImport();
+
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
     
     const savedGap = localStorage.getItem('gapValue');
@@ -6960,17 +6978,14 @@ window.onload = () => {
         document.getElementById('gapSlider').value = savedGap;
         document.getElementById('gapValue').innerText = savedGap;
     } else {
-        // Default to 1.0
         document.getElementById('gapValue').innerText = '1.0';
     }
     
-    // Load saved music volume
     const savedVolume = localStorage.getItem('musicVolume');
     if (savedVolume) {
         musicVolume = parseInt(savedVolume);
     }
     
-    // Load homework notes
     const savedNotes = localStorage.getItem('homeworkNotes');
     if (savedNotes) {
         try {
@@ -6980,14 +6995,10 @@ window.onload = () => {
         }
     }
     
-    // Sync the view mode buttons
     setTimeout(() => {
         setViewMode(viewMode);
-        
-        // Double-check the audio display after view mode is set
         displayAudioPlayer();
         
-        // If we have audio but somehow ended up in cards mode, fix it
         if (currentWeekAudio && viewMode !== 'dialogue') {
             setViewMode('dialogue');
         }
