@@ -3625,6 +3625,9 @@ openAppModal({
             translateIfNeeded(weekData.words, false).then(() => {
                 renderList(weekData.words.split('\n').filter(w => w.trim()));
             });
+
+            // CLEAR THE HASH AFTER IMPORT
+            history.replaceState(null, document.title, window.location.pathname);
             
             openBP();
 
@@ -3840,10 +3843,11 @@ function checkForImport() {
                 mode: 'edit',
                 placeholder: "Name this homework",
                 onSave: (nameChoice) => {
-                    // --- STRIP HASH ON SAVE ---
-                    history.replaceState(null, document.title, window.location.pathname);
-                    
-                    if (!nameChoice) return true;
+                    if (!nameChoice) {
+                        // Clear hash on cancel
+                        history.replaceState(null, document.title, window.location.pathname);
+                        return true;
+                    }
 
                     if (history[nameChoice]) {
                         const existingData = JSON.parse(history[nameChoice]);
@@ -3859,10 +3863,11 @@ function checkForImport() {
                                 cancelText: "✏️ Edit Name",
                                 onAction: () => {
                                     executeImportProcess(nameChoice, weekData);
+                                    // CLEAR HASH AFTER SUCCESSFUL IMPORT
+                                    history.replaceState(null, document.title, window.location.pathname);
                                 },
                                 onSecondaryAction: () => { 
                                     closeOverlay('appModal');
-                                    // Use the manual helper to restart naming flow without the URL hash
                                     setTimeout(() => checkForImportManual(weekData), 300);
                                 }
                             });
@@ -3871,6 +3876,8 @@ function checkForImport() {
                     }
 
                     executeImportProcess(nameChoice, weekData);
+                    // CLEAR HASH AFTER SUCCESSFUL IMPORT
+                    history.replaceState(null, document.title, window.location.pathname);
                     return true;
                 }
             });
@@ -6770,11 +6777,9 @@ function playWelcomeChime() {
 }
 
 function startAppTransition() {
-    // If the transition has already happened, stop
     const splash = document.getElementById('customSplash');
     if (!splash || splash.style.display === 'none') return;
 
-    // Arm the Exit Guard
     allowExit = false; 
     exitAttempts = 0;
     window.history.replaceState('app-active', null, "");
@@ -6784,8 +6789,6 @@ function startAppTransition() {
     const text = document.getElementById('splashText');
     const container = document.querySelector('.container');
 
-    // --- THE MUSIC FIX ---
-    // Only play the chime if a modal isn't already blocking the view
     const isModalOpen = document.getElementById('appModal').style.display === 'block';
     if (!isModalOpen) {
         playWelcomeChime();
@@ -6802,6 +6805,8 @@ function startAppTransition() {
 
     setTimeout(() => {
         splash.style.display = 'none';
+        // ✅ CHECK FOR IMPORT AFTER SPLASH IS COMPLETELY GONE
+        checkForImport();
     }, 1500); 
 }
         
@@ -6902,7 +6907,7 @@ window.onload = () => {
     if (ghostPrint) {
         ghostPrint.innerHTML = '';
     }
-    isPrinting = false; // Ensure the print button is "unlocked" on startup
+    isPrinting = false;
 
     const raw = localStorage.getItem('homeworkPhrases');
     document.getElementById('hwInput').value = (raw && raw !== "undefined") ? raw : "";
@@ -6912,7 +6917,6 @@ window.onload = () => {
     if (raw && raw.trim()) {
         console.log('Loading last homework:', raw);
         
-        // IMPORTANT: Find the homework in history AND load its dialogue flag AND AUDIO
         let foundName = '';
         let foundIsDialogue = false;
         let foundAudio = null;
@@ -6931,18 +6935,15 @@ window.onload = () => {
             }
         }
         
-        // If we found a matching homework name, use it
         if (foundName) {
             currentSetName = foundName;
             localStorage.setItem('currentSetName', foundName);
             currentIsDialogue = foundIsDialogue;
             
-            // Load the audio
             if (foundAudio) {
                 currentWeekAudio = foundAudio;
                 localStorage.setItem('currentWeekAudio', JSON.stringify(foundAudio));
                 
-                // Force dialogue mode for audio homeworks
                 if (viewMode !== 'dialogue') {
                     viewMode = 'dialogue';
                     localStorage.setItem('viewMode', 'dialogue');
@@ -6953,7 +6954,6 @@ window.onload = () => {
             }
             
         } else {
-            // This is unsaved homework or preset - clear the name and audio
             currentSetName = '';
             localStorage.removeItem('currentSetName');
             currentIsDialogue = false;
@@ -6962,12 +6962,9 @@ window.onload = () => {
         }
         
         loadCurrentHomework();
-        
-        // Update the audio player display
         displayAudioPlayer();
         
     } else {
-        // --- UPDATED LANDING LOGIC ---
         console.log('No homework found in storage. Checking for import or landing on BP.');
         currentSetName = '';
         localStorage.removeItem('currentSetName');
@@ -6976,12 +6973,8 @@ window.onload = () => {
         localStorage.removeItem('currentWeekAudio');
         displayAudioPlayer();
 
-        // THE FIX: Only open the Backpack automatically if we are NOT importing a link
         if (!window.location.hash.startsWith('#import=')) {
-            // 1. Find the best month to show
             selectedBpMonth = findMonthWithHomework();
-            
-            // 2. Open the backpack automatically
             setTimeout(() => {
                 openOverlay('bpModal');
             }, 200); 
@@ -6994,9 +6987,8 @@ window.onload = () => {
     initSpeechSpeed();
     initAudioUpload();
     
-    // IMPORTANT: checkForImport must run so it sits ON TOP of the splash screen
-    checkForImport();
-
+    // REMOVED: checkForImport() from here - it will be called in startAppTransition after splash
+    
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
     
     const savedGap = localStorage.getItem('gapValue');
@@ -7004,17 +6996,14 @@ window.onload = () => {
         document.getElementById('gapSlider').value = savedGap;
         document.getElementById('gapValue').innerText = savedGap;
     } else {
-        // Default to 1.0
         document.getElementById('gapValue').innerText = '1.0';
     }
     
-    // Load saved music volume
     const savedVolume = localStorage.getItem('musicVolume');
     if (savedVolume) {
         musicVolume = parseInt(savedVolume);
     }
     
-    // Load homework notes
     const savedNotes = localStorage.getItem('homeworkNotes');
     if (savedNotes) {
         try {
@@ -7024,14 +7013,9 @@ window.onload = () => {
         }
     }
     
-    // Sync the view mode buttons
     setTimeout(() => {
         setViewMode(viewMode);
-        
-        // Double-check the audio display after view mode is set
         displayAudioPlayer();
-        
-        // If we have audio but somehow ended up in cards mode, fix it
         if (currentWeekAudio && viewMode !== 'dialogue') {
             setViewMode('dialogue');
         }
