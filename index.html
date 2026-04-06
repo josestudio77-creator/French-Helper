@@ -298,7 +298,7 @@
     }
     
     #appModal {
-        z-index: 30000 !important; 
+        z-index: 30000 !important; /* Higher than Splash (20000) */
     }
     
     
@@ -3822,10 +3822,6 @@ openAppModal({
 function checkForImport() {
     const hash = window.location.hash;
     if (hash.startsWith('#import=')) {
-        // --- THE "LOOP" FIX: STRIP HASH IMMEDIATELY ---
-        // This removes the data from the URL bar so a refresh won't see it again.
-        history.replaceState(null, document.title, window.location.pathname + window.location.search);
-
         try {
             const encodedData = hash.substring(8);
             const decodedData = decodeURIComponent(atob(encodedData));
@@ -3844,7 +3840,10 @@ function checkForImport() {
                 mode: 'edit',
                 placeholder: "Name this homework",
                 onSave: (nameChoice) => {
-                    if (!nameChoice) return true; 
+                    // --- STRIP HASH ON SAVE ---
+                    history.replaceState(null, document.title, window.location.pathname);
+                    
+                    if (!nameChoice) return true;
 
                     if (history[nameChoice]) {
                         const existingData = JSON.parse(history[nameChoice]);
@@ -3858,10 +3857,12 @@ function checkForImport() {
                                 mode: 'view',
                                 saveText: "🔄 Replace",
                                 cancelText: "✏️ Edit Name",
-                                onAction: () => executeImportProcess(nameChoice, weekData),
+                                onAction: () => {
+                                    executeImportProcess(nameChoice, weekData);
+                                },
                                 onSecondaryAction: () => { 
                                     closeOverlay('appModal');
-                                    // Re-trigger naming without needing the hash
+                                    // Use the manual helper to restart naming flow without the URL hash
                                     setTimeout(() => checkForImportManual(weekData), 300);
                                 }
                             });
@@ -3874,19 +3875,31 @@ function checkForImport() {
                 }
             });
 
+            // Handle Cancel/Close manually to strip the hash
+            const btnClose = document.getElementById('appModalBtnClose');
+            if (btnClose) {
+                const originalAction = btnClose.onclick;
+                btnClose.onclick = () => {
+                    history.replaceState(null, document.title, window.location.pathname);
+                    if (originalAction) originalAction();
+                    closeOverlay('appModal');
+                };
+            }
+
             document.getElementById('appModalStats').innerText = importInfo;
 
         } catch (e) {
             console.error('Import error:', e);
+            history.replaceState(null, document.title, window.location.pathname);
         }
     }
 }
 
-// Helper to allow re-naming if a conflict occurs without needing the URL hash
+// Helper to handle the "Edit Name" flow after the URL hash has been stripped
 function checkForImportManual(weekData) {
-    window.location.hash = "#import-active"; // Temporary flag to prevent BP from auto-opening
     const iconCount = weekData.customIcons ? Object.keys(weekData.customIcons).length : 0;
-    
+    const photoCount = weekData.customPhotos ? Object.keys(weekData.customPhotos).length : 0;
+
     openAppModal({
         title: "📥 Import Homework",
         text: weekData.name,
@@ -3894,11 +3907,16 @@ function checkForImportManual(weekData) {
         placeholder: "Name this homework",
         onSave: (nameChoice) => {
             if (!nameChoice) return true;
+            if (history[nameChoice]) {
+                // Recursive safety check if they pick another existing name
+                checkForImportManual(weekData); 
+                return false;
+            }
             executeImportProcess(nameChoice, weekData);
             return true;
         }
     });
-    document.getElementById('appModalStats').innerText = `📝 ${weekData.words.split('\n').length} phrases`;
+    document.getElementById('appModalStats').innerText = `📝 ${weekData.words.split('\n').length} phrases | Assets included`;
 }
 
 function addNewHomework() {
@@ -6869,16 +6887,10 @@ window.onload = () => {
         if(text) text.style.transform = "translateY(0)";
     }, 100);
 
-    // --- NEW: IMPORT DETECTION ---
-    const isImporting = window.location.hash.startsWith('#import=');
-
-    // 2. AUTO-TRANSITION: Only fire if NOT importing
-    // This keeps the Splash screen blurred/static while the child names the homework
-    if (!isImporting) {
-        setTimeout(() => {
-            startAppTransition();
-        }, 1200);
-    }
+    // 2. AUTO-TRANSITION: If they don't click, the app materializes normally
+    setTimeout(() => {
+        startAppTransition();
+    }, 1200);
     
     console.log('App loading...');
 
@@ -6965,7 +6977,7 @@ window.onload = () => {
         displayAudioPlayer();
 
         // THE FIX: Only open the Backpack automatically if we are NOT importing a link
-        if (!isImporting) {
+        if (!window.location.hash.startsWith('#import=')) {
             // 1. Find the best month to show
             selectedBpMonth = findMonthWithHomework();
             
@@ -6974,7 +6986,7 @@ window.onload = () => {
                 openOverlay('bpModal');
             }, 200); 
         } else {
-            console.log('Import link detected, staying on splash screen for modal.');
+            console.log('Import link detected, staying on practice screen for modal.');
         }
     }
     
@@ -6982,7 +6994,7 @@ window.onload = () => {
     initSpeechSpeed();
     initAudioUpload();
     
-    // IMPORTANT: checkForImport must run AFTER the landing logic above
+    // IMPORTANT: checkForImport must run so it sits ON TOP of the splash screen
     checkForImport();
 
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
