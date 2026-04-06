@@ -2582,6 +2582,11 @@ body.mode-spelling .spelling-slots {
         function closeOverlay(id) { 
             const overlay = document.getElementById(id);
             if (overlay) overlay.style.display = 'none'; 
+
+            // If closing the appModal and it was an import modal, clear the hash
+            if (id === 'appModal' && window.location.hash.startsWith('#import=')) {
+                history.replaceState(null, document.title, window.location.pathname);
+            }
             
             if (id === 'gameDrawer') {
                 const globalKb = document.getElementById('keyboard');
@@ -6041,8 +6046,14 @@ async function translateOne(p) {
                     const val = input.value.trim();
                     if(config.onSave && config.onSave(val) !== false) closeOverlay('appModal'); 
                 };
-                bCan.onclick = () => closeOverlay('appModal');
-            } 
+                bCan.onclick = () => {
+                    // Clear hash when cancel is clicked during import
+                    if (window.location.hash.startsWith('#import=')) {
+                        history.replaceState(null, document.title, window.location.pathname);
+                    }
+                    closeOverlay('appModal');
+                };
+            }
             else {
                 viewSection.style.display = "block";
                 editSection.style.display = "none";
