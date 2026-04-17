@@ -1269,7 +1269,7 @@
     
 /* 1. THE STAGE: The banner that slides down */
 #spellingTheaterStage {
-    position: fixed;
+    position: absolute;
     top: -160px;
     left: 0;
     right: 0;
@@ -1374,7 +1374,8 @@
 /* ========== THEATER MODE OVERRIDES (BODY & UI) ========== */
 
 body.mode-spelling {
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     background: #fff8e7;
 }
 
@@ -1840,9 +1841,49 @@ body.mode-spelling .spelling-slots {
         }
     }
 
+    /* ==================== TOAST NOTIFICATIONS ==================== */
+    #toastContainer {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+    
+    .toast {
+        background: white;
+        color: #2d3748;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-weight: 900;
+        font-size: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        border: 4px solid #4cd964;
+        animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, toastFadeOut 0.4s ease-in 2.5s forwards;
+    }
+    
+    .toast.error {
+        border-color: #ff4d4d;
+    }
+    
+    @keyframes toastSlideIn {
+        from { transform: translateY(-100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes toastFadeOut {
+        from { transform: translateY(0); opacity: 1; }
+        to { transform: translateY(-50px); opacity: 0; }
+    }
 </style>
 </head>
 <body>
+
+<div id="toastContainer"></div>
 
 <!-- THE IMMERSIVE SPLASH SCREEN (Replaces the previous one) -->
 <div id="customSplash" onclick="startAppTransition()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, #ffccd5, #b5e6ff); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;">
@@ -1966,6 +2007,19 @@ body.mode-spelling .spelling-slots {
             </div>
     
             <div id="appModalEdit" style="display:none;">
+                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;">
+                    <button onclick="insertChar('é', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">é</button>
+                    <button onclick="insertChar('è', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">è</button>
+                    <button onclick="insertChar('ê', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ê</button>
+                    <button onclick="insertChar('à', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">à</button>
+                    <button onclick="insertChar('â', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">â</button>
+                    <button onclick="insertChar('î', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">î</button>
+                    <button onclick="insertChar('ï', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ï</button>
+                    <button onclick="insertChar('ô', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ô</button>
+                    <button onclick="insertChar('û', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">û</button>
+                    <button onclick="insertChar('ç', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ç</button>
+                    <button onclick="insertChar('œ', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">œ</button>
+                </div>
                 <textarea id="appModalInput" class="modal-input"></textarea>
                 <div class="modal-btn-grid">
                     <button id="appModalBtnSave" class="modal-btn" style="background:#4cd964; color:white;">💾 Save</button>
@@ -2097,6 +2151,19 @@ body.mode-spelling .spelling-slots {
                    style="width: 100%; padding: 12px; border-radius: 12px; border: 3px solid #9d4edd; font-family: inherit; font-weight: 700; outline: none; margin-top: 5px;">
         </div>
 
+        <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;">
+            <button onclick="insertChar('é', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">é</button>
+            <button onclick="insertChar('è', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">è</button>
+            <button onclick="insertChar('ê', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ê</button>
+            <button onclick="insertChar('à', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">à</button>
+            <button onclick="insertChar('â', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">â</button>
+            <button onclick="insertChar('î', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">î</button>
+            <button onclick="insertChar('ï', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ï</button>
+            <button onclick="insertChar('ô', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ô</button>
+            <button onclick="insertChar('û', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">û</button>
+            <button onclick="insertChar('ç', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ç</button>
+            <button onclick="insertChar('œ', 'hwInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">œ</button>
+        </div>
         <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here... (one per line)"></textarea>
         
         <!-- Teacher Recording Section -->
@@ -2432,6 +2499,32 @@ body.mode-spelling .spelling-slots {
             'Ù': 'u accent grave', 'Û': 'u accent circonflexe', 'Î': 'i accent circonflexe',
             "'": 'apostrophe', '-': 'trait d’union', 'Œ': 'e dans l\'o'
         };
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (container.contains(toast)) container.removeChild(toast);
+            }, 3000);
+        }
+
+        function insertChar(char, targetId) {
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            input.value = text.substring(0, start) + char + text.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + char.length;
+            if (targetId === 'hwInput') {
+                autoPopulateName();
+            }
+        }
 
         // ===== APP STATE =====
         let speechSpeed = parseFloat(localStorage.getItem('speechSpeed') || '0.7');
@@ -5271,33 +5364,32 @@ async function translateOne(p) {
             currentIsDialogue = isDiag;
         
             // 12. Success Message & Exit
-            msgDiv.innerHTML = '<div class="success-message">✅ Saved Successfully!</div>';
+            msgDiv.innerHTML = '';
+            showToast('✅ Saved Successfully!');
             
-            setTimeout(() => {
-                // Clear the inputs so the safety check doesn't trigger for the next one
-                document.getElementById('hwNameInput').value = "";
-                document.getElementById('hwInput').value = "";
+            // Clear the inputs so the safety check doesn't trigger for the next one
+            document.getElementById('hwNameInput').value = "";
+            document.getElementById('hwInput').value = "";
 
-                // 2. Clear teacher audio UI (Add this line)
-                removeTeacherAudio(); 
-                
-                closeOverlay('hwDrawer');
-                
-                // Reset the edit tracker for next time
-                editingHomeworkName = null;
-                
-                // Force the app to use the correct view mode (Dialogue or Cards)
-                viewMode = isDiag ? 'dialogue' : 'cards';
-                localStorage.setItem('viewMode', viewMode);
-                
-                // Update the practice screen immediately
-                renderList(words.split('\n').filter(w => w.trim()));
-                
-                // Refresh Backpack UI if it happens to be open in the background
-                if (document.getElementById('bpModal').style.display === 'block') {
-                    openBP();
-                }
-            }, 800);
+            // 2. Clear teacher audio UI
+            removeTeacherAudio(); 
+            
+            closeOverlay('hwDrawer');
+            
+            // Reset the edit tracker for next time
+            editingHomeworkName = null;
+            
+            // Force the app to use the correct view mode (Dialogue or Cards)
+            viewMode = isDiag ? 'dialogue' : 'cards';
+            localStorage.setItem('viewMode', viewMode);
+            
+            // Update the practice screen immediately
+            renderList(words.split('\n').filter(w => w.trim()));
+            
+            // Refresh Backpack UI if it happens to be open in the background
+            if (document.getElementById('bpModal').style.display === 'block') {
+                openBP();
+            }
         }
 
         // Returns true if there is unsaved text in the homework drawer
@@ -6044,7 +6136,10 @@ async function translateOne(p) {
                 const bCan = document.getElementById('appModalBtnCancel');
                 bSave.onclick = () => { 
                     const val = input.value.trim();
-                    if(config.onSave && config.onSave(val) !== false) closeOverlay('appModal'); 
+                    if(config.onSave && config.onSave(val) !== false) {
+                        closeOverlay('appModal'); 
+                        showToast('✅ Saved!');
+                    }
                 };
                 bCan.onclick = () => {
                     // Clear hash when cancel is clicked during import
