@@ -1276,7 +1276,7 @@
     display: flex;
     justify-content: center;
     z-index: 10000;
-    transition: top 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
+    transition: top 1.0s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 
@@ -1341,6 +1341,21 @@
     box-shadow: 0 15px 45px rgba(0,0,0,0.2);
     min-height: 180px;
     transition: all 0.4s ease;
+    animation: cardTheaterIn 1.0s ease-out forwards;
+}
+
+.phrase-card.spelling-mode.theater-exit {
+    animation: cardTheaterOut 0.6s ease-in forwards !important;
+}
+
+@keyframes cardTheaterIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cardTheaterOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(10px) scale(0.98); }
 }
 
 /* The X state for the badge */
@@ -1522,19 +1537,25 @@ body.mode-spelling .spelling-slots {
         left: 0;
         right: 0;
         background: #f8fafc;
-        padding: 15px 5px 30px 5px;
+        padding: 10px 5px 25px 5px !important;
         border-top: 4px solid #FFD700;
         box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
         z-index: 9500;
         display: none;
         flex-direction: column;
         gap: 8px;
-        animation: slideUp 0.3s ease-out;
+        transform: translateY(100%);
+        transition: transform 1.0s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .unified-keyboard.active {
+        display: flex;
+        transform: translateY(0);
     }
     
     .keyboard-buffer {
         padding-bottom: 260px !important;
-        transition: padding-bottom 0.3s ease;
+        transition: padding-bottom 1.0s ease;
     }
     
     .keyboard-row {
@@ -6422,10 +6443,16 @@ function toggleSpellingMode(btn, fullPhrase) {
         
         isInSpellingMode = false;
 
-        card.classList.remove('spelling-mode');
+        card.classList.add('theater-exit');
         if (stage) stage.classList.remove('active');
-        document.body.classList.remove('mode-spelling');
-        if (globalKb) globalKb.style.display = 'none';
+        if (globalKb) globalKb.classList.remove('active');
+        
+        setTimeout(() => {
+            card.classList.remove('spelling-mode');
+            card.classList.remove('theater-exit');
+            document.body.classList.remove('mode-spelling');
+            if (globalKb) globalKb.style.display = 'none';
+        }, 800);
         
         // Re-enable icon click when exiting spelling mode
         const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
@@ -6491,7 +6518,15 @@ function toggleSpellingMode(btn, fullPhrase) {
         document.body.classList.add('mode-spelling');
         
         card.classList.add('spelling-mode');
+        card.classList.remove('theater-exit');
         card.style.display = 'block';
+        
+        if (globalKb) {
+            globalKb.style.display = 'flex';
+            // Force reflow for transition
+            globalKb.offsetHeight;
+            globalKb.classList.add('active');
+        }
         
         // Disable icon click during spelling mode
         const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
@@ -6779,28 +6814,55 @@ function handleSpellingInput(inputLetter) {
 }
 
 function exitSpellingTheater() {
-    window.speechSynthesis.cancel();
-    
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
+    const stage = document.getElementById('spellingTheaterStage');
+    const globalKb = document.getElementById('keyboard');
     
     if (activeCard) {
+        activeCard.classList.add('theater-exit');
         const beeBtn = activeCard.querySelector('.bee-badge');
-        const frenchText = activeCard.querySelector('.french-text');
-        
-        if (beeBtn && frenchText) {
-            toggleSpellingMode(beeBtn, frenchText.textContent);
-        }
-    } else {
+        if (beeBtn) beeBtn.innerHTML = "🐝";
+    }
+    
+    if (stage) stage.classList.remove('active');
+    if (globalKb) globalKb.classList.remove('active');
+    
+    setTimeout(() => {
         document.body.classList.remove('mode-spelling');
-        document.getElementById('spellingTheaterStage').classList.remove('active');
+        if (activeCard) {
+            activeCard.classList.remove('spelling-mode');
+            activeCard.classList.remove('theater-exit');
+            
+            // Restore text visibility
+            activeCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                el.style.display = 'block';
+            });
+            const spellingZone = activeCard.querySelector('.spelling-zone');
+            if (spellingZone) spellingZone.style.display = 'none';
+            
+            // Restore icon interaction
+            const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+            if (iconElement) {
+                iconElement.style.pointerEvents = 'auto';
+                iconElement.style.cursor = 'pointer';
+            }
+        }
+        
+        if (globalKb) globalKb.style.display = 'none';
+        
         document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
         
         document.querySelector('.header').style.display = 'flex';
         document.querySelector('.bottom-nav').style.display = 'flex';
         document.querySelector('.app-control-panel').style.display = 'block';
-    }
-    
-    setTimeout(() => { window.scrollTo(0, 0); }, 50);
+        
+        document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
+        
+        isInSpellingMode = false;
+        currentSpellingState = null;
+        window.speechSynthesis.cancel();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
 }
         
 function spellCurrentWord() {
