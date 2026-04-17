@@ -1392,23 +1392,34 @@ body.mode-spelling #phrasesList {
     margin-top: 0;
 }
 
-/* Force keyboard to top layer */
+/* Force keyboard to top layer and ensure consistent styling */
 #keyboard.unified-keyboard {
     z-index: 11000 !important;
 }
 
-/* Make keyboard shorter in spelling mode */
-body.mode-spelling .unified-keyboard {
-    padding: 8px 5px 20px 5px;
+/* Base Keyboard Padding (Shared) */
+.unified-keyboard {
+    padding: 10px 5px 25px 5px !important;
 }
 
-body.mode-spelling .k-key {
-    height: 42px;
-    font-size: 1rem;
+.k-key {
+    height: 40px !important; /* Shorter keys globally */
+    font-size: 1rem !important;
 }
 
-body.mode-spelling .keyboard-row {
-    gap: 3px;
+.keyboard-row {
+    gap: 4px !important;
+}
+
+.keyboard-row.accents-start {
+    margin-top: 10px; /* Small gap between alphabet and special characters */
+}
+
+.keyboard-row.accents .k-key {
+    background: #fffdf0 !important;
+    border-color: #ffe082 !important;
+    height: 36px !important; /* Even shorter for accent rows */
+    font-size: 0.9rem !important;
 }
 
 /* ========== SPELLING SLOTS & ANIMATIONS ========== */
@@ -1566,7 +1577,7 @@ body.mode-spelling .spelling-slots {
     
     .keyboard-row.accents .k-key {
         background: #fffdf0;
-        height: 42px;
+        height: 36px;
         font-size: 0.9rem;
         border-color: #ffe082;
     }
@@ -5157,7 +5168,10 @@ async function translateOne(p) {
             
             FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
                 const rowDiv = document.createElement('div');
-                rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
+                rowDiv.className = 'keyboard-row';
+                if (index >= 3) rowDiv.classList.add('accents');
+                if (index === 3) rowDiv.classList.add('accents-start');
+                
                 row.forEach(l => {
                     const k = document.createElement('div'); 
                     // PRESERVED: Keeping your .used logic for Hangman
@@ -6651,7 +6665,10 @@ function renderMiniKeyboard() {
     
     FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
         const rowDiv = document.createElement('div');
-        rowDiv.className = 'keyboard-row' + (index === 3 ? ' accents' : '');
+        rowDiv.className = 'keyboard-row';
+        if (index >= 3) rowDiv.classList.add('accents');
+        if (index === 3) rowDiv.classList.add('accents-start');
+        
         row.forEach(key => {
             const k = document.createElement('div');
             k.className = 'k-key';
