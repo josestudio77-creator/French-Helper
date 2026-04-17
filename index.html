@@ -1541,7 +1541,7 @@ body.mode-spelling .spelling-slots {
         border-top: 4px solid #FFD700;
         box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
         z-index: 9500;
-        display: flex !important;
+        display: flex;
         visibility: hidden;
         pointer-events: none;
         flex-direction: column;
@@ -2719,7 +2719,7 @@ body.mode-spelling .spelling-slots {
             
             if (id === 'gameDrawer') {
                 const globalKb = document.getElementById('keyboard');
-                if (globalKb) globalKb.style.display = 'none';
+                if (globalKb) globalKb.classList.remove('active');
                 document.body.classList.remove('keyboard-buffer');
             }
         
@@ -2743,7 +2743,7 @@ body.mode-spelling .spelling-slots {
             
             // 1. Logic: If we are switching views, hide the global keyboard and buffer
             const globalKb = document.getElementById('keyboard');
-            if (globalKb) globalKb.style.display = 'none';
+            if (globalKb) globalKb.classList.remove('active');
             document.body.classList.remove('keyboard-buffer');
         
             // 2. Update button visuals
@@ -6455,7 +6455,9 @@ function toggleSpellingMode(btn, fullPhrase) {
             card.classList.remove('spelling-mode');
             card.classList.remove('theater-exit');
             document.body.classList.remove('mode-spelling');
-            if (globalKb) globalKb.style.display = 'none';
+            if (globalKb) {
+                // No display: none needed, class handles it
+            }
         }, 1000);
         
         // Re-enable icon click when exiting spelling mode
@@ -6697,7 +6699,7 @@ function renderMiniKeyboard() {
 
     kbContainer.innerHTML = '';
     // Ensure it has the correct classes for your 3D styling
-    kbContainer.className = "unified-keyboard";
+    kbContainer.classList.add("unified-keyboard");
     
     FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
         const rowDiv = document.createElement('div');
@@ -6849,7 +6851,9 @@ function exitSpellingTheater() {
             }
         }
         
-        if (globalKb) globalKb.style.display = 'none';
+        if (globalKb) {
+             // Class handles it
+        }
         
         document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
         
