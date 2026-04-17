@@ -2007,7 +2007,7 @@ body.mode-spelling .spelling-slots {
             </div>
     
             <div id="appModalEdit" style="display:none;">
-                <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;">
+                <div id="appModalCharBar" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;">
                     <button onclick="insertChar('é', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">é</button>
                     <button onclick="insertChar('è', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">è</button>
                     <button onclick="insertChar('ê', 'appModalInput')" style="flex:1; padding:8px; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer;">ê</button>
@@ -2678,7 +2678,7 @@ body.mode-spelling .spelling-slots {
 
             // If closing the appModal and it was an import modal, clear the hash
             if (id === 'appModal' && window.location.hash.startsWith('#import=')) {
-                history.replaceState(null, document.title, window.location.pathname);
+                window.history.replaceState(null, document.title, window.location.pathname);
             }
             
             if (id === 'gameDrawer') {
@@ -3725,7 +3725,7 @@ openAppModal({
             });
 
             // CLEAR THE HASH AFTER IMPORT
-            history.replaceState(null, document.title, window.location.pathname);
+            window.history.replaceState(null, document.title, window.location.pathname);
             
             openBP();
 
@@ -3939,11 +3939,12 @@ function checkForImport() {
                 title: "📥 Import Homework",
                 text: weekData.name,
                 mode: 'edit',
+                hideChars: true,
                 placeholder: "Name this homework",
                 onSave: (nameChoice) => {
                     if (!nameChoice) {
                         // Clear hash on cancel
-                        history.replaceState(null, document.title, window.location.pathname);
+                        window.history.replaceState(null, document.title, window.location.pathname);
                         return true;
                     }
 
@@ -3962,7 +3963,7 @@ function checkForImport() {
                                 onAction: () => {
                                     executeImportProcess(nameChoice, weekData);
                                     // CLEAR HASH AFTER SUCCESSFUL IMPORT
-                                    history.replaceState(null, document.title, window.location.pathname);
+                                    window.history.replaceState(null, document.title, window.location.pathname);
                                 },
                                 onSecondaryAction: () => { 
                                     closeOverlay('appModal');
@@ -3975,7 +3976,7 @@ function checkForImport() {
 
                     executeImportProcess(nameChoice, weekData);
                     // CLEAR HASH AFTER SUCCESSFUL IMPORT
-                    history.replaceState(null, document.title, window.location.pathname);
+                    window.history.replaceState(null, document.title, window.location.pathname);
                     return true;
                 }
             });
@@ -3985,7 +3986,7 @@ function checkForImport() {
             if (btnClose) {
                 const originalAction = btnClose.onclick;
                 btnClose.onclick = () => {
-                    history.replaceState(null, document.title, window.location.pathname);
+                    window.history.replaceState(null, document.title, window.location.pathname);
                     if (originalAction) originalAction();
                     closeOverlay('appModal');
                 };
@@ -3995,7 +3996,7 @@ function checkForImport() {
 
         } catch (e) {
             console.error('Import error:', e);
-            history.replaceState(null, document.title, window.location.pathname);
+            window.history.replaceState(null, document.title, window.location.pathname);
         }
     }
 }
@@ -4009,6 +4010,7 @@ function checkForImportManual(weekData) {
         title: "📥 Import Homework",
         text: weekData.name,
         mode: 'edit',
+        hideChars: true,
         placeholder: "Name this homework",
         onSave: (nameChoice) => {
             if (!nameChoice) return true;
@@ -6128,6 +6130,10 @@ async function translateOne(p) {
             display.textContent = config.text || "";
         
             if (config.mode === 'edit') {
+                const charBar = document.getElementById('appModalCharBar');
+                if (charBar) {
+                    charBar.style.display = config.hideChars ? 'none' : 'flex';
+                }
                 viewSection.style.display = "none";
                 editSection.style.display = "block";
                 btnClose.style.display = "none"; 
@@ -6144,7 +6150,7 @@ async function translateOne(p) {
                 bCan.onclick = () => {
                     // Clear hash when cancel is clicked during import
                     if (window.location.hash.startsWith('#import=')) {
-                        history.replaceState(null, document.title, window.location.pathname);
+                        window.history.replaceState(null, document.title, window.location.pathname);
                     }
                     closeOverlay('appModal');
                 };
