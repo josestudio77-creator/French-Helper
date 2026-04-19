@@ -1,10 +1,22 @@
-// sw.js - Service Worker V700 (Smart Refresh Strategy)
-const CACHE_NAME = 'french-fun-v800'; // Incrementing to force update
+// sw.js - Service Worker V900 (Modular JS architecture)
+const CACHE_NAME = 'french-fun-v900'; // Bumped: new modular JS structure
 const urlsToCache = [
   './',
   './index.html',
+  './style.css',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './KGPrimaryPenmanshipAlt.woff2',
+  './js/config.js',
+  './js/state.js',
+  './js/audio.js',
+  './js/ai.js',
+  './js/ui.js',
+  './js/homework.js',
+  './js/game.js',
+  './js/print.js',
+  './js/spelling.js',
+  './js/main.js'
 ];
 
 // Install event - cache files

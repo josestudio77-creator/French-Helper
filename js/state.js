@@ -1,0 +1,65 @@
+/* ==========================================
+   js/state.js - Global Application State
+   French Helper - Refactored to state object
+   =========================================== */
+
+const state = {
+    speechSpeed: parseFloat(localStorage.getItem('speechSpeed') || '0.7'),
+    currentWeekAudio: null,
+    cache: JSON.parse(localStorage.getItem('phraseTranslations') || '{}'),
+    history: JSON.parse(localStorage.getItem('frenchHistory') || '{}'),
+    wins: parseInt(localStorage.getItem('gameWins') || '0'),
+    losses: parseInt(localStorage.getItem('gameLosses') || '0'),
+    lastWord: "",
+    gameActive: false,
+    isSpelling: false,
+    musicContext: null,
+    musicNode: null,
+    currentScreenList: [],
+    frVoices: [],
+    selectedFrVoice: null,
+    cachedEnVoice: null,
+    currentlyPlayingAudio: null,
+    lastLoadedHomework: localStorage.getItem('homeworkPhrases') || '',
+    editingHomeworkName: null,
+    viewMode: localStorage.getItem('viewMode') || 'cards',
+    currentIsDialogue: false,
+    isAutoPlaying: false,
+    autoPlayTimeout: null,
+    currentSetName: localStorage.getItem('currentSetName') || '',
+    appVersion: "1.0.0",
+    musicVolume: parseInt(localStorage.getItem('musicVolume') || '30'),
+    musicGainNode: null,
+    homeworkNotes: JSON.parse(localStorage.getItem('homeworkNotes') || '{}'),
+    victoryTimeouts: [],
+    isNameManuallyEdited: false,
+    deferredPrompt: undefined,
+    currentSpellingState: null,
+    targetWord: "",
+    allowExit: false,
+    exitAttempts: 0,
+    isAiMode: false,
+    preferredAiModel: localStorage.getItem('preferredAiModel') || 'imagen-4',
+    theaterAudioCtx: null,
+    savedSpeechSpeed: null,
+    isInSpellingMode: false,
+    customIcons: JSON.parse(localStorage.getItem('customIcons') || '{}'),
+    customPhotos: JSON.parse(localStorage.getItem('customPhotos') || '{}'),
+    currentPickerPhrase: '',
+    currentAspectRatio: 4/3,
+    cropper: null,
+    tempPhotoData: null,
+    loopMode: false,
+    isPrinting: false,
+    tempWordsToPrint: "",
+    tempPrintName: "",
+    selectedBpMonth: new Date().getMonth(),
+    showFavsOnly: false,
+    homeworkToMove: "",
+    aiAbortController: null
+};
+
+// Make state globally accessible
+window.state = state;
+
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
