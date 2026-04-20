@@ -673,7 +673,7 @@ function openBP() {
         if ((state.showFavsOnly && matchesFav) || (!state.showFavsOnly && matchesMonth)) {
             visibleCount++;
             const div = document.createElement('div'); 
-            div.className = 'state.history-item';
+            div.className = 'history-item';
             div.style.position = "relative"; 
 
             const hasAudio = hwData.audio ? '🎤' : '';

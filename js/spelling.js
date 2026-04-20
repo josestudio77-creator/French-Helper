@@ -37,15 +37,7 @@ card.classList.add('theater-exit');
 if (stage) stage.classList.remove('active');
 if (globalKb) globalKb.classList.remove('active');
 
-setTimeout(() => {
-    card.classList.remove('spelling-mode');
-    card.classList.remove('theater-exit');
-    document.body.classList.remove('mode-spelling');
-    if (globalKb) {
-        // No display: none needed, class handles it
-    }
-}, 1000);
-
+// State clearing is handled by the 600ms layout restorer below.
 // Re-enable icon click when exiting spelling mode
 const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
 if (iconElement) {
@@ -68,10 +60,42 @@ enBtn.onclick = () => spk(enText, 'en-US', true);
 const frenchText = card.querySelector('.french-text').textContent;
 frBtn.onclick = () => spk(frenchText, 'fr-FR', true);
 
-document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
-if (controlPanel) controlPanel.style.display = 'block';
-if (bottomNav) bottomNav.style.display = 'flex';
-if (header) header.style.display = 'flex';
+// Wait for the exit animation (600ms) to finish, then smoothly fade the practice screen back in
+setTimeout(() => {
+    // 1. Instantly reset the active card to normal state
+    card.classList.remove('spelling-mode');
+    card.classList.remove('theater-exit');
+    document.body.classList.remove('mode-spelling');
+    document.body.classList.remove('keyboard-buffer');
+    state.currentSpellingState = null;
+    
+    // 2. Restore display for all elements and fade them in together
+    const elementsToFade = [];
+    
+    document.querySelectorAll('.phrase-card').forEach(c => {
+        c.style.display = 'block';
+        elementsToFade.push(c);
+    });
+    
+    if (controlPanel) {
+        controlPanel.style.display = 'block';
+        elementsToFade.push(controlPanel);
+    }
+    if (bottomNav) {
+        bottomNav.style.display = 'flex';
+        elementsToFade.push(bottomNav);
+    }
+    if (header) {
+        header.style.display = 'flex';
+        elementsToFade.push(header);
+    }
+
+    // Apply fade-in animation to the entire restored layout
+    elementsToFade.forEach(el => {
+        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+    });
+    
+}, 600);
 
 document.body.classList.remove('keyboard-buffer');
 state.currentSpellingState = null;
@@ -396,9 +420,13 @@ const card = state.currentSpellingState.card;
 // Instant Buzz sound
 if (typeof playBuzzSound === "function") playBuzzSound(); 
 
-// Visual feedback: Shake the card
-card.style.animation = 'shake 0.3s';
-setTimeout(() => card.style.animation = '', 300);
+// Visual feedback: Shake the card using Web Animations API
+card.animate([
+    { transform: 'translateX(0)' },
+    { transform: 'translateX(-8px)' },
+    { transform: 'translateX(8px)' },
+    { transform: 'translateX(0)' }
+], { duration: 300, easing: 'ease-in-out' });
     }
 }
 
@@ -443,11 +471,32 @@ if (globalKb) {
 
 document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
 
-document.querySelector('.header').style.display = 'flex';
-document.querySelector('.bottom-nav').style.display = 'flex';
-document.querySelector('.app-control-panel').style.display = 'block';
+setTimeout(() => {
+    const header = document.querySelector('.header');
+    if (header) {
+        header.style.display = 'flex';
+        header.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
+    }
+    
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+        bottomNav.style.display = 'flex';
+        bottomNav.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
+    }
+    
+    const controlPanel = document.querySelector('.app-control-panel');
+    if (controlPanel) {
+        controlPanel.style.display = 'block';
+        controlPanel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
+    }
 
-document.querySelectorAll('.phrase-card').forEach(c => c.style.display = 'block');
+    document.querySelectorAll('.phrase-card').forEach(c => {
+        if (c !== activeCard) {
+            c.style.display = 'block';
+            c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
+        }
+    });
+}, 500);
 
 state.isInSpellingMode = false;
 state.currentSpellingState = null;
