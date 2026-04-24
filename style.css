@@ -1556,48 +1556,51 @@ body.mode-spelling .spelling-slots {
 .accent-bar {
     display: flex;
     flex-wrap: wrap;        /* Allows wrapping */
-    gap: 4px;               /* Space between buttons */
-    justify-content: center; 
-    margin-bottom: 10px;
+    gap: 5px;               /* Clean spacing between keys */
+    justify-content: center; /* Centers both rows */
+    margin-bottom: 15px;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
     
-    /* THE MOBILE PROTECTOR: 
-       This width fits 7 buttons perfectly but forces the 8th to wrap.
-       (7 buttons * 36px) + (6 gaps * 4px) = 276px. 
+    /* THE MOBILE FORCER: 
+       7 buttons (44px) + 6 gaps (5px) = 338px.
+       We set max-width to 340px so the 8th button MUST wrap to the next line.
     */
-    max-width: 280px; 
+    max-width: 340px; 
 }
 
-/* TABLET & DESKTOP: Remove the width limit so all 13 fit in one row */
-@media (min-width: 500px) {
+/* TABLET & DESKTOP: Remove the restriction so all 13 fit in one row */
+@media (min-width: 700px) {
     .accent-bar {
         max-width: 100%; 
     }
 }
 
 .accent-bar button {
-    width: 36px;            /* Consistent size for all keys */
-    height: 42px;           /* Slightly taller for easier tapping */
+    width: 44px;            /* Larger tap area */
+    height: 44px;           /* Perfect square */
     padding: 0 !important;  
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #e0f2fe;
     color: #0369a1;
     border: 2px solid #0369a1;
-    font-weight: 800;       
+    font-weight: 900;       
     cursor: pointer;
-    flex: none;             
-    font-size: 1.1rem;     
-    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
-    transition: transform 0.1s;
+    flex: none;             /* Prevents stretching */
+    
+    /* THE VISUAL FIX: Larger font for readability */
+    font-size: 1.4rem;     
+    
+    box-shadow: 0 3px 0 rgba(3, 105, 161, 0.2);
+    transition: transform 0.1s, background-color 0.2s;
 }
 
 .accent-bar button:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
     background: #bae6fd;
 }
 
