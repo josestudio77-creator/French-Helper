@@ -143,26 +143,24 @@
             </div>
     
             <div id="appModalEdit" style="display:none;">
-                <!-- ROW 1: 7 KEYS -->
-                <div id="appModalCharBar1" style="display:flex; gap:5px; justify-content: center; margin-bottom:5px;">
-                    <button onclick="insertChar('é', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">é</button>
-                    <button onclick="insertChar('è', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">è</button>
-                    <button onclick="insertChar('ê', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ê</button>
-                    <button onclick="insertChar('ë', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ë</button>
-                    <button onclick="insertChar('à', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">à</button>
-                    <button onclick="insertChar('â', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">â</button>
-                    <button onclick="insertChar('î', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">î</button>
-                </div>
-                <!-- ROW 2: 6 KEYS -->
-                <div id="appModalCharBar2" style="display:flex; gap:5px; justify-content: center; margin-bottom:8px;">
-                    <button onclick="insertChar('ï', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ï</button>
-                    <button onclick="insertChar('ô', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ô</button>
-                    <button onclick="insertChar('û', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">û</button>
-                    <button onclick="insertChar('ù', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ù</button>
-                    <button onclick="insertChar('ç', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ç</button>
-                    <button onclick="insertChar('œ', 'appModalInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">œ</button>
-                </div>
-                <textarea id="appModalInput" class="modal-input"></textarea>
+            <!-- UNIFIED RESPONSIVE ACCENT BAR -->
+            <div class="accent-bar" id="appModalCharBar">
+                <button onclick="insertChar('é', 'appModalInput')">é</button>
+                <button onclick="insertChar('è', 'appModalInput')">è</button>
+                <button onclick="insertChar('ê', 'appModalInput')">ê</button>
+                <button onclick="insertChar('ë', 'appModalInput')">ë</button>
+                <button onclick="insertChar('à', 'appModalInput')">à</button>
+                <button onclick="insertChar('â', 'appModalInput')">â</button>
+                <button onclick="insertChar('î', 'appModalInput')">î</button>
+                <button onclick="insertChar('ï', 'appModalInput')">ï</button>
+                <button onclick="insertChar('ô', 'appModalInput')">ô</button>
+                <button onclick="insertChar('û', 'appModalInput')">û</button>
+                <button onclick="insertChar('ù', 'appModalInput')">ù</button>
+                <button onclick="insertChar('ç', 'appModalInput')">ç</button>
+                <button onclick="insertChar('œ', 'appModalInput')">œ</button>
+            </div>
+            <textarea id="appModalInput" class="modal-input"></textarea>
+                
                 <div class="modal-btn-grid">
                     <button id="appModalBtnSave" class="modal-btn" style="background:#4cd964; color:white;">💾 Save</button>
                     <button id="appModalBtnCancel" class="modal-btn" style="background:#eee; color:#666;">Cancel</button>
@@ -283,36 +281,34 @@
     <div class="overlay-content">
         <h2 id="hwDrawerTitle" style="color:#9d4edd; margin-bottom:15px;">✏️ Add Homework</h2>
         
-        <!-- This clears the "ghost" saved messages -->
+        <!-- This clears the "ghost" saved messages (DO NOT DELETE) -->
         <div id="hwMessages"></div>
         
-        <!-- Name input field -->
+        <!-- Name input field (DO NOT DELETE) -->
         <div style="margin-bottom: 15px; text-align: left;">
             <label style="font-weight: 900; color: #9d4edd; font-size: 0.9rem; margin-left: 5px;">Homework Name:</label>
             <input type="text" id="hwNameInput" oninput="handleNameManualEdit()" placeholder="e.g. March Week 1" 
                    style="width: 100%; padding: 12px; border-radius: 12px; border: 3px solid #9d4edd; font-family: inherit; font-weight: 700; outline: none; margin-top: 5px;">
         </div>
 
-        <!-- ROW 1: 7 KEYS -->
-        <div style="display:flex; gap:5px; justify-content: center; margin-bottom:5px;">
-            <button onclick="insertChar('é', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">é</button>
-            <button onclick="insertChar('è', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">è</button>
-            <button onclick="insertChar('ê', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ê</button>
-            <button onclick="insertChar('ë', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ë</button>
-            <button onclick="insertChar('à', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">à</button>
-            <button onclick="insertChar('â', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">â</button>
-            <button onclick="insertChar('î', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">î</button>
+        <!-- NEW UNIFIED RESPONSIVE ACCENT BAR (Replaced the 2 rows) -->
+        <div class="accent-bar">
+            <button onclick="insertChar('é', 'hwInput')">é</button>
+            <button onclick="insertChar('è', 'hwInput')">è</button>
+            <button onclick="insertChar('ê', 'hwInput')">ê</button>
+            <button onclick="insertChar('ë', 'hwInput')">ë</button>
+            <button onclick="insertChar('à', 'hwInput')">à</button>
+            <button onclick="insertChar('â', 'hwInput')">â</button>
+            <button onclick="insertChar('î', 'hwInput')">î</button>
+            <button onclick="insertChar('ï', 'hwInput')">ï</button>
+            <button onclick="insertChar('ô', 'hwInput')">ô</button>
+            <button onclick="insertChar('û', 'hwInput')">û</button>
+            <button onclick="insertChar('ù', 'hwInput')">ù</button>
+            <button onclick="insertChar('ç', 'hwInput')">ç</button>
+            <button onclick="insertChar('œ', 'hwInput')">œ</button>
         </div>
-        <!-- ROW 2: 6 KEYS -->
-        <div style="display:flex; gap:5px; justify-content: center; margin-bottom:8px;">
-            <button onclick="insertChar('ï', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ï</button>
-            <button onclick="insertChar('ô', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ô</button>
-            <button onclick="insertChar('û', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">û</button>
-            <button onclick="insertChar('ù', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ù</button>
-            <button onclick="insertChar('ç', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">ç</button>
-            <button onclick="insertChar('œ', 'hwInput')" style="width:38px; padding:8px 0; border-radius:8px; background:#e0f2fe; color:#0369a1; border:2px solid #0369a1; font-weight:bold; cursor:pointer; flex: none;">œ</button>
-        </div>
-        <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here..."></textarea>
+        
+        <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here... (one per line)"></textarea>
         
         <!-- Teacher Recording Section -->
         <div style="background:#fff3cd; padding:10px; border-radius:15px; margin:10px 0; border:2px solid #ffc107; text-align:left">
