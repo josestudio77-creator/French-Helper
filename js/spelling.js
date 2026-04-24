@@ -326,7 +326,7 @@ function renderMiniKeyboard() {
     let activeLetters = [];
     if (isHint) {
         const targetWord = state.currentSpellingState.words[state.currentSpellingState.currentWordIndex] || "";
-        activeLetters = Array.from(new Set(targetWord.toUpperCase().split('').filter(c => /[A-ZÉÀÈÇÙÛŒ']/.test(c))));
+        activeLetters = Array.from(new Set(targetWord.toUpperCase().split('').filter(c => /[A-ZÉÈÊËÀÂÎÏÔÛÙÇŒ']/.test(c))));
         
         if (activeLetters.length < 4) {
             const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
