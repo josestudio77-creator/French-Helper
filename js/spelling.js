@@ -409,52 +409,58 @@ while (state.currentSpellingState.currentLetterIndex < state.targetWord.length &
 
 // 6. Check if the current word is finished
 if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
-    // Trigger the "Word Victory" state
-    state.currentSpellingState.isWordVictory = true; 
-    renderSpellingSlots(); // This draws the finished word in green with the Pop animation
-    
-    // Wait logic: shorter for the very last word, longer for middle words to let her see them
-    const isLastWord = state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length - 1;
-    const waitTime = isLastWord ? 1000 : 2500; 
-
-    setTimeout(() => {
-        // Reset victory state and move to the next word
-        state.currentSpellingState.isWordVictory = false;
-        state.currentSpellingState.currentWordIndex++;
-        state.currentSpellingState.currentLetterIndex = 0;
-        
-        if (state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length) {
-            // --- FULL PHRASE SUCCESS ---
-            if (typeof celebrate === "function") celebrate();
-            if (typeof playVictorySound === "function") playVictorySound();
+            // Trigger the "Word Victory" state
+            state.currentSpellingState.isWordVictory = true; 
+            renderSpellingSlots(); 
             
-            // Pronounce the full phrase one last time
-            setTimeout(() => spk(state.currentSpellingState.phrase, 'fr-FR', true), 600);
+            const isLastWord = state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length - 1;
+            const waitTime = isLastWord ? 1000 : 2500; 
 
-            // Auto-close Spelling Bee mode after 4 seconds
             setTimeout(() => {
-                const beeBtn = state.currentSpellingState.card.querySelector('.bee-badge');
-                if (beeBtn) toggleSpellingMode(beeBtn, state.currentSpellingState.phrase);
-            }, 4000);
+                // --- THE CRITICAL SAFETY GUARD ---
+                // If the user exited the theater during the wait, stop here!
+                if (!state.currentSpellingState) return;
+
+                state.currentSpellingState.isWordVictory = false;
+                state.currentSpellingState.currentWordIndex++;
+                state.currentSpellingState.currentLetterIndex = 0;
+                
+                if (state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length) {
+                    // --- FULL PHRASE SUCCESS ---
+                    if (typeof celebrate === "function") celebrate();
+                    if (typeof playVictorySound === "function") playVictorySound();
+                    
+                    // Final pronunciation
+                    setTimeout(() => {
+                        if (state.currentSpellingState) spk(state.currentSpellingState.phrase, 'fr-FR', true);
+                    }, 600);
+
+                    // Auto-close Spelling Bee mode after 4 seconds
+                    setTimeout(() => {
+                        // Check again before auto-closing
+                        if (state.currentSpellingState) {
+                            const beeBtn = state.currentSpellingState.card.querySelector('.bee-badge');
+                            if (beeBtn) toggleSpellingMode(beeBtn, state.currentSpellingState.phrase);
+                        }
+                    }, 4000);
+                } else {
+                    // --- PREPARE NEXT WORD ---
+                    renderSpellingSlots();
+                    
+                    // Re-render the keyboard if hint mode is active
+                    if (state.hintModeActive) renderMiniKeyboard();
+                    
+                    // Say the next word
+                    setTimeout(() => {
+                        if (state.currentSpellingState) {
+                            spk(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
+                        }
+                    }, 400);
+                }
+            }, waitTime);
         } else {
-            // --- PREPARE NEXT WORD ---
             renderSpellingSlots();
-            
-            // Re-render the keyboard if hint mode is active so the keys update
-            if (state.hintModeActive) {
-                renderMiniKeyboard();
-            }
-            
-            // Say the next word out loud to guide her
-            setTimeout(() => {
-                spk(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
-            }, 400);
         }
-    }, waitTime);
-} else {
-    // Word not finished, just update the boxes to show the letter typed
-    renderSpellingSlots();
-}
     } else {
 // --- WRONG LETTER ---
 const card = state.currentSpellingState.card;
@@ -473,6 +479,8 @@ card.animate([
 
 function exitSpellingTheater() {
     if (typeof playTheaterExit === "function") playTheaterExit();
+
+    window.speechSynthesis.cancel();
     
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
     const stage = document.getElementById('spellingTheaterStage');
