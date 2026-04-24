@@ -1578,8 +1578,8 @@ body.mode-spelling .spelling-slots {
 }
 
 .accent-bar button {
-    width: 44px;            /* Larger tap area */
-    height: 44px;           /* Perfect square */
+    width: 38px;            /* Larger tap area */
+    height: 40px;           /* Perfect square */
     padding: 0 !important;  
     display: flex;
     align-items: center;
