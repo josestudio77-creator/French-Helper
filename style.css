@@ -1577,7 +1577,7 @@ body.mode-spelling .spelling-slots {
 
 .accent-bar button {
     /* FIXED SIZE: Prevents the "Row 2 is wider" bug */
-    width: 34px;            
+    width: 30px;            
     height: 44px;           
     flex: 0 0 36px;         /* Mandatory: Do not grow, do not shrink */
     
