@@ -64,4 +64,4 @@ const state = {
 // Make state globally accessible
 window.state = state;
 
-const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Home"];

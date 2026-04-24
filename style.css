@@ -1411,11 +1411,22 @@ body.mode-spelling #phrasesList {
     margin-top: 10px; /* Small gap between alphabet and special characters */
 }
  
+.keyboard-row.accents {
+    flex-wrap: nowrap !important;
+}
+ 
 .keyboard-row.accents .k-key {
     background: #fffdf0 !important;
     border-color: #ffe082 !important;
     height: 36px !important; /* Even shorter for accent rows */
     font-size: 0.9rem !important;
+    max-width: none !important;
+    padding: 0 2px !important;
+}
+
+.keyboard-row.accents .k-key:active,
+.keyboard-row.accents .k-key.key-pressed {
+    background: #e0f2fe !important;
 }
  
 /* ========== SPELLING SLOTS & ANIMATIONS ========== */
@@ -1513,22 +1524,23 @@ body.mode-spelling .spelling-slots {
     /* Keyboard Settings Drawer UI */
     .kb-settings-toggle {
         position: absolute;
-        top: -35px;
-        right: 15px;
+        right: 0;
+        bottom: 60px;
+        transform: translateY(50%);
         background: #f1f5f9;
         border: 2px solid #cbd5e0;
-        border-radius: 12px 12px 0 0;
-        padding: 5px 15px;
+        border-radius: 20px 0 0 20px;
+        border-right: none;
+        padding: 8px 5px 8px 12px;
         font-size: 1.2rem;
         cursor: pointer;
         z-index: 10;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-        border-bottom: none;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
         transition: transform 0.1s;
     }
     
     .kb-settings-toggle:active {
-        transform: scale(0.95);
+        transform: translateY(50%) scale(0.95);
     }
 
     /* Custom popup classes removed in favor of standard .modal-box */
@@ -1606,11 +1618,32 @@ body.mode-spelling .spelling-slots {
         box-shadow: none;
     }
      
+    .keyboard-row.accents {
+        flex-wrap: nowrap;
+    }
+    
     .keyboard-row.accents .k-key {
         background: #fffdf0;
         height: 36px;
         font-size: 0.9rem;
         border-color: #ffe082;
+        max-width: none;
+        padding: 0 2px;
+    }
+    
+    .keyboard-row.accents .k-key:active, 
+    .keyboard-row.accents .k-key.key-pressed {
+        background: #e0f2fe !important;
+    }
+    
+    /* Responsive Desktop Grid for Parent Drawer */
+    .parent-btn-grid {
+        grid-template-columns: 1fr;
+    }
+    @media (min-width: 600px) {
+        .parent-btn-grid {
+            grid-template-columns: 1fr 1fr;
+        }
     }
      
      

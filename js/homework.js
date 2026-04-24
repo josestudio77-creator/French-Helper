@@ -490,8 +490,8 @@ function changeBpMonth(direction) {
     document.getElementById('btnFavFilter').style.background = "white";
     
     state.selectedBpMonth += direction;
-    if (state.selectedBpMonth > 11) state.selectedBpMonth = 0;
-    if (state.selectedBpMonth < 0) state.selectedBpMonth = 11;
+    if (state.selectedBpMonth > monthNames.length - 1) state.selectedBpMonth = 0;
+    if (state.selectedBpMonth < 0) state.selectedBpMonth = monthNames.length - 1;
     openBP();
 }
 
@@ -574,7 +574,7 @@ function renderFolderGrid() {
     grid.innerHTML = '';
     
     let totalCount = 0;
-    const counts = new Array(12).fill(0);
+    const counts = new Array(monthNames.length).fill(0);
 
     // Calculate counts for badges and grand total
     Object.values(state.history).forEach(val => {
@@ -610,10 +610,12 @@ folder.onclick = () => performFolderAction(index);
 
 const badge = counts[index] > 0 ? `<div class="folder-badge">${counts[index]}</div>` : '';
 
+const label = month === "Home" ? "Home" : month.substring(0, 3);
+
 folder.innerHTML = `
     ${badge}
     <span class="folder-icon">📁</span>
-    <span class="folder-label">${month.substring(0, 3)}</span>
+    <span class="folder-label">${label}</span>
 `;
 grid.appendChild(folder);
     });
@@ -646,8 +648,8 @@ if(favBtn) {
 function changeHwFolder(direction) {
     // 1. Update the global month tracker
     state.selectedBpMonth += direction;
-    if (state.selectedBpMonth > 11) state.selectedBpMonth = 0;
-    if (state.selectedBpMonth < 0) state.selectedBpMonth = 11;
+    if (state.selectedBpMonth > monthNames.length - 1) state.selectedBpMonth = 0;
+    if (state.selectedBpMonth < 0) state.selectedBpMonth = monthNames.length - 1;
 
     // 2. Refresh the title based on whether we are adding or editing
     const type = state.editingHomeworkName ? 'edit' : 'add';
