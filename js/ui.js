@@ -26,7 +26,11 @@ function insertChar(char, targetId) {
     const end = input.selectionEnd;
     const text = input.value;
     input.value = text.substring(0, start) + char + text.substring(end);
-    input.focus();
+    
+    // --- THE FIX: PREVENT SCROLL ON FOCUS ---
+    // This stops the screen from jumping when you click an accent button
+    input.focus({ preventScroll: true });
+    
     input.selectionStart = input.selectionEnd = start + char.length;
     if (targetId === 'hwInput') {
         autoPopulateName();
