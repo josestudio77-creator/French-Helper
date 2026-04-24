@@ -177,7 +177,7 @@ function renderKeyboard() {
     
     let activeLetters = [];
     if (isHint) {
-        activeLetters = Array.from(new Set(state.targetWord.toUpperCase().split('').filter(c => /[A-ZÉÀÈÇÙÛŒ']/.test(c))));
+        activeLetters = Array.from(new Set(state.targetWord.toUpperCase().split('').filter(c => /[A-ZÉÈÊËÀÂÎÏÔÛÙÇŒ']/.test(c))));
         
         // In Hangman, we always need a few decoy letters so it's not a guaranteed win
         const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
