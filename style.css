@@ -1555,31 +1555,43 @@ body.mode-spelling .spelling-slots {
 
 .accent-bar {
     display: flex;
-    flex-wrap: wrap;        /* Allows wrapping on mobile */
-    gap: 3px;               /* Reduced gap to save horizontal space */
+    flex-wrap: wrap;        /* Allows wrapping */
+    gap: 4px;               /* Space between buttons */
     justify-content: center; 
     margin-bottom: 10px;
     width: 100%;
-    max-width: 480px;       /* Guides the desktop row to stay straight */
     margin-left: auto;
     margin-right: auto;
+    
+    /* THE MOBILE PROTECTOR: 
+       This width fits 7 buttons perfectly but forces the 8th to wrap.
+       (7 buttons * 36px) + (6 gaps * 4px) = 276px. 
+    */
+    max-width: 280px; 
+}
+
+/* TABLET & DESKTOP: Remove the width limit so all 13 fit in one row */
+@media (min-width: 500px) {
+    .accent-bar {
+        max-width: 100%; 
+    }
 }
 
 .accent-bar button {
-    width: 33px;            /* Narrower to ensure 7 fit in one mobile row */
-    height: 38px;           /* Slightly shorter to match width */
+    width: 36px;            /* Consistent size for all keys */
+    height: 42px;           /* Slightly taller for easier tapping */
     padding: 0 !important;  
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
+    border-radius: 8px;
     background: #e0f2fe;
     color: #0369a1;
     border: 2px solid #0369a1;
-    font-weight: 800;       /* Slightly lighter weight to fit in smaller box */
+    font-weight: 800;       
     cursor: pointer;
     flex: none;             
-    font-size: 0.95rem;     /* Adjusted font to look clean in 33px width */
+    font-size: 1.1rem;     
     box-shadow: 0 2px 0 rgba(0,0,0,0.1);
     transition: transform 0.1s;
 }
