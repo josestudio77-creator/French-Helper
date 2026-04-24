@@ -83,7 +83,7 @@ function showVoiceInstructions() {
         msg += 'for Speech or Voice options.';
     }
     
-    alert(msg);
+    openAppModal({ title: 'Audio Error', text: msg, mode: 'view' });
 }
 
 function norm(t) { 
@@ -240,6 +240,39 @@ function playTheaterIntro() {
         
         osc.start(now + (index * 0.15));
         osc.stop(now + 1.2);
+    });
+}
+
+function playTheaterExit() {
+    if (!state.musicContext) {
+        state.musicContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    if (state.musicContext.state === 'suspended') {
+        state.musicContext.resume();
+    }
+    
+    const now = state.musicContext.currentTime;
+    // Descending arpeggio to signify exiting: G - E - C
+    const notes = [392.00, 329.63, 261.63];
+    
+    notes.forEach((freq, index) => {
+        const osc = state.musicContext.createOscillator();
+        const gain = state.musicContext.createGain();
+        
+        osc.type = 'triangle'; 
+        const startTime = now + (index * 0.15);
+        osc.frequency.setValueAtTime(freq, startTime);
+        
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.0);
+        
+        osc.connect(gain);
+        gain.connect(state.musicContext.destination);
+        
+        osc.start(startTime);
+        osc.stop(startTime + 1.0);
     });
 }
 

@@ -35,7 +35,7 @@ function startHangman() {
     let pool = (hwWords.length > 0) ? hwWords : presetWords;
     
     if (pool.length === 0) {
-        alert("Add some single words to your homework to play!");
+        openAppModal({ title: 'Notice', text: 'Add some single words to your homework to play!', mode: 'view' });
         closeOverlay('gameDrawer');
         return;
     }
@@ -163,11 +163,39 @@ function renderKeyboard() {
     kb.innerHTML = ''; 
     kb.classList.add('active');
     kb.classList.add('unified-keyboard');            
-    FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
+
+    // Floating Settings Toggle
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'kb-settings-toggle';
+    toggleBtn.innerHTML = '⚙️';
+    toggleBtn.onclick = showKeyboardSettings;
+    kb.appendChild(toggleBtn);
+    
+    const isABC = state.keyboardLayout === 'ABCDEF';
+    const isHint = state.hintModeActive;
+    const layoutToRender = isABC ? FRENCH_ABCDEF_LAYOUT : FRENCH_QWERTY_LAYOUT;
+    
+    let activeLetters = [];
+    if (isHint) {
+        activeLetters = Array.from(new Set(state.targetWord.toUpperCase().split('').filter(c => /[A-ZÉÀÈÇÙÛŒ']/.test(c))));
+        
+        // In Hangman, we always need a few decoy letters so it's not a guaranteed win
+        const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+        let decoys = [];
+        while (decoys.length < 5) {
+            let randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+            if (!activeLetters.includes(randomLetter) && !decoys.includes(randomLetter)) {
+                decoys.push(randomLetter);
+            }
+        }
+        activeLetters = [...activeLetters, ...decoys];
+    }
+
+    layoutToRender.forEach((row, index) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'keyboard-row';
-        if (index >= 3) rowDiv.classList.add('accents');
-        if (index === 3) rowDiv.classList.add('accents-start');
+        if (index >= layoutToRender.length - 1) rowDiv.classList.add('accents');
+        if (index === layoutToRender.length - 1) rowDiv.classList.add('accents-start');
         
         row.forEach(l => {
             const k = document.createElement('div'); 
@@ -175,6 +203,11 @@ function renderKeyboard() {
             k.className = 'k-key' + (guessed.includes(l) ? ' used' : ''); 
             k.textContent = l; 
             k.setAttribute('data-key', l);
+            
+            if (isHint && !activeLetters.includes(l)) {
+                k.classList.add('used'); // Grey it out
+            }
+            
             k.onclick = () => handleHangmanInput(l); 
             rowDiv.appendChild(k);
         });

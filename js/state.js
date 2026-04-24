@@ -56,7 +56,9 @@ const state = {
     selectedBpMonth: new Date().getMonth(),
     showFavsOnly: false,
     homeworkToMove: "",
-    aiAbortController: null
+    aiAbortController: null,
+    keyboardLayout: localStorage.getItem('keyboardLayout') || 'QWERTY',
+    hintModeActive: localStorage.getItem('hintModeActive') === 'true'
 };
 
 // Make state globally accessible

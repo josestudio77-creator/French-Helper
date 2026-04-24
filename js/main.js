@@ -146,7 +146,7 @@ if(text) text.style.transform = "translateY(0)";
 
     // 2. AUTO-TRANSITION: If they don't click, the app materializes normally
     setTimeout(() => {
-startAppTransition();
+        startAppTransition();
     }, 1200);
     
     console.log('App loading...');

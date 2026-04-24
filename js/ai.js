@@ -52,7 +52,7 @@ function openEmojiPicker() {
 function submitEmoji() {
     const emoji = document.getElementById('emojiInput').value.trim();
     if (!emoji) {
-        alert('Please type an emoji first!');
+        openAppModal({ title: 'Notice', text: 'Please type an emoji first!', mode: 'view' });
         return;
     }
     
@@ -275,7 +275,7 @@ document.getElementById('photoPickerInput').addEventListener('change', function(
     if (!file) return;
     
     if (file.size > 5 * 1024 * 1024) {
-        alert('Photo is too large! Please choose a smaller photo (under 5MB).');
+        openAppModal({ title: 'Notice', text: 'Photo is too large! Please choose a smaller photo (under 5MB).', mode: 'view' });
         this.value = ''; // Clear so they can try again
         return;
     }
@@ -554,7 +554,7 @@ try {
 
     // 8. UI Reset Helper (FIXED: Added pointer-events restoration)
     function resetUI(msg) {
-if (msg) alert(msg);
+if (msg) openAppModal({ title: 'AI Translation Error', text: msg, mode: 'view' });
 const redrawGroup = document.getElementById('aiRedrawGroup');
 if (isRefresh) {
     redrawGroup.style.pointerEvents = "auto";

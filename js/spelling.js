@@ -16,10 +16,11 @@ function toggleSpellingMode(btn, fullPhrase) {
     const header = document.querySelector('.header');
 
     if (card.classList.contains('spelling-mode')) {
-// --- EXIT SPELLING MODE ---
-btn.innerHTML = "🐝";
+        // --- EXIT SPELLING MODE ---
+        btn.innerHTML = "🐝";
+        if (typeof playTheaterExit === 'function') playTheaterExit();
 
-// RESTORE ORIGINAL SPEECH SPEED
+        // RESTORE ORIGINAL SPEECH SPEED
 if (state.savedSpeechSpeed !== null) {
     state.speechSpeed = state.savedSpeechSpeed;
     // Update the slider to reflect the restored speed
@@ -311,28 +312,62 @@ function renderMiniKeyboard() {
     // Ensure it has the correct classes for your 3D styling
     kbContainer.classList.add("unified-keyboard");
     
-    FRENCH_QWERTY_LAYOUT.forEach((row, index) => {
-const rowDiv = document.createElement('div');
-rowDiv.className = 'keyboard-row';
-if (index >= 3) rowDiv.classList.add('accents');
-if (index === 3) rowDiv.classList.add('accents-start');
+    // Floating Settings Toggle
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'kb-settings-toggle';
+    toggleBtn.innerHTML = '⚙️';
+    toggleBtn.onclick = showKeyboardSettings;
+    kbContainer.appendChild(toggleBtn);
+    
+    const isABC = state.keyboardLayout === 'ABCDEF';
+    const isHint = state.hintModeActive;
+    const layoutToRender = isABC ? FRENCH_ABCDEF_LAYOUT : FRENCH_QWERTY_LAYOUT;
+    
+    let activeLetters = [];
+    if (isHint) {
+        const targetWord = state.currentSpellingState.words[state.currentSpellingState.currentWordIndex] || "";
+        activeLetters = Array.from(new Set(targetWord.toUpperCase().split('').filter(c => /[A-ZÉÀÈÇÙÛŒ']/.test(c))));
+        
+        if (activeLetters.length < 4) {
+            const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            let decoys = [];
+            while (decoys.length < (4 - activeLetters.length)) {
+                let randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+                if (!activeLetters.includes(randomLetter) && !decoys.includes(randomLetter)) {
+                    decoys.push(randomLetter);
+                }
+            }
+            activeLetters = [...activeLetters, ...decoys];
+        }
+    }
+    
+    layoutToRender.forEach((row, index) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row';
+        if (index >= layoutToRender.length - 1) rowDiv.classList.add('accents');
+        if (index === layoutToRender.length - 1) rowDiv.classList.add('accents-start');
 
-row.forEach(key => {
-    const k = document.createElement('div');
-    k.className = 'k-key';
-    k.textContent = key;
-    k.setAttribute('data-key', key);
-    // NEW: Accessibility
-    k.setAttribute('role', 'button');
-    k.setAttribute('aria-label', 'Key ' + key);
-    k.onclick = (e) => { 
-        e.stopPropagation(); 
-        if (state.gameActive) handleHangmanInput(key);
-        else handleSpellingInput(key); 
-    };
-    rowDiv.appendChild(k);
-});
-kbContainer.appendChild(rowDiv);
+        row.forEach(key => {
+            const k = document.createElement('div');
+            k.className = 'k-key';
+            k.textContent = key;
+            k.setAttribute('data-key', key);
+            
+            if (isHint && !activeLetters.includes(key)) {
+                k.classList.add('used'); // Grey it out
+            }
+            
+            // NEW: Accessibility
+            k.setAttribute('role', 'button');
+            k.setAttribute('aria-label', 'Key ' + key);
+            k.onclick = (e) => { 
+                e.stopPropagation(); 
+                if (state.gameActive) handleHangmanInput(key);
+                else handleSpellingInput(key); 
+            };
+            rowDiv.appendChild(k);
+        });
+        kbContainer.appendChild(rowDiv);
     });
 }
     
@@ -404,6 +439,12 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
         } else {
             // --- PREPARE NEXT WORD ---
             renderSpellingSlots();
+            
+            // Re-render the keyboard if hint mode is active so the keys update
+            if (state.hintModeActive) {
+                renderMiniKeyboard();
+            }
+            
             // Say the next word out loud to guide her
             setTimeout(() => {
                 spk(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
@@ -431,6 +472,8 @@ card.animate([
 }
 
 function exitSpellingTheater() {
+    if (typeof playTheaterExit === "function") playTheaterExit();
+    
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
     const stage = document.getElementById('spellingTheaterStage');
     const globalKb = document.getElementById('keyboard');

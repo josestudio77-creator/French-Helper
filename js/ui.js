@@ -6,6 +6,10 @@
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
+    
+    // Clear any existing toasts to prevent stacking
+    container.innerHTML = '';
+    
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = message;
@@ -480,18 +484,18 @@ async function saveHW() {
 
     // 1. Validation: Name and Words are required
     if (!name) { 
-        alert("Please give your homework a name!"); 
+        openAppModal({ title: 'Notice', text: 'Please give your homework a name!', mode: 'view' }); 
         return; 
     }
     if (!words) { 
-        alert("Please enter some French phrases!"); 
+        openAppModal({ title: 'Notice', text: 'Please enter some French phrases!', mode: 'view' }); 
         return; 
     }
 
     // 2. Character Limit: Ensure name isn't too long for the Backpack UI
     if (name.length > 20) {
         name = name.substring(0, 20);
-        alert('⚠️ Name trimmed to 20 characters: "' + name + '"');
+        showToast('⚠️ Name trimmed to 20 characters: "' + name + '"', 'error');
     }
 
     // 3. Metadata Preservation: Don't lose the "Star" or "Folder" if editing
@@ -510,7 +514,17 @@ async function saveHW() {
 
     // 4. Overwrite Protection: Check if the new name clashes with another homework
     if (state.history[name] && name !== state.editingHomeworkName) {
-        const proceed = confirm(`"${name}" already exists in your backpack. Overwrite it?`);
+        const proceed = await new Promise(resolve => {
+            openAppModal({
+                title: "⚠️ Overwrite?",
+                text: `"${name}" already exists in your backpack. Overwrite it?`,
+                mode: 'view',
+                saveText: "Yes, Overwrite",
+                cancelText: "Cancel",
+                onAction: () => resolve(true),
+                onSecondaryAction: () => resolve(false)
+            });
+        });
         if (!proceed) return;
     }
 
@@ -789,7 +803,7 @@ function renameHomework(oldName) {
             
             // 1. Prevent overwriting another existing homework
             if (state.history[newName]) {
-                alert("A homework with that name already exists!");
+                showToast("A homework with that name already exists!", 'error');
                 return false; 
             }
             
@@ -897,10 +911,16 @@ function saveDataAsFile(content, fileName) {
             message += `5. Choose WhatsApp, Telegram, email, etc.\n\n`;
             message += `Would you like to open your Downloads folder now?`;
             
-            if (confirm(message)) {
-                // Try to open downloads folder (works on most Android devices)
-                window.location.href = 'file:///storage/emulated/0/Download/';
-            }
+            openAppModal({
+                title: 'File Saved',
+                text: message,
+                mode: 'view',
+                saveText: 'Open Downloads',
+                cancelText: 'OK',
+                onAction: () => {
+                    window.location.href = 'file:///storage/emulated/0/Download/';
+                }
+            });
         } 
         else if (isIOS) {
             message += `To share the file:\n`;
@@ -911,13 +931,13 @@ function saveDataAsFile(content, fileName) {
             message += `5. Long press on the file\n`;
             message += `6. Select "Share" from the menu\n`;
             message += `7. Choose WhatsApp, Messages, email, etc.`;
-            alert(message);
+            openAppModal({ title: 'File Saved', text: message, mode: 'view' });
         } 
         else {
             // Desktop browser
             message += `File saved to your Downloads folder.\n`;
             message += `You can now attach it to an email, upload it, or share it manually.`;
-            alert(message);
+            openAppModal({ title: 'File Saved', text: message, mode: 'view' });
         }
     }, 500);
 }
@@ -932,7 +952,7 @@ function debugStorage() {
     console.log('gameLosses:', localStorage.getItem('gameLosses'));
     console.log('state.speechSpeed:', localStorage.getItem('speechSpeed'));
     console.log('=====================');
-    alert('Check console for storage debug info (F12)');
+    openAppModal({ title: 'Debug', text: 'Check console for storage debug info (F12)', mode: 'view' });
 }
 
 function nukeStorage() { 
@@ -1297,7 +1317,7 @@ function shareMonth() {
         } catch(e) {}
     });
 
-    if (hwCount === 0) return alert(`No homework in ${currentMonthName}!`);
+    if (hwCount === 0) return openAppModal({ title: 'Notice', text: `No homework in ${currentMonthName}!`, mode: 'view' });
 
     // FORMATTED VERTICALLY
     let summary = `📁 Folder: ${currentMonthName}\n`;
@@ -1392,8 +1412,8 @@ function shareApp() {
             text: 'Check out this fun French learning app for kids!',
             url: window.location.href 
         }).catch(() => {}); 
-    } else { 
-        alert('Share this link: ' + window.location.href); 
+    } else {
+        openAppModal({ title: 'Share', text: 'Share this link: ' + window.location.href, mode: 'view' }); 
     } 
 }
 
@@ -1408,6 +1428,136 @@ function installApp() {
         
         state.deferredPrompt = null; 
     }
+}
+
+function closeKeyboardSettings() {
+    const overlay = document.getElementById('kbSettingsOverlay');
+    if (overlay) overlay.remove();
+}
+
+function showKeyboardSettings() {
+    closeKeyboardSettings();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'kbSettingsOverlay';
+    overlay.className = 'overlay';
+    // Overlay handles centering with flex
+    overlay.style.display = 'flex';
+    overlay.style.zIndex = '19000';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(0,0,0,0.6)'; // Simple dim background
+
+    const modalBox = document.createElement('div');
+    modalBox.className = 'modal-box';
+    modalBox.style.margin = '0'; // Override the 15vh auto to let flex center it
+    modalBox.style.width = '90%';
+    modalBox.style.maxWidth = '400px';
+    
+    // Title
+    const title = document.createElement('h2');
+    title.className = 'modal-title';
+    title.innerHTML = '⌨️ Keyboard Settings';
+    modalBox.appendChild(title);
+    
+    // Label: Layout
+    const layoutLabel = document.createElement('p');
+    layoutLabel.style.fontWeight = '900';
+    layoutLabel.style.color = '#64748b';
+    layoutLabel.style.fontSize = '0.75rem';
+    layoutLabel.style.textTransform = 'uppercase';
+    layoutLabel.style.textAlign = 'left';
+    layoutLabel.style.marginBottom = '5px';
+    layoutLabel.textContent = 'Layout';
+    modalBox.appendChild(layoutLabel);
+    
+    // Row 1: Layout Buttons
+    const row1 = document.createElement('div');
+    row1.className = 'modal-btn-grid';
+    
+    const qwertyBtn = document.createElement('button');
+    qwertyBtn.className = 'modal-btn';
+    qwertyBtn.style.background = state.keyboardLayout === 'QWERTY' ? '#9d4edd' : '#f8fafc';
+    qwertyBtn.style.color = state.keyboardLayout === 'QWERTY' ? 'white' : '#4a5568';
+    qwertyBtn.style.border = state.keyboardLayout === 'QWERTY' ? 'none' : '2px solid #e2e8f0';
+    qwertyBtn.innerHTML = 'QWERTY';
+    qwertyBtn.onclick = () => setKeyboardLayout('QWERTY');
+    
+    const abcBtn = document.createElement('button');
+    abcBtn.className = 'modal-btn';
+    abcBtn.style.background = state.keyboardLayout === 'ABCDEF' ? '#9d4edd' : '#f8fafc';
+    abcBtn.style.color = state.keyboardLayout === 'ABCDEF' ? 'white' : '#4a5568';
+    abcBtn.style.border = state.keyboardLayout === 'ABCDEF' ? 'none' : '2px solid #e2e8f0';
+    abcBtn.innerHTML = 'ABCDEF';
+    abcBtn.onclick = () => setKeyboardLayout('ABCDEF');
+    
+    row1.appendChild(qwertyBtn);
+    row1.appendChild(abcBtn);
+    modalBox.appendChild(row1);
+    
+    // Label: Hint
+    const hintLabel = document.createElement('p');
+    hintLabel.style.fontWeight = '900';
+    hintLabel.style.color = '#64748b';
+    hintLabel.style.fontSize = '0.75rem';
+    hintLabel.style.textTransform = 'uppercase';
+    hintLabel.style.textAlign = 'left';
+    hintLabel.style.marginBottom = '5px';
+    hintLabel.style.marginTop = '15px';
+    hintLabel.textContent = 'Hint Mode';
+    modalBox.appendChild(hintLabel);
+    
+    // Row 2: Hint Toggle
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'modal-btn';
+    hintBtn.style.width = '100%';
+    hintBtn.style.marginBottom = '15px';
+    hintBtn.style.background = state.hintModeActive ? '#4cd964' : '#f8fafc';
+    hintBtn.style.color = state.hintModeActive ? 'white' : '#4a5568';
+    hintBtn.style.border = state.hintModeActive ? 'none' : '2px solid #e2e8f0';
+    hintBtn.innerHTML = state.hintModeActive ? '💡 Hint ON — Greyed keys' : '💡 Hint OFF';
+    hintBtn.onclick = toggleHintMode;
+    modalBox.appendChild(hintBtn);
+    
+    // Done Button
+    const doneBtn = document.createElement('button');
+    doneBtn.className = 'modal-btn';
+    doneBtn.style.width = '100%';
+    doneBtn.style.background = '#ff9e6d';
+    doneBtn.style.color = 'white';
+    doneBtn.style.border = 'none';
+    doneBtn.innerHTML = '✓ Done';
+    doneBtn.onclick = closeKeyboardSettings;
+    modalBox.appendChild(doneBtn);
+    
+    overlay.appendChild(modalBox);
+    document.body.appendChild(overlay);
+}
+
+function setKeyboardLayout(layout) {
+    state.keyboardLayout = layout;
+    localStorage.setItem('keyboardLayout', layout);
+    
+    // Re-render whichever keyboard is currently active
+    if (state.gameActive && typeof renderKeyboard === "function") {
+        renderKeyboard();
+    } else if (state.currentSpellingState && typeof renderMiniKeyboard === "function") {
+        renderMiniKeyboard();
+    }
+    showKeyboardSettings(); // Rebuild the popup to update visually
+}
+
+function toggleHintMode() {
+    state.hintModeActive = !state.hintModeActive;
+    localStorage.setItem('hintModeActive', state.hintModeActive);
+    
+    // Re-render whichever keyboard is currently active
+    if (state.gameActive && typeof renderKeyboard === "function") {
+        renderKeyboard();
+    } else if (state.currentSpellingState && typeof renderMiniKeyboard === "function") {
+        renderMiniKeyboard();
+    }
+    showKeyboardSettings(); // Rebuild the popup to update visually
 }
     
 

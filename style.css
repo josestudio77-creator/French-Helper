@@ -78,10 +78,10 @@
     /* ==================== PHRASE CARD ==================== */
     
     .phrase-card { 
-        background: white; 
+        background: #fdfbf7; 
         border-radius: 25px; 
         padding: 20px; 
-        margin: 15px 0; 
+        margin: 15px auto; 
         border: 5px solid #a3e4d7; 
         text-align: center; 
         box-shadow: 0 6px 12px rgba(0,0,0,0.08); 
@@ -252,11 +252,9 @@
         left: 0; 
         right: 0; 
         bottom: 0; 
-        background: rgba(0,0,0,0.85);
+        background: linear-gradient(to bottom right, #ffccd5, #b5e6ff);
         z-index: 8000; 
         padding: 15px; 
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
     }
     
     .overlay-content {
@@ -495,7 +493,7 @@
     /* ==================== CONDENSED & DIALOGUE MODE ==================== */
     
     .condensed-card {
-        background: white;
+        background: #fdfbf7;
         border-radius: 25px;
         padding: 20px 15px;
         margin: 15px 0;
@@ -1313,7 +1311,7 @@
     background: #fffdf0 !important;
     margin: 125px auto 5px auto !important;
     width: 94%;
-    max-width: 450px;
+    max-width: 750px;
     position: relative;
     z-index: 1000;
     overflow: visible !important;
@@ -1512,6 +1510,29 @@ body.mode-spelling .spelling-slots {
 }
      
      
+    /* Keyboard Settings Drawer UI */
+    .kb-settings-toggle {
+        position: absolute;
+        top: -35px;
+        right: 15px;
+        background: #f1f5f9;
+        border: 2px solid #cbd5e0;
+        border-radius: 12px 12px 0 0;
+        padding: 5px 15px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        border-bottom: none;
+        transition: transform 0.1s;
+    }
+    
+    .kb-settings-toggle:active {
+        transform: scale(0.95);
+    }
+
+    /* Custom popup classes removed in favor of standard .modal-box */
+
     /* ==================== UNIFIED KEYBOARD ==================== */
      
     .unified-keyboard {
@@ -1549,10 +1570,13 @@ body.mode-spelling .spelling-slots {
         justify-content: center;
         gap: 4px;
         width: 100%;
+        flex-wrap: wrap;
     }
      
     .k-key {
-        flex: 0 0 calc(10% - 6px);
+        flex: 1 1 auto;
+        min-width: 25px;
+        max-width: calc(10% - 6px);
         height: 48px;
         background: white;
         border: 1px solid #cbd5e0;
@@ -1896,4 +1920,51 @@ body.mode-spelling .spelling-slots {
     @keyframes toastFadeOut {
         from { transform: translateY(0); opacity: 1; }
         to { transform: translateY(-50px); opacity: 0; }
+    }
+    
+    /* ==================== RESPONSIVE DESIGN (TABLET & DESKTOP) ==================== */
+    
+    /* Tablet Portrait and small desktops */
+    @media (min-width: 768px) {
+        .container {
+            max-width: 750px;
+        }
+        
+        .overlay-content {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        
+        /* Center the keyboard and match container width */
+        .unified-keyboard {
+            max-width: 750px;
+            margin: 0 auto;
+            border-left: 4px solid #FFD700;
+            border-right: 4px solid #FFD700;
+            border-radius: 25px 25px 0 0;
+        }
+        
+        #phrasesList {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+    }
+    
+    /* Large Desktop */
+    @media (min-width: 1024px) {
+        .container {
+            max-width: 900px;
+        }
+        
+        .overlay-content {
+            max-width: 900px;
+        }
+        
+        .unified-keyboard {
+            max-width: 900px;
+        }
+        
+        #phrasesList {
+            max-width: 900px;
+        }
     }

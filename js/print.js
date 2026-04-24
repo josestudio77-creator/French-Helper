@@ -5,7 +5,7 @@
 
 function openPrintSelection(words, homeworkName) {
     state.tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!state.tempWordsToPrint) { alert("Please enter some phrases first!"); return; }
+    if (!state.tempWordsToPrint) { openAppModal({ title: 'Notice', text: 'Please enter some phrases first!', mode: 'view' }); return; }
     state.tempPrintName = homeworkName || state.currentSetName || "Français";
     
     // 1. Reset Numeric Stepper

@@ -51,7 +51,7 @@ openAppModal({
     }
 
 function shareAllWeeks() {
-    if (!state.history || Object.keys(state.history).length === 0) return alert('No weeks to share!');
+    if (!state.history || Object.keys(state.history).length === 0) return openAppModal({ title: 'Notice', text: 'No weeks to share!', mode: 'view' });
     
     const hwCount = Object.keys(state.history).length;
     const photoCount = Object.keys(state.customPhotos).length;
@@ -258,7 +258,7 @@ function importBackup() {
             });
 
         } catch (error) {
-            alert('❌ Failed to read file.');
+            openAppModal({ title: 'Error', text: '❌ Failed to read file.', mode: 'view' });
         }
     };
     input.click();
@@ -879,7 +879,7 @@ function handleAudioUpload(event) {
     if (!file) return;
     
     if (!file.type.startsWith('audio/')) {
-        alert('Please select an audio file (.oga, .ogg, .mp3, .wav, .m4a)');
+        openAppModal({ title: 'Notice', text: 'Please select an audio file (.oga, .ogg, .mp3, .wav, .m4a)', mode: 'view' });
         event.target.value = '';
         return;
     }
