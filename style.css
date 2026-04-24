@@ -1555,16 +1555,16 @@ body.mode-spelling .spelling-slots {
 
 .accent-bar {
     display: flex;
-    flex-wrap: wrap;        /* Allows wrapping on mobile, stays single-line on Desktop */
-    gap: 5px;               /* Space between buttons */
-    justify-content: center; /* Keeps them centered */
+    flex-wrap: wrap;        /* Allows wrapping on mobile */
+    gap: 4px;               /* Reduced gap slightly for better fit */
+    justify-content: center; 
     margin-bottom: 10px;
     width: 100%;
 }
 
 .accent-bar button {
-    width: 40px;            /* Fixed width: NO stretching */
-    height: 40px;           /* Perfect square */
+    width: 36px;            /* MAGIC NUMBER: Ensures a 7/6 split on mobile */
+    height: 40px;           /* Keeping a nice height for thumb-tapping */
     padding: 0 !important;  
     display: flex;
     align-items: center;
@@ -1575,7 +1575,7 @@ body.mode-spelling .spelling-slots {
     border: 2px solid #0369a1;
     font-weight: bold;
     cursor: pointer;
-    flex: none;             /* Forces the button to respect the 40px width */
+    flex: none;             
     font-size: 1.1rem;
     box-shadow: 0 2px 0 rgba(0,0,0,0.1);
     transition: transform 0.1s;
