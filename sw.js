@@ -1,22 +1,22 @@
-// sw.js - Service Worker V901 (Modular JS architecture)
-const CACHE_NAME = 'french-fun-v901'; // Bumped: force UI updates on mobile
+// sw.js - Service Worker V902 (Modular JS architecture)
+const CACHE_NAME = 'french-fun-v902'; // Bumped: force UI updates on mobile
 const urlsToCache = [
   './',
-  './index.html',
-  './style.css',
+  './index.html?v=902',
+  './style.css?v=902',
   './manifest.json',
   './icon.png',
   './KGPrimaryPenmanshipAlt.woff2',
-  './js/config.js',
-  './js/state.js',
-  './js/audio.js',
-  './js/ai.js',
-  './js/ui.js',
-  './js/homework.js',
-  './js/game.js',
-  './js/print.js',
-  './js/spelling.js',
-  './js/main.js'
+  './js/config.js?v=902',
+  './js/state.js?v=902',
+  './js/audio.js?v=902',
+  './js/ai.js?v=902',
+  './js/ui.js?v=902',
+  './js/homework.js?v=902',
+  './js/game.js?v=902',
+  './js/print.js?v=902',
+  './js/spelling.js?v=902',
+  './js/main.js?v=902'
 ];
 
 // Install event - cache files
