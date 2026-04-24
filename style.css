@@ -1018,6 +1018,13 @@
         margin-bottom: 5px; 
     }
     
+    .folder-card.folder-home {
+        grid-column: 1 / -1;
+    }
+    
+    .folder-card.folder-home .folder-icon {
+        font-size: 2.5rem;
+    }
     .folder-label {
         font-size: 0.7rem;
         font-weight: 900;
@@ -1419,7 +1426,8 @@ body.mode-spelling #phrasesList {
     background: #fffdf0 !important;
     border-color: #ffe082 !important;
     height: 36px !important; /* Even shorter for accent rows */
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
+    min-width: 0 !important;
     max-width: none !important;
     padding: 0 2px !important;
 }
@@ -1525,7 +1533,7 @@ body.mode-spelling .spelling-slots {
     .kb-settings-toggle {
         position: absolute;
         right: 0;
-        bottom: 60px;
+        bottom: 95px;
         transform: translateY(50%);
         background: #f1f5f9;
         border: 2px solid #cbd5e0;
@@ -1573,7 +1581,7 @@ body.mode-spelling .spelling-slots {
     }
      
     .keyboard-buffer {
-        padding-bottom: 260px !important;
+        padding-bottom: 240px !important;
         transition: padding-bottom 1.0s ease;
     }
      
@@ -1625,8 +1633,9 @@ body.mode-spelling .spelling-slots {
     .keyboard-row.accents .k-key {
         background: #fffdf0;
         height: 36px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         border-color: #ffe082;
+        min-width: 0;
         max-width: none;
         padding: 0 2px;
     }
