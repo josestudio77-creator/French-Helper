@@ -1,5 +1,5 @@
-// sw.js - Service Worker V900 (Modular JS architecture)
-const CACHE_NAME = 'french-fun-v900'; // Bumped: new modular JS structure
+// sw.js - Service Worker V901 (Modular JS architecture)
+const CACHE_NAME = 'french-fun-v901'; // Bumped: force UI updates on mobile
 const urlsToCache = [
   './',
   './index.html',
