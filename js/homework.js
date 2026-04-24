@@ -597,20 +597,21 @@ try {
 
     // Create the 12 Folder buttons
     monthNames.forEach((month, index) => {
-const folder = document.createElement('div');
-folder.className = 'folder-card';
-
-// Highlight current folder if we are just navigating
-if (index === state.selectedBpMonth && !state.homeworkToMove) {
-    folder.style.borderColor = "#118AB2";
-    folder.style.background = "#e0f2fe";
-}
+        const folder = document.createElement('div');
+        const extraClass = month === "Home" ? " folder-home" : "";
+        folder.className = 'folder-card' + extraClass;
+        
+        // Highlight current folder if we are just navigating
+        if (index === state.selectedBpMonth && !state.homeworkToMove) {
+            folder.style.borderColor = "#118AB2";
+            folder.style.background = "#e0f2fe";
+        }
 
 folder.onclick = () => performFolderAction(index);
 
 const badge = counts[index] > 0 ? `<div class="folder-badge">${counts[index]}</div>` : '';
 
-const label = month === "Home" ? "Home" : month.substring(0, 3);
+const label = month === "Home" ? "Home Practice" : month.substring(0, 3);
 
 folder.innerHTML = `
     ${badge}
