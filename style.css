@@ -1551,7 +1551,40 @@ body.mode-spelling .spelling-slots {
         transform: translateY(50%) scale(0.95);
     }
 
-    /* Custom popup classes removed in favor of standard .modal-box */
+/* ==================== ACCENT BAR LAYOUT (For Typing/Parents) ==================== */
+
+.accent-bar {
+    display: flex;
+    flex-wrap: wrap;        /* Allows wrapping on mobile, stays single-line on Desktop */
+    gap: 5px;               /* Space between buttons */
+    justify-content: center; /* Keeps them centered */
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.accent-bar button {
+    width: 40px;            /* Fixed width: NO stretching */
+    height: 40px;           /* Perfect square */
+    padding: 0 !important;  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 2px solid #0369a1;
+    font-weight: bold;
+    cursor: pointer;
+    flex: none;             /* Forces the button to respect the 40px width */
+    font-size: 1.1rem;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+    transition: transform 0.1s;
+}
+
+.accent-bar button:active {
+    transform: scale(0.95);
+    background: #bae6fd;
+}
 
     /* ==================== UNIFIED KEYBOARD ==================== */
      
