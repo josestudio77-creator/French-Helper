@@ -1556,27 +1556,30 @@ body.mode-spelling .spelling-slots {
 .accent-bar {
     display: flex;
     flex-wrap: wrap;        /* Allows wrapping on mobile */
-    gap: 4px;               /* Reduced gap slightly for better fit */
+    gap: 3px;               /* Reduced gap to save horizontal space */
     justify-content: center; 
     margin-bottom: 10px;
     width: 100%;
+    max-width: 480px;       /* Guides the desktop row to stay straight */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .accent-bar button {
-    width: 36px;            /* MAGIC NUMBER: Ensures a 7/6 split on mobile */
-    height: 40px;           /* Keeping a nice height for thumb-tapping */
+    width: 33px;            /* Narrower to ensure 7 fit in one mobile row */
+    height: 38px;           /* Slightly shorter to match width */
     padding: 0 !important;  
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 6px;
     background: #e0f2fe;
     color: #0369a1;
     border: 2px solid #0369a1;
-    font-weight: bold;
+    font-weight: 800;       /* Slightly lighter weight to fit in smaller box */
     cursor: pointer;
     flex: none;             
-    font-size: 1.1rem;
+    font-size: 0.95rem;     /* Adjusted font to look clean in 33px width */
     box-shadow: 0 2px 0 rgba(0,0,0,0.1);
     transition: transform 0.1s;
 }
