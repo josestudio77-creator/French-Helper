@@ -53,22 +53,34 @@ const FRENCH_LETTER_NAMES = {
     'K': 'ka', 'L': 'elle', 'M': 'emme', 'N': 'enne', 'O': 'o',
     'P': 'pé', 'Q': 'qu', 'R': 'erre', 'S': 'esse', 'T': 'té',
     'U': 'u', 'V': 'vé', 'W': 'double vé', 'X': 'ixe', 'Y': 'i grec', 'Z': 'zed',
-    'É': 'é', 'À': 'a accent grave', 'È': 'e accent grave', 'Ç': 'c cédille',
-    'Ù': 'u accent grave', 'Û': 'u accent circonflexe', 'Î': 'i accent circonflexe',
-    "'": 'apostrophe', '-': 'trait d’union', 'Œ': 'e dans l\'o'
+    'É': 'e accent aigu', 
+    'È': 'e accent grave', 
+    'Ê': 'e accent circonflexe', 
+    'Ë': 'e tréma',
+    'À': 'a accent grave', 
+    'Â': 'a accent circonflexe',
+    'Î': 'i accent circonflexe', 
+    'Ï': 'i tréma',
+    'Ô': 'o accent circonflexe',
+    'Û': 'u accent circonflexe', 
+    'Ù': 'u accent grave',
+    'Ç': 'cé cédille',
+    'Œ': 'e dans l\'o',
+    "'": 'apostrophe', 
+    "-": 'trait d’union'
 };
 
 const FRENCH_QWERTY_LAYOUT = [
     ["Q","W","E","R","T","Y","U","I","O","P"],
     ["A","S","D","F","G","H","J","K","L"],
     ["Z","X","C","V","B","N","M"],
-    ["É","È","Ê","À","Â","Î","Ï","Ô","Û","Ù","Ç","Œ","'"]
+    ["É","È","Ê","Ë","À","Â","Î","Ï","Ô","Û","Ù","Ç","Œ"]
 ];
 
 const FRENCH_ABCDEF_LAYOUT = [
     ["A","B","C","D","E","F","G","H","I","J"],
     ["K","L","M","N","O","P","Q","R","S"],
     ["T","U","V","W","X","Y","Z"],
-    ["É","È","Ê","À","Â","Î","Ï","Ô","Û","Ù","Ç","Œ","'"]
+    ["É","È","Ê","Ë","À","Â","Î","Ï","Ô","Û","Ù","Ç","Œ"]
 ];
 
