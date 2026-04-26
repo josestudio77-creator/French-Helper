@@ -1586,8 +1586,11 @@ body.mode-spelling .spelling-slots {
     .unified-keyboard {
         position: fixed;
         bottom: 0;
-        left: 0;
-        right: 0;
+        left: 50%;
+        transform: translateX(-50%) translateY(100%); /* Centered horizontally */
+        width: 100%;
+        /* THE DESKTOP FIX: Limits width on large screens */
+        max-width: 550px; 
         background: #f8fafc;
         padding: 10px 5px 25px 5px !important;
         border-top: 4px solid #FFD700;
@@ -1597,29 +1600,30 @@ body.mode-spelling .spelling-slots {
         visibility: hidden;
         pointer-events: none;
         flex-direction: column;
-        gap: 8px;
-        transform: translateY(100%);
-        transition: transform 1.0s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.0s;
+        gap: 6px;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
+        border-radius: 20px 20px 0 0;
     }
      
     .unified-keyboard.active {
         visibility: visible;
         pointer-events: auto;
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0);
     }
 
-    /* THE GEAR: Positioned exactly at Row 2 (A-L row) */
+    /* THE GEAR: Positioned at the end of Row 2 */
     .kb-settings-toggle {
         position: absolute;
         right: 0;
-        bottom: 152px; /* Aligned vertically with the center of Row 2 */
+        /* Matches Row 2 position exactly */
+        bottom: 155px; 
         transform: translateY(50%);
         background: #f1f5f9;
         border: 2px solid #cbd5e0;
         border-radius: 20px 0 0 20px;
         border-right: none;
-        padding: 8px 5px 8px 12px;
-        font-size: 1.2rem;
+        padding: 10px 8px 10px 12px;
+        font-size: 1.3rem;
         cursor: pointer;
         z-index: 13000;
         box-shadow: -2px 0 5px rgba(0,0,0,0.05);
@@ -1627,29 +1631,31 @@ body.mode-spelling .spelling-slots {
     }
 
     .kb-settings-toggle:active {
-        transform: translateY(50%) scale(0.92);
+        transform: translateY(50%) scale(0.9);
     }
      
     .keyboard-buffer {
-        padding-bottom: 260px !important; /* Adjusted slightly to ensure 4 rows fit */
-        transition: padding-bottom 1.0s ease;
+        padding-bottom: 270px !important;
+        transition: padding-bottom 0.8s ease;
     }
      
     .keyboard-row {
         display: flex;
-        justify-content: center;
-        gap: 4px;
+        /* IMPORTANT: justify-content: flex-start ensures Row 2 
+           stays on the left, leaving the right side open for the gear */
+        justify-content: flex-start;
+        gap: 0.6%; 
         width: 100%;
-        /* Force single line per row to maintain the perfect 10-key grid */
-        flex-wrap: nowrap !important;
+        padding: 0 1%;
+        box-sizing: border-box;
     }
      
     .k-key {
-        /* THE EQUALITY FIX: flex-basis 0 forces all keys (even thin ones like Î) 
-           to be mathematically identical in width */
-        flex: 1 1 0%;
-        min-width: 0;
-        max-width: 50px; 
+        /* THE PERFECT GRID MATH:
+           (10 keys * 9.4%) + (9 gaps * 0.6%) = 100% 
+           This forces all keys to be identical across all rows.
+        */
+        flex: 0 0 9.4%;
         height: 48px;
         background: white;
         border: 1px solid #cbd5e0;
@@ -1674,56 +1680,28 @@ body.mode-spelling .spelling-slots {
     }
      
     .k-key.used {
-        opacity: 0.3; /* Slightly more transparent to make Hint Mode clearer */
+        opacity: 0.25;
         background: #e2e8f0;
         pointer-events: none;
         box-shadow: none;
     }
 
     /* --- SPECIAL CHARACTER THEME --- */
-    /* This targets Row 4 (.accents) AND specifically the special keys in Row 3 */
-    .keyboard-row.accents .k-key,
-    .k-key[data-key="Ç"],
-    .k-key[data-key="Œ"],
-    .k-key[data-key="Ù"] {
+    .k-key[data-key="Ç"], .k-key[data-key="Œ"], .k-key[data-key="Ù"],
+    .k-key[data-key="É"], .k-key[data-key="È"], .k-key[data-key="Ê"], 
+    .k-key[data-key="Ë"], .k-key[data-key="À"], .k-key[data-key="Â"], 
+    .k-key[data-key="Î"], .k-key[data-key="Ï"], .k-key[data-key="Ô"], 
+    .k-key[data-key="Û"] {
         background: #fffdf0 !important;
         border-color: #ffe082 !important;
         color: #92400e !important;
     }
 
-    /* Active state for special keys to maintain feedback */
-    .k-key[data-key="Ç"]:active,
-    .k-key[data-key="Œ"]:active,
-    .k-key[data-key="Ù"]:active,
-    .keyboard-row.accents .k-key:active {
-        background: #e0f2fe !important;
-    }
-
-    /* Ensure standard letters in Row 3 stay white */
-    .keyboard-row:not(.accents) .k-key:not([data-key="Ç"]):not([data-key="Œ"]):not([data-key="Ù"]) {
-        background: white;
-        border-color: #cbd5e0;
-        color: #2d3748;
-    }
-
-    /* Hide spacers if used for alignment in arrays */
-    .k-key[data-key=""] {
-        visibility: hidden;
-        pointer-events: none;
-        box-shadow: none;
-        border: none;
-    }
-    
-    /* Responsive Desktop Grid for Parent Drawer */
-    .parent-btn-grid {
-        grid-template-columns: 1fr;
-    }
+    /* Tablet/Desktop Key Height Refinement */
     @media (min-width: 600px) {
-        .parent-btn-grid {
-            grid-template-columns: 1fr 1fr;
-        }
+        .k-key { height: 52px; font-size: 1.2rem; }
+        .kb-settings-toggle { bottom: 168px; }
     }
-     
      
     /* ==================== ANIMATIONS ==================== */
      
