@@ -1586,13 +1586,11 @@ body.mode-spelling .spelling-slots {
     .unified-keyboard {
         position: fixed;
         bottom: 0;
-        left: 50%;
-        transform: translateX(-50%) translateY(100%); /* Centered horizontally */
-        width: 100%;
-        /* THE DESKTOP FIX: Limits width on large screens */
-        max-width: 550px; 
+        left: 0;
+        right: 0;
         background: #f8fafc;
-        padding: 10px 5px 25px 5px !important;
+        /* Padding ensures keys don't touch the very edge of the screen */
+        padding: 10px 8px 30px 8px !important;
         border-top: 4px solid #FFD700;
         box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
         z-index: 9500;
@@ -1600,30 +1598,30 @@ body.mode-spelling .spelling-slots {
         visibility: hidden;
         pointer-events: none;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
+        transform: translateY(100%);
         transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-        border-radius: 20px 20px 0 0;
+        box-sizing: border-box; /* CRITICAL: Includes padding in width calculation */
     }
      
     .unified-keyboard.active {
         visibility: visible;
         pointer-events: auto;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
     }
 
-    /* THE GEAR: Positioned at the end of Row 2 */
+    /* THE GEAR: Positioned specifically at Row 2 */
     .kb-settings-toggle {
         position: absolute;
         right: 0;
-        /* Matches Row 2 position exactly */
-        bottom: 155px; 
+        bottom: 152px; 
         transform: translateY(50%);
         background: #f1f5f9;
         border: 2px solid #cbd5e0;
         border-radius: 20px 0 0 20px;
         border-right: none;
-        padding: 10px 8px 10px 12px;
-        font-size: 1.3rem;
+        padding: 8px 5px 8px 12px;
+        font-size: 1.2rem;
         cursor: pointer;
         z-index: 13000;
         box-shadow: -2px 0 5px rgba(0,0,0,0.05);
@@ -1631,31 +1629,29 @@ body.mode-spelling .spelling-slots {
     }
 
     .kb-settings-toggle:active {
-        transform: translateY(50%) scale(0.9);
+        transform: translateY(50%) scale(0.92);
     }
      
     .keyboard-buffer {
-        padding-bottom: 270px !important;
+        padding-bottom: 260px !important;
         transition: padding-bottom 0.8s ease;
     }
      
     .keyboard-row {
         display: flex;
-        /* IMPORTANT: justify-content: flex-start ensures Row 2 
-           stays on the left, leaving the right side open for the gear */
-        justify-content: flex-start;
-        gap: 0.6%; 
+        justify-content: center; /* This keeps your keyboard perfectly centered */
+        gap: 4px;
         width: 100%;
-        padding: 0 1%;
-        box-sizing: border-box;
+        flex-wrap: nowrap !important;
     }
      
     .k-key {
-        /* THE PERFECT GRID MATH:
-           (10 keys * 9.4%) + (9 gaps * 0.6%) = 100% 
-           This forces all keys to be identical across all rows.
+        /* THE EQUALITY MATH:
+           Each key takes up exactly 1/10th of the row minus the gaps. 
         */
-        flex: 0 0 9.4%;
+        flex: 1 1 0%;
+        min-width: 0;
+        max-width: 50px; 
         height: 48px;
         background: white;
         border: 1px solid #cbd5e0;
@@ -1680,27 +1676,67 @@ body.mode-spelling .spelling-slots {
     }
      
     .k-key.used {
-        opacity: 0.25;
+        opacity: 0.3;
         background: #e2e8f0;
         pointer-events: none;
         box-shadow: none;
     }
 
-    /* --- SPECIAL CHARACTER THEME --- */
-    .k-key[data-key="Ç"], .k-key[data-key="Œ"], .k-key[data-key="Ù"],
-    .k-key[data-key="É"], .k-key[data-key="È"], .k-key[data-key="Ê"], 
-    .k-key[data-key="Ë"], .k-key[data-key="À"], .k-key[data-key="Â"], 
-    .k-key[data-key="Î"], .k-key[data-key="Ï"], .k-key[data-key="Ô"], 
+    /* --- SPECIAL CHARACTER COLORING (EXPANDED LOGIC) --- */
+    /* We color every special key individually to ensure no logic is condensed */
+    .k-key[data-key="Ç"],
+    .k-key[data-key="Œ"],
+    .k-key[data-key="Ù"],
+    .k-key[data-key="É"],
+    .k-key[data-key="È"],
+    .k-key[data-key="Ê"],
+    .k-key[data-key="Ë"],
+    .k-key[data-key="À"],
+    .k-key[data-key="Â"],
+    .k-key[data-key="Î"],
+    .k-key[data-key="Ï"],
+    .k-key[data-key="Ô"],
     .k-key[data-key="Û"] {
         background: #fffdf0 !important;
         border-color: #ffe082 !important;
         color: #92400e !important;
     }
 
-    /* Tablet/Desktop Key Height Refinement */
+    /* Active states for special keys */
+    .k-key[data-key="Ç"]:active,
+    .k-key[data-key="Œ"]:active,
+    .k-key[data-key="Ù"]:active,
+    .k-key[data-key="É"]:active,
+    .k-key[data-key="È"]:active,
+    .k-key[data-key="Ê"]:active,
+    .k-key[data-key="Ë"]:active,
+    .k-key[data-key="À"]:active,
+    .k-key[data-key="Â"]:active,
+    .k-key[data-key="Î"]:active,
+    .k-key[data-key="Ï"]:active,
+    .k-key[data-key="Ô"]:active,
+    .k-key[data-key="Û"]:active {
+        background: #e0f2fe !important;
+    }
+
+    /* THE SPACER: This makes the empty slot in Row 2 invisible but keeps the logic */
+    .k-key[data-key=""] {
+        visibility: hidden;
+        pointer-events: none;
+        box-shadow: none;
+        border: none;
+    }
+    
+    /* Desktop Responsive adjustment */
     @media (min-width: 600px) {
-        .k-key { height: 52px; font-size: 1.2rem; }
-        .kb-settings-toggle { bottom: 168px; }
+        .unified-keyboard {
+            max-width: 500px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+        }
+        .unified-keyboard.active {
+            transform: translateX(-50%) translateY(0);
+        }
     }
      
     /* ==================== ANIMATIONS ==================== */
