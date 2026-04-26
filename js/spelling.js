@@ -312,13 +312,6 @@ function renderMiniKeyboard() {
     // Ensure it has the correct classes for your 3D styling
     kbContainer.classList.add("unified-keyboard");
     
-    // Floating Settings Toggle
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'kb-settings-toggle';
-    toggleBtn.innerHTML = '⚙️';
-    toggleBtn.onclick = showKeyboardSettings;
-    kbContainer.appendChild(toggleBtn);
-    
     const isABC = state.keyboardLayout === 'ABCDEF';
     const isHint = state.hintModeActive;
     const layoutToRender = isABC ? FRENCH_ABCDEF_LAYOUT : FRENCH_QWERTY_LAYOUT;
@@ -349,6 +342,16 @@ function renderMiniKeyboard() {
 
         row.forEach(key => {
             const k = document.createElement('div');
+            
+            if (key === "") {
+                // IT'S THE GEAR!
+                k.className = 'k-key settings-gear';
+                k.innerHTML = '⚙️';
+                k.onclick = (e) => { e.stopPropagation(); showKeyboardSettings(); };
+                rowDiv.appendChild(k);
+                return; // skip the rest
+            }
+            
             k.className = 'k-key';
             k.textContent = key;
             k.setAttribute('data-key', key);

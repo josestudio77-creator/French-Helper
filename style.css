@@ -1414,29 +1414,13 @@ body.mode-spelling #phrasesList {
     gap: 4px !important;
 }
  
-.keyboard-row.accents-start {
-    margin-top: 10px; /* Small gap between alphabet and special characters */
-}
+
  
 .keyboard-row.accents {
     flex-wrap: nowrap !important;
 }
  
-.keyboard-row.accents .k-key {
-    background: #fffdf0 !important;
-    border-color: #ffe082 !important;
-    height: 36px !important; /* Even shorter for accent rows */
-    font-size: 0.85rem !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    padding: 0 2px !important;
-}
 
-.keyboard-row.accents .k-key:active,
-.keyboard-row.accents .k-key.key-pressed {
-    background: #e0f2fe !important;
-}
- 
 /* ========== SPELLING SLOTS & ANIMATIONS ========== */
  
 .spelling-slots {
@@ -1610,26 +1594,36 @@ body.mode-spelling .spelling-slots {
         transform: translateY(0);
     }
 
-    /* THE GEAR: Positioned specifically at Row 2 */
-    .kb-settings-toggle {
-        position: absolute;
-        right: 0;
-        bottom: 152px; 
-        transform: translateY(50%);
-        background: #f1f5f9;
-        border: 2px solid #cbd5e0;
-        border-radius: 20px 0 0 20px;
-        border-right: none;
-        padding: 8px 5px 8px 12px;
-        font-size: 1.2rem;
-        cursor: pointer;
-        z-index: 13000;
-        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
-        transition: transform 0.1s;
+    /* Desktop Responsive adjustment */
+    @media (min-width: 600px) {
+        .unified-keyboard {
+            max-width: 500px;
+            left: 50%;
+            right: auto;
+            width: 100%;
+            transform: translateX(-50%) translateY(100%);
+        }
+        .unified-keyboard.active {
+            transform: translateX(-50%) translateY(0);
+        }
     }
 
-    .kb-settings-toggle:active {
-        transform: translateY(50%) scale(0.92);
+    /* THE GEAR: Integrated into the row flexbox */
+    .k-key.settings-gear {
+        background: #f1f5f9;
+        border: 2px solid #cbd5e0;
+        border-radius: 8px;
+        color: #64748b;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 0 #cbd5e0;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .k-key.settings-gear:active {
+        transform: translateY(3px);
+        box-shadow: 0 1px 0 #cbd5e0;
+        background: #e2e8f0;
     }
      
     .keyboard-buffer {
@@ -1650,8 +1644,8 @@ body.mode-spelling .spelling-slots {
            Each key takes up exactly 1/10th of the row minus the gaps. 
         */
         flex: 1 1 0%;
+        width: 100%;
         min-width: 0;
-        max-width: 50px; 
         height: 48px;
         background: white;
         border: 1px solid #cbd5e0;
@@ -1697,9 +1691,9 @@ body.mode-spelling .spelling-slots {
     .k-key[data-key="Ï"],
     .k-key[data-key="Ô"],
     .k-key[data-key="Û"] {
-        background: #fffdf0 !important;
-        border-color: #ffe082 !important;
-        color: #92400e !important;
+        background: #fdf4ff !important;
+        border-color: #f0abfc !important;
+        color: #86198f !important;
     }
 
     /* Active states for special keys */
@@ -1716,7 +1710,7 @@ body.mode-spelling .spelling-slots {
     .k-key[data-key="Ï"]:active,
     .k-key[data-key="Ô"]:active,
     .k-key[data-key="Û"]:active {
-        background: #e0f2fe !important;
+        background: #fae8ff !important;
     }
 
     /* THE SPACER: This makes the empty slot in Row 2 invisible but keeps the logic */
@@ -1727,17 +1721,7 @@ body.mode-spelling .spelling-slots {
         border: none;
     }
     
-    /* Desktop Responsive adjustment */
-    @media (min-width: 600px) {
-        .unified-keyboard {
-            max-width: 500px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100%);
-        }
-        .unified-keyboard.active {
-            transform: translateX(-50%) translateY(0);
-        }
-    }
+
      
     /* ==================== ANIMATIONS ==================== */
      

@@ -163,13 +163,6 @@ function renderKeyboard() {
     kb.innerHTML = ''; 
     kb.classList.add('active');
     kb.classList.add('unified-keyboard');            
-
-    // Floating Settings Toggle
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'kb-settings-toggle';
-    toggleBtn.innerHTML = '⚙️';
-    toggleBtn.onclick = showKeyboardSettings;
-    kb.appendChild(toggleBtn);
     
     const isABC = state.keyboardLayout === 'ABCDEF';
     const isHint = state.hintModeActive;
@@ -199,6 +192,16 @@ function renderKeyboard() {
         
         row.forEach(l => {
             const k = document.createElement('div'); 
+            
+            if (l === "") {
+                // IT'S THE GEAR!
+                k.className = 'k-key settings-gear';
+                k.innerHTML = '⚙️';
+                k.onclick = (e) => { e.stopPropagation(); showKeyboardSettings(); };
+                rowDiv.appendChild(k);
+                return; // skip the rest
+            }
+            
             // PRESERVED: Keeping your .used logic for Hangman
             k.className = 'k-key' + (guessed.includes(l) ? ' used' : ''); 
             k.textContent = l; 
