@@ -1527,57 +1527,6 @@ body.mode-spelling .spelling-slots {
     gap: 8px;
     margin: 15px 0 25px 0;
 }
-     
-     
-/* 1. THE GEAR: Moved up to the 2nd row (A-L row) */
-.kb-settings-toggle {
-    position: absolute;
-    right: 0;
-    bottom: 150px; /* INCREASED from 95px to move up one row */
-    
-    /* THE STEADY FIX: Keep this here so it doesn't jump when clicked */
-    transform: translateY(50%); 
-    
-    background: #f1f5f9;
-    border: 2px solid #cbd5e0;
-    border-radius: 20px 0 0 20px;
-    border-right: none;
-    padding: 8px 5px 8px 12px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 13000; 
-    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
-    transition: transform 0.1s;
-}
-
-/* 2. THE SPACERS: Hide the alignment slots */
-.k-key[data-key=""] {
-    visibility: hidden;
-    pointer-events: none;
-    box-shadow: none;
-    border: none;
-}
-
-/* 3. THE COLOR THEME: Keep all special characters Yellow */
-.keyboard-row.accents .k-key,
-.k-key[data-key="Ç"],
-.k-key[data-key="Œ"] {
-    background: #fffdf0 !important;
-    border-color: #ffe082 !important;
-    color: #92400e !important;
-}
-
-/* Ensure standard letters in Row 3 stay White */
-.keyboard-row:not(.accents) .k-key:not([data-key="Ç"]):not([data-key="Œ"]) {
-    background: white;
-    border-color: #cbd5e0;
-    color: #2d3748;
-}
-
-/* 4. THE CLICK EFFECT: Includes the translateY to stay in position */
-.kb-settings-toggle:active {
-    transform: translateY(50%) scale(0.92);
-}
 
 /* ==================== ACCENT BAR LAYOUT (For Typing/Parents) ==================== */
 
@@ -1632,7 +1581,7 @@ body.mode-spelling .spelling-slots {
     background: #bae6fd;
 }
 
-    /* ==================== UNIFIED KEYBOARD ==================== */
+/* ==================== UNIFIED KEYBOARD & SETTINGS ==================== */
      
     .unified-keyboard {
         position: fixed;
@@ -1658,9 +1607,31 @@ body.mode-spelling .spelling-slots {
         pointer-events: auto;
         transform: translateY(0);
     }
+
+    /* THE GEAR: Positioned exactly at Row 2 (A-L row) */
+    .kb-settings-toggle {
+        position: absolute;
+        right: 0;
+        bottom: 152px; /* Aligned vertically with the center of Row 2 */
+        transform: translateY(50%);
+        background: #f1f5f9;
+        border: 2px solid #cbd5e0;
+        border-radius: 20px 0 0 20px;
+        border-right: none;
+        padding: 8px 5px 8px 12px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 13000;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+        transition: transform 0.1s;
+    }
+
+    .kb-settings-toggle:active {
+        transform: translateY(50%) scale(0.92);
+    }
      
     .keyboard-buffer {
-        padding-bottom: 240px !important;
+        padding-bottom: 260px !important; /* Adjusted slightly to ensure 4 rows fit */
         transition: padding-bottom 1.0s ease;
     }
      
@@ -1669,13 +1640,16 @@ body.mode-spelling .spelling-slots {
         justify-content: center;
         gap: 4px;
         width: 100%;
-        flex-wrap: wrap;
+        /* Force single line per row to maintain the perfect 10-key grid */
+        flex-wrap: nowrap !important;
     }
      
     .k-key {
-        flex: 1 1 auto;
-        min-width: 25px;
-        max-width: calc(10% - 6px);
+        /* THE EQUALITY FIX: flex-basis 0 forces all keys (even thin ones like Î) 
+           to be mathematically identical in width */
+        flex: 1 1 0%;
+        min-width: 0;
+        max-width: 50px; 
         height: 48px;
         background: white;
         border: 1px solid #cbd5e0;
@@ -1690,6 +1664,7 @@ body.mode-spelling .spelling-slots {
         user-select: none;
         transition: all 0.1s;
         box-shadow: 0 4px 0 #cbd5e0;
+        box-sizing: border-box;
     }
      
     .k-key:active, .k-key.key-pressed { 
@@ -1699,29 +1674,44 @@ body.mode-spelling .spelling-slots {
     }
      
     .k-key.used {
-        opacity: 0.4;
+        opacity: 0.3; /* Slightly more transparent to make Hint Mode clearer */
         background: #e2e8f0;
         pointer-events: none;
         box-shadow: none;
     }
-     
-    .keyboard-row.accents {
-        flex-wrap: nowrap;
+
+    /* --- SPECIAL CHARACTER THEME --- */
+    /* This targets Row 4 (.accents) AND specifically the special keys in Row 3 */
+    .keyboard-row.accents .k-key,
+    .k-key[data-key="Ç"],
+    .k-key[data-key="Œ"],
+    .k-key[data-key="Ù"] {
+        background: #fffdf0 !important;
+        border-color: #ffe082 !important;
+        color: #92400e !important;
     }
-    
-    .keyboard-row.accents .k-key {
-        background: #fffdf0;
-        height: 36px;
-        font-size: 0.85rem;
-        border-color: #ffe082;
-        min-width: 0;
-        max-width: none;
-        padding: 0 2px;
-    }
-    
-    .keyboard-row.accents .k-key:active, 
-    .keyboard-row.accents .k-key.key-pressed {
+
+    /* Active state for special keys to maintain feedback */
+    .k-key[data-key="Ç"]:active,
+    .k-key[data-key="Œ"]:active,
+    .k-key[data-key="Ù"]:active,
+    .keyboard-row.accents .k-key:active {
         background: #e0f2fe !important;
+    }
+
+    /* Ensure standard letters in Row 3 stay white */
+    .keyboard-row:not(.accents) .k-key:not([data-key="Ç"]):not([data-key="Œ"]):not([data-key="Ù"]) {
+        background: white;
+        border-color: #cbd5e0;
+        color: #2d3748;
+    }
+
+    /* Hide spacers if used for alignment in arrays */
+    .k-key[data-key=""] {
+        visibility: hidden;
+        pointer-events: none;
+        box-shadow: none;
+        border: none;
     }
     
     /* Responsive Desktop Grid for Parent Drawer */
