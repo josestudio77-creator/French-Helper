@@ -302,6 +302,7 @@ function drawHangman(s) {
 }
 
 function handleHangmanInput(l) {
+   if (!l) return; // --- ADDED: Safety check for empty spacers ---
     if (!state.gameActive || guessed.includes(l)) return; 
 
     // 1. Visual feedback for Global Keyboard
