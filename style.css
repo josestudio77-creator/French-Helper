@@ -1529,27 +1529,55 @@ body.mode-spelling .spelling-slots {
 }
      
      
-    /* Keyboard Settings Drawer UI */
-    .kb-settings-toggle {
-        position: absolute;
-        right: 0;
-        bottom: 95px;
-        transform: translateY(50%);
-        background: #f1f5f9;
-        border: 2px solid #cbd5e0;
-        border-radius: 20px 0 0 20px;
-        border-right: none;
-        padding: 8px 5px 8px 12px;
-        font-size: 1.2rem;
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
-        transition: transform 0.1s;
-    }
+/* 1. THE GEAR: Moved up to the 2nd row (A-L row) */
+.kb-settings-toggle {
+    position: absolute;
+    right: 0;
+    bottom: 150px; /* INCREASED from 95px to move up one row */
     
-    .kb-settings-toggle:active {
-        transform: translateY(50%) scale(0.95);
-    }
+    /* THE STEADY FIX: Keep this here so it doesn't jump when clicked */
+    transform: translateY(50%); 
+    
+    background: #f1f5f9;
+    border: 2px solid #cbd5e0;
+    border-radius: 20px 0 0 20px;
+    border-right: none;
+    padding: 8px 5px 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 13000; 
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+    transition: transform 0.1s;
+}
+
+/* 2. THE SPACERS: Hide the alignment slots */
+.k-key[data-key=""] {
+    visibility: hidden;
+    pointer-events: none;
+    box-shadow: none;
+    border: none;
+}
+
+/* 3. THE COLOR THEME: Keep all special characters Yellow */
+.keyboard-row.accents .k-key,
+.k-key[data-key="Ç"],
+.k-key[data-key="Œ"] {
+    background: #fffdf0 !important;
+    border-color: #ffe082 !important;
+    color: #92400e !important;
+}
+
+/* Ensure standard letters in Row 3 stay White */
+.keyboard-row:not(.accents) .k-key:not([data-key="Ç"]):not([data-key="Œ"]) {
+    background: white;
+    border-color: #cbd5e0;
+    color: #2d3748;
+}
+
+/* 4. THE CLICK EFFECT: Includes the translateY to stay in position */
+.kb-settings-toggle:active {
+    transform: translateY(50%) scale(0.92);
+}
 
 /* ==================== ACCENT BAR LAYOUT (For Typing/Parents) ==================== */
 
