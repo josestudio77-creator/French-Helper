@@ -373,6 +373,7 @@ function renderMiniKeyboard() {
     
 function handleSpellingInput(inputLetter) {
     // 1. Guard: Prevent input if no game is active or during the "Word Victory" celebration
+    if (!inputLetter) return; // --- ADDED: Safety check for empty spacers ---
     if (!state.currentSpellingState || state.currentSpellingState.isWordVictory) return;
 
     state.targetWord = state.currentSpellingState.words[state.currentSpellingState.currentWordIndex];
