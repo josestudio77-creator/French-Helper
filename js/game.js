@@ -153,21 +153,24 @@ function updateHangmanUI() {
         // 2. Make the green leaves pop out
         const leaves = document.getElementById('treeLeaves');
         leaves.style.opacity = "1";
+        leaves.style.transform = "scale(1)"; // Final state
         leaves.animate([
             { transform: 'scale(0.5)', opacity: 0 },
             { transform: 'scale(1.05)', opacity: 1 },
             { transform: 'scale(1)', opacity: 1 }
-        ], { duration: 1000, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'forwards' });
+        ], { duration: 1000, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
 
         // 3. Drop the Magic Apple
         const apple = document.getElementById('magicApple');
         apple.style.display = "block";
+        apple.style.opacity = "1";
+        apple.style.transform = "translateY(0)"; // Final state
         apple.animate([
             { transform: 'translateY(-50px)', opacity: 0, offset: 0 },
             { transform: 'translateY(0)', opacity: 1, offset: 0.5 },
             { transform: 'translateY(-15px)', opacity: 1, offset: 0.75 },
             { transform: 'translateY(0)', opacity: 1, offset: 1 }
-        ], { duration: 1200, easing: 'ease-in-out', fill: 'forwards' });
+        ], { duration: 1200, easing: 'ease-in-out' });
 
         // Pronounce the word in French after a short delay
         setTimeout(() => spk(state.targetWord, 'fr-FR', true), 800);
@@ -315,11 +318,6 @@ function exitGame() {
 function drawHangman(s) {
     // RESET: Mistake 0 means clear the stage
     if (s === 0) {
-        // Cancel any lingering Web Animations API effects that lock opacity/transforms
-        document.querySelectorAll('#gameSvg path, #treeLeaves, #magicApple').forEach(el => {
-            el.getAnimations().forEach(anim => anim.cancel());
-        });
-
         document.querySelectorAll('#gameSvg path[id^="part-"]').forEach(el => {
             el.style.opacity = "0";
             el.style.transition = ""; // Clear withered transition
@@ -327,8 +325,16 @@ function drawHangman(s) {
             el.style.strokeDasharray = "";
             el.style.strokeDashoffset = "";
         });
-        document.getElementById('treeLeaves').style.opacity = "0";
-        document.getElementById('magicApple').style.display = "none";
+        
+        const leaves = document.getElementById('treeLeaves');
+        leaves.style.opacity = "0";
+        leaves.style.transform = "";
+        
+        const apple = document.getElementById('magicApple');
+        apple.style.display = "none";
+        apple.style.opacity = "0";
+        apple.style.transform = "";
+        
         // Reset leaf colors in case of previous loss
         document.querySelectorAll('#treeLeaves circle').forEach(c => c.style.fill = "");
         return;
@@ -337,12 +343,13 @@ function drawHangman(s) {
     // GROWTH: Every mistake makes a new part of the tree pop in
     const part = document.getElementById(`part-${s}`);
     if (part) {
-        part.style.opacity = "1";
-        
         // Enhance: Calculate exact path length for smooth drawing
         const length = part.getTotalLength();
+        
+        // Set final styling so it persists after animation without fill: forwards
+        part.style.opacity = "1";
         part.style.strokeDasharray = length;
-        part.style.strokeDashoffset = length;
+        part.style.strokeDashoffset = "0";
         
         // A springy "Growth" animation
         part.animate([
@@ -350,8 +357,7 @@ function drawHangman(s) {
             { strokeDashoffset: 0, opacity: 1 }
         ], {
             duration: 800,
-            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            fill: 'forwards'
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
         });
     }
 
