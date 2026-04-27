@@ -7,6 +7,25 @@
 const goodRes = ["Bravo!", "Super!", "Génial!", "Excellent!", "Magnifique!"];
 const badRes = ["Oups!", "Presque!", "Non!", "Essaie encore!"];
 
+let peekTimeout;
+function peekClue() {
+    const svg = document.getElementById('gameSvg');
+    const emoji = document.getElementById('clueEmoji');
+    if (!svg || !emoji) return;
+    
+    // Ignore clicks if the tree is dead (mistakes >= 10)
+    // or if the game is already won (handled by gameActive being false but let's just let them peek anyway)
+    
+    clearTimeout(peekTimeout);
+    svg.style.opacity = "0";
+    emoji.style.display = "flex";
+    
+    peekTimeout = setTimeout(() => {
+        emoji.style.display = "none";
+        svg.style.opacity = "1";
+    }, 1500);
+}
+
 function startHangman() {
     // NEW: Clear balloons from the previous win before starting a new round
     clearVictoryItems();
