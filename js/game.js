@@ -143,6 +143,32 @@ function updateHangmanUI() {
 
         document.getElementById('gameMsg').textContent = "🏆 VICTOIRE!"; 
         
+        // --- THE MAGIC TREE BLOOM ---
+        // 1. Show all the tree parts (Trunk and branches) instantly
+        document.querySelectorAll('#gameSvg path[id^="part-"]').forEach(p => {
+            p.style.opacity = "1";
+            p.style.strokeDashoffset = "0"; // Ensure paths are fully drawn
+        });
+        
+        // 2. Make the green leaves pop out
+        const leaves = document.getElementById('treeLeaves');
+        leaves.style.opacity = "1";
+        leaves.animate([
+            { transform: 'scale(0.5)', opacity: 0 },
+            { transform: 'scale(1.05)', opacity: 1 },
+            { transform: 'scale(1)', opacity: 1 }
+        ], { duration: 1000, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', fill: 'forwards' });
+
+        // 3. Drop the Magic Apple
+        const apple = document.getElementById('magicApple');
+        apple.style.display = "block";
+        apple.animate([
+            { transform: 'translateY(-50px)', opacity: 0, offset: 0 },
+            { transform: 'translateY(0)', opacity: 1, offset: 0.5 },
+            { transform: 'translateY(-15px)', opacity: 1, offset: 0.75 },
+            { transform: 'translateY(0)', opacity: 1, offset: 1 }
+        ], { duration: 1200, easing: 'ease-in-out', fill: 'forwards' });
+
         // Pronounce the word in French after a short delay
         setTimeout(() => spk(state.targetWord, 'fr-FR', true), 800);
 
@@ -287,21 +313,55 @@ function exitGame() {
 }
 
 function drawHangman(s) {
-    const c = document.getElementById('hangmanCanvas'); 
-    const ctx = c.getContext('2d');
-    ctx.clearRect(0, 0, 200, 150); 
-    ctx.lineWidth = 4; 
-    ctx.strokeStyle = "#475569";
-    if (s >= 1) { ctx.beginPath(); ctx.moveTo(20, 140); ctx.lineTo(180, 140); ctx.stroke(); }
-    if (s >= 2) { ctx.beginPath(); ctx.moveTo(40, 140); ctx.lineTo(40, 10); ctx.stroke(); }
-    if (s >= 3) { ctx.beginPath(); ctx.moveTo(40, 10); ctx.lineTo(120, 10); ctx.stroke(); }
-    if (s >= 4) { ctx.beginPath(); ctx.moveTo(120, 10); ctx.lineTo(120, 30); ctx.stroke(); }
-    if (s >= 5) { ctx.beginPath(); ctx.arc(120, 42, 12, 0, Math.PI * 2); ctx.stroke(); }
-    if (s >= 6) { ctx.beginPath(); ctx.moveTo(120, 54); ctx.lineTo(120, 90); ctx.stroke(); }
-    if (s >= 7) { ctx.beginPath(); ctx.moveTo(120, 65); ctx.lineTo(100, 80); ctx.stroke(); }
-    if (s >= 8) { ctx.beginPath(); ctx.moveTo(120, 65); ctx.lineTo(140, 80); ctx.stroke(); }
-    if (s >= 9) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(100, 115); ctx.stroke(); }
-    if (s >= 10) { ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(140, 115); ctx.stroke(); }
+    // RESET: Mistake 0 means clear the stage
+    if (s === 0) {
+        // Cancel any lingering Web Animations API effects that lock opacity/transforms
+        document.querySelectorAll('#gameSvg path, #treeLeaves, #magicApple').forEach(el => {
+            el.getAnimations().forEach(anim => anim.cancel());
+        });
+
+        document.querySelectorAll('#gameSvg path[id^="part-"]').forEach(el => {
+            el.style.opacity = "0";
+            el.style.transition = ""; // Clear withered transition
+            el.style.stroke = "#795548"; // Reset to trunk color
+            el.style.strokeDasharray = "";
+            el.style.strokeDashoffset = "";
+        });
+        document.getElementById('treeLeaves').style.opacity = "0";
+        document.getElementById('magicApple').style.display = "none";
+        // Reset leaf colors in case of previous loss
+        document.querySelectorAll('#treeLeaves circle').forEach(c => c.style.fill = "");
+        return;
+    }
+
+    // GROWTH: Every mistake makes a new part of the tree pop in
+    const part = document.getElementById(`part-${s}`);
+    if (part) {
+        part.style.opacity = "1";
+        
+        // Enhance: Calculate exact path length for smooth drawing
+        const length = part.getTotalLength();
+        part.style.strokeDasharray = length;
+        part.style.strokeDashoffset = length;
+        
+        // A springy "Growth" animation
+        part.animate([
+            { strokeDashoffset: length, opacity: 0 },
+            { strokeDashoffset: 0, opacity: 1 }
+        ], {
+            duration: 800,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            fill: 'forwards'
+        });
+    }
+
+    // LOSS: On mistake 10, the tree looks dry and brown
+    if (s === 10) {
+        document.querySelectorAll('#gameSvg path[id^="part-"]').forEach(p => {
+            p.style.transition = "stroke 2s";
+            p.style.stroke = "#4e342e"; // Dark withered brown
+        });
+    }
 }
 
 function handleHangmanInput(l) {

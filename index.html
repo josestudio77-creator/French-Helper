@@ -379,27 +379,72 @@
             </div>
         </div>
 
-        <div id="clueEmoji" class="clue-emoji">💡</div>
-        <canvas id="hangmanCanvas" width="200" height="150"></canvas>
-        <div id="hangmanDisplay" class="hangman-word"></div>
-        <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a ter!</div>
-        
-        <!-- The Keyboard is here (Managed by JavaScript) -->
+        <!-- TOP STAGE ROW: Tree + Emoji -->
+        <div class="game-stage-row">
+            <!-- THE MAGIC TREE STAGE (SVG) -->
+            <div id="gameStageContainer">
+                <svg id="gameSvg" viewBox="0 0 200 150">
+                    <!-- The Ground -->
+                    <path d="M 10 140 Q 100 130 190 140" stroke="#8bc34a" stroke-width="4" fill="none" />
+                    
+                    <!-- TREE STRUCTURE (Mistake Parts 1-10) -->
+                    <!-- Trunk -->
+                    <path id="part-1" d="M 100 140 L 100 110" stroke="#795548" stroke-width="8" fill="none" style="opacity:0" />
+                    <path id="part-2" d="M 100 110 L 100 80" stroke="#795548" stroke-width="8" fill="none" style="opacity:0" />
+                    <path id="part-3" d="M 100 80 L 100 50" stroke="#795548" stroke-width="6" fill="none" style="opacity:0" />
+                    
+                    <!-- Main Branches -->
+                    <path id="part-4" d="M 100 90 L 70 70" stroke="#795548" stroke-width="5" fill="none" style="opacity:0" />
+                    <path id="part-5" d="M 100 90 L 130 70" stroke="#795548" stroke-width="5" fill="none" style="opacity:0" />
+                    
+                    <!-- Sub Branches -->
+                    <path id="part-6" d="M 70 70 L 60 50" stroke="#795548" stroke-width="3" fill="none" style="opacity:0" />
+                    <path id="part-7" d="M 70 70 L 85 55" stroke="#795548" stroke-width="3" fill="none" style="opacity:0" />
+                    <path id="part-8" d="M 130 70 L 115 55" stroke="#795548" stroke-width="3" fill="none" style="opacity:0" />
+                    <path id="part-9" d="M 130 70 L 145 50" stroke="#795548" stroke-width="3" fill="none" style="opacity:0" />
+                    
+                    <!-- Top Twig (The 10th and final mistake) -->
+                    <path id="part-10" d="M 100 50 L 100 30" stroke="#795548" stroke-width="2" fill="none" style="opacity:0" />
 
-        <!-- NEW BOTTOM ROW: Primary Interaction Buttons (Listen & Spell) -->
-        <!-- These are now the large, easy-to-hit buttons at the bottom -->
-        <div class="game-actions">
-            <!-- Green Button: Matches the '🎤 French' card button -->
-            <button onclick="if(state.targetWord) spk(state.targetWord, 'fr-FR', true)" 
-                    style="background:#4cd964; color:white; flex: 1.2;">
-                <span>🎤</span> Listen
-            </button>
+                    <!-- WINNING ELEMENTS (Hidden initially) -->
+                    <g id="treeLeaves" style="opacity: 0;">
+                        <circle cx="70" cy="65" r="18" fill="#4caf50" />
+                        <circle cx="130" cy="65" r="18" fill="#4caf50" />
+                        <circle cx="100" cy="50" r="22" fill="#2e7d32" />
+                        <circle cx="85" cy="40" r="15" fill="#8bc34a" />
+                        <circle cx="115" cy="40" r="15" fill="#8bc34a" />
+                    </g>
+                    
+                    <g id="magicApple" style="display:none;">
+                        <circle cx="100" cy="65" r="8" fill="#ff5252" />
+                        <path d="M 100 57 L 102 52" stroke="#5d4037" stroke-width="2" />
+                    </g>
+                </svg>
+            </div>
             
-            <!-- Orange Button: Matches the 'Spell' card button -->
-            <button onclick="spellWord()" 
-                    style="background:#ff9e6d; color:white; flex: 1;">
-                <span>🔡</span> Spell
-            </button>
+            <div id="clueEmoji" class="clue-emoji">💡</div>
+        </div>
+
+        <!-- BOTTOM CONTROLS: Phrase and Buttons -->
+        <div class="game-controls">
+            <div id="hangmanDisplay" class="hangman-word"></div>
+            <div id="gameMsg" style="font-weight:900; margin-bottom:5px; font-size:1rem; height:1.1rem;">Guess a ter!</div>
+            
+            <!-- NEW BOTTOM ROW: Primary Interaction Buttons (Listen & Spell) -->
+            <!-- These are now the large, easy-to-hit buttons at the bottom -->
+            <div class="game-actions">
+                <!-- Green Button: Matches the '🎤 French' card button -->
+                <button onclick="if(state.targetWord) spk(state.targetWord, 'fr-FR', true)" 
+                        style="background:#4cd964; color:white; flex: 1.2;">
+                    <span>🎤</span> Listen
+                </button>
+                
+                <!-- Orange Button: Matches the 'Spell' card button -->
+                <button onclick="spellWord()" 
+                        style="background:#ff9e6d; color:white; flex: 1;">
+                    <span>🔡</span> Spell
+                </button>
+            </div>
         </div>
     </div>
 </div>
