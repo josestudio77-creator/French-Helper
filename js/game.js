@@ -18,12 +18,10 @@ function peekClue() {
     
     clearTimeout(peekTimeout);
     svg.style.opacity = "0";
-    emoji.style.display = "flex";
     
     peekTimeout = setTimeout(() => {
-        emoji.style.display = "none";
         svg.style.opacity = "1";
-    }, 1500);
+    }, 800);
 }
 
 function startHangman() {

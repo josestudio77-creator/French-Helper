@@ -381,10 +381,10 @@
 
         <!-- THE MAGIC TREE STAGE (Click to reveal clue) -->
         <div id="gameStageContainer" onclick="peekClue()" style="cursor: pointer;" title="Tap for a hint!">
-            <!-- The Clue Emoji (Hidden by default, shown on click) -->
-            <div id="clueEmoji" class="clue-emoji" style="display:none; position:absolute; width:100%; height:100%; align-items:center; justify-content:center; font-size:5rem; background:#f0f9ff; z-index:10; margin:0;">💡</div>
+            <!-- The Clue Emoji (Always there, hidden by the tree layer above it) -->
+            <div id="clueEmoji" class="clue-emoji" style="display:flex; position:absolute; width:100%; height:100%; align-items:center; justify-content:center; font-size:5rem; background:#f0f9ff; z-index:1; margin:0;">💡</div>
             
-            <svg id="gameSvg" viewBox="0 0 200 150" style="transition: opacity 0.2s;">
+            <svg id="gameSvg" viewBox="0 0 200 150">
                 <!-- The Ground -->
                 <path d="M 10 140 Q 100 130 190 140" stroke="#8bc34a" stroke-width="4" fill="none" />
                 
