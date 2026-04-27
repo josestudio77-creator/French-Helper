@@ -337,7 +337,7 @@
         align-items: center;
         width: 100%;
         margin-top: auto; /* Push controls to the bottom right above the keyboard */
-        margin-bottom: 5px; /* Minimum space to keyboard */
+        margin-bottom: 15px; /* Minimum space to keyboard */
     }
     
     .game-actions {
