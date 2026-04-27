@@ -35,6 +35,7 @@ function startHangman() {
     // 2. Clear the old game state
     guessed = [];
     mistakes = 0;
+    state.currentHintLetters = null; // Prevent hint keyboard from shuffling
     
     const cleanWord = (w) => w.replace(/[!?.,\-;:'"()]/g, '').trim();
     
@@ -216,18 +217,21 @@ function renderKeyboard() {
     
     let activeLetters = [];
     if (isHint) {
-        activeLetters = Array.from(new Set(state.targetWord.toUpperCase().split('').filter(c => /[A-ZÉÈÊËÀÂÎÏÔÛÙÇŒ']/.test(c))));
-        
-        // In Hangman, we always need a few decoy letters so it's not a guaranteed win
-        const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-        let decoys = [];
-        while (decoys.length < 5) {
-            let randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
-            if (!activeLetters.includes(randomLetter) && !decoys.includes(randomLetter)) {
-                decoys.push(randomLetter);
+        if (!state.currentHintLetters) {
+            let letters = Array.from(new Set(state.targetWord.toUpperCase().split('').filter(c => /[A-ZÉÈÊËÀÂÎÏÔÛÙÇŒ']/.test(c))));
+            
+            // In Hangman, we always need a few decoy letters so it's not a guaranteed win
+            const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+            let decoys = [];
+            while (decoys.length < 5) {
+                let randomLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+                if (!letters.includes(randomLetter) && !decoys.includes(randomLetter)) {
+                    decoys.push(randomLetter);
+                }
             }
+            state.currentHintLetters = [...letters, ...decoys];
         }
-        activeLetters = [...activeLetters, ...decoys];
+        activeLetters = state.currentHintLetters;
     }
 
     layoutToRender.forEach((row, index) => {
