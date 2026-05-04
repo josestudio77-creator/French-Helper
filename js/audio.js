@@ -150,7 +150,8 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null) {
         // 2. Prepare the Voice
         const u = new SpeechSynthesisUtterance(nameToSpeak);
         u.lang = 'fr-FR';
-        u.rate = state.speechSpeed * 0.85;
+        // IMPROVED: Standardized rate with other game modes to avoid "fan vibration" distortion
+        u.rate = state.speechSpeed * 0.9; 
         u.voice = state.selectedFrVoice;
 
         // 3. THE SYNC FIX: Wait for this specific letter to finish
@@ -169,7 +170,12 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null) {
             }, 200);
         };
 
-        window.speechSynthesis.speak(u);
+        // 4. THE SYNC FIX: Explicitly handle the transition to the next letter
+        // Added 50ms buffer and blank space pre-roll to "wake up" the engine (Matches Alphabet Practice logic)
+        setTimeout(() => {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+            window.speechSynthesis.speak(u);
+        }, 50);
     }
 
     // Start the recursive chain at the first letter

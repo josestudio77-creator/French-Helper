@@ -592,12 +592,13 @@ if (isAutoFill) {
     return;
 }
 
-// Prepare the letter name
-const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
-const u = new SpeechSynthesisUtterance(nameToSpeak);
-u.lang = 'fr-FR';
-u.rate = state.speechSpeed * 0.8; 
-u.voice = state.selectedFrVoice;
+        // 2. Prepare the Voice
+        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
+        const u = new SpeechSynthesisUtterance(nameToSpeak);
+        u.lang = 'fr-FR';
+        // IMPROVED: Increased rate from 0.8 to 0.9 to avoid "fan vibration" distortion at very low speeds
+        u.rate = state.speechSpeed * 0.9; 
+        u.voice = state.selectedFrVoice;
 
 // 3. Visual Highlight ON
 if (slots[index]) {
@@ -632,7 +633,12 @@ const backupTimer = setTimeout(() => {
 
 u.onstart = () => clearTimeout(backupTimer);
 
-window.speechSynthesis.speak(u);
+        // 5. THE SYNC FIX: Explicitly handle the transition to the next letter
+        // Added 50ms buffer and blank space pre-roll to "wake up" the engine (Matches Alphabet Practice logic)
+        setTimeout(() => {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+            window.speechSynthesis.speak(u);
+        }, 50);
     }
 
     speakNextLetter(0);
