@@ -175,7 +175,7 @@ function playLetterAudio(key, onEnded) {
     
     // Play using HTML5 Audio
     try {
-        audioObj.playbackRate = state.speechSpeed > 0.8 ? 1.0 : state.speechSpeed;
+        audioObj.playbackRate = 1.0; // NEVER alter .wav speed, prevents pitch distortion
         audioObj.currentTime = 0; // Reset to start
         
         // Single-use onended handler
