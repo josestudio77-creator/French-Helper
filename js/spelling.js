@@ -606,28 +606,46 @@ if (isAutoFill) {
     return;
 }
 
-// 2. Visual Highlight ON
-if (slots[index]) {
-    slots[index].style.backgroundColor = '#FFD700'; // Gold
-    slots[index].style.transform = 'scale(1.15)';
-    slots[index].style.zIndex = '10';
+let keyToPlay = letter.toLowerCase();
+let lettersConsumed = 1;
+
+// Look ahead for double letters
+if (index + 1 < letters.length && letter.toLowerCase() === letters[index + 1].toLowerCase()) {
+    const doubleKey = keyToPlay + keyToPlay;
+    // Check if we actually have a recording for this double letter (e.g. 'll' -> 'deux_l.wav')
+    // AUDIO_FILE_MAP check requires audio.js to be loaded, but state.audioBuffers is safer
+    if (state.audioBuffers && state.audioBuffers[doubleKey]) {
+        keyToPlay = doubleKey;
+        lettersConsumed = 2;
+    }
+}
+
+// 2. Visual Highlight ON for all consumed slots
+for (let i = 0; i < lettersConsumed; i++) {
+    if (slots[index + i]) {
+        slots[index + i].style.backgroundColor = '#FFD700'; // Gold
+        slots[index + i].style.transform = 'scale(1.15)';
+        slots[index + i].style.zIndex = '10';
+    }
 }
 
 // 3. Play the studio audio
-playLetterAudio(letter, () => {
+playLetterAudio(keyToPlay, () => {
     // Short delay (50ms) to ensure snappy transition
     setTimeout(() => {
-        // Visual Highlight OFF
-        if (slots[index]) {
-            // Restore background: green if already correctly typed, white otherwise
-            slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
-            slots[index].style.transform = '';
-            slots[index].style.zIndex = '';
+        // Visual Highlight OFF for all consumed slots
+        for (let i = 0; i < lettersConsumed; i++) {
+            if (slots[index + i]) {
+                // Restore background: green if already correctly typed, white otherwise
+                slots[index + i].style.backgroundColor = slots[index + i].classList.contains('filled') ? '#f0fdf4' : 'white';
+                slots[index + i].style.transform = '';
+                slots[index + i].style.zIndex = '';
+            }
         }
         
         // CRUCIAL: Check again if we are still in the same game state before continuing
         if (state.currentSpellingState) {
-            speakNextLetter(index + 1);
+            speakNextLetter(index + lettersConsumed);
         }
     }, 50);
 });
