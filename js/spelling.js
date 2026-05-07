@@ -632,12 +632,6 @@ playLetterAudio(letter, () => {
     }, 50);
 });
 
-        // 5. THE SYNC FIX: Explicitly handle the transition to the next letter
-        // Added 50ms buffer and blank space pre-roll to "wake up" the engine (Matches Alphabet Practice logic)
-        setTimeout(() => {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
-            window.speechSynthesis.speak(u);
-        }, 50);
     }
 
     speakNextLetter(0);
