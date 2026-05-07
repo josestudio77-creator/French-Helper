@@ -682,6 +682,17 @@ async function toggleStudentRecording(btn, phrase) {
         btn.innerHTML = '<span>🎤 Record</span>';
         btn.classList.remove('btn-recording');
         
+        // Enable Play button when stopped
+        const card = btn.closest('.phrase-card');
+        if (card) {
+            const playBtn = card.querySelector('.play-record-btn');
+            if (playBtn) {
+                playBtn.disabled = false;
+                playBtn.style.opacity = '1';
+                playBtn.style.cursor = 'pointer';
+            }
+        }
+        
         // Stop all tracks
         if (state.activeAudioStream) {
             state.activeAudioStream.getTracks().forEach(track => track.stop());
@@ -732,6 +743,17 @@ async function toggleStudentRecording(btn, phrase) {
         // UI Updates for Recording State
         btn.innerHTML = '<span>🛑 Stop</span>';
         btn.classList.add('btn-recording');
+        
+        // Disable Play button while recording
+        const card = btn.closest('.phrase-card');
+        if (card) {
+            const playBtn = card.querySelector('.play-record-btn');
+            if (playBtn) {
+                playBtn.disabled = true;
+                playBtn.style.opacity = '0.4';
+                playBtn.style.cursor = 'not-allowed';
+            }
+        }
         
     } catch (err) {
         console.error("Microphone access denied:", err);
