@@ -682,14 +682,12 @@ async function toggleStudentRecording(btn, phrase) {
         btn.innerHTML = '<span>🎤 Record</span>';
         btn.classList.remove('btn-recording');
         
-        // Enable Play button when stopped
+        // Show Play button again when stopped if a recording exists
         const card = btn.closest('.phrase-card');
-        if (card) {
+        if (card && state.recordings[phrase]) {
             const playBtn = card.querySelector('.play-record-btn');
             if (playBtn) {
-                playBtn.disabled = false;
-                playBtn.style.opacity = '1';
-                playBtn.style.cursor = 'pointer';
+                playBtn.style.display = 'block';
             }
         }
         
@@ -703,6 +701,17 @@ async function toggleStudentRecording(btn, phrase) {
 
     // START RECORDING
     try {
+        // STOP ALL PLAYING AUDIO
+        window.speechSynthesis.cancel();
+        if (state.currentlyPlayingAudio) {
+            state.currentlyPlayingAudio.pause();
+            state.currentlyPlayingAudio = null;
+        }
+        if (state.activeRecordingSource) {
+            try { state.activeRecordingSource.stop(); } catch(e){}
+            state.activeRecordingSource = null;
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.activeAudioStream = stream;
         currentAudioChunks = [];
@@ -744,14 +753,12 @@ async function toggleStudentRecording(btn, phrase) {
         btn.innerHTML = '<span>🛑 Stop</span>';
         btn.classList.add('btn-recording');
         
-        // Disable Play button while recording
+        // Hide Play button completely while recording
         const card = btn.closest('.phrase-card');
         if (card) {
             const playBtn = card.querySelector('.play-record-btn');
             if (playBtn) {
-                playBtn.disabled = true;
-                playBtn.style.opacity = '0.4';
-                playBtn.style.cursor = 'not-allowed';
+                playBtn.style.display = 'none';
             }
         }
         
@@ -796,6 +803,19 @@ function playStudentRecording(phrase) {
     const trimmedBuffer = state.recordings[phrase];
     if (!trimmedBuffer) return;
     
+    // Stop any existing playing recording
+    if (state.activeRecordingSource) {
+        try { state.activeRecordingSource.stop(); } catch(e){}
+        state.activeRecordingSource = null;
+    }
+    
+    // Stop TTS or spelling audio as well
+    window.speechSynthesis.cancel();
+    if (state.currentlyPlayingAudio) {
+        state.currentlyPlayingAudio.pause();
+        state.currentlyPlayingAudio = null;
+    }
+    
     const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
     if (!state.voiceContext) state.voiceContext = ctx;
     
@@ -804,5 +824,13 @@ function playStudentRecording(phrase) {
     const source = ctx.createBufferSource();
     source.buffer = trimmedBuffer;
     source.connect(ctx.destination);
+    
+    source.onended = () => {
+        if (state.activeRecordingSource === source) {
+            state.activeRecordingSource = null;
+        }
+    };
+    
+    state.activeRecordingSource = source;
     source.start(0);
 }
