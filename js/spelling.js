@@ -606,24 +606,16 @@ if (isAutoFill) {
     return;
 }
 
-        // 2. Prepare the Voice
-        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letter;
-        const u = new SpeechSynthesisUtterance(nameToSpeak);
-        u.lang = 'fr-FR';
-        // IMPROVED: Increased rate from 0.8 to 0.9 to avoid "fan vibration" distortion at very low speeds
-        u.rate = state.speechSpeed * 0.9; 
-        u.voice = state.selectedFrVoice;
-
-// 3. Visual Highlight ON
+// 2. Visual Highlight ON
 if (slots[index]) {
     slots[index].style.backgroundColor = '#FFD700'; // Gold
     slots[index].style.transform = 'scale(1.15)';
     slots[index].style.zIndex = '10';
 }
 
-// 4. THE FIX: Explicitly handle the transition to the next letter
-u.onend = () => {
-    // Short delay (300ms) to ensure the engine is ready for the next letter
+// 3. Play the studio audio
+playLetterAudio(letter, () => {
+    // Short delay (50ms) to ensure snappy transition
     setTimeout(() => {
         // Visual Highlight OFF
         if (slots[index]) {
@@ -637,15 +629,8 @@ u.onend = () => {
         if (state.currentSpellingState) {
             speakNextLetter(index + 1);
         }
-    }, 50); // Snappy transition between letters
-};
-
-// Safety: If for some reason onend fails (browser bug), move on after 3 seconds
-const backupTimer = setTimeout(() => {
-    u.onend();
-}, 3000);
-
-u.onstart = () => clearTimeout(backupTimer);
+    }, 50);
+});
 
         // 5. THE SYNC FIX: Explicitly handle the transition to the next letter
         // Added 50ms buffer and blank space pre-roll to "wake up" the engine (Matches Alphabet Practice logic)
