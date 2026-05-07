@@ -535,12 +535,14 @@ list.forEach(p => {
                 <span class="snail-corner">🐌</span>
                 <span>🔊 French</span>
             </button>
-            <button class="card-btn record-btn" onclick="toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')">
-                <span>🎤 Record</span>
-            </button>
-            <button class="card-btn play-record-btn" onclick="playStudentRecording('${p.replace(/'/g, "\\'")}')" style="display:none; background: #4cd964; color: white;">
-                <span>▶️ Play</span>
-            </button>
+            <div class="record-play-container" style="display: flex; gap: 5px; width: 100%;">
+                <button class="card-btn record-btn" onclick="toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')" style="flex: 1; background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
+                    <span>🎤 Record</span>
+                </button>
+                <button class="card-btn play-record-btn" onclick="playStudentRecording('${p.replace(/'/g, "\\'")}')" style="display:none; flex: 1; background: #4cd964; color: white; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
+                    <span>▶️ Play</span>
+                </button>
+            </div>
         </div>
     `;
     
@@ -606,8 +608,6 @@ list.forEach(p => {
     const recBtn = card.querySelector('.record-btn');
     if (state.recordings && state.recordings[p]) {
         playBtn.style.display = 'inline-block';
-        // Adjust grid layout dynamically
-        card.querySelector('.card-btns').style.gridTemplateColumns = '1.8fr 1fr 1fr';
     }
     
     engTextEl.ondblclick = triggerFix;

@@ -680,9 +680,7 @@ async function toggleStudentRecording(btn, phrase) {
         }
         state.isRecording = false;
         btn.innerHTML = '<span>🎤 Record</span>';
-        btn.style.background = '';
-        btn.style.color = '';
-        btn.style.animation = ''; // Stop pulse
+        btn.classList.remove('btn-recording');
         
         // Stop all tracks
         if (state.activeAudioStream) {
@@ -721,8 +719,6 @@ async function toggleStudentRecording(btn, phrase) {
                     if (card) {
                         const playBtn = card.querySelector('.play-record-btn');
                         if (playBtn) playBtn.style.display = 'inline-block';
-                        const btnsDiv = card.querySelector('.card-btns');
-                        if (btnsDiv) btnsDiv.style.gridTemplateColumns = '1.8fr 1fr 1fr';
                     }
                 }
             } catch (err) {
@@ -735,14 +731,7 @@ async function toggleStudentRecording(btn, phrase) {
         
         // UI Updates for Recording State
         btn.innerHTML = '<span>🛑 Stop</span>';
-        btn.style.background = '#ff4d4d';
-        btn.style.color = 'white';
-        // Add a pulse animation via inline style or CSS class
-        btn.animate([
-            { opacity: 1 },
-            { opacity: 0.6 },
-            { opacity: 1 }
-        ], { duration: 1500, iterations: Infinity });
+        btn.classList.add('btn-recording');
         
     } catch (err) {
         console.error("Microphone access denied:", err);
