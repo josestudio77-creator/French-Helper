@@ -6,7 +6,8 @@
 function toggleSpellingMode(btn, fullPhrase) {
     const card = btn.closest('.phrase-card');
     const spellingZone = card.querySelector('.spelling-zone');
-    const enBtn = card.querySelector('.spk-en');
+    const spellBtn = card.querySelector('.spell-btn');
+    const recordContainer = card.querySelector('.record-play-container');
     const frBtn = card.querySelector('.spk-fr');
     const globalKb = document.getElementById('keyboard');
     const stage = document.getElementById('spellingTheaterStage');
@@ -55,10 +56,9 @@ card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEac
 });
 spellingZone.style.display = 'none';
 
-// Restore English button to normal function
-const enText = card.querySelector('.english-text').textContent;
-enBtn.innerHTML = '<span>English</span>';
-enBtn.onclick = () => spk(enText, 'en-US', true);
+// Restore Record/Play buttons, hide Spell button
+if (spellBtn) spellBtn.style.display = 'none';
+if (recordContainer) recordContainer.style.display = 'flex';
 
 // Restore French button to normal function
 const frenchText = card.querySelector('.french-text').textContent;
@@ -163,11 +163,14 @@ card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEac
 spellingZone.style.display = 'block';
 
 // Update buttons to SPELLING MODE behavior
-enBtn.innerHTML = '<span>Spell</span>';
-enBtn.onclick = (e) => {
-    e.stopPropagation();
-    spellCurrentWord();
-};
+if (recordContainer) recordContainer.style.display = 'none';
+if (spellBtn) {
+    spellBtn.style.display = 'block';
+    spellBtn.onclick = (e) => {
+        e.stopPropagation();
+        spellCurrentWord();
+    };
+}
 
 // French button speaks the word at the new spelling speed
 const frenchText = card.querySelector('.french-text').textContent;

@@ -537,12 +537,15 @@ list.forEach(p => {
             </button>
             <div class="record-play-container" style="display: flex; gap: 5px; width: 100%;">
                 <button class="card-btn record-btn" onclick="toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')" style="flex: 1; background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
-                    <span>🎤 Record</span>
+                    <span>🎤 <span class="btn-text">Record</span></span>
                 </button>
                 <button class="card-btn play-record-btn" onclick="playStudentRecording('${p.replace(/'/g, "\\'")}')" style="display:none; flex: 1; background: #4cd964; color: white; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
-                    <span>▶️ Play</span>
+                    <span>▶️ <span class="btn-text">Play</span></span>
                 </button>
             </div>
+            <button class="card-btn spell-btn" style="display: none; background: #ecc94b; color: #744210; padding: 15px 5px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
+                <span>🐝 Spell</span>
+            </button>
         </div>
     `;
     
