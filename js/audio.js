@@ -666,4 +666,132 @@ function playHappyLoop() {
     }; 
 }
 
+/* ==========================================
+   STUDENT RECORDING FEATURE
+   ========================================== */
 
+let currentAudioChunks = [];
+
+async function toggleStudentRecording(btn, phrase) {
+    if (state.isRecording) {
+        // STOP RECORDING
+        if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+            state.mediaRecorder.stop();
+        }
+        state.isRecording = false;
+        btn.innerHTML = '<span>🎤 Record</span>';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.style.animation = ''; // Stop pulse
+        
+        // Stop all tracks
+        if (state.activeAudioStream) {
+            state.activeAudioStream.getTracks().forEach(track => track.stop());
+            state.activeAudioStream = null;
+        }
+        return;
+    }
+
+    // START RECORDING
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.activeAudioStream = stream;
+        currentAudioChunks = [];
+        
+        state.mediaRecorder = new MediaRecorder(stream);
+        state.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) currentAudioChunks.push(e.data);
+        };
+        
+        state.mediaRecorder.onstop = async () => {
+            const blob = new Blob(currentAudioChunks, { type: 'audio/webm' });
+            try {
+                const arrayBuffer = await blob.arrayBuffer();
+                const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
+                if (!state.voiceContext) state.voiceContext = ctx;
+                
+                const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                const trimmedBuffer = trimSilence(audioBuffer, 0.03); // 3% threshold
+                
+                if (trimmedBuffer) {
+                    state.recordings[phrase] = trimmedBuffer;
+                    
+                    // Show the play button on this specific card
+                    const card = btn.closest('.phrase-card');
+                    if (card) {
+                        const playBtn = card.querySelector('.play-record-btn');
+                        if (playBtn) playBtn.style.display = 'inline-block';
+                        const btnsDiv = card.querySelector('.card-btns');
+                        if (btnsDiv) btnsDiv.style.gridTemplateColumns = '1.8fr 1fr 1fr';
+                    }
+                }
+            } catch (err) {
+                console.error("Error processing recording:", err);
+            }
+        };
+        
+        state.mediaRecorder.start();
+        state.isRecording = true;
+        
+        // UI Updates for Recording State
+        btn.innerHTML = '<span>🛑 Stop</span>';
+        btn.style.background = '#ff4d4d';
+        btn.style.color = 'white';
+        // Add a pulse animation via inline style or CSS class
+        btn.animate([
+            { opacity: 1 },
+            { opacity: 0.6 },
+            { opacity: 1 }
+        ], { duration: 1500, iterations: Infinity });
+        
+    } catch (err) {
+        console.error("Microphone access denied:", err);
+        openAppModal({ title: 'Microphone Required', text: 'Please allow microphone access to record your pronunciation.', mode: 'view' });
+    }
+}
+
+function trimSilence(audioBuffer, threshold = 0.05) {
+    const channelData = audioBuffer.getChannelData(0);
+    let start = 0;
+    let end = channelData.length - 1;
+
+    // Find first non-silent sample
+    while (start < end && Math.abs(channelData[start]) < threshold) {
+        start++;
+    }
+    // Find last non-silent sample
+    while (end > start && Math.abs(channelData[end]) < threshold) {
+        end--;
+    }
+
+    if (start >= end) return null; // completely silent
+
+    const length = end - start + 1;
+    const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
+    const trimmedBuffer = ctx.createBuffer(
+        audioBuffer.numberOfChannels,
+        length,
+        audioBuffer.sampleRate
+    );
+
+    for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+        trimmedBuffer.copyToChannel(audioBuffer.getChannelData(i).subarray(start, end + 1), i);
+    }
+    
+    return trimmedBuffer;
+}
+
+function playStudentRecording(phrase) {
+    const trimmedBuffer = state.recordings[phrase];
+    if (!trimmedBuffer) return;
+    
+    const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
+    if (!state.voiceContext) state.voiceContext = ctx;
+    
+    if (ctx.state === 'suspended') ctx.resume();
+    
+    const source = ctx.createBufferSource();
+    source.buffer = trimmedBuffer;
+    source.connect(ctx.destination);
+    source.start(0);
+}

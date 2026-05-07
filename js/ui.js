@@ -535,8 +535,11 @@ list.forEach(p => {
                 <span class="snail-corner">🐌</span>
                 <span>🔊 French</span>
             </button>
-            <button class="card-btn spk-en">
-                <span>English</span>
+            <button class="card-btn record-btn" onclick="toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')">
+                <span>🎤 Record</span>
+            </button>
+            <button class="card-btn play-record-btn" onclick="playStudentRecording('${p.replace(/'/g, "\\'")}')" style="display:none; background: #4cd964; color: white;">
+                <span>▶️ Play</span>
             </button>
         </div>
     `;
@@ -546,6 +549,7 @@ list.forEach(p => {
         <div class="card-tools">
             <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
             <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Syllables">abc</div>
+            <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
         </div>
         ${gIcon}
         <div class="card-main-content">
@@ -554,7 +558,7 @@ list.forEach(p => {
                 <span class="french-text"></span>
             </div>
             ${pGuide}
-            <span class="english-text">${data.en}</span>
+            <span class="english-text" style="display:none;">${data.en}</span>
         </div>
         ${spellingHTML}
         ${buttonHTML}
@@ -576,20 +580,35 @@ list.forEach(p => {
     };
     
     const engTextEl = card.querySelector('.english-text');
-    const engBtnEl = card.querySelector('.spk-en');
+    const enToggleBtn = card.querySelector('.en-toggle');
     
     const triggerFix = (e) => {
         e.preventDefault();
         manualFixTranslation(p, data.en);
     };
     
-    engBtnEl.onclick = () => {
-        if (card.classList.contains('spelling-mode')) {
-            spellCurrentWord();
-        } else {
+    enToggleBtn.onclick = () => {
+        // Toggle visibility
+        if (engTextEl.style.display === 'none') {
+            engTextEl.style.display = 'block';
             spk(data.en, 'en-US', true);
+            enToggleBtn.style.background = '#5a67d8';
+            enToggleBtn.style.color = 'white';
+        } else {
+            engTextEl.style.display = 'none';
+            enToggleBtn.style.background = 'white';
+            enToggleBtn.style.color = '#5a67d8';
         }
     };
+    
+    // Check if there is an existing recording for this phrase to show the play button
+    const playBtn = card.querySelector('.play-record-btn');
+    const recBtn = card.querySelector('.record-btn');
+    if (state.recordings && state.recordings[p]) {
+        playBtn.style.display = 'inline-block';
+        // Adjust grid layout dynamically
+        card.querySelector('.card-btns').style.gridTemplateColumns = '1.8fr 1fr 1fr';
+    }
     
     engTextEl.ondblclick = triggerFix;
     let lastTap = 0;

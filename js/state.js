@@ -62,7 +62,11 @@ const state = {
     hintModeActive: localStorage.getItem('hintModeActive') === 'true',
     syllableMode: localStorage.getItem('syllableMode') === 'true',
     audioBuffers: {},
-    voiceContext: null
+    voiceContext: null,
+    recordings: {},
+    isRecording: false,
+    mediaRecorder: null,
+    activeAudioStream: null
 };
 
 // Make state globally accessible
