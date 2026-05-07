@@ -7,6 +7,7 @@ const state = {
     speechSpeed: parseFloat(localStorage.getItem('speechSpeed') || '0.7'),
     currentWeekAudio: null,
     cache: JSON.parse(localStorage.getItem('phraseTranslations') || '{}'),
+    syllableOverrides: JSON.parse(localStorage.getItem('syllableOverrides') || '{}'),
     history: JSON.parse(localStorage.getItem('frenchHistory') || '{}'),
     wins: parseInt(localStorage.getItem('gameWins') || '0'),
     losses: parseInt(localStorage.getItem('gameLosses') || '0'),
@@ -58,7 +59,10 @@ const state = {
     homeworkToMove: "",
     aiAbortController: null,
     keyboardLayout: localStorage.getItem('keyboardLayout') || 'QWERTY',
-    hintModeActive: localStorage.getItem('hintModeActive') === 'true'
+    hintModeActive: localStorage.getItem('hintModeActive') === 'true',
+    syllableMode: localStorage.getItem('syllableMode') === 'true',
+    audioBuffers: {},
+    voiceContext: null
 };
 
 // Make state globally accessible

@@ -42,9 +42,12 @@ if (globalKb) globalKb.classList.remove('active');
 // Re-enable icon click when exiting spelling mode
 const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
 if (iconElement) {
+    iconElement.style.display = ''; // Restore CSS default
     iconElement.style.pointerEvents = 'auto';
     iconElement.style.cursor = 'pointer';
 }
+const sylToggle = card.querySelector('.syl-toggle');
+if (sylToggle) sylToggle.style.display = 'flex';
 
 // Restore ALL text elements (french, english, pronunciation)
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
@@ -142,12 +145,15 @@ if (globalKb) {
     globalKb.classList.add('active');
 }
 
-// Disable icon click during spelling mode
+// Disable and hide icon and ABC button during spelling mode
 const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
 if (iconElement) {
+    iconElement.style.display = 'none';
     iconElement.style.pointerEvents = 'none';
     iconElement.style.cursor = 'default';
 }
+const sylToggle = card.querySelector('.syl-toggle');
+if (sylToggle) sylToggle.style.display = 'none';
 
 // ONLY HIDE TEXT - keep the VISUAL (emoji/photo) visible!
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
@@ -198,7 +204,7 @@ renderMiniKeyboard();
 // Then speak the word
 setTimeout(() => {
     spk(words[0], 'fr-FR');
-}, 500);
+}, 100);
     }
     
 function renderSpellingSlots() {
@@ -279,6 +285,11 @@ card.classList.remove('spelling-mode');
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
     el.style.display = 'block';
 });
+// Restore icon visibility
+const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+if (iconElement) iconElement.style.display = '';
+const sylToggle = card.querySelector('.syl-toggle');
+if (sylToggle) sylToggle.style.display = 'flex';
 // Hide spelling area
 const zone = card.querySelector('.spelling-zone');
 if (zone) zone.style.display = 'none';
@@ -418,7 +429,7 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
             renderSpellingSlots(); 
             
             const isLastWord = state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length - 1;
-            const waitTime = isLastWord ? 1000 : 2500; 
+            const waitTime = isLastWord ? 600 : 800; 
 
             setTimeout(() => {
                 // --- THE CRITICAL SAFETY GUARD ---
@@ -459,7 +470,7 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
                         if (state.currentSpellingState) {
                             spk(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
                         }
-                    }, 400);
+                    }, 100);
                 }
             }, waitTime);
         } else {
@@ -515,9 +526,12 @@ if (activeCard) {
     // Restore icon interaction
     const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
     if (iconElement) {
+        iconElement.style.display = '';
         iconElement.style.pointerEvents = 'auto';
         iconElement.style.cursor = 'pointer';
     }
+    const sylToggle = activeCard.querySelector('.syl-toggle');
+    if (sylToggle) sylToggle.style.display = 'flex';
 }
 
 if (globalKb) {
@@ -623,7 +637,7 @@ u.onend = () => {
         if (state.currentSpellingState) {
             speakNextLetter(index + 1);
         }
-    }, 300); // Increased from 200ms to 300ms for better "œ" to "u" transition
+    }, 50); // Snappy transition between letters
 };
 
 // Safety: If for some reason onend fails (browser bug), move on after 3 seconds

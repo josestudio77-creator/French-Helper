@@ -90,7 +90,7 @@ function norm(t) {
     return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; 
 }
 
-function spk(t, lang, forceInterrupt = false, speedOverride = null) {
+function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode = false) {
     try {
         if (forceInterrupt) {
             window.speechSynthesis.cancel();
@@ -98,8 +98,18 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null) {
 
         let textToSpeak = t;
         if (lang === 'fr-FR' && t.trim().length === 1) {
-            const upper = t.trim().toUpperCase();
-            textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
+            if (isLetterMode) {
+                const upper = t.trim().toUpperCase();
+                textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
+            } else {
+                // Fix for French TTS engines that spell out single characters
+                // We map them to their phonetic equivalent so they sound like natural words
+                const charLower = t.trim().toLowerCase();
+                if (charLower === 'à' || charLower === 'â') textToSpeak = 'a';
+                else if (charLower === 'y') textToSpeak = 'i'; // 'y' sounds like 'i' in French
+                else if (charLower === 'ô') textToSpeak = 'o';
+                else if (charLower === 'é' || charLower === 'è' || charLower === 'ê' || charLower === 'ë') textToSpeak = 'é';
+            }
         }
 
         const u = new SpeechSynthesisUtterance(textToSpeak);
@@ -119,66 +129,137 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null) {
     }
 }
 
- function spellWord() {
+const AUDIO_FILE_MAP = {
+    'a': 'a.wav', 'b': 'b.wav', 'c': 'c.wav', 'd': 'd.wav', 'e': 'e.wav',
+    'f': 'f.wav', 'g': 'g.wav', 'h': 'h.wav', 'i': 'i.wav', 'j': 'j.wav',
+    'k': 'k.wav', 'l': 'l.wav', 'm': 'm.wav', 'n': 'n.wav', 'o': 'o.wav',
+    'p': 'p.wav', 'q': 'q.wav', 'r': 'r.wav', 's': 's.wav', 't': 't.wav',
+    'u': 'u.wav', 'v': 'v.wav', 'w': 'w.wav', 'x': 'x.wav', 'y': 'y.wav', 'z': 'z.wav',
+    'é': 'e_accent_aigu.wav', 'è': 'e_accent_grave.wav', 'ê': 'e_accent_circonflexe.wav',
+    'ë': 'e_trema.wav', 'à': 'a_accent_grave.wav', 'â': 'a_accent_circonflexe.wav',
+    'î': 'i_accent_circonflexe.wav', 'ï': 'i_trema.wav', 'ô': 'o_accent_circonflexe.wav',
+    'û': 'u_accent_circonflexe.wav', 'ù': 'u_accent_grave.wav', 'ç': 'c_cedille.wav',
+    'œ': 'oe_ligature.wav', 'æ': 'ae_ligature.wav',
+    'aa': 'deux_a.wav', 'bb': 'deux_b.wav', 'cc': 'deux_c.wav', 'dd': 'deux_d.wav',
+    'ee': 'deux_e.wav', 'ff': 'deux_f.wav', 'gg': 'deux_g.wav', 'hh': 'deux_h.wav',
+    'ii': 'deux_i.wav', 'jj': 'deux_j.wav', 'kk': 'deux_k.wav', 'll': 'deux_l.wav',
+    'mm': 'deux_m.wav', 'nn': 'deux_n.wav', 'oo': 'deux_o.wav', 'pp': 'deux_p.wav',
+    'qq': 'deux_q.wav', 'rr': 'deux_r.wav', 'ss': 'deux_s.wav', 'tt': 'deux_t.wav',
+    'uu': 'deux_u.wav', 'vv': 'deux_v.wav', 'ww': 'deux_w.wav', 'xx': 'deux_x.wav',
+    'yy': 'deux_y.wav', 'zz': 'deux_z.wav'
+};
+
+async function preloadAlphabetAudio() {
+    const basePath = 'assets/audio/french_alphabet_raw_wav/';
+    
+    // Using HTML5 Audio elements instead of AudioContext to bypass CORS restrictions on file:/// protocol
+    Object.entries(AUDIO_FILE_MAP).forEach(([key, filename]) => {
+        if (!state.audioBuffers[key]) {
+            const audioObj = new Audio(basePath + filename);
+            audioObj.preload = 'auto'; // Force RAM preload
+            state.audioBuffers[key] = audioObj;
+        }
+    });
+    
+    console.log("🔊 All Alphabet Audio Preloaded via HTML5 Audio!");
+}
+
+function playLetterAudio(key, onEnded) {
+    const audioObj = state.audioBuffers[key.toLowerCase()];
+    
+    if (!audioObj) {
+        console.warn("Audio missing for", key, "- falling back to TTS");
+        fallbackToTTS(key, onEnded);
+        return;
+    }
+    
+    // Play using HTML5 Audio
+    try {
+        audioObj.playbackRate = state.speechSpeed > 0.8 ? 1.0 : state.speechSpeed;
+        audioObj.currentTime = 0; // Reset to start
+        
+        // Single-use onended handler
+        audioObj.onended = () => {
+            audioObj.onended = null;
+            if (onEnded) onEnded();
+        };
+        
+        const playPromise = audioObj.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => {
+                console.warn("HTML5 Audio play failed for", key, "- falling back to TTS:", e);
+                fallbackToTTS(key, onEnded);
+            });
+        }
+    } catch (e) {
+        fallbackToTTS(key, onEnded);
+    }
+}
+
+function fallbackToTTS(key, onEnded) {
+    const ttsKey = FRENCH_LETTER_NAMES[key.toUpperCase()] || key;
+    const u = new SpeechSynthesisUtterance(ttsKey);
+    u.lang = 'fr-FR';
+    u.rate = state.speechSpeed;
+    u.voice = state.selectedFrVoice;
+    if (onEnded) u.onend = onEnded;
+    window.speechSynthesis.speak(u);
+}
+
+function spellWord() {
     if (!state.gameActive || !state.targetWord) return;
     
     state.isSpelling = true; 
     const letters = state.targetWord.split('');
     window.speechSynthesis.cancel();
     
-    // Identify all the boxes in the Hangman display
     const slots = document.querySelectorAll('#hangmanDisplay .bee-slot');
 
-    // SURGICAL ENGINE: This function calls itself only when the voice is done
     function speakNext(index) {
-        // Exit if we finished the word or the user closed the game
         if (index >= letters.length || !state.gameActive) {
             state.isSpelling = false;
             return;
         }
 
-        const upper = letters[index].toUpperCase();
-        const nameToSpeak = FRENCH_LETTER_NAMES[upper] || letters[index];
-
-        // 1. Visual Highlight ON
-        if (slots[index]) {
-            slots[index].style.backgroundColor = '#FFD700'; // Your Gold
-            slots[index].style.transform = 'scale(1.15)';
-            slots[index].style.zIndex = '10';
+        let keyToPlay = letters[index].toLowerCase();
+        let lettersConsumed = 1;
+        
+        // Look ahead for double letters
+        if (index + 1 < letters.length && letters[index].toLowerCase() === letters[index + 1].toLowerCase()) {
+            const doubleKey = keyToPlay + keyToPlay;
+            if (AUDIO_FILE_MAP[doubleKey]) {
+                keyToPlay = doubleKey;
+                lettersConsumed = 2;
+            }
         }
 
-        // 2. Prepare the Voice
-        const u = new SpeechSynthesisUtterance(nameToSpeak);
-        u.lang = 'fr-FR';
-        // IMPROVED: Standardized rate with other game modes to avoid "fan vibration" distortion
-        u.rate = state.speechSpeed * 0.9; 
-        u.voice = state.selectedFrVoice;
+        // 1. Visual Highlight ON
+        for (let i = 0; i < lettersConsumed; i++) {
+            if (slots[index + i]) {
+                slots[index + i].style.backgroundColor = '#FFD700';
+                slots[index + i].style.transform = 'scale(1.15)';
+                slots[index + i].style.zIndex = '10';
+            }
+        }
 
-        // 3. THE SYNC FIX: Wait for this specific letter to finish
-        u.onend = () => {
-            // A short 200ms pause for a "natural" gap between letters
+        // 3. Play the studio audio
+        playLetterAudio(keyToPlay, () => {
             setTimeout(() => {
                 // Visual Highlight OFF
-                if (slots[index]) {
-                    // Return to your specific green if filled, otherwise white
-                    slots[index].style.backgroundColor = slots[index].classList.contains('filled') ? '#f0fdf4' : 'white';
-                    slots[index].style.transform = '';
-                    slots[index].style.zIndex = '';
+                for (let i = 0; i < lettersConsumed; i++) {
+                    if (slots[index + i]) {
+                        slots[index + i].style.backgroundColor = slots[index + i].classList.contains('filled') ? '#f0fdf4' : 'white';
+                        slots[index + i].style.transform = '';
+                        slots[index + i].style.zIndex = '';
+                    }
                 }
-                // MOVE TO NEXT LETTER
-                speakNext(index + 1);
-            }, 200);
-        };
-
-        // 4. THE SYNC FIX: Explicitly handle the transition to the next letter
-        // Added 50ms buffer and blank space pre-roll to "wake up" the engine (Matches Alphabet Practice logic)
-        setTimeout(() => {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
-            window.speechSynthesis.speak(u);
-        }, 50);
+                speakNext(index + lettersConsumed);
+            }, 200); // Natural gap between letters
+        });
     }
 
-    // Start the recursive chain at the first letter
+    // Start immediately so the first audio play happens synchronously within the user's click event stack!
+    // This satisfies the browser's strict autoplay policies and allows the HTML5 Audio to play.
     speakNext(0);
 }
 
@@ -318,6 +399,132 @@ function playBuzzSound() {
 
     osc.start();
     osc.stop(now + 0.15);
+}
+
+/**
+ * FRENCH SYLLABIFICATION ENGINE
+ * Breaks a word into syllables based on standard French rules.
+ */
+function getSyllables(word) {
+    if (!word) return [];
+    if (word.length <= 3) return [word]; // Too short to split reliably
+
+    const cleanLower = word.toLowerCase();
+    
+    // Check dynamic user overrides first
+    if (typeof state !== 'undefined' && state.syllableOverrides && state.syllableOverrides[cleanLower]) {
+        return state.syllableOverrides[cleanLower];
+    }
+    
+    // Then check static hardcoded overrides
+    if (typeof SYLLABLE_OVERRIDES !== 'undefined' && SYLLABLE_OVERRIDES[cleanLower]) {
+        return SYLLABLE_OVERRIDES[cleanLower];
+    }
+
+    const vowels = "aeiouàâéèêëîïôûùœæ"; // No 'y'
+    // Extended clusters including double consonants and digraphs for phonetic chunking
+    const clusters = [
+        "bl", "cl", "fl", "gl", "pl", "br", "cr", "dr", "fr", "gr", "pr", "tr", "vr", 
+        "ch", "ph", "th", "gn", "qu", "gu",
+        "bb", "cc", "dd", "ff", "gg", "ll", "mm", "nn", "pp", "rr", "ss", "tt", "xx", "zz"
+    ];
+    // Vowel clusters (digraphs/trigraphs)
+    const vClusters = [
+        "eau", "au", "ou", "eu", "œu", "oi", "ai", "ei", "ui", "ie", "ia", "io", "ieu", "oui", "oe"
+    ];
+    
+    let chars = word.toLowerCase().split('');
+    let units = [];
+    
+    // Step 1: Group characters into logical phonetic units (clusters vs individual letters)
+    for (let i = 0; i < chars.length; i++) {
+        let isApostrophe = chars[i+1] === "'" || chars[i+1] === "’";
+        let baseText = chars[i];
+        
+        if (isApostrophe) {
+            units.push({ text: baseText + chars[i+1], type: 'C' });
+            i++;
+            continue;
+        }
+
+        if (i < chars.length - 2 && vClusters.includes(chars[i] + chars[i+1] + chars[i+2])) {
+            units.push({ text: chars[i] + chars[i+1] + chars[i+2], type: 'V' });
+            i += 2;
+        } else if (i < chars.length - 1 && vClusters.includes(chars[i] + chars[i+1])) {
+            units.push({ text: chars[i] + chars[i+1], type: 'V' });
+            i++;
+        } else if (i < chars.length - 1 && clusters.includes(chars[i] + chars[i+1])) {
+            units.push({ text: chars[i] + chars[i+1], type: 'C' });
+            i++;
+        } else {
+            let isV = vowels.includes(chars[i]);
+            if (chars[i] === 'y') {
+                // If y is followed by a vowel, it's a consonant (Ya, Ye). Otherwise V (Mythe)
+                isV = (i === chars.length - 1 || !vowels.includes(chars[i+1]));
+            }
+            units.push({ text: chars[i], type: isV ? 'V' : 'C' });
+        }
+    }
+    
+    let res = [];
+    let current = "";
+    
+    // Step 2: Apply French phonics rules on the logical units
+    for (let i = 0; i < units.length; i++) {
+        current += units[i].text;
+        
+        const next = units[i+1];
+        const afterNext = units[i+2];
+        
+        if (!next) {
+            continue; // Keep the rest attached to the current syllable
+        }
+        
+        // RULE 1: V-CV (Split between Vowel and Single Consonant followed by a Vowel)
+        if (units[i].type === 'V' && next.type === 'C' && afterNext && afterNext.type === 'V') {
+            res.push(current);
+            current = "";
+            continue;
+        }
+        
+        // RULE 2: VC-CV (Split between Two Consonants if followed by a Vowel)
+        if (units[i].type === 'C' && next.type === 'C' && afterNext && afterNext.type === 'V') {
+            res.push(current);
+            current = "";
+            continue;
+        }
+        
+        // RULE 3: V-V Hiatus (Split between two separate vowel units, e.g., jou-er)
+        if (units[i].type === 'V' && next.type === 'V') {
+            res.push(current);
+            current = "";
+            continue;
+        }
+    }
+    
+    if (current) res.push(current);
+
+    // POST-PROCESSING: Fix silent "e" at the end.
+    if (res.length > 1) {
+        let lastSyl = res[res.length - 1];
+        // Match consonant cluster + 'e' or 'es' (e.g. lle, ppe, re, tes)
+        if (lastSyl.match(/^[^aeiouyàâéèêëîïôûùœæ]*e[s]?$/i)) {
+            let prev = res[res.length - 2];
+            res[res.length - 2] = prev + lastSyl;
+            res.pop();
+        }
+    }
+
+    // Maintain original case
+    let originalIndex = 0;
+    let finalRes = [];
+    for (let syl of res) {
+        let originalSyl = word.substring(originalIndex, originalIndex + syl.length);
+        finalRes.push(originalSyl);
+        originalIndex += syl.length;
+    }
+    
+    return finalRes.filter(s => s.length > 0);
 }
 
 function toggleMusic() {

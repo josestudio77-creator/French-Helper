@@ -87,7 +87,51 @@
         box-shadow: 0 6px 12px rgba(0,0,0,0.08); 
         position: relative; 
     }
-    
+
+    /* TOOL BUTTONS (Bee, Syllables, etc) */
+    .card-tools {
+        position: absolute;
+        top: -15px; /* Pull it slightly above the card edge */
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: row; /* Horizontal row */
+        gap: 10px;
+        z-index: 5;
+    }
+
+    .tool-btn {
+        width: 42px;
+        height: 42px;
+        background: white;
+        border: 2.5px solid #cbd5e0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+    }
+
+    .tool-btn:active {
+        transform: scale(0.9);
+    }
+
+    .syl-toggle {
+        font-size: 0.8rem;
+        font-weight: 900;
+        color: #5a67d8;
+        text-transform: lowercase;
+    }
+
+    .syl-toggle.active {
+        background: #5a67d8;
+        color: white;
+        border-color: #434190;
+    }
+
     .card-icon { 
         font-size: 4.5rem; 
         display: block; 
@@ -99,16 +143,71 @@
         transform: scale(1.1); 
     }
     
+    .french-text-container {
+        display: block;
+        margin-bottom: 5px;
+        line-height: 1.2;
+    }
+
     .french-text { 
-        font-size: 1.8rem; 
+        font-size: clamp(1.8rem, 4vw + 0.5rem, 3.5rem); 
         font-weight: 900; 
         color: #2d3748; 
-        display: block; 
-        margin-bottom: 5px; 
+    }
+
+    /* INTERACTIVE WORDS & SYLLABLES */
+    .interactive-word {
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 2px 6px;
+        margin: 2px 0;
+        transition: all 0.1s;
+        border-bottom: 3px dashed #e2e8f0; /* Hint that it's clickable */
+    }
+    
+    .interactive-syllable {
+        display: inline-block;
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 2px 4px;
+        transition: all 0.1s;
+        font-weight: 900;
+    }
+
+    /* RAINBOW COLORS FOR SYLLABLES */
+    .syl-color-0 { color: #ff6b8b; }
+    .syl-color-1 { color: #4cd964; }
+    .syl-color-2 { color: #5a67d8; }
+    .syl-color-3 { color: #ff9e6d; }
+    .syl-color-4 { color: #9d4edd; }
+
+    .interactive-word:hover {
+        background: #f1f5f9;
+        border-bottom-color: #cbd5e0;
+    }
+    
+    .interactive-syllable:hover {
+        background: rgba(0,0,0,0.05);
+        transform: scale(1.05);
+    }
+
+    .word-active, .syl-active {
+        background: #4cd964 !important;
+        color: white !important;
+        transform: scale(1.1);
+        border-bottom-color: transparent !important;
+    }
+
+    .syllable-dash {
+        color: #cbd5e0;
+        font-weight: 400;
+        margin: 0 1px;
+        display: none; /* Hide dashes when using Rainbow colors */
     }
     
     .english-text { 
-        font-size: 1.3rem; 
+        font-size: clamp(1.3rem, 2.5vw + 0.5rem, 2.2rem); 
         color: #5a67d8; 
         font-weight: 800; 
         display: block; 
@@ -128,7 +227,7 @@
     
     .pronunciation-text {
         display: block;
-        font-size: 0.9rem;
+        font-size: clamp(0.9rem, 1.5vw + 0.4rem, 1.5rem);
         color: #718096;
         font-style: italic;
         margin-bottom: 10px;
@@ -378,7 +477,7 @@
     }
     
     .hangman-word { 
-        font-size: 1.6rem; 
+        font-size: clamp(1.6rem, 3.5vw + 0.5rem, 3rem); 
         margin: 10px 0; 
     }
     
@@ -1349,6 +1448,23 @@
     border: 3px solid white;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* OVERRIDE for when bee-badge is inside card-tools */
+.card-tools .bee-badge {
+    position: static;
+    top: auto;
+    left: auto;
+    width: 42px;
+    height: 42px;
+    border: 2.5px solid #cbd5e0;
+    border-radius: 12px;
+    background: white;
+    font-size: 1.4rem;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+.card-tools .bee-badge:active {
+    transform: scale(0.9);
+}
  
 .bee-badge:active {
     transform: scale(1.2);
@@ -1359,8 +1475,6 @@
     border-color: #FFD700 !important;
     background: #fffdf0 !important;
     margin: 125px auto 5px auto !important;
-    width: 94%;
-    max-width: 750px;
     position: relative;
     z-index: 1000;
     overflow: visible !important;
@@ -1542,11 +1656,11 @@ body.mode-spelling #phrasesList {
     text-shadow: 0 0 10px rgba(76, 217, 100, 0.3);
 }
  
-/* Make spelling slots slightly more compact in spelling mode */
+/* Make spelling slots larger to match the wider screen in spelling mode */
 body.mode-spelling .bee-slot {
-    height: 38px;
-    width: clamp(28px, 7vw, 40px);
-    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    height: 60px;
+    width: clamp(40px, 10vw, 55px);
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
 }
  
 body.mode-spelling .spelling-slots {

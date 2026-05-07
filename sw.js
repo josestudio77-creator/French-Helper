@@ -1,5 +1,5 @@
 // sw.js - Service Worker V903 (Modular JS architecture)
-const CACHE_NAME = 'french-fun-v910'; // Bumped: force UI updates on mobile
+const CACHE_NAME = 'french-fun-v913'; // Bumped: force UI updates on mobile
 const urlsToCache = [
   './',
   './index.html?v=903',

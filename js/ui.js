@@ -3,6 +3,118 @@
    French Helper
    =========================================== */
 
+/**
+ * Renders a French phrase as interactive words.
+ * Each word is wrapped in a clickable span.
+ */
+function renderInteractivePhrase(phrase, container) {
+    if (!container) return;
+    container.innerHTML = '';
+    
+    // Split by spaces but preserve punctuation
+    const words = phrase.split(/(\s+)/);
+    
+    words.forEach(part => {
+        if (part.trim().length === 0) {
+            container.appendChild(document.createTextNode(part));
+            return;
+        }
+        
+        const span = document.createElement('span');
+        span.className = 'interactive-word';
+        span.textContent = part;
+        span.onclick = (e) => {
+            e.stopPropagation();
+            spk(part.replace(/[.,!?;:]/g, ''), 'fr-FR', true);
+            
+            // Visual feedback
+            span.classList.add('word-active');
+            setTimeout(() => span.classList.remove('word-active'), 400);
+        };
+        container.appendChild(span);
+    });
+}
+
+/**
+ * Renders a French phrase broken into syllables.
+ */
+function renderSyllablesView(phrase, container) {
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const words = phrase.split(/(\s+)/);
+    let globalSylCount = 0;
+    
+    words.forEach(part => {
+        if (part.trim().length === 0) {
+            container.appendChild(document.createTextNode(part));
+            return;
+        }
+        
+        // Remove punctuation for syllabification but keep it in display?
+        // Let's keep it simple: split the word, then add punctuation back
+        const cleanWord = part.replace(/[.,!?;:]/g, '');
+        const punct = part.replace(/[A-Za-zÀ-ÿœæ'’]/g, '');
+        
+        const syllables = getSyllables(cleanWord);
+        
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'interactive-word'; // Gives it the nice dashed border and padding around the whole word
+        
+        syllables.forEach((syl) => {
+            const span = document.createElement('span');
+            // Rainbow coloring based on global index
+            const colorClass = `syl-color-${globalSylCount % 5}`;
+            globalSylCount++;
+            span.className = colorClass; // Only apply color, no padding so they touch seamlessly
+            span.style.fontWeight = '900';
+            span.style.pointerEvents = 'none'; // Let the click pass to the word wrapper
+            span.textContent = syl;
+            wordSpan.appendChild(span);
+        });
+        
+        if (punct) {
+            wordSpan.appendChild(document.createTextNode(punct));
+        }
+
+        wordSpan.onclick = (e) => {
+            e.stopPropagation();
+            spk(cleanWord, 'fr-FR', true); // Speak the whole word naturally
+            
+            // Visual feedback: Highlight the entire word block as one unit
+            wordSpan.classList.add('word-active');
+            setTimeout(() => wordSpan.classList.remove('word-active'), 400);
+        };
+        
+        wordSpan.ondblclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            manualFixSyllables(cleanWord, syllables);
+        };
+        
+        let lastTap = 0;
+        wordSpan.addEventListener('touchstart', (e) => {
+            const now = Date.now();
+            if (now - lastTap < 300) {
+                e.preventDefault();
+                e.stopPropagation();
+                manualFixSyllables(cleanWord, syllables);
+            }
+            lastTap = now;
+        });
+        
+        container.appendChild(wordSpan);
+    });
+}
+
+function toggleSyllableMode(btn) {
+    state.syllableMode = !state.syllableMode;
+    localStorage.setItem('syllableMode', state.syllableMode);
+    
+    // Refresh the list to apply changes
+    renderList(state.currentScreenList);
+}
+
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -318,7 +430,7 @@ if (!list || list.length === 0) {
 const banner = document.createElement('div');
 banner.className = 'teacher-audio-banner';
 banner.style.cssText = 'background: linear-gradient(135deg, #ffc107, #ff9800); color: white; padding: 15px; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; font-weight: 900; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
-banner.innerHTML = '🎤 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
+banner.innerHTML = '🔊 Teacher Recording Mode<br><span style="font-size:0.8rem; opacity:0.9;">Using homework with teacher\'s voice</span>';
 container.parentElement.insertBefore(banner, container);
 
 const card = document.createElement('div');
@@ -421,7 +533,7 @@ list.forEach(p => {
         <div class="card-btns">
             <button class="card-btn spk-fr" style="position: relative;">
                 <span class="snail-corner">🐌</span>
-                <span>🎤 French</span>
+                <span>🔊 French</span>
             </button>
             <button class="card-btn spk-en">
                 <span>English</span>
@@ -431,17 +543,30 @@ list.forEach(p => {
     
     // FINAL TEMPLATE - ONE card.innerHTML using visualHTML
     card.innerHTML = `
-        <div class="bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')">🐝</div>
+        <div class="card-tools">
+            <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
+            <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Syllables">abc</div>
+        </div>
         ${gIcon}
         <div class="card-main-content">
             ${visualHTML}
-            <span class="french-text">${p}</span>
+            <div class="french-text-container">
+                <span class="french-text"></span>
+            </div>
             ${pGuide}
             <span class="english-text">${data.en}</span>
         </div>
         ${spellingHTML}
         ${buttonHTML}
     `;
+
+    // Render interactive text
+    const frTextEl = card.querySelector('.french-text');
+    if (state.syllableMode) {
+        renderSyllablesView(p, frTextEl);
+    } else {
+        renderInteractivePhrase(p, frTextEl);
+    }
     
     // Bind interactions
     card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
@@ -1008,12 +1133,12 @@ function renderAlphabetCards(alphabetList) {
             
             <div class="card-btns" style="margin-top: 20px;">
                 <button class="card-btn spk-fr" style="background: #4cd964; font-size: 1.3rem; grid-column: span 2; height: 60px;">
-                    🎤 Listen to Name
+                    🔊 Listen to Name
                 </button>
             </div>
         `;
         
-        card.querySelector('.spk-fr').onclick = () => spk(letter, 'fr-FR', true);
+        card.querySelector('.spk-fr').onclick = () => spk(letter, 'fr-FR', true, null, true);
         container.appendChild(card);
     });
 }
@@ -1027,6 +1152,25 @@ function manualFixTranslation(p, currentEn) {
             if (fix) {
                 state.cache[norm(p)] = fix;
                 localStorage.setItem('phraseTranslations', JSON.stringify(state.cache));
+                renderList(state.currentScreenList);
+            }
+        }
+    });
+}
+
+function manualFixSyllables(word, currentSyllables) {
+    const currentText = currentSyllables.join('-');
+    openAppModal({
+        title: `🔧 Fix Syllables: ${word}`,
+        text: currentText,
+        mode: 'edit',
+        onSave: (fix) => {
+            if (fix) {
+                const cleanLower = word.toLowerCase();
+                const newSyllables = fix.split('-').map(s => s.trim()).filter(s => s.length > 0);
+                if (!state.syllableOverrides) state.syllableOverrides = {};
+                state.syllableOverrides[cleanLower] = newSyllables;
+                localStorage.setItem('syllableOverrides', JSON.stringify(state.syllableOverrides));
                 renderList(state.currentScreenList);
             }
         }

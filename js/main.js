@@ -43,7 +43,8 @@ function startAppTransition() {
 
     const isModalOpen = document.getElementById('appModal').style.display === 'block';
     if (!isModalOpen) {
-playWelcomeChime();
+        playWelcomeChime();
+        preloadAlphabetAudio(); // Preload all WAV files to RAM on first user interaction
     }
 
     icon.classList.add('splash-immersive-zoom');
