@@ -51,10 +51,13 @@ function initVoices() {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length === 0) return;
         state.frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
-        state.cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en'));
+        state.selectedFrVoice = state.frVoices.find(v => v.name.includes('Amelie') || v.name.includes('Thomas')) || state.frVoices[0] || null;
+        state.cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en')) || null;
+        console.log('[Audio] Voices loaded: fr=' + (state.selectedFrVoice ? state.selectedFrVoice.name : 'default') + ', en=' + (state.cachedEnVoice ? state.cachedEnVoice.name : 'default'));
     };
-    setVoices(); 
+    setVoices();
     if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
+    setTimeout(setVoices, 1000);
 }
 
        
@@ -115,10 +118,13 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode
         const u = new SpeechSynthesisUtterance(textToSpeak);
         u.lang = lang;
         u.rate = speedOverride || state.speechSpeed;
-        u.voice = (lang === 'fr-FR') ? state.selectedFrVoice : state.cachedEnVoice;
+        // Only set voice if we have one — null can cause silent failure in PWAs
+        const v = (lang === 'fr-FR') ? state.selectedFrVoice : state.cachedEnVoice;
+        if (v) u.voice = v;
+        u.onerror = (e) => console.warn('[Audio] TTS utterance error:', e.error);
 
         setTimeout(() => {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
+            window.speechSynthesis.cancel();
             window.speechSynthesis.speak(u);
         }, 50);
     } catch (e) {
