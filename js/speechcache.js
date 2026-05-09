@@ -164,6 +164,19 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
     if (forceInterrupt === undefined) forceInterrupt = false;
     if (!text || !text.trim()) return;
     
+    // Stop all other audio if interrupting
+    if (forceInterrupt) {
+        window.speechSynthesis.cancel();
+        if (state.currentlyPlayingAudio) {
+            state.currentlyPlayingAudio.pause();
+            state.currentlyPlayingAudio = null;
+        }
+        if (state.activeRecordingSource) {
+            try { state.activeRecordingSource.stop(); } catch(e) {}
+            state.activeRecordingSource = null;
+        }
+    }
+    
     const key = typeof norm === 'function' ? norm(text) : text.toLowerCase();
     
     try {
@@ -173,17 +186,7 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
             // CACHED AUDIO AVAILABLE
             console.log('[SpeechCache] PLAYING CACHED: "' + text + '"');
             
-            if (forceInterrupt) {
-                window.speechSynthesis.cancel();
-                if (state.currentlyPlayingAudio) {
-                    state.currentlyPlayingAudio.pause();
-                    state.currentlyPlayingAudio = null;
-                }
-                if (state.activeRecordingSource) {
-                    try { state.activeRecordingSource.stop(); } catch(e) {}
-                    state.activeRecordingSource = null;
-                }
-            }
+
             
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
