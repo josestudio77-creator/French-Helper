@@ -252,6 +252,7 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
     try {
         console.log('[SpeechCache] STREAMING Google TTS: "' + text + '"');
         const directUrl = TTS_GOOGLE_BASE + '?ie=UTF-8&client=gtx&tl=' + (lang === 'fr-FR' ? 'fr' : 'en') + '&q=' + encodeURIComponent(text);
+        console.log('[SpeechCache] URL: ' + directUrl.substring(0, 120) + '...');
         
         if (forceInterrupt) {
             window.speechSynthesis.cancel();
@@ -261,24 +262,44 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
             }
         }
         
-        const audio = new Audio(directUrl);
+        const audio = new Audio();
+        audio.preload = 'auto';
         state.currentlyPlayingAudio = audio;
         _showQualityBadge();
         
         await new Promise((resolve, reject) => {
+            let resolved = false;
+            
+            audio.oncanplaythrough = () => {
+                if (!resolved) {
+                    console.log('[SpeechCache] Audio ready, playing...');
+                    audio.play().catch(reject);
+                }
+            };
+            
+            audio.onplaying = () => {
+                console.log('[SpeechCache] Audio now playing');
+            };
+            
             audio.onended = () => {
+                if (!resolved) { resolved = true; resolve(); }
                 if (state.currentlyPlayingAudio === audio) state.currentlyPlayingAudio = null;
-                resolve();
             };
-            audio.onerror = () => {
+            
+            audio.onerror = (e) => {
+                if (!resolved) { resolved = true; }
                 if (state.currentlyPlayingAudio === audio) state.currentlyPlayingAudio = null;
-                reject(new Error('Audio element playback failed'));
+                const err = audio.error;
+                reject(new Error('Audio error: code=' + (err ? err.code : 'unknown') + ' msg=' + (err ? err.message : 'none')));
             };
-            audio.play().catch(reject);
+            
+            // Set src after attaching listeners (triggers load)
+            audio.src = directUrl;
+            audio.load();
         });
         return;
     } catch (e2) {
-        console.warn('[SpeechCache] Streaming also failed, falling back to browser TTS');
+        console.warn('[SpeechCache] Streaming failed: ' + (e2.message || e2) + '. Falling back to browser TTS');
     }
     
     // Last resort: browser TTS
