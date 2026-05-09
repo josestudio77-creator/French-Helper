@@ -54,10 +54,17 @@ function initVoices() {
         state.selectedFrVoice = state.frVoices.find(v => v.name.includes('Amelie') || v.name.includes('Thomas')) || state.frVoices[0] || null;
         state.cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en')) || null;
         console.log('[Audio] Voices loaded: fr=' + (state.selectedFrVoice ? state.selectedFrVoice.name : 'default') + ', en=' + (state.cachedEnVoice ? state.cachedEnVoice.name : 'default'));
+        // Warn if no French voice available
+        if (state.frVoices.length === 0 && !state._voiceWarningShown) {
+            state._voiceWarningShown = true;
+            console.warn('[Audio] No French voice found — showing install instructions');
+            setTimeout(() => showVoiceInstructions(), 500);
+        }
     };
     setVoices();
     if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = setVoices;
     setTimeout(setVoices, 1000);
+    setTimeout(setVoices, 3000);
 }
 
        
@@ -65,30 +72,36 @@ function showVoiceInstructions() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
     
-    let msg = '📱 To access more French voices:\n\n';
+    let msg = 'No French voice detected on your device.\n\nWithout it, pronunciations may sound wrong or produce no audio.\n\n';
     
     if (isIOS) {
         msg += 'iPhone/iPad:\n';
         msg += '1. Open Settings app\n';
-        msg += '2. Accessibility → Spoken Content\n';
-        msg += '3. Tap Voices → French\n';
-        msg += '4. Download voices (I, II, III, IV)\n';
-        msg += '5. Return here and reload\n';
+        msg += '2. Accessibility → Spoken Content → Voices\n';
+        msg += '3. Tap French\n';
+        msg += '4. Download "Amelie" (France) or "Canadian French"\n';
+        msg += '   ➡️ For immersion, "Canadian French" is recommended\n';
+        msg += '5. Return to this app and reload\n';
     } else if (isAndroid) {
         msg += 'Android:\n';
-        msg += '1. Open Settings app\n';
-        msg += '2. Accessibility → Text-to-speech\n';
-        msg += '3. Tap gear icon → Language\n';
-        msg += '4. Install French language data\n';
-        msg += '5. Return here and reload\n';
+        msg += '1. Settings → System → Languages & input\n';
+        msg += '2. Tap Text-to-speech output\n';
+        msg += '3. Tap gear icon → "Install voice data"\n';
+        msg += '4. Choose French → "French (Canada)"\n';
+        msg += '   ➡️ Canadian French recommended for immersion\n';
+        msg += '5. Return to this app and reload\n';
     } else {
-        msg += 'Check your device Settings\n';
-        msg += 'for Speech or Voice options.';
+        msg += 'Windows/macOS:\n';
+        msg += '1. Open System Settings\n';
+        msg += '2. Go to Language & Region\n';
+        msg += '3. Add French as a language\n';
+        msg += '4. Restart browser and reload\n';
     }
     
-    openAppModal({ title: 'Audio Error', text: msg, mode: 'view' });
+    msg += '\nℹ️ After installing, reload the app and the voice will be used automatically.';
+    
+    openAppModal({ title: '🔊 French Voice Required', text: msg, mode: 'view' });
 }
-
 function norm(t) { 
     return t ? t.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : ''; 
 }
