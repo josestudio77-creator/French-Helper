@@ -301,6 +301,7 @@ function performActualImport(data, incomingKeys, overwrite, targetMonthIndex) {
     localStorage.setItem('customIcons', JSON.stringify(state.customIcons));
     localStorage.setItem('customPhotos', JSON.stringify(state.customPhotos));
     localStorage.setItem('homeworkNotes', JSON.stringify(state.homeworkNotes));
+    setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
     
     // Set the backpack's month tracker to the new month
     state.selectedBpMonth = targetMonthIndex;
@@ -537,6 +538,7 @@ function toggleFavorite(name) {
     d.isFavorite = !d.isFavorite;
     state.history[name] = JSON.stringify(d);
     localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+    setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
     
     // UI Refresh Logic
     if (document.getElementById('bpModal').style.display === 'block') {
@@ -630,6 +632,7 @@ let hwData = JSON.parse(state.history[state.homeworkToMove]);
 hwData.month = newMonthIndex;
 state.history[state.homeworkToMove] = JSON.stringify(hwData);
 localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+    setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
     } else {
 // --- ACTION: NAVIGATE ---
 state.selectedBpMonth = newMonthIndex;
@@ -736,6 +739,9 @@ if (state.currentWeekAudio) {
     
     closeOverlay('bpModal');
     renderList(words.split('\n').filter(w => w.trim()));
+    
+    // Background: preload TTS audio if not cached
+    SpeechCache.fetchTTSForHomework(words, null).catch(() => {});
 }
 
 function showNote(name) {
@@ -753,6 +759,7 @@ openAppModal({
     onSave: (val) => {
         if (val.trim()) state.homeworkNotes[name] = val.trim();
         localStorage.setItem('homeworkNotes', JSON.stringify(state.homeworkNotes));
+        setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
         refreshAppUI();
     }
 });
@@ -775,6 +782,7 @@ onEdit: () => {
                 if (val.trim()) state.homeworkNotes[name] = val.trim();
                 else delete state.homeworkNotes[name];
                 localStorage.setItem('homeworkNotes', JSON.stringify(state.homeworkNotes));
+                setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
                 refreshAppUI();
             }
         });

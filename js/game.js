@@ -191,7 +191,7 @@ function updateHangmanUI() {
         ], { duration: 1200, easing: 'ease-in-out' });
 
         // Pronounce the word in French after a short delay
-        setTimeout(() => spk(state.targetWord, 'fr-FR', true), 800);
+        setTimeout(() => SpeechCache.playCachedAudio(state.targetWord, 'fr-FR', true), 800);
 
     } else if (isGameOverLoss) {
         state.gameActive = false; 
@@ -201,7 +201,7 @@ function updateHangmanUI() {
         document.getElementById('gameMsg').textContent = "Good try! 👍"; 
         
         // Pronounce the word they missed so they learn it
-        setTimeout(() => spk(state.targetWord, 'fr-FR', true), 500);
+        setTimeout(() => SpeechCache.playCachedAudio(state.targetWord, 'fr-FR', true), 500);
     }
 }
 

@@ -62,7 +62,7 @@ if (recordContainer) recordContainer.style.display = 'flex';
 
 // Restore French button to normal function
 const frenchText = card.querySelector('.french-text').textContent;
-frBtn.onclick = () => spk(frenchText, 'fr-FR', true);
+frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText, 'fr-FR', true);
 
 // Wait for the exit animation (600ms) to finish, then smoothly fade the practice screen back in
 setTimeout(() => {
@@ -174,7 +174,7 @@ if (spellBtn) {
 
 // French button speaks the word at the new spelling speed
 const frenchText = card.querySelector('.french-text').textContent;
-frBtn.onclick = () => spk(frenchText, 'fr-FR', true);
+frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText, 'fr-FR', true);
 
 if (globalKb) {
     globalKb.style.display = 'flex';
@@ -206,7 +206,7 @@ renderMiniKeyboard();
 
 // Then speak the word
 setTimeout(() => {
-    spk(words[0], 'fr-FR');
+    SpeechCache.playCachedAudio(words[0], 'fr-FR');
 }, 100);
     }
     
@@ -450,7 +450,7 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
                     
                     // Final pronunciation
                     setTimeout(() => {
-                        if (state.currentSpellingState) spk(state.currentSpellingState.phrase, 'fr-FR', true);
+                        if (state.currentSpellingState) SpeechCache.playCachedAudio(state.currentSpellingState.phrase, 'fr-FR', true);
                     }, 600);
 
                     // Auto-close Spelling Bee mode after 4 seconds
@@ -471,7 +471,7 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
                     // Say the next word
                     setTimeout(() => {
                         if (state.currentSpellingState) {
-                            spk(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
+                            SpeechCache.playCachedAudio(state.currentSpellingState.words[state.currentSpellingState.currentWordIndex], 'fr-FR', true);
                         }
                     }, 100);
                 }

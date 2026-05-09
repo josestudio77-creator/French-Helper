@@ -434,7 +434,7 @@
             <!-- These are now the large, easy-to-hit buttons at the bottom -->
             <div class="game-actions">
                 <!-- Green Button: Matches the '🎤 French' card button -->
-                <button onclick="if(state.targetWord) spk(state.targetWord, 'fr-FR', true)" 
+                <button onclick="if(state.targetWord) SpeechCache.playCachedAudio(state.targetWord, 'fr-FR', true)" 
                         style="background:#4cd964; color:white; flex: 1.2;">
                     <span>🎤</span> Listen
                 </button>
@@ -636,6 +636,8 @@
     <!-- ==========================================
          Modular JS Files - French Helper
          =========================================== -->
+    <script src="js/storage.js?v=923"></script>
+    <script src="js/speechcache.js?v=923"></script>
     <script src="js/config.js?v=923"></script>
     <script src="js/state.js?v=923"></script>
     <script src="js/audio.js?v=923"></script>

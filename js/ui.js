@@ -25,7 +25,7 @@ function renderInteractivePhrase(phrase, container) {
         span.textContent = part;
         span.onclick = (e) => {
             e.stopPropagation();
-            spk(part.replace(/[.,!?;:]/g, ''), 'fr-FR', true);
+            SpeechCache.playCachedAudio(part.replace(/[.,!?;:]/g, ''), 'fr-FR', true);
             
             // Visual feedback
             span.classList.add('word-active');
@@ -79,7 +79,7 @@ function renderSyllablesView(phrase, container) {
 
         wordSpan.onclick = (e) => {
             e.stopPropagation();
-            spk(cleanWord, 'fr-FR', true); // Speak the whole word naturally
+            SpeechCache.playCachedAudio(cleanWord, 'fr-FR', true); // Speak the whole word naturally
             
             // Visual feedback: Highlight the entire word block as one unit
             wordSpan.classList.add('word-active');
@@ -462,13 +462,11 @@ list.forEach((p, index) => {
         if (state.isAutoPlaying) {
             clearTimeout(state.autoPlayTimeout);
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.lang = 'fr-FR';
-            utterance.rate = state.speechSpeed;
-            utterance.onend = () => { if (state.isAutoPlaying) playLine(index); };
-            window.speechSynthesis.speak(utterance);
+            SpeechCache.playCachedAudio(cleanText, 'fr-FR', true).then(() => {
+                if (state.isAutoPlaying) playLine(index);
+            });
         } else {
-            spk(cleanText, 'fr-FR', true);
+            SpeechCache.playCachedAudio(cleanText, 'fr-FR', true);
         }
     };
     diagCard.appendChild(line);
@@ -578,7 +576,7 @@ list.forEach(p => {
     }
     
     // Bind interactions
-    card.querySelector('.spk-fr').onclick = () => spk(p, 'fr-FR', true);
+    card.querySelector('.spk-fr').onclick = () => SpeechCache.playCachedAudio(p, 'fr-FR', true);
     card.querySelector('.snail-corner').onclick = (e) => {
         e.stopPropagation();
         spk(p, 'fr-FR', true, 0.3); 
@@ -596,7 +594,7 @@ list.forEach(p => {
         // Toggle visibility
         if (engTextEl.style.display === 'none') {
             engTextEl.style.display = 'block';
-            spk(data.en, 'en-US', true);
+            SpeechCache.playCachedAudio(data.en, 'en-US', true);
             enToggleBtn.style.background = '#5a67d8';
             enToggleBtn.style.color = 'white';
         } else {
@@ -686,6 +684,21 @@ async function saveHW() {
     // 6. Translation: Runs your auto-translate engine
     await translateIfNeeded(words, true);
 
+    // 6.5 Fetch Google TTS audio for all phrases
+    msgDiv.innerHTML = '<div class="loading-spinner"></div><p style="font-weight:900; color:#9d4edd;">Downloading audio...</p>';
+    try {
+        await SpeechCache.fetchTTSForHomework(words, (token, done, total, finished) => {
+            if (finished) {
+                msgDiv.innerHTML = '<div class="success-message">Audio ready!</div>';
+            } else {
+                const pct = Math.round((done / total) * 100);
+                msgDiv.innerHTML = (pct % 2 === 0) ? '<div class="loading-spinner"></div><p style="font-weight:900; color:#9d4edd;">Downloading audio... ' + pct + '%</p>' : msgDiv.innerHTML;
+            }
+        });
+    } catch (e) {
+        console.warn('TTS fetch failed, using browser TTS:', e);
+    }
+
     // 7. Construct Data Object: Bundle everything together
     const hwData = {
         words: words,
@@ -724,6 +737,9 @@ async function saveHW() {
     // 12. Success Message & Exit
     msgDiv.innerHTML = '';
     showToast('✅ Saved Successfully!');
+    
+    // Auto-backup: deferred to avoid UI lag
+    setTimeout(() => { try { StorageDB.autoBackup(); StorageDB.exportBackupToFile(); } catch(e) {} }, 300);
     
     // Clear the inputs so the safety check doesn't trigger for the next one
     document.getElementById('hwNameInput').value = "";
@@ -929,6 +945,7 @@ function deleteHomeworkItem(name) {
             if (state.homeworkNotes && state.homeworkNotes[name]) delete state.homeworkNotes[name];
             
             localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+            setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
             
             // If deleting the active set
             if (state.currentSetName === name) {
@@ -970,6 +987,7 @@ function renameHomework(oldName) {
             }
             
             localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+            setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
             
             // 4. Update the current screen if you are currently practicing this set
             if (state.currentSetName === oldName) {
@@ -1232,10 +1250,9 @@ function stopAutoPlay() {
     window.speechSynthesis.cancel();
 }
 
-  function playLine(index) {
+  async function playLine(index) {
     if (!state.isAutoPlaying) return;
     
-    // Check if we reached the end of the list
     if (index >= state.currentScreenList.length) {
         if (state.loopMode) {
             playLine(0);
@@ -1248,46 +1265,33 @@ function stopAutoPlay() {
     const text = state.currentScreenList[index].split('|')[0].trim();
     const userGap = parseFloat(document.getElementById('gapSlider').value) * 1000;
     
-    // 1. Highlight the current line
     document.querySelectorAll('.dialogue-line').forEach(el => el.classList.remove('playing-now'));
-    const currentEl = document.getElementById(`line-${index}`);
+    const currentEl = document.getElementById('line-' + index);
     
     if (currentEl) {
         currentEl.classList.add('playing-now');
-        
-        // --- IMPROVED: Only scroll if needed ---
         const rect = currentEl.getBoundingClientRect();
-        const stickyPanelHeight = 150; // Space for control panel
-        const bottomNavHeight = 150;    // Space for stop button + nav
-        
-        // Check if element is in the "safe zone"
+        const stickyPanelHeight = 150;
+        const bottomNavHeight = 150;
         const isInView = (rect.top >= stickyPanelHeight && 
                          rect.bottom <= (window.innerHeight - bottomNavHeight));
-        
         if (!isInView) {
-            currentEl.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
+            currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
     
-    // 2. Pronunciation logic
-    window.speechSynthesis.cancel();
+    // Use Google TTS with browser TTS fallback
+    try {
+        await SpeechCache.playCachedAudio(text, 'fr-FR', true);
+    } catch(e) {
+        // fallback already handled inside playCachedAudio
+    }
     
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = state.speechSpeed;
-    
-    utterance.onend = () => {
-        if (state.isAutoPlaying) {
-            state.autoPlayTimeout = setTimeout(() => {
-                playLine(index + 1);
-            }, userGap);
-        }
-    };
-    
-    window.speechSynthesis.speak(utterance);
+    if (state.isAutoPlaying) {
+        state.autoPlayTimeout = setTimeout(() => {
+            playLine(index + 1);
+        }, userGap);
+    }
 }
 
 function toggleAutoPlay() {
