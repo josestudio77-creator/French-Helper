@@ -1,5 +1,4 @@
-
-    /* ==================== FONTS & GLOBAL RESET ==================== */
+/* ==================== FONTS & GLOBAL RESET ==================== */
     
     @font-face {
         font-family: 'KG Primary Penmanship Alt';
@@ -2264,3 +2263,16 @@ body.mode-spelling .spelling-slots {
         max-width: 100%;
         padding-bottom: 230px !important; /* Exact height of keyboard to prevent gap */
     }
+
+/* ==================== RECORDING PROGRESS BAR ==================== */
+
+.record-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: #ff4d4d;
+    border-radius: 0 0 10px 10px;
+    pointer-events: none;
+}
