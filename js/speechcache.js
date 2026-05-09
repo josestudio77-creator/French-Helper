@@ -179,6 +179,10 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
                     state.currentlyPlayingAudio.pause();
                     state.currentlyPlayingAudio = null;
                 }
+                if (state.activeRecordingSource) {
+                    try { state.activeRecordingSource.stop(); } catch(e) {}
+                    state.activeRecordingSource = null;
+                }
             }
             
             const url = URL.createObjectURL(blob);
