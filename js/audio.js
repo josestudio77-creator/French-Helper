@@ -1403,7 +1403,11 @@ async function toggleStudentRecording(btn, phrase) {
             state.activeRecordingSource = null;
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Reuse persistent stream if we already have permission
+        if (!state.persistentAudioStream) {
+            state.persistentAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        }
+        const stream = state.persistentAudioStream;
         state.activeAudioStream = stream;
         currentAudioChunks = [];
         
@@ -1483,10 +1487,8 @@ function _stopRecording(btn, phrase) {
         const playBtn = card.querySelector('.play-record-btn');
         if (playBtn) playBtn.style.display = 'block';
     }
-    if (state.activeAudioStream) {
-        state.activeAudioStream.getTracks().forEach(track => track.stop());
-        state.activeAudioStream = null;
-    }
+    // Don't stop tracks — keeps microphone permission alive
+    state.activeAudioStream = null;
 }function trimSilence(audioBuffer, threshold = 0.05) {
 
     const channelData = audioBuffer.getChannelData(0);
