@@ -1109,6 +1109,31 @@ function debugStorage() {
     openAppModal({ title: 'Debug', text: 'Check console for storage debug info (F12)', mode: 'view' });
 }
 
+function saveAndExit() {
+    // Final backup snapshot + file download
+    try { StorageDB.autoBackup(); StorageDB.exportBackupToFile(); } catch(e) {}
+    // Close settings drawer and show goodbye
+    closeOverlay('parentDrawer');
+    // Scroll to top and show splash-like view
+    state.allowExit = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+        // Re-show the splash screen as a goodbye
+        const splash = document.getElementById('customSplash');
+        if (splash) {
+            splash.style.display = 'flex';
+            splash.style.opacity = '1';
+            splash.style.pointerEvents = 'auto';
+            splash.onclick = null;
+            document.getElementById('splashText').textContent = 'À bientôt !';
+            document.getElementById('splashIcon').classList.remove('splash-immersive-zoom');
+            document.getElementById('splashIcon').classList.add('splash-pop-in');
+            document.querySelector('.container').classList.remove('app-visible');
+        }
+        showToast('✅ All data saved. See you soon!');
+    }, 400);
+}
+
 function nukeStorage() { 
     openAppModal({
         title: "⚠️ RESET EVERYTHING",
