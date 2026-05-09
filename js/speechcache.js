@@ -172,7 +172,6 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         if (blob && blob.size > 100) {
             // CACHED AUDIO AVAILABLE
             console.log('[SpeechCache] PLAYING CACHED: "' + text + '"');
-            _showQualityBadge();
             
             if (forceInterrupt) {
                 window.speechSynthesis.cancel();
@@ -211,110 +210,15 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         console.warn('[SpeechCache] Lookup error, falling back to browser TTS:', err.message || err);
     }
     
-    // No cached audio — try Google TTS URL directly via Audio element
-    try {
-        console.log('[SpeechCache] STREAMING Google TTS: "' + text + '"');
-        const directUrl = TTS_GOOGLE_BASE + '?ie=UTF-8&client=gtx&tl=' + (lang === 'fr-FR' ? 'fr' : 'en') + '&q=' + encodeURIComponent(text);
-        console.log('[SpeechCache] URL: ' + directUrl.substring(0, 120) + '...');
-        
-        if (forceInterrupt) {
-            window.speechSynthesis.cancel();
-            if (state.currentlyPlayingAudio) {
-                state.currentlyPlayingAudio.pause();
-                state.currentlyPlayingAudio = null;
-            }
-        }
-        
-        const audio = new Audio();
-        audio.preload = 'auto';
-        state.currentlyPlayingAudio = audio;
-        _showQualityBadge();
-        
-        await new Promise((resolve, reject) => {
-            let resolved = false;
-            
-            audio.oncanplaythrough = () => {
-                if (!resolved) {
-                    console.log('[SpeechCache] Audio ready, playing...');
-                    audio.play().catch(reject);
-                }
-            };
-            
-            audio.onplaying = () => {
-                console.log('[SpeechCache] Audio now playing');
-            };
-            
-            audio.onended = () => {
-                if (!resolved) { resolved = true; resolve(); }
-                if (state.currentlyPlayingAudio === audio) state.currentlyPlayingAudio = null;
-            };
-            
-            audio.onerror = (e) => {
-                if (!resolved) { resolved = true; }
-                if (state.currentlyPlayingAudio === audio) state.currentlyPlayingAudio = null;
-                const err = audio.error;
-                reject(new Error('Audio error: code=' + (err ? err.code : 'unknown') + ' msg=' + (err ? err.message : 'none')));
-            };
-            
-            // Set src after attaching listeners (triggers load)
-            audio.src = directUrl;
-            audio.load();
-        });
-        return;
-    } catch (e2) {
-        console.warn('[SpeechCache] Streaming failed: ' + (e2.message || e2) + '. Falling back to browser TTS');
-    }
-    
-    // Last resort: browser TTS
+    // No cached audio — use browser TTS (Google TTS streaming blocked by Google from web origins)
+    // On native Capacitor app, TTS audio will be fetched and cached via native HTTP.
     console.log('[SpeechCache] FALLBACK TO BROWSER TTS: "' + text + '"');
-    _showBrowserBadge();
     if (typeof spk === 'function') {
         spk(text, lang, forceInterrupt, speedOverride, isLetterMode);
     }
 }
 
-/* ===== VISUAL INDICATOR ===== */
 
-let _badgeTimeout = null;
-
-function _showQualityBadge() {
-    // Remove any existing badge
-    const existing = document.getElementById('ttsQualityBadge');
-    if (existing) existing.remove();
-    if (_badgeTimeout) clearTimeout(_badgeTimeout);
-    
-    const badge = document.createElement('div');
-    badge.id = 'ttsQualityBadge';
-    badge.textContent = 'HD';
-    badge.style.cssText = 'position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#4cd964; color:white; padding:3px 10px; border-radius:12px; font-weight:900; font-size:0.75rem; z-index:99999; pointer-events:none; opacity:0; transition:opacity 0.2s; box-shadow:0 2px 8px rgba(76,217,100,0.4);';
-    document.body.appendChild(badge);
-    
-    requestAnimationFrame(() => { badge.style.opacity = '1'; });
-    
-    _badgeTimeout = setTimeout(() => {
-        badge.style.opacity = '0';
-        setTimeout(() => { if (badge.parentNode) badge.remove(); }, 300);
-    }, 1500);
-}
-
-function _showBrowserBadge() {
-    const existing = document.getElementById('ttsQualityBadge');
-    if (existing) existing.remove();
-    if (_badgeTimeout) clearTimeout(_badgeTimeout);
-    
-    const badge = document.createElement('div');
-    badge.id = 'ttsQualityBadge';
-    badge.textContent = 'TTS';
-    badge.style.cssText = 'position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#94a3b8; color:white; padding:3px 10px; border-radius:12px; font-weight:900; font-size:0.75rem; z-index:99999; pointer-events:none; opacity:0; transition:opacity 0.2s;';
-    document.body.appendChild(badge);
-    
-    requestAnimationFrame(() => { badge.style.opacity = '1'; });
-    
-    _badgeTimeout = setTimeout(() => {
-        badge.style.opacity = '0';
-        setTimeout(() => { if (badge.parentNode) badge.remove(); }, 300);
-    }, 1000);
-}
 
 async function fetchAndPlay(text, lang) {
     if (!lang) lang = 'fr-FR';

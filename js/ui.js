@@ -684,21 +684,6 @@ async function saveHW() {
     // 6. Translation: Runs your auto-translate engine
     await translateIfNeeded(words, true);
 
-    // 6.5 Fetch Google TTS audio for all phrases
-    msgDiv.innerHTML = '<div class="loading-spinner"></div><p style="font-weight:900; color:#9d4edd;">Downloading audio...</p>';
-    try {
-        await SpeechCache.fetchTTSForHomework(words, (token, done, total, finished) => {
-            if (finished) {
-                msgDiv.innerHTML = '<div class="success-message">Audio ready!</div>';
-            } else {
-                const pct = Math.round((done / total) * 100);
-                msgDiv.innerHTML = (pct % 2 === 0) ? '<div class="loading-spinner"></div><p style="font-weight:900; color:#9d4edd;">Downloading audio... ' + pct + '%</p>' : msgDiv.innerHTML;
-            }
-        });
-    } catch (e) {
-        console.warn('TTS fetch failed, using browser TTS:', e);
-    }
-
     // 7. Construct Data Object: Bundle everything together
     const hwData = {
         words: words,
