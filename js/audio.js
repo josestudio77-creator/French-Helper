@@ -219,9 +219,15 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode
     try {
 
         if (forceInterrupt) {
-
             window.speechSynthesis.cancel();
-
+            if (state.activeRecordingSource) {
+                try { state.activeRecordingSource.stop(); } catch(e) {}
+                state.activeRecordingSource = null;
+            }
+            if (state.currentlyPlayingAudio) {
+                state.currentlyPlayingAudio.pause();
+                state.currentlyPlayingAudio = null;
+            }
         }
 
 
