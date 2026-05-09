@@ -18,48 +18,11 @@ let _fetchResolve = null;
 /* ===== MAIN ENTRY POINT ===== */
 
 async function fetchTTSForHomework(phrasesText, onProgress) {
-    if (!phrasesText || !phrasesText.trim()) return 0;
-    
-    const phraseLines = phrasesText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
-    const uniqueTokens = new Set();
-    
-    phraseLines.forEach(phrase => {
-        uniqueTokens.add(phrase);
-        const words = phrase.split(/\s+/);
-        words.forEach(word => {
-            const clean = word.replace(/^[.,!?;:\u00ab\u00bb()]+|[.,!?;:\u00ab\u00bb()]+$/g, '');
-            if (clean.length > 0) uniqueTokens.add(clean);
-        });
-    });
-    
-    const tokens = Array.from(uniqueTokens);
-    
-    const toFetch = [];
-    for (const token of tokens) {
-        const key = typeof norm === 'function' ? norm(token) : token.toLowerCase();
-        const hasIt = await StorageDB.hasAudio(key);
-        if (!hasIt) toFetch.push(token);
-    }
-    
-    console.log('[SpeechCache] ' + tokens.length + ' unique tokens, ' + toFetch.length + ' need fetching');
-    
-    if (toFetch.length === 0) {
-        console.log('[SpeechCache] All audio already cached');
-        if (onProgress) onProgress('', 0, 0, true);
-        return 0;
-    }
-    
-    let fetched = 0;
-    const total = toFetch.length;
-    
-    return new Promise((resolve) => {
-        _fetchResolve = resolve;
-        _fetchQueue = [...toFetch];
-        _activeFetches = 0;
-        for (let i = 0; i < Math.min(TTS_MAX_CONCURRENT, _fetchQueue.length); i++) {
-            _processNextFetch(onProgress, total);
-        }
-    });
+    // Google TTS fetch doesn't work from browsers (CORS).
+    // The app uses SpeechSynthesis with "Google francais" voice instead.
+    // This function remains as a no-op for future native app caching.
+    if (onProgress) onProgress('', 0, 0, true);
+    return 0;
 }
 
 async function _processNextFetch(onProgress, total) {
