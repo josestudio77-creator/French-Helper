@@ -158,7 +158,16 @@ async function scanCroppedArea() {
     const correctedLines = _frenchFilter(rawLines);
     const text = correctedLines.join('\n');
     
-    _showDualView(croppedDataUrl, text, rawLines.length);
+    // Populate homework textarea directly
+    const hwInput = document.getElementById('hwInput');
+    if (hwInput) {
+        const current = hwInput.value.trim();
+        hwInput.value = current ? current + '\n' + text : text;
+    }
+    if (typeof autoPopulateName === 'function') autoPopulateName();
+    
+    closeScanOverlay();
+    showToast('Scanned ' + rawLines.length + ' phrase' + (rawLines.length !== 1 ? 's' : '') + '! Edit if needed.');
 }
 
 /* ===== Scanning spinner ===== */
@@ -169,20 +178,8 @@ function _showScanningUI() {
     document.getElementById('ocrProgressBar').style.width = '0%';
 }
 
-/* ===== STEP 4: Dual-View Editor ===== */
-function _showDualView(photoData, ocrText, lineCount) {
-    document.getElementById('scanSpinner').style.display = 'none';
-    document.getElementById('scanDualView').style.display = 'flex';
-    document.getElementById('scanHeaderTitle').textContent = 'Scan Results';
-    
-    document.getElementById('scanPreview').style.display = 'block';
-    document.getElementById('scanPreview').querySelector('img').src = photoData;
-    
-    document.getElementById('scanTextOverlay').style.display = 'none';
-    document.getElementById('scanEditor').style.display = 'flex';
-    document.getElementById('scanTextarea').value = ocrText;
-    document.getElementById('scanLineCount').textContent = lineCount + ' line' + (lineCount !== 1 ? 's' : '') + ' detected';
-}
+// Dual-view editor removed — OCR populates homework textarea directly
+
 
 /* ===== Import ===== */
 function importScannedText() {
@@ -212,79 +209,9 @@ function retakeScanPhoto() {
     setTimeout(() => openWorksheetScanner(), 300);
 }
 
-/* ===== OVERLAY MODE ===== */
-function toggleOverlayMode() {
-    const preview = document.getElementById('scanPreview');
-    const overlay = document.getElementById('scanTextOverlay');
-    const editor = document.getElementById('scanEditor');
-    
-    if (!state.scannedWords || state.scannedWords.length === 0) {
-        showToast('No word positions available for overlay', 'error');
-        return;
-    }
-    
-    if (overlay.style.display === 'none' || !overlay.style.display) {
-        editor.style.display = 'none';
-        overlay.style.display = 'block';
-        _renderTextOverlay();
-    } else {
-        overlay.style.display = 'none';
-        editor.style.display = 'flex';
-    }
-}
-
-function _renderTextOverlay() {
-    const overlay = document.getElementById('scanTextOverlay');
-    const img = document.getElementById('scanPreview').querySelector('img');
-    if (!overlay || !img || !state.scannedWords) return;
-    
-    overlay.innerHTML = '';
-    const displayWidth = img.clientWidth;
-    const naturalWidth = img.naturalWidth;
-    const scale = displayWidth / (naturalWidth || displayWidth);
-    
-    state.scannedWords.forEach(word => {
-        const bbox = word.bbox;
-        if (!bbox) return;
-        
-        const span = document.createElement('span');
-        span.className = 'ocr-word-overlay';
-        span.textContent = word.text;
-        const h = Math.max(16, (bbox.y1 - bbox.y0) * scale);
-        span.style.cssText = 
-            'position:absolute;' +
-            'left:' + (bbox.x0 * scale) + 'px;' +
-            'top:' + (bbox.y0 * scale) + 'px;' +
-            'width:' + ((bbox.x1 - bbox.x0) * scale) + 'px;' +
-            'height:' + h + 'px;' +
-            'font-size:' + (h * 0.65) + 'px;' +
-            'line-height:' + h + 'px;';
-        
-        span.onclick = () => {
-            const newText = prompt('Correct this word:', word.text);
-            if (newText !== null) {
-                span.textContent = newText;
-                _updateScanText(word.text, newText);
-            }
-        };
-        
-        overlay.appendChild(span);
-    });
-    
-    overlay.style.height = (img.naturalHeight * scale) + 'px';
-}
-
-function _updateScanText(oldWord, newWord) {
-    const textarea = document.getElementById('scanTextarea');
-    if (textarea) textarea.value = textarea.value.replace(oldWord, newWord);
-    if (state.scannedWords) {
-        const w = state.scannedWords.find(w => w.text === oldWord);
-        if (w) w.text = newWord;
-    }
-}
-
+// Lens overlay mode removed — simplified to crop+scan flow
 window.WorksheetScanner = {
     openWorksheetScanner, closeScanOverlay,
     importScannedText, retakeScanPhoto,
-    toggleOverlayMode, scanCroppedArea
+    scanCroppedArea
 };

@@ -211,16 +211,19 @@
     
 <!-- Worksheet Scanner Overlay -->
 <div id="scanOverlay" class="overlay" style="z-index: 30000; display: none;">
-    <div style="display: flex; flex-direction: column; height: 100vh;">
-        <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); padding: 10px 15px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+    <div class="overlay-content" style="display: flex; flex-direction: column; height: 100vh; max-height: 100vh; background: transparent; box-shadow: none; border-radius: 0;">
+        <!-- Header -->
+        <div style="background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); padding: 10px 15px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
             <button onclick="closeScanOverlay()" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 5px; color: #4a5568;">←</button>
-            <span id="scanHeaderTitle" style="font-weight: 900; color: #2d3748; font-size: 0.95rem;">Scan Results</span>
-            <span id="scanLineCount" style="margin-left: auto; font-size: 0.75rem; color: #718096; font-weight: 800;"></span>
-            <button onclick="WorksheetScanner.toggleOverlayMode()" style="background: rgba(157,78,221,0.12); color: #9d4edd; border: 1.5px solid rgba(157,78,221,0.2); border-radius: 10px; padding: 5px 12px; font-size: 0.7rem; font-weight: 800; cursor: pointer;">Overlay</button>
+            <span id="scanHeaderTitle" style="font-weight: 900; color: #2d3748; font-size: 0.95rem;">Crop Text Area</span>
         </div>
-        <div id="scanCropArea" style="flex: 1; display: none; overflow: hidden; background: #f1f5f9;">
+        
+        <!-- Cropper Area -->
+        <div id="scanCropArea" style="flex: 1; overflow: hidden; background: #f1f5f9; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
             <img id="scanCropImage" src="" style="max-width: 100%; display: block;">
         </div>
+        
+        <!-- Scanning spinner -->
         <div id="scanSpinner" style="flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
             <div class="loading-spinner"></div>
             <p style="color: #4a5568; font-weight: 800;">Scanning worksheet...</p>
@@ -228,22 +231,11 @@
                 <div id="ocrProgressBar" style="height: 100%; width: 0%; background: #9d4edd; border-radius: 3px; transition: width 0.3s;"></div>
             </div>
         </div>
-        <div id="scanDualView" style="flex: 1; display: none; overflow: hidden;">
-            <div id="scanPreview" style="flex: 1; overflow-y: auto; display: none; background: #f8fafc; min-height: 0; position: relative;">
-                <img src="" style="width: 100%; display: block; object-fit: contain;" alt="Worksheet photo">
-                <div id="scanTextOverlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; pointer-events: auto;"></div>
-            </div>
-            <div id="scanEditor" style="flex: 1; display: none; flex-direction: column; min-height: 0; background: white;">
-                <textarea id="scanTextarea" style="flex: 1; width: 100%; background: #fdfbf7; color: #2d3748; border: none; padding: 18px; font-size: 1.15rem; font-family: inherit; resize: none; outline: none; line-height: 1.8; border-top: 2px dashed #e2e8f0;" placeholder="OCR results will appear here... Edit if needed."></textarea>
-            </div>
-        </div>
-        <div id="scanActions" style="padding: 10px 15px; display: none; gap: 10px; flex-shrink: 0; background: rgba(255,255,255,0.85); border-top: 1px solid rgba(0,0,0,0.06);">
+        
+        <!-- Crop Actions -->
+        <div id="scanActions" style="display: flex; gap: 10px; flex-shrink: 0; margin-top: 10px;">
             <button onclick="retakeScanPhoto()" style="flex: 1; background: #e2e8f0; color: #4a5568; border: none; border-radius: 14px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">Retake</button>
             <button onclick="WorksheetScanner.scanCroppedArea()" style="flex: 2; background: #9d4edd; color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 3px 0 #7b3eb3;">🔍 Scan Selection</button>
-        </div>
-        <div style="padding: 10px 15px; display: flex; gap: 10px; flex-shrink: 0; background: rgba(255,255,255,0.85); border-top: 1px solid rgba(0,0,0,0.06);">
-            <button onclick="retakeScanPhoto()" style="flex: 1; background: #e2e8f0; color: #4a5568; border: none; border-radius: 14px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">Retake</button>
-            <button onclick="importScannedText()" style="flex: 2; background: #4cd964; color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 3px 0 #2e8b57;">✅ Import Phrases</button>
         </div>
     </div>
 </div>
