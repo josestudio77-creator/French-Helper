@@ -2814,13 +2814,14 @@ body.mode-spelling .spelling-slots {
 
 /* Folder selector: total count badge stays with header area */
 #totalHwCount {
-    position: sticky; top: 73px; z-index: 8;
+    position: sticky; top: 37px; z-index: 8;
+    margin: 0 0 15px 0; padding: 6px 0 8px 0;
+    font-size: 0.85rem !important;
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
 }
 
-/* Folder selector: cancel button stays at bottom */
+/* Folder selector: cancel button scrolls naturally */
 #folderSelectionOverlay .overlay-content > button:last-child {
-    position: sticky; bottom: 0; z-index: 10;
-    margin-top: auto;
     background: rgba(255,255,255,0.88) !important;
     backdrop-filter: blur(10px);
     border-radius: 14px;

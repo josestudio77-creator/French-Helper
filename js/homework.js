@@ -563,8 +563,6 @@ function moveHomework(name) {
 // 2. Triggered when clicking the "📅 Month Name" (to navigate)
 function openFolderNav() {
     state.homeworkToMove = ""; // Clear the variable so the grid knows we are NAVIGATING
-    const subtitle = document.querySelector('#folderSelectionOverlay p');
-    if (subtitle) subtitle.innerHTML = 'Select a month folder to view:';
     renderFolderGrid();
     openOverlay('folderSelectionOverlay');
 }
@@ -591,7 +589,7 @@ try {
 
     // Update the Total Display at the bottom
     const totalDisplay = document.getElementById('totalHwCount');
-    if (totalDisplay) totalDisplay.textContent = `📊 Total saved in Backpack: ${totalCount}`;
+    if (totalDisplay) totalDisplay.textContent = 'Total Homeworks saved: ' + totalCount;
 
     // Update Popup Title based on mode
     const title = document.querySelector('#folderSelectionOverlay h2');
