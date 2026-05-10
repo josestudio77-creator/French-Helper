@@ -555,6 +555,7 @@ list.forEach(p => {
             <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
             <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Syllables">abc</div>
             <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
+            <div class="tool-btn print-card-btn" title="Print Worksheet" onclick="openPrintFromCard('${p.replace(/'/g, "\\'")}')" style="color: #64748b;">🖨️</div>
         </div>
             ${visualHTML}
             <div class="french-text-container">
@@ -626,6 +627,113 @@ list.forEach(p => {
 
 
         
+function openPrintFromCard(phrase) {
+    // Get all phrases from current homework
+    const allPhrases = state.currentScreenList || [];
+    const allWords = document.getElementById('hwInput').value.trim();
+    
+    if (allPhrases.length <= 1) {
+        // Single phrase - just preview it
+        showPrintPreview(allWords || phrase, state.currentSetName, phrase);
+        return;
+    }
+    
+    // Multiple phrases - ask which to print
+    openAppModal({
+        title: 'Print Worksheet',
+        text: 'Print just "' + phrase.substring(0, 30) + (phrase.length > 30 ? '...' : '') + '" or all ' + allPhrases.length + ' phrases?',
+        mode: 'view',
+        saveText: 'All ' + allPhrases.length + ' Phrases',
+        cancelText: 'This Phrase Only',
+        onAction: () => {
+            showPrintPreview(allWords, state.currentSetName);
+        },
+        onSecondaryAction: () => {
+            showPrintPreview(phrase, state.currentSetName, phrase);
+        }
+    });
+}
+
+function showPrintPreview(words, name, singlePhrase) {
+    // Default settings
+    const reps = 3;
+    const showHeader = true;
+    const cursive = false;
+    const trace = 'first';
+    
+    // Build preview HTML (reuse print logic)
+    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const icons = ["🐰", "🦋", "🌸", "⭐", "🦄", "🌈", "🐱", "🐥", "🐨", "🦊", "🐼", "🐸"];
+    
+    // If single phrase, wrap it as if it's a one-item list
+    let phrases;
+    if (singlePhrase) {
+        phrases = [singlePhrase];
+    } else {
+        phrases = words.split('\n').filter(p => p.trim() !== "");
+    }
+    
+    let html = "";
+    if (showHeader) {
+        html += '<div class="print-header-simple">';
+        html += '<div class="name-label">Nom:<span class="name-underline"></span></div>';
+        html += '<div class="set-name-center">' + name + '</div>';
+        html += '<div class="date-label">Date: ' + today + '</div>';
+        html += '</div>';
+    }
+    
+    phrases.forEach((phrase, index) => {
+        const clean = phrase.split('|')[0].trim();
+        const fClass = cursive ? 'cursive-font' : 'block-font';
+        
+        html += '<div class="print-phrase-block">';
+        html += '<span class="cute-decoration">' + icons[index % icons.length] + '</span>';
+        
+        // Reference row
+        html += '<div class="calligraphy-row ' + fClass + '">';
+        html += '<div class="trace-text ' + fClass + '" style="color: black !important; opacity: 1 !important; -webkit-text-stroke: 0px !important;">' + clean + '</div>';
+        html += '</div>';
+        
+        // Practice rows
+        for (let i = 0; i < reps; i++) {
+            let shouldTrace = (trace === 'all') || (trace === 'first' && i === 0);
+            let tHTML = shouldTrace ? '<div class="trace-text ' + fClass + '">' + clean + '</div>' : '';
+            html += '<div class="calligraphy-row ' + fClass + '">' + tHTML + '</div>';
+        }
+        html += '</div>';
+    });
+    
+    // Store for print action
+    state.previewHtml = html;
+    
+    // Show preview
+    const previewDiv = document.getElementById('printPreviewContent');
+    if (previewDiv) {
+        previewDiv.innerHTML = html;
+    }
+    document.getElementById('printPreviewOverlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePrintPreview() {
+    document.getElementById('printPreviewOverlay').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function doPrintFromPreview() {
+    // Populate print area and trigger print
+    const area = document.getElementById('printArea');
+    if (area && state.previewHtml) {
+        area.innerHTML = state.previewHtml;
+    }
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+            if (area) area.innerHTML = '';
+        }, 2000);
+    }, 500);
+}
+
 async function saveHW() {
     let name = document.getElementById('hwNameInput').value.trim();
     const words = document.getElementById('hwInput').value.trim();
