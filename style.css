@@ -2430,3 +2430,34 @@ body.mode-spelling .spelling-slots {
     50%  { transform: scale(0) rotate(0deg); opacity: 0; text-shadow: none; }
     100% { transform: scale(0) rotate(0deg); opacity: 0; text-shadow: none; }
 }
+
+/* Presets: cards float on gradient, no white box */
+#presetsOverlay .overlay-content {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 15px;
+}
+
+#presetsOverlay .overlay-content h2 {
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    font-size: 1.6rem;
+}
+
+#presetsOverlay .overlay-content p {
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* Preset buttons: subtle glass effect */
+.preset-btn {
+    background: rgba(255,255,255,0.9) !important;
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+}
+.preset-btn:hover {
+    background: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
