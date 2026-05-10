@@ -1527,11 +1527,25 @@
     to { opacity: 0; transform: translateY(10px) scale(0.98); }
 }
  
-/* The X state for the badge */
+/* The X state for the badge — floating round button in corner */
 .phrase-card.spelling-mode .bee-badge {
+    position: absolute !important;
+    top: -18px !important;
+    left: -18px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
     background: #ff4d4d !important;
     color: white !important;
-    z-index: 12000; /* HIGH: Only high when we are in the theater! */
+    z-index: 12000;
+    border: 3px solid white !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+    flex: none !important;
+}
+
+/* Hide the belt bar in spelling mode */
+.phrase-card.spelling-mode .card-tools {
+    display: none;
 }
  
 /* 4. INTERNAL CONTENT: ONLY this part scrolls */
