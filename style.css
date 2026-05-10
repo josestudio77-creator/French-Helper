@@ -2461,3 +2461,58 @@ body.mode-spelling .spelling-slots {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
+
+/* Backpack: cards float on gradient, no white box */
+#bpModal .overlay-content {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 15px;
+}
+
+#bpModal .overlay-content h2 {
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+#bpModal #btnFavFilter {
+    background: rgba(255,255,255,0.85) !important;
+    backdrop-filter: blur(4px);
+}
+
+/* Parent Settings: buttons float on gradient */
+#parentDrawer .overlay-content {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px 15px;
+}
+
+#parentDrawer .overlay-content h2 {
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+#parentDrawer .parent-btn-grid button {
+    background: rgba(255,255,255,0.9) !important;
+    color: #2d3748 !important;
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+#parentDrawer .parent-btn-grid button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Reset Everything stays red */
+#parentDrawer button[onclick*="nukeStorage"] {
+    background: #fee2e2 !important;
+    color: #ef4444 !important;
+}
+
+/* Install App stays green */
+#parentDrawer #installBtn {
+    background: #4cd964 !important;
+    color: white !important;
+}
