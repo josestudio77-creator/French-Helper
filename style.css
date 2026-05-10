@@ -2825,3 +2825,13 @@ body.mode-spelling .spelling-slots {
     backdrop-filter: blur(10px);
     border-radius: 14px;
 }
+
+/* Sticky header bottom edge: masks cards scrolling behind */
+#presetsOverlay .overlay-content h2,
+#presetsOverlay .overlay-content p[style*="sticky"],
+#parentDrawer .overlay-content h2,
+#folderSelectionOverlay .overlay-content h2,
+#folderSelectionOverlay .overlay-content h2 + p,
+#bpModal .overlay-content > div:first-child {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
