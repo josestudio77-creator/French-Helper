@@ -89,29 +89,33 @@
 
     /* TOOL BUTTONS (Bee, Syllables, etc) */
     .card-tools {
-        position: absolute;
-        top: -15px; /* Pull it slightly above the card edge */
-        left: 50%;
-        transform: translateX(-50%);
         display: flex;
-        flex-direction: row; /* Horizontal row */
-        gap: 10px;
-        z-index: 5;
+        flex-direction: row;
+        gap: 6px;
+        width: 100%;
+        margin: 0 0 8px 0;
     }
 
     .tool-btn {
-        width: 42px;
-        height: 42px;
+        flex: 1;
+        height: 36px;
         background: white;
-        border: 2.5px solid #cbd5e0;
-        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: 1.2rem;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.06);
         transition: all 0.2s;
+    }
+    .tool-btn:hover {
+        background: #f8fafc;
+        border-color: #cbd5e0;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .tool-btn:active {
@@ -1471,16 +1475,17 @@
 
 /* OVERRIDE for when bee-badge is inside card-tools */
 .card-tools .bee-badge {
+    flex: 1;
+    height: 36px;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    background: #fffdf0;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     position: static;
     top: auto;
     left: auto;
-    width: 42px;
-    height: 42px;
-    border: 2.5px solid #cbd5e0;
-    border-radius: 12px;
-    background: white;
-    font-size: 1.4rem;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    width: auto;
 }
 .card-tools .bee-badge:active {
     transform: scale(0.9);
