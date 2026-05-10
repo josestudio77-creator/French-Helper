@@ -108,7 +108,6 @@ function _showCropper(imageData) {
     
     overlay.style.display = 'flex';
     document.getElementById('scanSpinner').style.display = 'none';
-    document.getElementById('scanDualView').style.display = 'none';
     document.getElementById('scanCropArea').style.display = 'flex';
     document.getElementById('scanActions').style.display = 'flex';
     document.getElementById('scanHeaderTitle').textContent = 'Crop Text Area';
@@ -173,7 +172,6 @@ async function scanCroppedArea() {
 /* ===== Scanning spinner ===== */
 function _showScanningUI() {
     document.getElementById('scanSpinner').style.display = 'flex';
-    document.getElementById('scanDualView').style.display = 'none';
     document.getElementById('scanHeaderTitle').textContent = 'Scanning...';
     document.getElementById('ocrProgressBar').style.width = '0%';
 }
