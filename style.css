@@ -1543,9 +1543,12 @@
     flex: none !important;
 }
 
-/* Hide the belt bar in spelling mode */
+/* Collapse belt in spelling mode — X button floats via absolute positioning */
 .phrase-card.spelling-mode .card-tools {
-    display: none;
+    height: 0;
+    overflow: visible;
+    gap: 0;
+    margin: 0;
 }
  
 /* 4. INTERNAL CONTENT: ONLY this part scrolls */
