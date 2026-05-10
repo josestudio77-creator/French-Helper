@@ -651,17 +651,15 @@ function openPrintFromCard(phrase) {
             openPrintSelection(phrase, state.currentSetName || 'Français');
         }
     });
-    // Unhide the close button as "Cancel"
-    setTimeout(() => {
-        const btnClose = document.getElementById('appModalBtnClose');
-        if (btnClose) {
-            btnClose.style.display = 'block';
-            btnClose.textContent = 'Cancel';
-            btnClose.style.background = '#e2e8f0';
-            btnClose.style.color = '#4a5568';
-            btnClose.onclick = () => closeOverlay('appModal');
-        }
-    }, 100);
+    // Show Cancel button immediately (no blink)
+    const btnClose = document.getElementById('appModalBtnClose');
+    if (btnClose) {
+        btnClose.style.display = 'block';
+        btnClose.textContent = 'Cancel';
+        btnClose.style.background = '#e2e8f0';
+        btnClose.style.color = '#4a5568';
+        btnClose.onclick = () => closeOverlay('appModal');
+    }
 }
 
 function closePrintPreview() {
