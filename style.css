@@ -2769,14 +2769,14 @@ body.mode-spelling .spelling-slots {
 
 /* Presets: title stays fixed */
 #presetsOverlay .overlay-content h2 {
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: -10px; z-index: 10;
     padding: 12px 0; margin: -10px 0 10px 0;
     background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
     
 }
 #presetsOverlay .overlay-content p {
-    position: sticky; top: 52px; z-index: 9;
+    position: sticky; top: 42px; z-index: 9;
     padding: 4px 0 8px 0; margin: -10px 0 10px 0;
     background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
@@ -2784,13 +2784,13 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack: header bar stays fixed */
 #bpModal .overlay-content > div:first-child {
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: -15px; z-index: 10;
     margin-bottom: 15px;
 }
 
 /* Parent Settings: title stays fixed */
 #parentDrawer .overlay-content h2 {
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: -10px; z-index: 10;
     padding: 12px 0; margin: -10px 0 15px 0;
     background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
@@ -2799,14 +2799,14 @@ body.mode-spelling .spelling-slots {
 
 /* Folder Selector: title and subtitle stay fixed */
 #folderSelectionOverlay .overlay-content h2 {
-    position: sticky; top: 0; z-index: 10;
+    position: sticky; top: -15px; z-index: 10;
     padding: 12px 0 4px 0; margin: -15px 0 5px 0;
     background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
     
 }
 #folderSelectionOverlay .overlay-content h2 + p {
-    position: sticky; top: 52px; z-index: 9;
+    position: sticky; top: 37px; z-index: 9;
     margin: 0 0 15px 0; padding: 6px 0 8px 0;
     background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
@@ -2814,7 +2814,7 @@ body.mode-spelling .spelling-slots {
 
 /* Folder selector: total count badge stays with header area */
 #totalHwCount {
-    position: sticky; top: 88px; z-index: 8;
+    position: sticky; top: 73px; z-index: 8;
 }
 
 /* Folder selector: cancel button stays at bottom */
