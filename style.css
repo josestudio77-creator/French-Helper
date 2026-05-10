@@ -365,7 +365,7 @@
         bottom: 0; 
         background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
         z-index: 8000; 
-        padding: 15px; 
+        padding: 15px 0 15px 15px; 
     }
     
     .overlay-content {
