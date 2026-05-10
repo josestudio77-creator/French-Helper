@@ -36,7 +36,7 @@
         max-width: 500px; 
         margin: 0 auto; 
         position: relative; 
-        z-index: 1; 
+        z-index: 2; 
         opacity: 0; 
         transition: opacity 1.2s ease-in-out; 
     }
@@ -2317,7 +2317,7 @@ body.mode-spelling .spelling-slots {
 
 .sparkles-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 8500; overflow: hidden;
+    pointer-events: none; z-index: 0; overflow: hidden;
 }
 
 /* Floaters: rise upward and fade — gold/amber for visibility */
@@ -2366,7 +2366,7 @@ body.mode-spelling .spelling-slots {
     top: -50%; left: -50%;
     width: 200%; height: 200%;
     pointer-events: none;
-    z-index: 8499;
+    z-index: 0;
     background: linear-gradient(135deg,
         transparent 40%,
         rgba(255, 255, 255, 0.06) 45%,
@@ -2400,3 +2400,33 @@ body.mode-spelling .spelling-slots {
     100% { transform: translateX(100%) translateY(100%) rotate(25deg); }
 }
 
+
+/* Star twinkles: subtle shining stars in background */
+.star-twinkle {
+    position: absolute;
+    opacity: 0;
+    animation: starShine 5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.star-twinkle:nth-child(1)  { left: 8%;  top: 25%; animation-delay: 0s; font-size: 1.4rem; }
+.star-twinkle:nth-child(2)  { left: 28%; top: 35%; animation-delay: 1.2s; font-size: 1rem; }
+.star-twinkle:nth-child(3)  { left: 48%; top: 15%; animation-delay: 2.4s; font-size: 1.6rem; }
+.star-twinkle:nth-child(4)  { left: 68%; top: 30%; animation-delay: 3.6s; font-size: 1.1rem; }
+.star-twinkle:nth-child(5)  { left: 88%; top: 20%; animation-delay: 4.8s; font-size: 1.3rem; }
+.star-twinkle:nth-child(6)  { left: 18%; top: 55%; animation-delay: 0.6s; font-size: 1rem; }
+.star-twinkle:nth-child(7)  { left: 38%; top: 65%; animation-delay: 1.8s; font-size: 1.5rem; }
+.star-twinkle:nth-child(8)  { left: 58%; top: 50%; animation-delay: 3.0s; font-size: 1.2rem; }
+.star-twinkle:nth-child(9)  { left: 78%; top: 60%; animation-delay: 4.2s; font-size: 1rem; }
+.star-twinkle:nth-child(10) { left: 95%; top: 48%; animation-delay: 5.4s; font-size: 1.4rem; }
+.star-twinkle:nth-child(11) { left: 12%; top: 80%; animation-delay: 1.5s; font-size: 1.1rem; }
+.star-twinkle:nth-child(12) { left: 52%; top: 78%; animation-delay: 3.3s; font-size: 1.3rem; }
+
+@keyframes starShine {
+    0%   { transform: scale(0) rotate(0deg); opacity: 0; }
+    15%  { transform: scale(1.2) rotate(15deg); opacity: 0.7; text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+    30%  { transform: scale(0.9) rotate(-10deg); opacity: 0.5; text-shadow: 0 0 6px rgba(255, 215, 0, 0.4); }
+    50%  { transform: scale(0) rotate(0deg); opacity: 0; text-shadow: none; }
+    100% { transform: scale(0) rotate(0deg); opacity: 0; text-shadow: none; }
+}
