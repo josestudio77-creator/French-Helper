@@ -208,6 +208,46 @@
     </div>
 </div>
 
+    
+<!-- Worksheet Scanner Overlay -->
+<div id="scanOverlay" class="overlay" style="z-index: 30000; display: none; background: #1a1a2e;">
+    <div style="display: flex; flex-direction: column; height: 100vh;">
+        <!-- Header -->
+        <div style="background: #1a1a2e; padding: 8px 15px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid #2d2d4e;">
+            <button onclick="closeScanOverlay()" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 5px;">←</button>
+            <span style="font-weight: 900; color: #fff; font-size: 0.9rem;">Scan Results</span>
+            <span id="scanLineCount" style="margin-left: auto; font-size: 0.75rem; color: #a0aec0;"></span>
+        </div>
+        
+        <!-- Scanning spinner -->
+        <div id="scanSpinner" style="flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+            <div class="loading-spinner" style="border-color: #2d2d4e; border-top-color: #9d4edd;"></div>
+            <p style="color: #a0aec0; font-weight: 800;">Scanning worksheet...</p>
+            <div style="width: 200px; height: 4px; background: #2d2d4e; border-radius: 2px; overflow: hidden;">
+                <div id="ocrProgressBar" style="height: 100%; width: 0%; background: #9d4edd; border-radius: 2px; transition: width 0.3s;"></div>
+            </div>
+        </div>
+        
+        <!-- Dual View -->
+        <div id="scanDualView" style="flex: 1; display: flex; overflow: hidden;">
+            <!-- Photo on top -->
+            <div id="scanPreview" style="flex: 1; overflow-y: auto; display: none; background: #111; min-height: 0;">
+                <img src="" style="width: 100%; display: block; object-fit: contain;" alt="Worksheet photo">
+            </div>
+            <!-- Editable text below -->
+            <div id="scanEditor" style="flex: 1; display: none; flex-direction: column; min-height: 0;">
+                <textarea id="scanTextarea" style="flex: 1; width: 100%; background: #16213e; color: #e2e8f0; border: none; padding: 15px; font-size: 1.1rem; font-family: inherit; resize: none; outline: none; line-height: 1.8;" placeholder="OCR results will appear here..."></textarea>
+            </div>
+        </div>
+        
+        <!-- Action buttons -->
+        <div style="padding: 10px 15px; display: flex; gap: 10px; flex-shrink: 0; background: #1a1a2e; border-top: 1px solid #2d2d4e;">
+            <button onclick="retakeScanPhoto()" style="flex: 1; background: #2d2d4e; color: #a0aec0; border: none; border-radius: 12px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">Retake</button>
+            <button onclick="importScannedText()" style="flex: 2; background: #9d4edd; color: white; border: none; border-radius: 12px; padding: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer; box-shadow: 0 3px 0 #7b3eb3;">Import Phrases</button>
+        </div>
+    </div>
+</div>
+
     <div id="printArea"></div>
     
     <div class="container">
@@ -349,6 +389,11 @@
             <button onclick="insertChar('œ', 'hwInput')">œ</button>
         </div>
         
+        <div style="display: flex; gap: 8px; margin: 8px 0;">
+            <button onclick="openWorksheetScanner()" style="flex: 1; background: #9d4edd; color: white; border: none; border-radius: 12px; padding: 10px; font-weight: 900; font-size: 0.85rem; cursor: pointer; box-shadow: 0 3px 0 #7b3eb3;">
+                📷 Scan Worksheet
+            </button>
+        </div>
         <textarea id="hwInput" oninput="autoPopulateName()" placeholder="Enter French words here... (one per line)"></textarea>
         
         <!-- Teacher Recording Section -->
@@ -688,6 +733,7 @@
     <script src="js/game.js?v=925"></script>
     <script src="js/print.js?v=925"></script>
     <script src="js/spelling.js?v=925"></script>
+    <script src="js/ocr.js?v=925"></script>
     <script src="js/main.js?v=925"></script>
             
 <!-- This ensures the browser loads the KG font from your GitHub root immediately -->

@@ -18,6 +18,7 @@ const urlsToCache = [
   './js/game.js?v=925',
   './js/print.js?v=925',
   './js/spelling.js?v=925',
+  './js/ocr.js?v=925',
   './js/main.js?v=925'
 ];
 
