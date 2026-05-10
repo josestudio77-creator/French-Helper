@@ -551,12 +551,12 @@ list.forEach(p => {
     card.innerHTML = `
         ${gIcon}
         <div class="card-main-content">
-            ${visualHTML}
             <div class="card-tools">
             <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
             <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Syllables">abc</div>
             <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
         </div>
+            ${visualHTML}
             <div class="french-text-container">
                 <span class="french-text"></span>
             </div>

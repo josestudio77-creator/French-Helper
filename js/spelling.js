@@ -49,6 +49,8 @@ if (iconElement) {
 }
 const sylToggle = card.querySelector('.syl-toggle');
 if (sylToggle) sylToggle.style.display = 'flex';
+const enToggle2 = card.querySelector('.en-toggle');
+if (enToggle2) enToggle2.style.display = 'flex';
 
 // Restore ALL text elements (french, english, pronunciation)
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
@@ -154,6 +156,8 @@ if (iconElement) {
 }
 const sylToggle = card.querySelector('.syl-toggle');
 if (sylToggle) sylToggle.style.display = 'none';
+const enToggle = card.querySelector('.en-toggle');
+if (enToggle) enToggle.style.display = 'none';
 
 // ONLY HIDE TEXT - keep the VISUAL (emoji/photo) visible!
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
