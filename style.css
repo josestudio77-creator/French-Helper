@@ -2433,7 +2433,8 @@ body.mode-spelling .spelling-slots {
 
 /* Presets: cards float on gradient, no white box */
 #presetsOverlay .overlay-content {
-    background: transparent;
+    background: transparent !important;
+    border: none !important;
     box-shadow: none;
     border-radius: 0;
     padding: 10px 15px;
@@ -2464,7 +2465,8 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack: cards float on gradient, no white box */
 #bpModal .overlay-content {
-    background: transparent;
+    background: transparent !important;
+    border: none !important;
     box-shadow: none;
     border-radius: 0;
     padding: 10px 15px;
@@ -2482,7 +2484,8 @@ body.mode-spelling .spelling-slots {
 
 /* Parent Settings: buttons float on gradient */
 #parentDrawer .overlay-content {
-    background: transparent;
+    background: transparent !important;
+    border: none !important;
     box-shadow: none;
     border-radius: 0;
     padding: 10px 15px;
@@ -2521,10 +2524,11 @@ body.mode-spelling .spelling-slots {
 
 /* Folder selector: cards float on gradient */
 #folderSelectionOverlay .overlay-content {
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 15px 10px 80px 10px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 15px 10px 80px 10px !important;
 }
 
 #folderSelectionOverlay .overlay-content h2 {
