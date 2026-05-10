@@ -2602,3 +2602,165 @@ body.mode-spelling .spelling-slots {
     color: #4a5568 !important;
     backdrop-filter: blur(4px);
 }
+
+/* ==================== DESIGN SYSTEM STANDARDIZATION ==================== */
+
+/* --- Card shadow standard: all cards use the same elevation --- */
+.history-item,
+.folder-card,
+.preset-btn,
+.phrase-card,
+.condensed-card {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10) !important;
+    border-radius: 18px !important;
+}
+
+/* --- Folder cards: match homework card style --- */
+.folder-card {
+    background: rgba(255,255,255,0.94) !important;
+    border: 2px solid rgba(255,255,255,0.6) !important;
+    backdrop-filter: blur(8px);
+    transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+}
+.folder-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
+}
+.folder-card:active {
+    transform: scale(0.96);
+    background: rgba(255,255,255,1) !important;
+    border-color: #118AB2 !important;
+}
+
+/* --- Preset buttons: match folder card style --- */
+.preset-btn {
+    background: rgba(255,255,255,0.94) !important;
+    backdrop-filter: blur(6px);
+    border-width: 2px !important;
+    transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+}
+.preset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
+}
+.preset-btn:active {
+    transform: scale(0.96);
+}
+
+/* --- History items (backpack): match card style --- */
+.history-item {
+    background: rgba(255,255,255,0.94) !important;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(157, 78, 221, 0.25) !important;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+.history-item:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
+}
+
+/* --- Phrase cards (practice): consistent shadow --- */
+.phrase-card {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10) !important;
+}
+
+/* --- Belt tool buttons: consistent shadow --- */
+.tool-btn {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    border: 1.5px solid rgba(0,0,0,0.08);
+}
+
+/* --- Bottom action buttons (French, Record): deeper shadow for tap targets --- */
+.card-btn {
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* --- Parent settings buttons --- */
+#parentDrawer .parent-btn-grid button {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    border-radius: 16px;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+#parentDrawer .parent-btn-grid button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+}
+
+/* --- Backpack practice button --- */
+.practice-big-btn {
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.08);
+    border-radius: 14px;
+}
+
+/* --- Backpack utility buttons --- */
+.icon-btn {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.8);
+    padding: 6px !important;
+}
+
+/* --- Backpack header: frosted glass --- */
+#bpModal > .overlay-content > div:first-child {
+    background: rgba(255,255,255,0.25) !important;
+    border: 2px solid rgba(255,255,255,0.35) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 20px !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* --- Favorites filter button --- */
+#btnFavFilter {
+    background: rgba(255,255,255,0.85) !important;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+/* --- Game drawer buttons --- */
+.hint-btn {
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+.hint-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+}
+
+/* --- App control panel --- */
+.app-control-panel {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    border-radius: 20px;
+    border-width: 2px !important;
+}
+
+/* --- Modal box --- */
+.modal-box {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+    border-radius: 24px;
+}
+
+/* --- Dialogue lines --- */
+.dialogue-line {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 16px;
+}
+
+/* --- Folder total count badge --- */
+#totalHwCount {
+    background: rgba(255,255,255,0.2) !important;
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* --- Snail badge --- */
+.snail-corner {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* --- Corner badges (star, note) --- */
+.corner-badge {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
