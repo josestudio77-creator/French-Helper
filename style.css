@@ -373,7 +373,7 @@
         border-radius: 30px; 
         padding: 15px; 
         height: 90vh; 
-        overflow-y: auto; 
+        overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; 
         text-align: center;
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         padding-bottom: 80px !important; 
@@ -2494,9 +2494,6 @@ body.mode-spelling .spelling-slots {
 }
 
 #parentDrawer .parent-btn-grid button {
-    background: rgba(255,255,255,0.9) !important;
-    color: #2d3748 !important;
-    backdrop-filter: blur(4px);
     transition: transform 0.15s, box-shadow 0.2s;
 }
 
@@ -2515,4 +2512,9 @@ body.mode-spelling .spelling-slots {
 #parentDrawer #installBtn {
     background: #4cd964 !important;
     color: white !important;
+}
+
+/* Hide scrollbars in overlay content */
+.overlay-content::-webkit-scrollbar {
+    display: none;
 }
