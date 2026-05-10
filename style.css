@@ -2764,3 +2764,69 @@ body.mode-spelling .spelling-slots {
 .corner-badge {
     box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
+
+/* ==================== STICKY HEADERS ==================== */
+
+/* Presets: title stays fixed */
+#presetsOverlay .overlay-content h2 {
+    position: sticky; top: 0; z-index: 10;
+    padding: 12px 0; margin: -10px 0 10px 0;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 0 0 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+#presetsOverlay .overlay-content p {
+    position: sticky; top: 52px; z-index: 9;
+    padding: 4px 0 8px 0; margin: -10px 0 10px 0;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    font-size: 0.8rem;
+}
+
+/* Backpack: header bar stays fixed */
+#bpModal .overlay-content > div:first-child {
+    position: sticky; top: 0; z-index: 10;
+    margin-bottom: 15px;
+}
+
+/* Parent Settings: title stays fixed */
+#parentDrawer .overlay-content h2 {
+    position: sticky; top: 0; z-index: 10;
+    padding: 12px 0; margin: -10px 0 15px 0;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 0 0 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Folder Selector: title and subtitle stay fixed */
+#folderSelectionOverlay .overlay-content h2 {
+    position: sticky; top: 0; z-index: 10;
+    padding: 12px 0 4px 0; margin: -15px 0 5px 0;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 0 0 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+#folderSelectionOverlay .overlay-content h2 + p {
+    position: sticky; top: 52px; z-index: 9;
+    margin: 0 0 15px 0; padding: 6px 0 8px 0;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    font-size: 0.8rem;
+}
+
+/* Folder selector: total count badge stays with header area */
+#totalHwCount {
+    position: sticky; top: 88px; z-index: 8;
+}
+
+/* Folder selector: cancel button stays at bottom */
+#folderSelectionOverlay .overlay-content > button:last-child {
+    position: sticky; bottom: 0; z-index: 10;
+    margin-top: auto;
+    background: rgba(255,255,255,0.88) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+}
