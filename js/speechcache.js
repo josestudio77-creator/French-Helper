@@ -217,11 +217,13 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         console.warn('[SpeechCache] Lookup error, falling back to browser TTS:', err.message || err);
     }
     
-    // No cached audio — use browser TTS (Google TTS streaming blocked by Google from web origins)
-    // On native Capacitor app, TTS audio will be fetched and cached via native HTTP.
+    // No cached audio — use browser TTS
+    // Wait for speech to actually finish before resolving
     console.log('[SpeechCache] FALLBACK TO BROWSER TTS: "' + text + '"');
     if (typeof spk === 'function') {
-        spk(text, lang, forceInterrupt, speedOverride, isLetterMode);
+        await new Promise((resolve) => {
+            spkWithCallback(text, lang, forceInterrupt, speedOverride, isLetterMode, resolve);
+        });
     }
 }
 
@@ -231,6 +233,54 @@ async function fetchAndPlay(text, lang) {
     if (!lang) lang = 'fr-FR';
     await preloadTTSForWord(text, lang === 'fr-FR' ? 'fr' : 'en');
     await playCachedAudio(text, lang, true);
+}
+
+
+/* Helper: spk() wrapper that calls a callback when speech ends */
+function spkWithCallback(t, lang, forceInterrupt, speedOverride, isLetterMode, onEnd) {
+    try {
+        if (forceInterrupt) {
+            window.speechSynthesis.cancel();
+            if (state.activeRecordingSource) {
+                try { state.activeRecordingSource.stop(); } catch(e) {}
+                state.activeRecordingSource = null;
+            }
+            if (state.currentlyPlayingAudio) {
+                state.currentlyPlayingAudio.pause();
+                state.currentlyPlayingAudio = null;
+            }
+        }
+
+        let textToSpeak = t;
+        if (lang === 'fr-FR' && t.trim().length === 1) {
+            if (isLetterMode) {
+                const upper = t.trim().toUpperCase();
+                textToSpeak = FRENCH_LETTER_NAMES[upper] || t;
+            } else {
+                const charLower = t.trim().toLowerCase();
+                if (charLower === 'à' || charLower === 'â') textToSpeak = 'a';
+                else if (charLower === 'y') textToSpeak = 'i';
+                else if (charLower === 'ô') textToSpeak = 'o';
+                else if (charLower === 'é' || charLower === 'è' || charLower === 'ê' || charLower === 'ë') textToSpeak = 'é';
+            }
+        }
+
+        const u = new SpeechSynthesisUtterance(textToSpeak);
+        u.lang = lang;
+        u.rate = speedOverride || state.speechSpeed;
+        const v = (lang === 'fr-FR') ? state.selectedFrVoice : state.cachedEnVoice;
+        if (v) u.voice = v;
+        u.onerror = (e) => { console.warn('[Audio] TTS error:', e.error); if (onEnd) onEnd(); };
+        u.onend = () => { if (onEnd) onEnd(); };
+
+        setTimeout(() => {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(u);
+        }, 50);
+    } catch (e) {
+        console.error('Speech Synthesis Error:', e);
+        if (onEnd) onEnd();
+    }
 }
 
 /* ===== Expose ===== */
