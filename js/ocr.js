@@ -108,9 +108,7 @@ function _showCropper(imageData) {
     
     overlay.style.display = 'flex';
     document.getElementById('scanSpinner').style.display = 'none';
-    document.getElementById('scanCropArea').style.display = 'flex';
-    document.getElementById('scanActions').style.display = 'flex';
-    document.getElementById('scanHeaderTitle').textContent = 'Crop Text Area';
+    document.getElementById('scanActions').style.display = 'grid';
     
     // Destroy old cropper
     if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
@@ -172,7 +170,7 @@ async function scanCroppedArea() {
 /* ===== Scanning spinner ===== */
 function _showScanningUI() {
     document.getElementById('scanSpinner').style.display = 'flex';
-    document.getElementById('scanHeaderTitle').textContent = 'Scanning...';
+    document.getElementById('scanActions').style.display = 'none';
     document.getElementById('ocrProgressBar').style.width = '0%';
 }
 
@@ -196,7 +194,8 @@ function importScannedText() {
 }
 
 function closeScanOverlay() {
-    document.getElementById('scanOverlay').style.display = 'none';
+    const overlay = document.getElementById('scanOverlay');
+    if (overlay) overlay.style.display = 'none';
     if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
     state.scannedPhoto = null;
     state.scannedWords = null;
