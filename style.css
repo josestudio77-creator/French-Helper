@@ -2565,7 +2565,7 @@ body.mode-spelling .spelling-slots {
 #bpModal .overlay-content > div:first-child {
     background: rgba(255,255,255,0.2) !important;
     border: 2px solid rgba(255,255,255,0.3) !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(14px);
     border-radius: 16px !important;
 }
 
@@ -2619,7 +2619,7 @@ body.mode-spelling .spelling-slots {
 .folder-card {
     background: rgba(255,255,255,0.94) !important;
     border: 2px solid rgba(255,255,255,0.6) !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(14px);
     transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
 }
 .folder-card:hover {
@@ -2650,7 +2650,7 @@ body.mode-spelling .spelling-slots {
 /* --- History items (backpack): match card style --- */
 .history-item {
     background: rgba(255,255,255,0.94) !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(14px);
     border: 2px solid rgba(157, 78, 221, 0.25) !important;
     transition: transform 0.15s, box-shadow 0.2s;
 }
@@ -2771,16 +2771,16 @@ body.mode-spelling .spelling-slots {
 #presetsOverlay .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0; margin: -10px 0 10px 0;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
     border-radius: 0 0 16px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 #presetsOverlay .overlay-content p {
     position: sticky; top: 52px; z-index: 9;
     padding: 4px 0 8px 0; margin: -10px 0 10px 0;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(14px);
     font-size: 0.8rem;
 }
 
@@ -2794,8 +2794,8 @@ body.mode-spelling .spelling-slots {
 #parentDrawer .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0; margin: -10px 0 15px 0;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
     border-radius: 0 0 16px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.2);
 }
@@ -2804,16 +2804,16 @@ body.mode-spelling .spelling-slots {
 #folderSelectionOverlay .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0 4px 0; margin: -15px 0 5px 0;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
     border-radius: 0 0 16px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 #folderSelectionOverlay .overlay-content h2 + p {
     position: sticky; top: 52px; z-index: 9;
     margin: 0 0 15px 0; padding: 6px 0 8px 0;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(14px);
     font-size: 0.8rem;
 }
 
