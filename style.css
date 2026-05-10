@@ -2771,16 +2771,14 @@ body.mode-spelling .spelling-slots {
 #presetsOverlay .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0; margin: -10px 0 10px 0;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    
 }
 #presetsOverlay .overlay-content p {
     position: sticky; top: 52px; z-index: 9;
     padding: 4px 0 8px 0; margin: -10px 0 10px 0;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(14px);
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
 }
 
@@ -2794,26 +2792,23 @@ body.mode-spelling .spelling-slots {
 #parentDrawer .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0; margin: -10px 0 15px 0;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    
 }
 
 /* Folder Selector: title and subtitle stay fixed */
 #folderSelectionOverlay .overlay-content h2 {
     position: sticky; top: 0; z-index: 10;
     padding: 12px 0 4px 0; margin: -15px 0 5px 0;
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
+    
 }
 #folderSelectionOverlay .overlay-content h2 + p {
     position: sticky; top: 52px; z-index: 9;
     margin: 0 0 15px 0; padding: 6px 0 8px 0;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(14px);
+    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
 }
 
