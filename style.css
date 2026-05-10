@@ -2518,3 +2518,27 @@ body.mode-spelling .spelling-slots {
 .overlay-content::-webkit-scrollbar {
     display: none;
 }
+
+/* Folder selector: cards float on gradient */
+#folderSelectionOverlay .overlay-content {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 15px 10px 80px 10px;
+}
+
+#folderSelectionOverlay .overlay-content h2 {
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+#folderSelectionOverlay .overlay-content p {
+    color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+#folderSelectionOverlay #totalHwCount {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    backdrop-filter: blur(4px);
+}
