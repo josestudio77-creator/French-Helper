@@ -2542,3 +2542,59 @@ body.mode-spelling .spelling-slots {
     color: #fff !important;
     backdrop-filter: blur(4px);
 }
+
+/* === UNIFIED OVERLAY FIXES === */
+
+/* Folder cards: more opaque to stand out against gradient */
+.folder-card {
+    background: rgba(255,255,255,0.92) !important;
+    border: 2px solid rgba(255,255,255,0.5) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
+    backdrop-filter: blur(6px);
+}
+.folder-card:active {
+    background: rgba(255,255,255,1) !important;
+    border-color: #118AB2 !important;
+}
+
+/* Backpack header: glass effect instead of purple box */
+#bpModal .overlay-content > div:first-child {
+    background: rgba(255,255,255,0.2) !important;
+    border: 2px solid rgba(255,255,255,0.3) !important;
+    backdrop-filter: blur(8px);
+    border-radius: 16px !important;
+}
+
+/* Backpack: homework cards more opaque */
+.history-item {
+    background: rgba(255,255,255,0.92) !important;
+    backdrop-filter: blur(6px);
+    border-color: rgba(157, 78, 221, 0.3) !important;
+}
+
+/* Parent Settings: buttons more defined */
+#parentDrawer .parent-btn-grid button {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Preset buttons: more opaque */
+.preset-btn {
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* Remove any lingering border-radius/outline from transparent overlays */
+#presetsOverlay .overlay-content,
+#bpModal .overlay-content,
+#parentDrawer .overlay-content,
+#folderSelectionOverlay .overlay-content {
+    outline: none !important;
+}
+
+/* Folder selector: cancel button visible on gradient */
+#folderSelectionOverlay button[onclick*="closeOverlay"] {
+    background: rgba(255,255,255,0.85) !important;
+    color: #4a5568 !important;
+    backdrop-filter: blur(4px);
+}
