@@ -136,7 +136,6 @@ function _showCropper(imageData) {
 async function scanCroppedArea() {
     if (!_cropperInstance) return;
     
-    document.getElementById('scanCropArea').style.display = 'none';
     document.getElementById('scanActions').style.display = 'none';
     _showScanningUI();
     
