@@ -506,6 +506,18 @@ card.animate([
 function exitSpellingTheater() {
     if (typeof playTheaterExit === "function") playTheaterExit();
 
+
+    // Restore original speech speed (force-exit path bypasses toggleSpellingMode)
+    if (state.savedSpeechSpeed !== null) {
+        state.speechSpeed = state.savedSpeechSpeed;
+        const slider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedValue');
+        if (slider) slider.value = state.speechSpeed;
+        if (speedDisplay) speedDisplay.textContent = state.speechSpeed.toFixed(2);
+        localStorage.setItem('speechSpeed', state.speechSpeed);
+        state.savedSpeechSpeed = null;
+    }
+
     window.speechSynthesis.cancel();
     
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
@@ -549,7 +561,9 @@ if (globalKb) {
      // Class handles it
 }
 
-document.getElementById('exitSpellingTheaterBtn').classList.remove('visible');
+// Guard against missing element (browser back-swipe path)
+const exitBtn = document.getElementById('exitSpellingTheaterBtn');
+if (exitBtn) exitBtn.classList.remove('visible');
 
 setTimeout(() => {
     const header = document.querySelector('.header');
