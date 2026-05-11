@@ -39,53 +39,61 @@ async function _loadOCR() {
 
 /* ===== Image preprocessing for handwriting OCR ===== */
 function _preprocessForOCR(sourceCanvas) {
-    const w = sourceCanvas.width, h = sourceCanvas.height;
+    try {
+        let w = sourceCanvas.width, h = sourceCanvas.height;
 
-    // Skip preprocessing if image is tiny (icons, etc.)
-    if (w < 50 || h < 50) return sourceCanvas;
+        // Skip preprocessing if image is tiny (icons, etc.)
+        if (w < 50 || h < 50) return sourceCanvas;
 
-    const out = document.createElement('canvas');
-    out.width = w; out.height = h;
-    const ctx = out.getContext('2d');
-    ctx.drawImage(sourceCanvas, 0, 0);
+        // --- Cap size for phone performance (800px is plenty for OCR) ---
+        const MAX_DIM = 800;
+        let scale = 1;
+        if (w > MAX_DIM || h > MAX_DIM) {
+            scale = MAX_DIM / Math.max(w, h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+        }
 
-    const imageData = ctx.getImageData(0, 0, w, h);
-    const px = imageData.data;
-    const len = px.length;
+        const out = document.createElement('canvas');
+        out.width = w; out.height = h;
+        const ctx = out.getContext('2d');
+        ctx.drawImage(sourceCanvas, 0, 0, w, h);
 
-    // --- Step 1: Grayscale + histogram ---
-    const gray = new Float32Array(w * h);
-    const hist = new Uint32Array(256);
-    for (let i = 0; i < len; i += 4) {
-        const g = Math.round(0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2]);
-        gray[i >> 2] = g;
-        hist[g]++;
-    }
+        const imageData = ctx.getImageData(0, 0, w, h);
+        const px = imageData.data;
+        const len = px.length;
+        const total = w * h;
 
-    // --- Step 2: Contrast stretch (clip 2% extremes) ---
-    const total = w * h;
-    let lo = 0, hi = 255;
-    let sum = 0;
-    const clip = total * 0.02;
-    for (let i = 0; i < 256; i++) { sum += hist[i]; if (sum >= clip) { lo = i; break; } }
-    sum = 0;
-    for (let i = 255; i >= 0; i--) { sum += hist[i]; if (sum >= clip) { hi = i; break; } }
-    const range = hi - lo || 1;
+        // --- Step 1: Grayscale + histogram (single pass) ---
+        const gray = new Uint8Array(total);
+        const hist = new Uint32Array(256);
+        for (let i = 0; i < len; i += 4) {
+            // Fast integer grayscale (avoid float math)
+            const g = (px[i] * 77 + px[i + 1] * 150 + px[i + 2] * 29) >> 8;
+            gray[i >> 2] = g;
+            hist[g]++;
+        }
 
-    for (let i = 0; i < gray.length; i++) {
-        let v = ((gray[i] - lo) / range) * 255;
-        v = Math.max(0, Math.min(255, v));
-        gray[i] = v;
-    }
+        // --- Step 2: Contrast stretch (clip 2% extremes) ---
+        let lo = 0, hi = 255;
+        let sum = 0;
+        const clip = total * 0.02;
+        for (let i = 0; i < 256; i++) { sum += hist[i]; if (sum >= clip) { lo = i; break; } }
+        sum = 0;
+        for (let i = 255; i >= 0; i--) { sum += hist[i]; if (sum >= clip) { hi = i; break; } }
+        const range = hi - lo || 1;
 
-    // --- Step 3: Otsu binarization ---
-    const threshold = (function() {
+        for (let i = 0; i < total; i++) {
+            const v = ((gray[i] - lo) * 255) / range;
+            gray[i] = v < 0 ? 0 : v > 255 ? 255 : v;
+        }
+
+        // --- Step 3: Otsu binarization ---
         const hh = new Float64Array(256);
-        for (let i = 0; i < gray.length; i++) hh[Math.round(gray[i])]++;
+        for (let i = 0; i < total; i++) hh[gray[i]]++;
         let totalSum = 0;
         for (let i = 0; i < 256; i++) totalSum += i * hh[i];
-        let bgSum = 0, bgWeight = 0;
-        let bestThresh = 128, bestBetween = 0;
+        let bgSum = 0, bgWeight = 0, bestThresh = 128, bestBetween = 0;
         for (let t = 0; t < 256; t++) {
             bgWeight += hh[t];
             if (bgWeight === 0 || bgWeight === total) continue;
@@ -96,43 +104,19 @@ function _preprocessForOCR(sourceCanvas) {
             const between = bgWeight * fgWeight * (bgMean - fgMean) * (bgMean - fgMean);
             if (between > bestBetween) { bestBetween = between; bestThresh = t; }
         }
-        return bestThresh;
-    })();
 
-    // --- Step 4: Apply threshold + unsharp masking ---
-    // First pass: binarize
-    const binary = new Uint8ClampedArray(w * h);
-    for (let i = 0; i < gray.length; i++) {
-        binary[i] = gray[i] > threshold ? 255 : 0;
-    }
-
-    // Unsharp mask: subtract blurred version
-    const blurRadius = 2;
-    const blurred = new Float32Array(w * h);
-    for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-            let s = 0, n = 0;
-            for (let dy = -blurRadius; dy <= blurRadius; dy++) {
-                for (let dx = -blurRadius; dx <= blurRadius; dx++) {
-                    const nx = x + dx, ny = y + dy;
-                    if (nx >= 0 && nx < w && ny >= 0 && ny < h) { s += binary[ny * w + nx]; n++; }
-                }
-            }
-            blurred[y * w + x] = s / n;
+        // --- Step 4: Apply Otsu threshold (pure binarization) ---
+        for (let i = 0; i < len; i += 4) {
+            const v = gray[i >> 2] > bestThresh ? 255 : 0;
+            px[i] = px[i + 1] = px[i + 2] = v;
         }
-    }
 
-    // Blend: original + amount*(original - blurred)
-    const amount = 0.6;
-    for (let i = 0; i < len; i += 4) {
-        const idx = i >> 2;
-        const sharp = binary[idx] + amount * (binary[idx] - blurred[idx]);
-        const v = Math.max(0, Math.min(255, Math.round(sharp)));
-        px[i] = px[i + 1] = px[i + 2] = v;
+        ctx.putImageData(imageData, 0, 0);
+        return out;
+    } catch (e) {
+        console.warn('[OCR] Preprocessing failed, using raw image:', e);
+        return sourceCanvas;
     }
-
-    ctx.putImageData(imageData, 0, 0);
-    return out;
 }
 
 /* ===== Run OCR ===== */
