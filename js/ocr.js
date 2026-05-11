@@ -119,16 +119,69 @@ function _preprocessForOCR(sourceCanvas) {
     }
 }
 
-/* ===== Run OCR ===== */
-async function _runOCR(imageData) {
+/* ===== Cloud OCR via ocr.space (handwriting-optimised) ===== */
+async function _runCloudOCR(canvas) {
+    const apiKey = localStorage.getItem('ocrSpaceApiKey') || 'helloworld';
+    // Strip data URI prefix to get raw base64
+    const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+    const formData = new FormData();
+    formData.append('base64Image', 'data:image/jpeg;base64,' + base64);
+    formData.append('language', 'fre');
+    formData.append('OCREngine', '2');
+    formData.append('isTable', 'false');
+    formData.append('detectOrientation', 'true');
+    formData.append('scale', 'true');
+
+    const resp = await fetch('https://api.ocr.space/parse/image', {
+        method: 'POST',
+        headers: { 'apikey': apiKey },
+        body: formData
+    });
+
+    if (!resp.ok) throw new Error('OCR service returned ' + resp.status);
+
+    const data = await resp.json();
+
+    if (data.OCRExitCode !== 1) {
+        const msg = data.ErrorMessage || 'Unknown OCR error';
+        throw new Error(msg);
+    }
+
+    const parsed = data.ParsedResults?.[0];
+    if (!parsed || parsed.FileParseExitCode !== 1) {
+        throw new Error(parsed?.ErrorMessage || 'OCR could not read the image');
+    }
+
+    const text = parsed.ParsedText || '';
+    // Split into lines, clean up
+    return text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+}
+
+/* ===== Run OCR (cloud-first, Tesseract fallback) ===== */
+async function _runOCR(rawCanvas) {
+    // --- Try cloud OCR first with raw image (best for handwriting) ---
+    _showScanningUI('Sending to OCR cloud...');
     try {
+        const lines = await _runCloudOCR(rawCanvas);
+        if (lines.length > 0) {
+            console.log('[OCR] Cloud result:', lines);
+            return lines;
+        }
+    } catch (e) {
+        console.warn('[OCR] Cloud failed, falling back to Tesseract:', e.message);
+    }
+
+    // --- Offline fallback: preprocess + Tesseract.js ---
+    _showScanningUI('Using offline OCR...');
+    try {
+        const processed = _preprocessForOCR(rawCanvas);
         const worker = await _loadOCR();
-        const result = await worker.recognize(imageData);
-        // Store bounding boxes for overlay mode
+        const result = await worker.recognize(processed);
         state.scannedWords = result.data.words.filter(w => w.text.trim().length > 0);
         return result.data.lines.map(l => l.text.trim()).filter(t => t.length > 1);
     } catch (e) {
-        console.error('[OCR] Failed:', e);
+        console.error('[OCR] Tesseract fallback also failed:', e);
         return [];
     }
 }
@@ -224,7 +277,7 @@ async function scanCroppedArea() {
     document.getElementById('scanActions').style.display = 'none';
     _showScanningUI();
     
-    let croppedCanvas = _cropperInstance.getCroppedCanvas({ maxWidth: 1200 });
+    const croppedCanvas = _cropperInstance.getCroppedCanvas({ maxWidth: 1200 });
     if (!croppedCanvas) {
         showToast('Please select an area to scan', 'error');
         return;
@@ -232,9 +285,6 @@ async function scanCroppedArea() {
 
     // Save original photo for reference
     state.scannedPhoto = croppedCanvas.toDataURL('image/jpeg', 0.9);
-
-    // Preprocess for handwriting: grayscale → contrast → binarize → sharpen
-    croppedCanvas = _preprocessForOCR(croppedCanvas);
     
     if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
     
@@ -255,10 +305,13 @@ async function scanCroppedArea() {
 }
 
 /* ===== Scanning spinner ===== */
-function _showScanningUI() {
+function _showScanningUI(msg) {
     document.getElementById('scanSpinner').style.display = 'flex';
     document.getElementById('scanActions').style.display = 'none';
     document.getElementById('ocrProgressBar').style.width = '0%';
+    // Update the scanning message if provided
+    const spinnerMsg = document.querySelector('#scanSpinner p');
+    if (spinnerMsg && msg) spinnerMsg.textContent = msg;
 }
 
 // Dual-view editor removed — OCR populates homework textarea directly
