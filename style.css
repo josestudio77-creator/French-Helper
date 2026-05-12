@@ -217,7 +217,14 @@
         min-height: 1.6rem; 
         border-radius: 12px; 
         padding: 5px; 
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
+    }
+    .english-text.visible {
+        opacity: 1;
+        pointer-events: auto;
     }
     
     .gender-icon { 

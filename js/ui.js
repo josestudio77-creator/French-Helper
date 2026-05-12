@@ -565,7 +565,7 @@ list.forEach(p => {
                 <span class="french-text"></span>
             </div>
             ${pGuide}
-            <span class="english-text" style="display:none;">${data.en}</span>
+            <span class="english-text">${data.en}</span>
         </div>
         ${spellingHTML}
         ${buttonHTML}
@@ -595,23 +595,30 @@ list.forEach(p => {
     };
     
     let enDismissTimer = null;
-    enToggleBtn.onclick = () => {
-        if (engTextEl.style.display === 'none') {
-            engTextEl.style.display = 'block';
-            SpeechCache.playCachedAudio(data.en, 'en-US', true);
+    enToggleBtn.onclick = async () => {
+        if (!engTextEl.classList.contains('visible')) {
+            engTextEl.classList.add('visible');
             enToggleBtn.style.background = '#5a67d8';
             enToggleBtn.style.color = 'white';
-            if (enDismissTimer) clearTimeout(enDismissTimer);
-            enDismissTimer = setTimeout(() => {
-                engTextEl.style.display = 'none';
-                enToggleBtn.style.background = 'white';
-                enToggleBtn.style.color = '#5a67d8';
-            }, 2500);
+            // Clear any pending dismiss
+            if (enDismissTimer) { clearTimeout(enDismissTimer); enDismissTimer = null; }
+            // Speak and wait for audio to finish, then auto-dismiss
+            try {
+                await SpeechCache.playCachedAudio(data.en, 'en-US', true);
+            } catch(e) { /* ignore */ }
+            // Only dismiss if still visible (user may have tapped again)
+            if (engTextEl.classList.contains('visible')) {
+                enDismissTimer = setTimeout(() => {
+                    engTextEl.classList.remove('visible');
+                    enToggleBtn.style.background = 'white';
+                    enToggleBtn.style.color = '#5a67d8';
+                }, 600);
+            }
         } else {
-            engTextEl.style.display = 'none';
+            engTextEl.classList.remove('visible');
             enToggleBtn.style.background = 'white';
             enToggleBtn.style.color = '#5a67d8';
-            if (enDismissTimer) clearTimeout(enDismissTimer);
+            if (enDismissTimer) { clearTimeout(enDismissTimer); enDismissTimer = null; }
         }
     };
     
