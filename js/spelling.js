@@ -569,6 +569,10 @@ function exitSpellingTheater() {
             }
             const sylToggle = activeCard.querySelector('.syl-toggle');
             if (sylToggle) sylToggle.style.display = 'flex';
+            const enToggle = activeCard.querySelector('.en-toggle');
+            if (enToggle) enToggle.style.display = 'flex';
+            const printBtn = activeCard.querySelector('.print-card-btn');
+            if (printBtn) printBtn.style.display = 'flex';
             const spellBtn = activeCard.querySelector('.spell-btn');
             if (spellBtn) spellBtn.style.display = 'none';
             const recordContainer = activeCard.querySelector('.record-play-container');
