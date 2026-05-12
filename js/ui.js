@@ -151,7 +151,10 @@ function insertChar(char, targetId) {
 
 function navJump(targetId) {
 
-    if (document.body.classList.contains('mode-spelling')) exitSpellingTheater();
+    if (document.body.classList.contains('mode-spelling')) {
+        exitSpellingTheater();
+        return;
+    }
     
     // 1. Close all overlays
     const overlays = ['presetsOverlay', 'gameDrawer', 'bpModal', 'parentDrawer', 'hwDrawer', 'iconPickerOverlay', 'printSelectionOverlay', 'folderSelectionOverlay', 'appModal'];

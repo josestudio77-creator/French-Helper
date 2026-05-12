@@ -506,7 +506,6 @@ card.animate([
 function exitSpellingTheater() {
     if (typeof playTheaterExit === "function") playTheaterExit();
 
-
     // Restore original speech speed (force-exit path bypasses toggleSpellingMode)
     if (state.savedSpeechSpeed !== null) {
         state.speechSpeed = state.savedSpeechSpeed;
@@ -519,84 +518,77 @@ function exitSpellingTheater() {
     }
 
     window.speechSynthesis.cancel();
-    
+    state.currentSpellingState = null;
+    state.isInSpellingMode = false;
+
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
     const stage = document.getElementById('spellingTheaterStage');
     const globalKb = document.getElementById('keyboard');
-    
+
     if (activeCard) {
-activeCard.classList.add('theater-exit');
-const beeBtn = activeCard.querySelector('.bee-badge');
-if (beeBtn) beeBtn.innerHTML = "🐝";
+        activeCard.classList.add('theater-exit');
+        const beeBtn = activeCard.querySelector('.bee-badge');
+        if (beeBtn) beeBtn.innerHTML = "\uD83D\uDC1D";
     }
-    
+
     if (stage) stage.classList.remove('active');
     if (globalKb) globalKb.classList.remove('active');
-    
+
+    // Single smooth restoration at 600ms — matches toggleSpellingMode exit timing
     setTimeout(() => {
-document.body.classList.remove('mode-spelling');
-if (activeCard) {
-    activeCard.classList.remove('spelling-mode');
-    activeCard.classList.remove('theater-exit');
-    
-    // Restore text visibility
-    activeCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-        el.style.display = 'block';
-    });
-    const spellingZone = activeCard.querySelector('.spelling-zone');
-    if (spellingZone) spellingZone.style.display = 'none';
-    
-    // Restore icon interaction
-    const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
-    if (iconElement) {
-        iconElement.style.display = '';
-        iconElement.style.pointerEvents = 'auto';
-        iconElement.style.cursor = 'pointer';
-    }
-    const sylToggle = activeCard.querySelector('.syl-toggle');
-    if (sylToggle) sylToggle.style.display = 'flex';
-}
+        document.body.classList.remove('mode-spelling');
+        document.body.classList.remove('keyboard-buffer');
 
-if (globalKb) {
-     // Class handles it
-}
-
-// Guard against missing element (browser back-swipe path)
-const exitBtn = document.getElementById('exitSpellingTheaterBtn');
-if (exitBtn) exitBtn.classList.remove('visible');
-
-setTimeout(() => {
-    const header = document.querySelector('.header');
-    if (header) {
-        header.style.display = 'flex';
-        header.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
-    }
-    
-    const bottomNav = document.querySelector('.bottom-nav');
-    if (bottomNav) {
-        bottomNav.style.display = 'flex';
-        bottomNav.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
-    }
-    
-    const controlPanel = document.querySelector('.app-control-panel');
-    if (controlPanel) {
-        controlPanel.style.display = 'block';
-        controlPanel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
-    }
-
-    document.querySelectorAll('.phrase-card').forEach(c => {
-        if (c !== activeCard) {
-            c.style.display = 'block';
-            c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 500, fill: 'forwards' });
+        if (activeCard) {
+            activeCard.classList.remove('spelling-mode');
+            activeCard.classList.remove('theater-exit');
+            activeCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+                el.style.display = 'block';
+            });
+            const spellingZone = activeCard.querySelector('.spelling-zone');
+            if (spellingZone) spellingZone.style.display = 'none';
+            const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+            if (iconElement) {
+                iconElement.style.display = '';
+                iconElement.style.pointerEvents = 'auto';
+                iconElement.style.cursor = 'pointer';
+            }
+            const sylToggle = activeCard.querySelector('.syl-toggle');
+            if (sylToggle) sylToggle.style.display = 'flex';
+            // Restore record/spell buttons
+            const spellBtn = activeCard.querySelector('.spell-btn');
+            if (spellBtn) spellBtn.style.display = 'none';
+            const recordContainer = activeCard.querySelector('.record-play-container');
+            if (recordContainer) recordContainer.style.display = 'flex';
+            const frenchText = activeCard.querySelector('.french-text');
+            if (frenchText) {
+                const frBtn = activeCard.querySelector('.spk-fr');
+                if (frBtn) frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText.textContent, 'fr-FR', true);
+            }
         }
-    });
-}, 500);
 
-state.isInSpellingMode = false;
-state.currentSpellingState = null;
-window.speechSynthesis.cancel();
-window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1000);
+        // Restore all cards
+        const allCards = document.querySelectorAll('.phrase-card');
+        allCards.forEach(c => {
+            c.style.display = 'block';
+            c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+        });
+
+        // Restore header, nav, control panel with fade
+        const header = document.querySelector('.header');
+        const bottomNav = document.querySelector('.bottom-nav');
+        const controlPanel = document.querySelector('.app-control-panel');
+
+        [header, bottomNav, controlPanel].forEach(el => {
+            if (!el) return;
+            el.style.display = el === bottomNav ? 'flex' : 'block';
+            el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+        });
+
+        // Guard against missing element (browser back-swipe path)
+        const exitBtn = document.getElementById('exitSpellingTheaterBtn');
+        if (exitBtn) exitBtn.classList.remove('visible');
+    }, 600);
 }
 
 function spellCurrentWord() {
