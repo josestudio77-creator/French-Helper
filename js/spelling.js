@@ -524,6 +524,19 @@ function exitSpellingTheater() {
     const activeCard = document.querySelector('.phrase-card.spelling-mode');
     const stage = document.getElementById('spellingTheaterStage');
     const globalKb = document.getElementById('keyboard');
+    const header = document.querySelector('.header');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const controlPanel = document.querySelector('.app-control-panel');
+
+    // CRITICAL: Lock elements hidden with inline styles BEFORE removing mode-spelling CSS.
+    // This prevents a flash where CSS !important rules stop hiding them but JS hasn't animated yet.
+    if (header) header.style.display = 'none';
+    if (bottomNav) bottomNav.style.display = 'none';
+    if (controlPanel) controlPanel.style.display = 'none';
+    // Hide all non-active cards inline too
+    document.querySelectorAll('.phrase-card').forEach(c => {
+        if (c !== activeCard) c.style.display = 'none';
+    });
 
     if (activeCard) {
         activeCard.classList.add('theater-exit');
@@ -534,11 +547,12 @@ function exitSpellingTheater() {
     if (stage) stage.classList.remove('active');
     if (globalKb) globalKb.classList.remove('active');
 
+    // Now it's safe to remove the CSS class — inline styles keep everything hidden
+    document.body.classList.remove('mode-spelling');
+    document.body.classList.remove('keyboard-buffer');
+
     // Single smooth restoration at 600ms — matches toggleSpellingMode exit timing
     setTimeout(() => {
-        document.body.classList.remove('mode-spelling');
-        document.body.classList.remove('keyboard-buffer');
-
         if (activeCard) {
             activeCard.classList.remove('spelling-mode');
             activeCard.classList.remove('theater-exit');
@@ -555,7 +569,6 @@ function exitSpellingTheater() {
             }
             const sylToggle = activeCard.querySelector('.syl-toggle');
             if (sylToggle) sylToggle.style.display = 'flex';
-            // Restore record/spell buttons
             const spellBtn = activeCard.querySelector('.spell-btn');
             if (spellBtn) spellBtn.style.display = 'none';
             const recordContainer = activeCard.querySelector('.record-play-container');
@@ -567,25 +580,19 @@ function exitSpellingTheater() {
             }
         }
 
-        // Restore all cards
-        const allCards = document.querySelectorAll('.phrase-card');
-        allCards.forEach(c => {
+        // Restore all cards with fade-in
+        document.querySelectorAll('.phrase-card').forEach(c => {
             c.style.display = 'block';
             c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
-        // Restore header, nav, control panel with fade
-        const header = document.querySelector('.header');
-        const bottomNav = document.querySelector('.bottom-nav');
-        const controlPanel = document.querySelector('.app-control-panel');
-
+        // Restore header, nav, control panel with fade-in
         [header, bottomNav, controlPanel].forEach(el => {
             if (!el) return;
             el.style.display = el === bottomNav ? 'flex' : 'block';
             el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
-        // Guard against missing element (browser back-swipe path)
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');
         if (exitBtn) exitBtn.classList.remove('visible');
     }, 600);
