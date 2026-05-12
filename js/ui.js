@@ -594,17 +594,24 @@ list.forEach(p => {
         manualFixTranslation(p, data.en);
     };
     
+    let enDismissTimer = null;
     enToggleBtn.onclick = () => {
-        // Toggle visibility
         if (engTextEl.style.display === 'none') {
             engTextEl.style.display = 'block';
             SpeechCache.playCachedAudio(data.en, 'en-US', true);
             enToggleBtn.style.background = '#5a67d8';
             enToggleBtn.style.color = 'white';
+            if (enDismissTimer) clearTimeout(enDismissTimer);
+            enDismissTimer = setTimeout(() => {
+                engTextEl.style.display = 'none';
+                enToggleBtn.style.background = 'white';
+                enToggleBtn.style.color = '#5a67d8';
+            }, 2500);
         } else {
             engTextEl.style.display = 'none';
             enToggleBtn.style.background = 'white';
             enToggleBtn.style.color = '#5a67d8';
+            if (enDismissTimer) clearTimeout(enDismissTimer);
         }
     };
     

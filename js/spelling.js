@@ -556,7 +556,7 @@ function exitSpellingTheater() {
         if (activeCard) {
             activeCard.classList.remove('spelling-mode');
             activeCard.classList.remove('theater-exit');
-            activeCard.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+            activeCard.querySelectorAll('.french-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'block';
             });
             const spellingZone = activeCard.querySelector('.spelling-zone');
