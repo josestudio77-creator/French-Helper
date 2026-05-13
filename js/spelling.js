@@ -108,7 +108,7 @@ setTimeout(() => {
 document.body.classList.remove('keyboard-buffer');
 state.currentSpellingState = null;
 window.speechSynthesis.cancel();
-window.scrollTo({ top: 0, behavior: 'smooth' });
+if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
 
     } else {
 // --- ENTER SPELLING MODE ---
@@ -191,6 +191,7 @@ if (globalKb) {
 document.body.classList.add('keyboard-buffer');
 
 startNewSpellingGame(card, fullPhrase);
+state.spellingScrollY = window.scrollY;
 window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
@@ -599,6 +600,7 @@ function exitSpellingTheater() {
 
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');
         if (exitBtn) exitBtn.classList.remove('visible');
+        if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
     }, 600);
 }
 
