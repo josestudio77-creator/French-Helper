@@ -217,7 +217,7 @@ renderMiniKeyboard();
 // Then speak the word
 setTimeout(() => {
     SpeechCache.playCachedAudio(words[0], 'fr-FR');
-}, 100);
+}, 1600);
     }
     
 function renderSpellingSlots() {
