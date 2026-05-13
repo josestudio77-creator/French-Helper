@@ -18,11 +18,32 @@ let _fetchResolve = null;
 /* ===== MAIN ENTRY POINT ===== */
 
 async function fetchTTSForHomework(phrasesText, onProgress) {
-    // Google TTS fetch doesn't work from browsers (CORS).
-    // The app uses SpeechSynthesis with "Google francais" voice instead.
-    // This function remains as a no-op for future native app caching.
-    if (onProgress) onProgress('', 0, 0, true);
-    return 0;
+    const lines = phrasesText.split('\n').filter(l => l.trim());
+    const total = Math.min(lines.length, 50); // cap to avoid rate limits
+    if (total === 0) {
+        if (onProgress) onProgress('', 0, 0, true);
+        return 0;
+    }
+
+    // Build the queue — skip already-cached phrases
+    const queue = [];
+    for (const line of lines.slice(0, 50)) {
+        const phrase = line.split('|')[0].trim();
+        if (!phrase) continue;
+        const key = typeof norm === 'function' ? norm(phrase) : phrase.toLowerCase();
+        const hasIt = await StorageDB.hasAudio(key);
+        if (!hasIt) queue.push(phrase);
+    }
+
+    if (queue.length === 0) {
+        if (onProgress) onProgress('', total, total, true);
+        return 0;
+    }
+
+    _fetchQueue = queue;
+    _activeFetches = 0;
+    const count = await new Promise(resolve => { _fetchResolve = resolve; _processNextFetch(onProgress, queue.length); });
+    return count;
 }
 
 async function _processNextFetch(onProgress, total) {
@@ -217,14 +238,19 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         console.warn('[SpeechCache] Lookup error, falling back to browser TTS:', err.message || err);
     }
     
-    // No cached audio — use browser TTS
-    // Wait for speech to actually finish before resolving
+    // No cached audio — use browser TTS immediately, cache in background
     console.log('[SpeechCache] FALLBACK TO BROWSER TTS: "' + text + '"');
     if (typeof spk === 'function') {
         await new Promise((resolve) => {
             spkWithCallback(text, lang, forceInterrupt, speedOverride, isLetterMode, resolve);
         });
     }
+
+    // Background cache-aside: try to fetch Google TTS MP3 and store for next time
+    const fetchLang = lang === 'fr-FR' ? 'fr' : 'en';
+    preloadTTSForWord(text, fetchLang).then(success => {
+        if (success) console.log('[SpeechCache] Cached "' + text + '" in background for next play');
+    }).catch(() => {});
 }
 
 
