@@ -39,40 +39,42 @@ card.classList.add('theater-exit');
 if (stage) stage.classList.remove('active');
 if (globalKb) globalKb.classList.remove('active');
 
-// State clearing is handled by the 600ms layout restorer below.
-// Re-enable icon click when exiting spelling mode
-const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
-if (iconElement) {
-    iconElement.style.display = ''; // Restore CSS default
-    iconElement.style.pointerEvents = 'auto';
-    iconElement.style.cursor = 'pointer';
-}
-const sylToggle = card.querySelector('.syl-toggle');
-if (sylToggle) sylToggle.style.display = 'flex';
-const enToggle2 = card.querySelector('.en-toggle');
-if (enToggle2) enToggle2.style.display = 'flex';
-const printBtn2 = card.querySelector('.print-card-btn');
-if (printBtn2) printBtn2.style.display = 'flex';
-
-// Restore ALL text elements (french, english, pronunciation)
-card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
-    el.style.display = 'block';
-});
-spellingZone.style.display = 'none';
-
-// Restore Record/Play buttons, hide Spell button
-if (spellBtn) spellBtn.style.display = 'none';
-if (recordContainer) recordContainer.style.display = 'flex';
-
-// Restore French button to normal function
-const frenchText = card.querySelector('.french-text').textContent;
-frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText, 'fr-FR', true);
-
+// Card internals restored inside the timeout — avoids pop during theater-exit animation
 // Wait for the exit animation (600ms) to finish, then smoothly fade the practice screen back in
 setTimeout(() => {
     // 1. Instantly reset the active card to normal state
     card.classList.remove('spelling-mode');
     card.classList.remove('theater-exit');
+
+    // Re-enable icon click
+    const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
+    if (iconElement) {
+        iconElement.style.display = '';
+        iconElement.style.pointerEvents = 'auto';
+        iconElement.style.cursor = 'pointer';
+    }
+    const sylToggle = card.querySelector('.syl-toggle');
+    if (sylToggle) sylToggle.style.display = 'flex';
+    const enToggle2 = card.querySelector('.en-toggle');
+    if (enToggle2) enToggle2.style.display = 'flex';
+    const printBtn2 = card.querySelector('.print-card-btn');
+    if (printBtn2) printBtn2.style.display = 'flex';
+
+    // Restore text elements
+    card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
+        el.style.display = 'block';
+    });
+    spellingZone.style.display = 'none';
+
+    // Restore buttons
+    if (spellBtn) spellBtn.style.display = 'none';
+    if (recordContainer) recordContainer.style.display = 'flex';
+
+    // Restore French button click handler
+    const frenchText = card.querySelector('.french-text');
+    if (frenchText) {
+        frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText.textContent, 'fr-FR', true);
+    }
     document.body.classList.remove('mode-spelling');
     document.body.classList.remove('keyboard-buffer');
     state.currentSpellingState = null;
