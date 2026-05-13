@@ -1525,7 +1525,7 @@
     box-shadow: 0 15px 45px rgba(0,0,0,0.2);
     min-height: 180px;
     transition: all 0.4s ease;
-    animation: cardTheaterIn 0.9s 0.6s ease-out both;
+    animation: cardTheaterIn 1.0s ease-out forwards;
 }
  
 .phrase-card.spelling-mode.theater-exit {
@@ -1533,23 +1533,8 @@
 }
  
 @keyframes cardTheaterIn {
-    0% { 
-        opacity: 0; 
-        transform: perspective(900px) translateZ(-500px) scale(0.05); 
-        filter: blur(8px);
-    }
-    40% {
-        opacity: 0.15;
-    }
-    70% {
-        opacity: 0.5;
-        filter: blur(2px);
-    }
-    100% { 
-        opacity: 1; 
-        transform: perspective(900px) translateZ(0) scale(1); 
-        filter: blur(0);
-    }
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
  
 @keyframes cardTheaterOut {

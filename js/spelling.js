@@ -142,8 +142,8 @@ document.querySelectorAll('.phrase-card').forEach(c => {
 if (stage) stage.classList.add('active');
 document.body.classList.add('mode-spelling');
 
-card.classList.add('spelling-mode');
 card.classList.remove('theater-exit');
+card.classList.add('spelling-mode');
 card.style.display = 'block';
 
 if (globalKb) {
@@ -217,7 +217,7 @@ renderMiniKeyboard();
 // Then speak the word
 setTimeout(() => {
     SpeechCache.playCachedAudio(words[0], 'fr-FR');
-}, 1600);
+}, 100);
     }
     
 function renderSpellingSlots() {
