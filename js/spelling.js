@@ -143,6 +143,7 @@ if (stage) stage.classList.add('active');
 document.body.classList.add('mode-spelling');
 
 card.classList.remove('theater-exit');
+card.offsetHeight; // force reflow — ensures theater-exit is fully removed before spelling-mode starts
 card.classList.add('spelling-mode');
 card.style.display = 'block';
 
