@@ -1500,6 +1500,7 @@
     top: auto;
     left: auto;
     width: auto;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .card-tools .bee-badge:active {
     transform: scale(0.9);

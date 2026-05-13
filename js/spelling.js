@@ -105,7 +105,7 @@ setTimeout(() => {
         el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
     });
 
-    if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
+    if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
     
 }, 600);
 
@@ -601,7 +601,7 @@ function exitSpellingTheater() {
 
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');
         if (exitBtn) exitBtn.classList.remove('visible');
-        if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
+        if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
     }, 600);
 }
 
