@@ -98,29 +98,33 @@
 
     .tool-btn {
         flex: 1;
-        height: 36px;
+        height: 40px; /* Slightly taller for the 3D effect */
         background: white;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
+        border: 2px solid #cbd5e0;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         font-size: 1rem;
         font-weight: 800;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-        transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+        color: #4a5568;
+        
+        /* The 3D chunky shadow effect */
+        box-shadow: 0 4px 0 #cbd5e0, inset 0 -2px 0 rgba(0,0,0,0.02);
+        transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
     }
+    
     .tool-btn:hover {
         background: #f8fafc;
-        border-color: #cbd5e0;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .tool-btn:active {
-        transform: scale(0.9);
+        /* The physical push-down effect */
+        transform: translateY(4px);
+        box-shadow: 0 0 0 #cbd5e0, inset 0 2px 0 rgba(0,0,0,0.05);
     }
+
 
     .syl-toggle {
         font-size: 0.8rem;
@@ -130,9 +134,15 @@
     }
 
     .syl-toggle.active {
-        background: #5a67d8;
-        color: white;
-        border-color: #434190;
+        background: #5a67d8 !important;
+        color: white !important;
+        border-color: #434190 !important;
+        box-shadow: 0 4px 0 #434190, inset 0 -2px 0 rgba(0,0,0,0.1) !important;
+    }
+
+    .syl-toggle.active:active {
+        transform: translateY(4px);
+        box-shadow: 0 0 0 #434190, inset 0 2px 0 rgba(0,0,0,0.1) !important;
     }
 
     .card-icon { 
