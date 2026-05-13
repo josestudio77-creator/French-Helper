@@ -102,13 +102,12 @@ setTimeout(() => {
     elementsToFade.forEach(el => {
         el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
     });
+
+    if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
     
 }, 600);
 
-document.body.classList.remove('keyboard-buffer');
-state.currentSpellingState = null;
 window.speechSynthesis.cancel();
-if (state.spellingScrollY !== undefined) window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' });
 
     } else {
 // --- ENTER SPELLING MODE ---
