@@ -1502,32 +1502,29 @@
 }
 
 /* OVERRIDE for when bee-badge is inside card-tools */
+/* OVERRIDE for when bee-badge is inside card-tools */
 .card-tools .bee-badge {
     flex: 1;
-    height: 40px; /* MATCHES the new tool-btn height */
-    border: 2px solid #FFD700; /* Keeps the signature gold border */
-    border-radius: 12px; /* Matches the new tool-btn */
-    background: #fffdf0; /* Keeps the soft warm tint */
+    height: 40px !important; /* Forces a perfect match */
+    border: 2px solid #FFD700 !important; 
+    border-radius: 12px !important; 
+    background: #fffdf0 !important; 
     font-size: 1.1rem;
     
-    /* The NEW 3D chunky shadow effect using a darker gold */
-    box-shadow: 0 4px 0 #e6c200, inset 0 -2px 0 rgba(0,0,0,0.02);
+    /* Forces the chunky shadow to match perfectly */
+    box-shadow: 0 4px 0 #e6c200, inset 0 -2px 0 rgba(0,0,0,0.02) !important;
     
-    position: static;
-    top: auto;
-    left: auto;
-    width: auto;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: auto !important;
     transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
 }
 
 .card-tools .bee-badge:active {
-    /* Matches the exact physical push-down effect of the other buttons */
-    transform: translateY(4px);
-    box-shadow: 0 0 0 #e6c200, inset 0 2px 0 rgba(0,0,0,0.05);
-}
- 
-.bee-badge:active {
-    transform: scale(1.2);
+    /* Forces the physical push-down effect to match perfectly */
+    transform: translateY(4px) !important;
+    box-shadow: 0 0 0 #e6c200, inset 0 2px 0 rgba(0,0,0,0.05) !important;
 }
  
 /* 3. THE CARD FRAME: Center Stage */
@@ -1584,6 +1581,12 @@
     border: 3px solid white !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
     flex: none !important;
+    transition: transform 0.1s; /* Add this so the pop is smooth */
+}
+
+/* ADD THIS NEW BLOCK RIGHT HERE: */
+.phrase-card.spelling-mode .bee-badge:active {
+    transform: scale(1.2) !important; /* Only the Red X gets to scale up! */
 }
 
 /* Collapse belt in spelling mode — X button floats via absolute positioning */
