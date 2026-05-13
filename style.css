@@ -967,33 +967,37 @@
     #btnSaveCrop { 
         background: #4cd964 !important; 
     }
-    
-    
+
+
     /* ==================== ICON BUTTONS & GROUPS ==================== */
     
     .icon-btn {
-        background: none !important;
-        border: none !important;
-        font-size: 1.2rem !important; 
-        padding: 4px !important;
-        margin: 0 2px !important;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px !important;
+        border: 2px solid rgba(255, 255, 255, 0.4) !important;
+        padding: 0 !important;
+        margin: 0 auto 4px auto !important;
         cursor: pointer;
-        color: #4a5568 !important;
-        box-shadow: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.1s;
+        
+        /* This creates the chunky arcade button look */
+        box-shadow: 0 4px 0 rgba(0,0,0,0.15), inset 0 3px 0 rgba(255,255,255,0.3) !important;
+        transition: transform 0.1s, box-shadow 0.1s;
     }
     
     .icon-btn:active { 
-        transform: scale(1.2); 
+        /* The physical 'click' down effect */
+        transform: translateY(4px) scale(0.95); 
+        box-shadow: 0 0 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.2) !important; 
     }
     
     .icon-label { 
-        font-size: 0.5rem;
-        font-weight: 800; 
-        color: #718096; 
+        font-size: 0.65rem; 
+        font-weight: 900; 
+        color: #64748b; 
         margin-top: 2px; 
         white-space: nowrap;
     }
@@ -1014,7 +1018,7 @@
         flex: 1; 
         min-width: 0;
     }
-    
+        
     
     /* ==================== MODAL STYLES ==================== */
     
