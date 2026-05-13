@@ -1504,20 +1504,26 @@
 /* OVERRIDE for when bee-badge is inside card-tools */
 .card-tools .bee-badge {
     flex: 1;
-    height: 36px;
-    border: 2px solid #FFD700;
-    border-radius: 10px;
-    background: #fffdf0;
+    height: 40px; /* MATCHES the new tool-btn height */
+    border: 2px solid #FFD700; /* Keeps the signature gold border */
+    border-radius: 12px; /* Matches the new tool-btn */
+    background: #fffdf0; /* Keeps the soft warm tint */
     font-size: 1.1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    
+    /* The NEW 3D chunky shadow effect using a darker gold */
+    box-shadow: 0 4px 0 #e6c200, inset 0 -2px 0 rgba(0,0,0,0.02);
+    
     position: static;
     top: auto;
     left: auto;
     width: auto;
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
 }
+
 .card-tools .bee-badge:active {
-    transform: scale(0.9);
+    /* Matches the exact physical push-down effect of the other buttons */
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #e6c200, inset 0 2px 0 rgba(0,0,0,0.05);
 }
  
 .bee-badge:active {
