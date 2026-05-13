@@ -109,7 +109,7 @@
         font-size: 1rem;
         font-weight: 800;
         box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-        transition: all 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
     }
     .tool-btn:hover {
         background: #f8fafc;
