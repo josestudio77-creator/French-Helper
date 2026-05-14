@@ -2510,12 +2510,17 @@ body.mode-spelling .spelling-slots {
 }
 
 /* Backpack: cards float on gradient, no white box */
+#bpModal {
+    padding: 15px 8px !important; /* Reduces the outer gap to the screen edge */
+}
+
 #bpModal .overlay-content {
     background: transparent !important;
     border: none !important;
     box-shadow: none;
     border-radius: 0;
-    padding: 10px 15px;
+    padding: 10px 4px !important; /* Shrinks the inner gap to maximize width */
+    max-width: 600px; /* Gives it more room to stretch on larger screens */
 }
 
 #bpModal .overlay-content h2 {
@@ -2695,11 +2700,12 @@ body.mode-spelling .spelling-slots {
 
 /* --- History items (backpack): match card style --- */
 .history-item {
-    background: rgba(255,255,255,0.94) !important;
+    background: rgba(255,255,255,0.95) !important;
     backdrop-filter: blur(14px);
-    border: 2px solid rgba(157, 78, 221, 0.25) !important;
+    border: 4px solid #9d4edd !important; /* THICKER solid purple border */
     transition: transform 0.15s, box-shadow 0.2s;
 }
+
 .history-item:hover {
     box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
 }
@@ -2741,8 +2747,8 @@ body.mode-spelling .spelling-slots {
 
 /* --- Backpack header: frosted glass --- */
 #bpModal > .overlay-content > div:first-child {
-    background: rgba(255,255,255,0.25) !important;
-    border: 2px solid rgba(255,255,255,0.35) !important;
+    background: rgba(255,255,255,0.92) !important;
+    border: 4px solid #9d4edd !important; /* THICKER solid purple border */
     backdrop-filter: blur(10px);
     border-radius: 20px !important;
     box-shadow: 0 4px 14px rgba(0,0,0,0.06);
@@ -2750,9 +2756,10 @@ body.mode-spelling .spelling-slots {
 
 /* --- Favorites filter button --- */
 #btnFavFilter {
-    background: rgba(255,255,255,0.85) !important;
+    background: rgba(255,255,255,0.95) !important;
+    border: 4px solid #ffb703 !important; /* THICKER solid gold border */
     backdrop-filter: blur(6px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     border-radius: 12px;
     transition: all 0.2s;
 }
