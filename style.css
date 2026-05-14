@@ -1264,13 +1264,13 @@
     }
     
     .badge-left { 
-        top: -12px; 
-        left: -12px; 
+        top: -10px; 
+        left: -10px; 
     }
     
     .badge-right { 
-        top: -12px; 
-        right: -12px; 
+        top: -10px; 
+        right: -10px; 
         border-color: #e0f2fe; 
     }
     
@@ -2519,7 +2519,7 @@ body.mode-spelling .spelling-slots {
     border: none !important;
     box-shadow: none;
     border-radius: 0;
-    padding: 10px 4px !important; /* Shrinks the inner gap to maximize width */
+    padding: 10px 14px !important; /* Shrinks the inner gap to maximize width */
     max-width: 600px; /* Gives it more room to stretch on larger screens */
 }
 
@@ -2831,7 +2831,9 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack: header bar stays fixed */
 #bpModal .overlay-content > div:first-child {
-    position: sticky; top: -15px; z-index: 10;
+    position: sticky; 
+    top: -10px; /* Locks instantly against the top boundary! */
+    z-index: 10;
     margin-bottom: 15px;
 }
 
