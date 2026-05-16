@@ -189,15 +189,16 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 970; // Pessimistic bound (10.1in safe area at 96dpi)
+    const MAX_H = 1040; // Tuned bound based on actual browser layout capacity
 
     items.forEach(item => {
         let h = 0;
         if (item.classList.contains('print-header-simple')) {
-            h = 110; 
+            h = 75; // Exact CSS height (30px text + 10px pad + 20px margin + borders + buffer)
         } else if (item.classList.contains('print-phrase-block')) {
             const rowCount = item.querySelectorAll('.calligraphy-row').length;
-            h = (rowCount * 70) + 35; // Pessimistic height per row
+            // Exact CSS math: (rowCount - 1) * 70px + 46px (last row) + 59px (block padding/border/margin)
+            h = ((rowCount - 1) * 70) + 105; 
         }
 
         if (currentHeight + h > MAX_H) {
