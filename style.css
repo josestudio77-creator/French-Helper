@@ -2236,8 +2236,8 @@ body.mode-spelling .spelling-slots {
 .worksheet-page-sim {
     background: white;
     width: 8.5in; 
-    min-height: 11in;
-    padding: 15mm;
+    min-height: 11.1in; /* Slightly extended to prevent visual bleed-out */
+    padding: 0.5in 0.5in 0.4in 0.5in; /* MATCHES @page MARGINS EXACTLY */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     box-sizing: border-box;
     
@@ -2245,8 +2245,8 @@ body.mode-spelling .spelling-slots {
     transform: scale(var(--preview-scale, 0.45));
     transform-origin: top center;
     
-    /* Adjusted for 11in height */
-    margin-bottom: calc(-11in * (1 - var(--preview-scale, 0.45)) + 15px);
+    /* Adjusted for 11.1in height */
+    margin-bottom: calc(-11.1in * (1 - var(--preview-scale, 0.45)) + 15px);
     
     text-align: left;
     color: black;

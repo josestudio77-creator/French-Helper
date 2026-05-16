@@ -189,7 +189,7 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 1000; // Refined for Letter (11in) to match real browser rendering
+    const MAX_H = 1010; // Slightly increased to match the extended 11.1in simulation
 
     items.forEach(item => {
         let h = 0;
