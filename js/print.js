@@ -189,7 +189,7 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 1070; // Extended to match 11.8in simulation
+    const MAX_H = 970; // Pessimistic bound (10.1in safe area at 96dpi)
 
     items.forEach(item => {
         let h = 0;
@@ -197,7 +197,7 @@ function openPrintPreview(choice) {
             h = 110; 
         } else if (item.classList.contains('print-phrase-block')) {
             const rowCount = item.querySelectorAll('.calligraphy-row').length;
-            h = (rowCount * 65) + 35; // Fine-tuned height per row
+            h = (rowCount * 70) + 35; // Pessimistic height per row
         }
 
         if (currentHeight + h > MAX_H) {
