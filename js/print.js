@@ -12,7 +12,7 @@ function openPrintSelection(words, homeworkName) {
     document.getElementById('repeatCountInput').value = 3;
     
     // 2. Reset Checkboxes
-    document.getElementById('includeHeaderToggle').checked = false; 
+    document.getElementById('includeHeaderToggle').checked = true; 
     document.getElementById('includeTracingToggle').checked = true; // Always start ON
     
     // 3. Reset Radio Buttons to "First Line"
@@ -189,7 +189,7 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 1040; // Extended to match 11.5in simulation
+    const MAX_H = 1070; // Extended to match 11.8in simulation
 
     items.forEach(item => {
         let h = 0;

@@ -2236,7 +2236,7 @@ body.mode-spelling .spelling-slots {
 .worksheet-page-sim {
     background: white;
     width: 8.5in; 
-    min-height: 11.5in; /* Further extended to provide clear bottom margin visual */
+    min-height: 11.8in; /* Extended again for absolute margin clearance */
     padding: 0.5in 0.5in 0.4in 0.5in; /* MATCHES @page MARGINS EXACTLY */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     box-sizing: border-box;
@@ -2245,8 +2245,8 @@ body.mode-spelling .spelling-slots {
     transform: scale(var(--preview-scale, 0.45));
     transform-origin: top center;
     
-    /* Adjusted for 11.5in height */
-    margin-bottom: calc(-11.5in * (1 - var(--preview-scale, 0.45)) + 15px);
+    /* Adjusted for 11.8in height */
+    margin-bottom: calc(-11.8in * (1 - var(--preview-scale, 0.45)) + 15px);
     
     text-align: left;
     color: black;
@@ -2256,7 +2256,7 @@ body.mode-spelling .spelling-slots {
 /* Scoped Replicas of Print Styles for Preview */
 .worksheet-page-sim .print-header-simple {
     width: 100%; border-bottom: 2px solid black; display: flex;
-    justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 30px;
+    justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px;
 }
 .worksheet-page-sim .name-label { font-size: 13pt; font-weight: 900; }
 .worksheet-page-sim .name-underline { border-bottom: 1.5px solid black; width: 280px; display: inline-block; margin-left: 5px; height: 14pt; }
