@@ -15,6 +15,12 @@ function toggleSpellingMode(btn, fullPhrase) {
     const controlPanel = document.querySelector('.app-control-panel');
     const bottomNav = document.querySelector('.bottom-nav');
     const header = document.querySelector('.header');
+    
+    // 🛑 CRITICAL: Save scroll position BEFORE hiding elements
+    // Otherwise the page collapses and scrollY becomes 0 instantly.
+    if (!card.classList.contains('spelling-mode')) {
+        state.spellingScrollY = window.scrollY;
+    }
 
     if (card.classList.contains('spelling-mode')) {
         // --- EXIT SPELLING MODE ---
@@ -193,7 +199,6 @@ if (globalKb) {
 document.body.classList.add('keyboard-buffer');
 
 startNewSpellingGame(card, fullPhrase);
-state.spellingScrollY = window.scrollY;
 window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
