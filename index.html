@@ -65,8 +65,15 @@
     <!-- Fixed Style: Properly balanced padding and height -->
     <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92%; max-width: 420px; padding: 20px; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); padding-bottom: 15px !important;">
         
-        <h2 style="color: #9d4edd; margin-bottom: 5px; font-size: 1.3rem;">🖨️ Print Settings</h2>
-        <p style="font-size: 0.65rem; color: #9d4edd; font-weight: 800; margin-bottom: 15px; opacity: 0.8; letter-spacing: 1px;">WORKSHEET BUILDER</p>
+        <!-- WRAP THE SELECTION UI -->
+        <div id="printSelectionMain">
+            <h2 style="color: #9d4edd; margin-bottom: 5px; font-size: 1.3rem;">🖨️ Print Settings</h2>
+            <p style="font-size: 0.65rem; color: #9d4edd; font-weight: 800; margin-bottom: 15px; opacity: 0.8; letter-spacing: 1px;">WORKSHEET BUILDER</p>
+
+            <!-- Preview Button (Primary Action) -->
+            <button onclick="openPrintPreview('block')" style="width: 100%; background: #9d4edd; color: white; padding: 15px; border-radius: 18px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; margin-bottom: 25px; box-shadow: 0 4px 0 #7b2cbf; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>👁️ Preview Worksheet</span>
+            </button>
         
         <!-- SECTION 1: REPETITION -->
         <div style="margin-bottom: 20px; background: #fdf2ff; padding: 12px; border-radius: 18px; border: 2px dashed #9d4edd;">
@@ -127,6 +134,23 @@
         
         <!-- Cancel Action -->
         <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 5px; background: none; color: #a0aec0; padding: 10px; width: 100%; border: none; font-weight: 800; cursor: pointer; font-size: 0.8rem;">Cancel</button>
+        </div> <!-- End printSelectionMain -->
+
+        <!-- PREVIEW CONTAINER (HIDDEN BY DEFAULT) -->
+        <div id="printPreviewContainer" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <button onclick="backToPrintSettings()" style="background: #e2e8f0; color: #4a5568; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer;">⬅️ Back</button>
+                <h3 style="margin: 0; color: #64748b;">Worksheet Preview</h3>
+                <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer;">🖨️ Print</button>
+            </div>
+            
+            <div id="previewSheetArea" class="preview-scroll-area">
+                <!-- Worksheet HTML will be injected here -->
+            </div>
+            
+            <p style="font-size: 0.75rem; color: #a0aec0; margin-top: 15px; text-align: center;">💡 This is an exact preview of the final printout.</p>
+        </div>
+
     </div>
 </div>
 

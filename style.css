@@ -2215,9 +2215,86 @@ body.mode-spelling .spelling-slots {
             text-rendering: geometricPrecision;
         }
     }
-     
-     
-    /* ==================== SPLASH SCREEN ==================== */
+
+/* ==================== WORKSHEET PREVIEW ==================== */
+.preview-scroll-area {
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #f1f5f9;
+    padding: 10px;
+    border-radius: 15px;
+    border: 2px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    scrollbar-width: thin;
+    position: relative;
+}
+
+/* Simulation of an A4 page */
+.worksheet-page-sim {
+    background: white;
+    width: 210mm; 
+    min-height: 297mm;
+    padding: 15mm;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    transform: scale(0.40); /* Adjusted for mobile view */
+    transform-origin: top center;
+    margin-bottom: -165mm; /* Compensates for the scale height loss */
+    text-align: left;
+    color: black;
+    pointer-events: none; /* User doesn't interact with preview contents */
+}
+
+/* Desktop adjustment for preview */
+@media (min-width: 600px) {
+    .worksheet-page-sim {
+        transform: scale(0.7);
+        margin-bottom: -80mm;
+    }
+}
+
+/* Scoped Replicas of Print Styles for Preview */
+.worksheet-page-sim .print-header-simple {
+    width: 100%; border-bottom: 2px solid black; display: flex;
+    justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 30px;
+}
+.worksheet-page-sim .name-label { font-size: 13pt; font-weight: 900; }
+.worksheet-page-sim .name-underline { border-bottom: 1.5px solid black; width: 120px; display: inline-block; margin-left: 5px; height: 14pt; }
+.worksheet-page-sim .set-name-center { font-weight: 900; font-size: 11pt; }
+.worksheet-page-sim .date-label { font-size: 11pt; font-weight: 700; }
+.worksheet-page-sim .print-phrase-block { 
+    margin-bottom: 28px; padding: 15px 20px; border: 2.5px solid #333;
+    border-radius: 20px; position: relative; background: white; text-align: left;
+}
+.worksheet-page-sim .block-font { 
+    font-family: "KG Primary Penmanship Alt", sans-serif !important;
+    font-weight: 400 !important; font-size: 46px !important; text-align: left !important;
+    margin-bottom: 16px;
+}
+.worksheet-page-sim .cursive-font { 
+    font-family: "Playwrite US Trad", cursive !important; 
+    font-weight: 400 !important; font-size: 28px !important; word-spacing: 5pt !important; 
+}
+.worksheet-page-sim .calligraphy-row {
+    height: 38px; width: 100%; margin-bottom: 29px; border-bottom: 2px solid black;
+    border-top: 1px solid #aaa; position: relative;
+}
+.worksheet-page-sim .calligraphy-row::after { 
+    content: ""; position: absolute; left: 0; width: 100%; 
+    border-top: 1.2px dashed #bbb; height: 0; top: 40%; 
+}
+.worksheet-page-sim .cute-decoration { position: absolute; top: 12px; right: 15px; font-size: 20pt; }
+.worksheet-page-sim .trace-text {
+    position: absolute; left: 0; width: 100%; color: #dfdfdf !important; 
+    opacity: 0.8; white-space: nowrap; text-align: left;
+}
+.worksheet-page-sim .trace-text.block-font { font-size: 57px !important; line-height: 38px; }
+.worksheet-page-sim .trace-text.cursive-font { font-size: 38px !important; line-height: 38px; top: -5px; }
+
+/* ==================== SPLASH SCREEN ==================== */
      
     .splash-pop-in {
         transform: scale(1) rotate(0deg) !important;

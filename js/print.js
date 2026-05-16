@@ -93,6 +93,8 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
     if (state.isPrinting) return;
     state.isPrinting = true;
 
+    const html = generateWorksheetHTML(words, cursive, reps, header, name, trace);
+    
     let area = document.getElementById('printArea');
     if (!area) {
         area = document.createElement('div');
@@ -100,7 +102,15 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
         document.body.prepend(area);
     }
     
-    area.innerHTML = ''; 
+    area.innerHTML = html; 
+
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => { state.isPrinting = false; }, 2000);
+    }, 800);
+}
+
+function generateWorksheetHTML(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     
     let html = "";
@@ -124,9 +134,6 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
         if (cursive === true) fClass = 'cursive-font';
         if (cursive === 'blank') fClass = 'blank-line';
 
-        // --- PROTECTION FOR PHRASE SHEETS ---
-        // If a parent selects 13 reps for a WORD, we still shrink the first page 
-        // to 12 reps to fit the header.
         let effectiveReps = reps;
         if (!isBlankSheet && index === 0 && header && reps === 13) {
             effectiveReps = 12;
@@ -154,11 +161,44 @@ function runPrintLogic(words, cursive = false, reps = 3, header = false, name = 
         html += `</div>`; 
     });
 
-    area.innerHTML = html;
+    return html;
+}
 
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => { state.isPrinting = false; }, 2000);
-    }, 800);
+function openPrintPreview(choice) {
+    const reps = parseInt(document.getElementById('repeatCountInput').value);
+    const showHeader = document.getElementById('includeHeaderToggle').checked;
+    const tracingEnabled = document.getElementById('includeTracingToggle').checked;
+    
+    let traceMode = 'none'; 
+    if (tracingEnabled) {
+        const selectedRadio = document.querySelector('input[name="traceOption"]:checked');
+        traceMode = selectedRadio ? selectedRadio.value : 'first';
+    }
+
+    const words = choice === 'blank' ? "[BLANK]" : state.tempWordsToPrint;
+    const isCursive = choice === 'cursive' || choice === 'blank';
+    const worksheetHTML = generateWorksheetHTML(words, isCursive, reps, showHeader, state.tempPrintName, traceMode);
+    
+    // Store data for the final print button in the preview
+    state.currentPreviewSettings = { words, isCursive, reps, showHeader, name: state.tempPrintName, traceMode };
+
+    // Hide selection UI, Show Preview UI
+    document.getElementById('printSelectionMain').style.display = 'none';
+    const previewContainer = document.getElementById('printPreviewContainer');
+    previewContainer.style.display = 'block';
+    
+    const previewContent = document.getElementById('previewSheetArea');
+    previewContent.innerHTML = `<div class="worksheet-page-sim">${worksheetHTML}</div>`;
+}
+
+function backToPrintSettings() {
+    document.getElementById('printSelectionMain').style.display = 'block';
+    document.getElementById('printPreviewContainer').style.display = 'none';
+}
+
+function doPrintFromPreview() {
+    const s = state.currentPreviewSettings;
+    if (!s) return;
+    runPrintLogic(s.words, s.isCursive, s.reps, s.showHeader, s.name, s.traceMode);
 }
 
