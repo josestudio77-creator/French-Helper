@@ -177,8 +177,47 @@ function openPrintPreview(choice) {
 
     const words = choice === 'blank' ? "[BLANK]" : state.tempWordsToPrint;
     const isCursive = choice === 'cursive' || choice === 'blank';
-    const worksheetHTML = generateWorksheetHTML(words, isCursive, reps, showHeader, state.tempPrintName, traceMode);
+    const rawHTML = generateWorksheetHTML(words, isCursive, reps, showHeader, state.tempPrintName, traceMode);
     
+    // --- PAGINATION SIMULATION ---
+    // We need to split the blocks into multiple virtual pages so the user sees 
+    // exactly what will move to Page 2, Page 3, etc.
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = rawHTML;
+    const items = Array.from(tempDiv.children);
+    
+    const pages = [];
+    let currentPageItems = [];
+    let currentHeight = 0;
+    const MAX_H = 1020; // Estimated A4 content height in pixels (96dpi)
+
+    items.forEach(item => {
+        let h = 0;
+        if (item.classList.contains('print-header-simple')) {
+            h = 130; // Header + spacing
+        } else if (item.classList.contains('print-phrase-block')) {
+            const rowCount = item.querySelectorAll('.calligraphy-row').length;
+            h = (rowCount * 67) + 50; // 67px per row + padding/margins
+        }
+
+        if (currentHeight + h > MAX_H) {
+            pages.push(currentPageItems);
+            currentPageItems = [item.outerHTML];
+            currentHeight = h;
+        } else {
+            currentPageItems.push(item.outerHTML);
+            currentHeight += h;
+        }
+    });
+    if (currentPageItems.length > 0) pages.push(currentPageItems);
+
+    const paginatedHTML = pages.map((page, i) => `
+        <div class="worksheet-page-sim">
+            ${page.join('')}
+            <div class="page-number-sim">Page ${i+1}</div>
+        </div>
+    `).join('');
+
     // Store data for the final print button in the preview
     state.currentPreviewSettings = { words, isCursive, reps, showHeader, name: state.tempPrintName, traceMode };
 
@@ -188,11 +227,10 @@ function openPrintPreview(choice) {
     previewContainer.style.display = 'block';
     
     const previewArea = document.getElementById('previewSheetArea');
-    previewArea.innerHTML = `<div class="worksheet-page-sim">${worksheetHTML}</div>`;
+    previewArea.innerHTML = paginatedHTML;
 
     // DYNAMIC SCALING: Match the width of the container perfectly
-    // 210mm is roughly 794px at 96dpi
-    const containerWidth = previewArea.clientWidth - 10; // small buffer
+    const containerWidth = previewArea.clientWidth - 10;
     const paperWidth = 794; 
     const scale = Math.min(containerWidth / paperWidth, 1.0);
     previewArea.style.setProperty('--preview-scale', scale);

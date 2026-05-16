@@ -2972,3 +2972,4 @@ body.mode-spelling .spelling-slots {
 #bpModal .overlay-content > div:first-child {
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
+.page-number-sim { position: absolute; bottom: 5mm; right: 10mm; font-size: 10pt; color: #a0aec0; font-weight: 800; }
