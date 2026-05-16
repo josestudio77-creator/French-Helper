@@ -106,17 +106,9 @@ setTimeout(() => {
         elementsToFade.push(header);
     }
 
-    // Apply staggered fade-in + slide-up animation to the restored layout
-    elementsToFade.forEach((el, index) => {
-        el.animate([
-            { opacity: 0, transform: 'translateY(15px) scale(0.98)' },
-            { opacity: 1, transform: 'translateY(0) scale(1)' }
-        ], { 
-            duration: 500, 
-            delay: Math.min(index * 40, 400), // Stagger with a cap to keep it snappy
-            easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-            fill: 'forwards' 
-        });
+    // Apply fade-in animation to the entire restored layout
+    elementsToFade.forEach(el => {
+        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
     });
 
     if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
@@ -600,34 +592,17 @@ function exitSpellingTheater() {
             }
         }
 
-        // Restore all cards with staggered fade-in + slide-up
-        const allCards = Array.from(document.querySelectorAll('.phrase-card'));
-        allCards.forEach((c, index) => {
+        // Restore all cards with fade-in
+        document.querySelectorAll('.phrase-card').forEach(c => {
             c.style.display = 'block';
-            c.animate([
-                { opacity: 0, transform: 'translateY(15px) scale(0.98)' },
-                { opacity: 1, transform: 'translateY(0) scale(1)' }
-            ], { 
-                duration: 500, 
-                delay: Math.min(index * 40, 400),
-                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-                fill: 'forwards' 
-            });
+            c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
-        // Restore header, nav, control panel with same staggered feel
-        [header, bottomNav, controlPanel].forEach((el, index) => {
+        // Restore header, nav, control panel with fade-in
+        [header, bottomNav, controlPanel].forEach(el => {
             if (!el) return;
             el.style.display = el === bottomNav ? 'flex' : 'block';
-            el.animate([
-                { opacity: 0, transform: 'translateY(15px) scale(0.98)' },
-                { opacity: 1, transform: 'translateY(0) scale(1)' }
-            ], { 
-                duration: 500, 
-                delay: 400 + (index * 40), // Start after cards or with them
-                easing: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
-                fill: 'forwards' 
-            });
+            el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');
