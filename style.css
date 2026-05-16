@@ -2256,7 +2256,7 @@ body.mode-spelling .spelling-slots {
 /* Scoped Replicas of Print Styles for Preview */
 .worksheet-page-sim .print-header-simple {
     width: 100%; border-bottom: 2px solid black; display: flex;
-    justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 10px;
+    justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 20px;
 }
 .worksheet-page-sim .name-label { font-size: 13pt; font-weight: 900; }
 .worksheet-page-sim .name-underline { border-bottom: 1.5px solid black; width: 280px; display: inline-block; margin-left: 5px; height: 14pt; }
