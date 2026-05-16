@@ -187,8 +187,15 @@ function openPrintPreview(choice) {
     const previewContainer = document.getElementById('printPreviewContainer');
     previewContainer.style.display = 'block';
     
-    const previewContent = document.getElementById('previewSheetArea');
-    previewContent.innerHTML = `<div class="worksheet-page-sim">${worksheetHTML}</div>`;
+    const previewArea = document.getElementById('previewSheetArea');
+    previewArea.innerHTML = `<div class="worksheet-page-sim">${worksheetHTML}</div>`;
+
+    // DYNAMIC SCALING: Match the width of the container perfectly
+    // 210mm is roughly 794px at 96dpi
+    const containerWidth = previewArea.clientWidth - 10; // small buffer
+    const paperWidth = 794; 
+    const scale = Math.min(containerWidth / paperWidth, 1.0);
+    previewArea.style.setProperty('--preview-scale', scale);
 }
 
 function backToPrintSettings() {

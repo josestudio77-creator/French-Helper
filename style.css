@@ -2218,16 +2218,16 @@ body.mode-spelling .spelling-slots {
 
 /* ==================== WORKSHEET PREVIEW ==================== */
 .preview-scroll-area {
-    max-height: 60vh;
+    max-height: 70vh; /* Increased to fill more of the screen */
     overflow-y: auto;
+    overflow-x: hidden; /* CRITICAL: No horizontal scroll */
     background: #f1f5f9;
-    padding: 10px;
-    border-radius: 15px;
-    border: 2px solid #e2e8f0;
+    padding: 5px; /* Minimal padding so paper is max width */
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
     scrollbar-width: thin;
     position: relative;
 }
@@ -2240,20 +2240,17 @@ body.mode-spelling .spelling-slots {
     padding: 15mm;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     box-sizing: border-box;
-    transform: scale(0.40); /* Adjusted for mobile view */
+    
+    /* DYNAMIC SCALING */
+    transform: scale(var(--preview-scale, 0.45));
     transform-origin: top center;
-    margin-bottom: -165mm; /* Compensates for the scale height loss */
+    
+    /* This clever math removes the huge white space caused by scaling a tall element */
+    margin-bottom: calc(-297mm * (1 - var(--preview-scale, 0.45)) + 15px);
+    
     text-align: left;
     color: black;
-    pointer-events: none; /* User doesn't interact with preview contents */
-}
-
-/* Desktop adjustment for preview */
-@media (min-width: 600px) {
-    .worksheet-page-sim {
-        transform: scale(0.7);
-        margin-bottom: -80mm;
-    }
+    pointer-events: none; 
 }
 
 /* Scoped Replicas of Print Styles for Preview */
