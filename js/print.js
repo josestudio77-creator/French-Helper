@@ -189,15 +189,15 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 1020; // Estimated A4 content height in pixels (96dpi)
+    const MAX_H = 960; // Estimated Letter (11in) usable content height in pixels (96dpi)
 
     items.forEach(item => {
         let h = 0;
         if (item.classList.contains('print-header-simple')) {
-            h = 130; // Header + spacing
+            h = 130; 
         } else if (item.classList.contains('print-phrase-block')) {
             const rowCount = item.querySelectorAll('.calligraphy-row').length;
-            h = (rowCount * 67) + 50; // 67px per row + padding/margins
+            h = (rowCount * 67) + 50; 
         }
 
         if (currentHeight + h > MAX_H) {
@@ -231,7 +231,7 @@ function openPrintPreview(choice) {
 
     // DYNAMIC SCALING: Match the width of the container perfectly
     const containerWidth = previewArea.clientWidth - 10;
-    const paperWidth = 794; 
+    const paperWidth = 816; // 8.5in in px at 96dpi
     const scale = Math.min(containerWidth / paperWidth, 1.0);
     previewArea.style.setProperty('--preview-scale', scale);
 }
