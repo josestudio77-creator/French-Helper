@@ -189,15 +189,15 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 960; // Estimated Letter (11in) usable content height in pixels (96dpi)
+    const MAX_H = 1000; // Refined for Letter (11in) to match real browser rendering
 
     items.forEach(item => {
         let h = 0;
         if (item.classList.contains('print-header-simple')) {
-            h = 130; 
+            h = 110; 
         } else if (item.classList.contains('print-phrase-block')) {
             const rowCount = item.querySelectorAll('.calligraphy-row').length;
-            h = (rowCount * 67) + 50; 
+            h = (rowCount * 65) + 35; // Fine-tuned height per row
         }
 
         if (currentHeight + h > MAX_H) {
