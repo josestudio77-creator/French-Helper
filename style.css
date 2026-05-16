@@ -1551,7 +1551,7 @@
 }
  
 .phrase-card.spelling-mode.theater-exit {
-    animation: cardTheaterOut 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards !important;
+    animation: cardTheaterOut 0.85s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards !important;
 }
  
 @keyframes cardTheaterIn {
