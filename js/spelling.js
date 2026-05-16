@@ -556,9 +556,6 @@ function exitSpellingTheater() {
     if (stage) stage.classList.remove('active');
     if (globalKb) globalKb.classList.remove('active');
 
-    // Now it's safe to remove the CSS class — inline styles keep everything hidden
-    document.body.classList.remove('mode-spelling');
-    document.body.classList.remove('keyboard-buffer');
 
     // Single smooth restoration at 600ms — matches toggleSpellingMode exit timing
     setTimeout(() => {
@@ -568,6 +565,8 @@ function exitSpellingTheater() {
             activeCard.querySelectorAll('.french-text, .pronunciation-text').forEach(el => {
                 el.style.display = 'block';
             });
+            document.body.classList.remove('mode-spelling');
+            document.body.classList.remove('keyboard-buffer');
             const spellingZone = activeCard.querySelector('.spelling-zone');
             if (spellingZone) spellingZone.style.display = 'none';
             const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
