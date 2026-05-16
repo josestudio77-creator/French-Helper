@@ -2218,7 +2218,7 @@ body.mode-spelling .spelling-slots {
 
 /* ==================== WORKSHEET PREVIEW ==================== */
 .preview-scroll-area {
-    max-height: 70vh; /* Increased to fill more of the screen */
+    height: 480px; /* Fixed height to match the print settings popup size */
     overflow-y: auto;
     overflow-x: hidden; /* CRITICAL: No horizontal scroll */
     background: #f1f5f9;
@@ -2236,7 +2236,7 @@ body.mode-spelling .spelling-slots {
 .worksheet-page-sim {
     background: white;
     width: 8.5in; 
-    min-height: 11.2in; /* Extended again as requested for better visual buffer */
+    min-height: 11.5in; /* Further extended to provide clear bottom margin visual */
     padding: 0.5in 0.5in 0.4in 0.5in; /* MATCHES @page MARGINS EXACTLY */
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     box-sizing: border-box;
@@ -2245,8 +2245,8 @@ body.mode-spelling .spelling-slots {
     transform: scale(var(--preview-scale, 0.45));
     transform-origin: top center;
     
-    /* Adjusted for 11.2in height */
-    margin-bottom: calc(-11.2in * (1 - var(--preview-scale, 0.45)) + 15px);
+    /* Adjusted for 11.5in height */
+    margin-bottom: calc(-11.5in * (1 - var(--preview-scale, 0.45)) + 15px);
     
     text-align: left;
     color: black;
