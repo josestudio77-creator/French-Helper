@@ -1544,7 +1544,9 @@
     padding: 18px 15px;
     box-shadow: 0 15px 45px rgba(0,0,0,0.2);
     min-height: 180px;
-    transition: all 0.4s ease;
+    transition: none !important; /* Prevents flickering during the animation delay */
+    opacity: 0; /* Start invisible for the 'fog' effect */
+    transform: perspective(800px) translateZ(-400px) scale(0.1); /* Match the starting frame of cardTheaterIn */
     animation: cardTheaterIn 0.85s 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
  
