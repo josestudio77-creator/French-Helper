@@ -113,7 +113,7 @@ setTimeout(() => {
 
     if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
     
-}, 600);
+}, 850);
 
 window.speechSynthesis.cancel();
 
@@ -608,7 +608,7 @@ function exitSpellingTheater() {
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');
         if (exitBtn) exitBtn.classList.remove('visible');
         if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
-    }, 600);
+    }, 850);
 }
 
 function spellCurrentWord() {

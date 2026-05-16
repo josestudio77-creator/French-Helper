@@ -1551,7 +1551,7 @@
 }
  
 .phrase-card.spelling-mode.theater-exit {
-    animation: cardTheaterOut 0.6s ease-in forwards !important;
+    animation: cardTheaterOut 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards !important;
 }
  
 @keyframes cardTheaterIn {
@@ -1568,8 +1568,16 @@
 }
  
 @keyframes cardTheaterOut {
-    from { opacity: 1; transform: translateY(0) scale(1); }
-    to { opacity: 0; transform: translateY(10px) scale(0.98); }
+    from { 
+        opacity: 1; 
+        transform: perspective(800px) translateZ(0) scale(1); 
+        filter: blur(0);
+    }
+    to { 
+        opacity: 0; 
+        transform: perspective(800px) translateZ(-400px) scale(0.1); 
+        filter: blur(6px);
+    }
 }
  
 /* The X state for the badge — floating round button in corner */
