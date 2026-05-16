@@ -215,6 +215,7 @@ function norm(t) {
 
 
 function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode = false) {
+    if (typeof triggerHaptic === 'function') triggerHaptic(10);
 
     try {
 
@@ -1432,6 +1433,11 @@ async function toggleStudentRecording(btn, phrase) {
                 const trimmedBuffer = trimSilence(audioBuffer, 0.015);
                 if (trimmedBuffer) {
                     state.recordings[phrase] = trimmedBuffer;
+                    
+                    // PERSISTENCE: Save as WAV to IndexedDB
+                    const wavBlob = audioBufferToWav(trimmedBuffer);
+                    await StorageDB.storeRecording(phrase, wavBlob);
+                    
                     const card = btn.closest('.phrase-card');
                     if (card) {
                         const playBtn = card.querySelector('.play-record-btn');
@@ -1447,6 +1453,7 @@ async function toggleStudentRecording(btn, phrase) {
         state.isRecording = true;
         
         btn.innerHTML = '<span>🛑</span><div class="record-progress"></div>';
+
         btn.classList.add('btn-recording');
         
         const card = btn.closest('.phrase-card');
@@ -1486,7 +1493,7 @@ function _stopRecording(btn, phrase) {
     if (state.recordingAnimFrame) { cancelAnimationFrame(state.recordingAnimFrame); state.recordingAnimFrame = null; }
     if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') state.mediaRecorder.stop();
     state.isRecording = false;
-    btn.innerHTML = '<span>🎤</span>';
+    btn.innerHTML = '<span>🎤 <span class="btn-text">Record</span></span>';
     btn.classList.remove('btn-recording');
     const card = btn.closest('.phrase-card');
     if (card && state.recordings[phrase]) {
@@ -1632,8 +1639,78 @@ function playStudentRecording(phrase) {
     
 
     state.activeRecordingSource = source;
-
     source.start(0);
+}
 
+/* PERSISTENCE & VISUALIZER */
+async function loadStudentRecordings() {
+    if (state.recordingsLoaded) return;
+    console.log("💾 Persistence: Loading student recordings from IndexedDB...");
+    try {
+        const stored = await StorageDB.getAllRecordings();
+        const keys = Object.keys(stored);
+        
+        if (keys.length === 0) {
+            console.log("💾 Persistence: No recordings found in storage.");
+            state.recordingsLoaded = true;
+            return;
+        }
+
+        const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
+        if (!state.voiceContext) state.voiceContext = ctx;
+        
+        let loadedCount = 0;
+        const decodePromises = Object.entries(stored).map(async ([phrase, blob]) => {
+            try {
+                const arrayBuffer = await blob.arrayBuffer();
+                const decoded = await new Promise((resolve, reject) => {
+                    ctx.decodeAudioData(arrayBuffer, resolve, reject);
+                });
+                state.recordings[phrase] = decoded;
+                loadedCount++;
+            } catch (err) {
+                console.warn(`💾 Persistence: Failed to decode recording for: "${phrase}"`, err);
+            }
+        });
+
+        await Promise.all(decodePromises);
+        state.recordingsLoaded = true;
+        console.log(`💾 Persistence: Successfully restored ${loadedCount} recordings.`);
+        
+        // REFRESH UI to show play buttons
+        // We check several ways to get the current list to be sure
+        const currentList = state.currentScreenList || (document.getElementById('hwInput') ? document.getElementById('hwInput').value.split('\n').filter(w => w.trim()) : null);
+        
+        if (typeof renderList === 'function' && currentList && currentList.length > 0) {
+            console.log("💾 Persistence: Refreshing UI cards...");
+            renderList(currentList);
+        }
+    } catch (e) { 
+        console.warn('💾 Persistence: Error loading recordings:', e); 
+    }
+}
+
+async function deleteStudentRecord(phrase) {
+    if (state.recordings[phrase]) {
+        delete state.recordings[phrase];
+        await StorageDB.deleteRecording(phrase);
+        return true;
+    }
+    return false;
+}
+
+
+function audioBufferToWav(buffer) {
+    let n = buffer.numberOfChannels, len = buffer.length * n * 2 + 44, b = new ArrayBuffer(len), v = new DataView(b), pos = 0;
+    function s16(d) { v.setUint16(pos, d, true); pos += 2; }
+    function s32(d) { v.setUint32(pos, d, true); pos += 4; }
+    s32(0x46464952); s32(len - 8); s32(0x45564157); s32(0x20746d66); s32(16); s16(1); s16(n); s32(buffer.sampleRate); s32(buffer.sampleRate * 2 * n); s16(n * 2); s16(16); s32(0x61746164); s32(len - pos - 4);
+    for (let i = 0; i < buffer.length; i++) {
+        for (let c = 0; c < n; c++) {
+            let s = Math.max(-1, Math.min(1, buffer.getChannelData(c)[i]));
+            v.setInt16(pos, (s < 0 ? s * 32768 : s * 32767) | 0, true); pos += 2;
+        }
+    }
+    return new Blob([b], { type: "audio/wav" });
 }
 

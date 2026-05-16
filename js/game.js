@@ -261,7 +261,10 @@ function renderKeyboard() {
                 k.classList.add('used'); // Grey it out
             }
             
-            k.onclick = () => handleHangmanInput(l); 
+            k.onclick = () => {
+                triggerHaptic(10);
+                handleHangmanInput(l); 
+            };
             rowDiv.appendChild(k);
         });
         kb.appendChild(rowDiv);

@@ -289,6 +289,8 @@ window.onload = () => {
         if (state.currentWeekAudio && state.viewMode !== 'dialogue') {
             setViewMode('dialogue');
         }
+        // LOAD RECORDINGS FROM INDEXEDDB
+        loadStudentRecordings();
     }, 100);
 };
 

@@ -3,6 +3,45 @@
    French Helper
    =========================================== */
 
+function triggerHaptic(duration = 15) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration);
+    }
+}
+
+let longPressTimer = null;
+function startLongPress(event, phrase) {
+    longPressTimer = setTimeout(() => {
+        triggerHaptic(50); // Stronger feedback for long press
+        handleLongPressDelete(phrase);
+    }, 800);
+}
+
+function cancelLongPress() {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+}
+
+function handleLongPressDelete(phrase) {
+    openAppModal({
+        title: "🗑️ Clear Recording?",
+        text: `Would you like to delete your recording for:\n\n"${phrase}"`,
+        mode: 'view',
+        saveText: "Delete",
+        cancelText: "Cancel",
+        onAction: async () => {
+            const success = await deleteStudentRecord(phrase);
+            if (success) {
+                showToast("Recording deleted");
+                renderList(state.currentScreenList); // Refresh UI
+            }
+            closeOverlay('appModal');
+        }
+    });
+}
+
 /**
  * Renders a French phrase as interactive words.
  * Each word is wrapped in a clickable span.
@@ -25,6 +64,7 @@ function renderInteractivePhrase(phrase, container) {
         span.textContent = part;
         span.onclick = (e) => {
             e.stopPropagation();
+            triggerHaptic(10); // Haptic feedback
             SpeechCache.playCachedAudio(part.replace(/[.,!?;:]/g, ''), 'fr-FR', true);
             
             // Visual feedback
@@ -79,6 +119,7 @@ function renderSyllablesView(phrase, container) {
 
         wordSpan.onclick = (e) => {
             e.stopPropagation();
+            triggerHaptic(10); // Haptic feedback
             SpeechCache.playCachedAudio(cleanWord, 'fr-FR', true); // Speak the whole word naturally
             
             // Visual feedback: Highlight the entire word block as one unit
@@ -150,6 +191,7 @@ function insertChar(char, targetId) {
 }
 
 function navJump(targetId) {
+    triggerHaptic(10);
 
     if (document.body.classList.contains('mode-spelling')) {
         exitSpellingTheater();
@@ -537,10 +579,17 @@ list.forEach(p => {
                 <span>🔊 French</span>
             </button>
             <div class="record-play-container" style="display: flex; gap: 5px; width: 100%;">
-                <button class="card-btn record-btn" onclick="toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')" style="flex: 1; background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
+                <button class="card-btn record-btn" onclick="triggerHaptic(15); toggleStudentRecording(this, '${p.replace(/'/g, "\\'")}')" style="flex: 1; background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
                     <span>🎤 <span class="btn-text">Record</span></span>
                 </button>
-                <button class="card-btn play-record-btn" onclick="playStudentRecording('${p.replace(/'/g, "\\'")}')" style="display:none; flex: 1; background: #4cd964; color: white; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
+                <button class="card-btn play-record-btn" 
+                    onmousedown="startLongPress(event, '${p.replace(/'/g, "\\'")}')" 
+                    onmouseup="cancelLongPress()" 
+                    onmouseleave="cancelLongPress()"
+                    ontouchstart="startLongPress(event, '${p.replace(/'/g, "\\'")}')" 
+                    ontouchend="cancelLongPress()"
+                    onclick="triggerHaptic(15); playStudentRecording('${p.replace(/'/g, "\\'")}')" 
+                    style="display:none; flex: 1; background: #4cd964; color: white; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
                     <span>▶️ <span class="btn-text">Play</span></span>
                 </button>
             </div>
@@ -582,7 +631,7 @@ list.forEach(p => {
     }
     
     // Bind interactions
-    card.querySelector('.spk-fr').onclick = () => SpeechCache.playCachedAudio(p, 'fr-FR', true);
+    card.querySelector('.spk-fr').onclick = () => { triggerHaptic(15); SpeechCache.playCachedAudio(p, 'fr-FR', true); };
     card.querySelector('.snail-corner').onclick = (e) => {
         e.stopPropagation();
         spk(p, 'fr-FR', true, 0.3); 
@@ -1264,7 +1313,7 @@ function renderAlphabetCards(alphabetList) {
             </div>
         `;
         
-        card.querySelector('.spk-fr').onclick = () => spk(letter, 'fr-FR', true, null, true);
+        card.querySelector('.spk-fr').onclick = () => { triggerHaptic(15); spk(letter, 'fr-FR', true, null, true); };
         container.appendChild(card);
     });
 }

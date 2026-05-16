@@ -11,9 +11,10 @@
    =========================================== */
 
 const DB_NAME = 'french-helper-storage';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_AUDIO = 'audio';
 const STORE_BACKUP = 'backup';
+const STORE_RECORDINGS = 'recordings';
 
 let _db = null;
 
@@ -30,6 +31,9 @@ function openDB() {
             }
             if (!db.objectStoreNames.contains(STORE_BACKUP)) {
                 db.createObjectStore(STORE_BACKUP);
+            }
+            if (!db.objectStoreNames.contains(STORE_RECORDINGS)) {
+                db.createObjectStore(STORE_RECORDINGS);
             }
         };
         
@@ -112,6 +116,92 @@ async function deleteAudioForKeys(normalizedKeys) {
 async function hasAudio(normalizedText) {
     const blob = await getAudio(normalizedText);
     return blob !== null;
+}
+
+/* ===== STUDENT RECORDING STORAGE ===== */
+
+/**
+ * Store a student recording (AudioBuffer converted to Blob) keyed by phrase.
+ */
+async function storeRecording(phrase, blob) {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_RECORDINGS, 'readwrite');
+        const store = tx.objectStore(STORE_RECORDINGS);
+        store.put(blob, phrase);
+        return new Promise((resolve, reject) => {
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = (e) => reject(e.target.error);
+        });
+    } catch (err) {
+        console.warn('storeRecording failed:', phrase, err);
+        return false;
+    }
+}
+
+/**
+ * Retrieve a student recording blob.
+ */
+async function getRecording(phrase) {
+    try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_RECORDINGS, 'readonly');
+            const store = tx.objectStore(STORE_RECORDINGS);
+            const request = store.get(phrase);
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = (e) => reject(e.target.error);
+        });
+    } catch (err) {
+        return null;
+    }
+}
+
+/**
+ * Delete a specific student recording.
+ */
+async function deleteRecording(phrase) {
+    try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_RECORDINGS, 'readwrite');
+        const store = tx.objectStore(STORE_RECORDINGS);
+        store.delete(phrase);
+        return new Promise((resolve, reject) => {
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = (e) => reject(e.target.error);
+        });
+    } catch (err) {
+        return false;
+    }
+}
+
+/**
+ * Load ALL recordings into memory (used at startup).
+ * Returns an object: { phrase: blob }
+ */
+async function getAllRecordings() {
+    try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_RECORDINGS, 'readonly');
+            const store = tx.objectStore(STORE_RECORDINGS);
+            const request = store.getAll();
+            const keysRequest = store.getAllKeys();
+            
+            request.onsuccess = () => {
+                keysRequest.onsuccess = () => {
+                    const result = {};
+                    keysRequest.result.forEach((key, index) => {
+                        result[key] = request.result[index];
+                    });
+                    resolve(result);
+                };
+            };
+            request.onerror = (e) => reject(e.target.error);
+        });
+    } catch (err) {
+        return {};
+    }
 }
 
 /* ===== BACKUP SNAPSHOTS ===== */
@@ -233,6 +323,10 @@ window.StorageDB = {
     getAudio,
     deleteAudioForKeys,
     hasAudio,
+    storeRecording,
+    getRecording,
+    deleteRecording,
+    getAllRecordings,
     storeBackup,
     getBackup,
     autoBackup,

@@ -390,6 +390,7 @@ function renderMiniKeyboard() {
             k.setAttribute('aria-label', 'Key ' + key);
             k.onclick = (e) => { 
                 e.stopPropagation(); 
+                triggerHaptic(10);
                 if (state.gameActive) handleHangmanInput(key);
                 else handleSpellingInput(key); 
             };
