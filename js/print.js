@@ -189,7 +189,7 @@ function openPrintPreview(choice) {
     const pages = [];
     let currentPageItems = [];
     let currentHeight = 0;
-    const MAX_H = 1010; // Slightly increased to match the extended 11.1in simulation
+    const MAX_H = 1025; // Extended to match 11.2in simulation
 
     items.forEach(item => {
         let h = 0;
@@ -214,7 +214,6 @@ function openPrintPreview(choice) {
     const paginatedHTML = pages.map((page, i) => `
         <div class="worksheet-page-sim">
             ${page.join('')}
-            <div class="page-number-sim">Page ${i+1}</div>
         </div>
     `).join('');
 
