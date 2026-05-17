@@ -2221,8 +2221,7 @@ body.mode-spelling .spelling-slots {
     height: 420px; /* Matched to the new fixed-height modal */
     box-sizing: border-box; /* Force border-box box model */
     overflow-y: auto;
-    overflow-y: overlay; /* Draw scrollbars on top of content to prevent gutter shift */
-    overflow-x: hidden; /* CRITICAL: No horizontal scroll */
+    overflow-x: hidden;
     background: #e2e8f0; /* Soft light silver-grey for stunning drop shadow contrast */
     padding: 5px; /* Minimal padding so paper is max width */
     border-radius: 12px;
