@@ -156,9 +156,11 @@ function openPrintPreview(choice) {
         traceMode = selectedRadio ? selectedRadio.value : 'first';
     }
 
+    // FIX REGRESSION: Blank sheet should print full page (12 or 13 lines depending on header presence)
+    const effectiveReps = choice === 'blank' ? (showHeader ? 12 : 13) : reps;
     const words = choice === 'blank' ? "[BLANK]" : state.tempWordsToPrint;
     const isCursive = choice === 'cursive' || choice === 'blank';
-    const rawHTML = generateWorksheetHTML(words, isCursive, reps, showHeader, state.tempPrintName, traceMode);
+    const rawHTML = generateWorksheetHTML(words, isCursive, effectiveReps, showHeader, state.tempPrintName, traceMode);
     
     // --- PAGINATION SIMULATION ---
     // We need to split the blocks into multiple virtual pages so the user sees 
@@ -200,7 +202,7 @@ function openPrintPreview(choice) {
     `).join('');
 
     // Store data for the final print button in the preview
-    state.currentPreviewSettings = { words, isCursive, reps, showHeader, name: state.tempPrintName, traceMode };
+    state.currentPreviewSettings = { words, isCursive, reps: effectiveReps, showHeader, name: state.tempPrintName, traceMode };
 
     // Hide selection UI, Show Preview UI
     document.getElementById('printSelectionMain').style.display = 'none';
@@ -226,9 +228,13 @@ function doPrintFromPreview() {
     if (!state.isPremiumUser) {
         openAppModal({
             title: '⭐ Premium Feature',
-            text: 'Printing customized worksheets is a Premium feature. Upgrade your account to instantly print unlimited worksheets for your classroom!',
+            text: "Printing customized worksheets is a Premium feature. Upgrade your account to instantly print unlimited worksheets for your child's French immersion practice!",
             mode: 'view',
-            saveText: 'Upgrade Now'
+            saveText: 'Upgrade Now',
+            cancelText: 'Go Back',
+            onAction: () => {
+                showToast('🚀 Thank you for your support! Payment gateway integration is coming soon.');
+            }
         });
         return;
     }
