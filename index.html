@@ -63,7 +63,7 @@
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
     <!-- Fixed Style: Properly balanced padding and height -->
-    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92%; max-width: 420px; padding: 20px 20px 15px 20px !important; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); box-sizing: border-box; max-height: 95vh; overflow-y: auto;">
+    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92vw; max-width: 440px; padding: 20px 20px 15px 20px !important; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); box-sizing: border-box; max-height: 95vh; overflow-y: auto;">
         
         <!-- WRAP THE SELECTION UI -->
         <div id="printSelectionMain">
@@ -141,10 +141,10 @@
 
         <!-- PREVIEW CONTAINER (HIDDEN BY DEFAULT) -->
         <div id="printPreviewContainer" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <button onclick="backToPrintSettings()" style="background: #e2e8f0; color: #4a5568; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer;">⬅️ Back</button>
-                <h3 style="margin: 0; color: #64748b;">Worksheet Preview</h3>
-                <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer;">🖨️ Print</button>
+            <div style="display: grid; grid-template-columns: 85px 1fr 85px; align-items: center; margin-bottom: 15px; width: 100%;">
+                <button onclick="backToPrintSettings()" style="background: #e2e8f0; color: #4a5568; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: start; white-space: nowrap;">⬅️ Back</button>
+                <h3 style="margin: 0; color: #64748b; text-align: center; font-size: 1.1rem; font-weight: 900; white-space: nowrap;">Worksheet Preview</h3>
+                <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 10px 15px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: end; white-space: nowrap;">🖨️ Print</button>
             </div>
             
             <div id="previewSheetArea" class="preview-scroll-area">

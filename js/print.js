@@ -237,35 +237,36 @@ function openPrintPreview(choice) {
     // Maximize height based on viewport, adjust width to fit full page exactly.
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     
-    // Reduce safe bound to 85% of screen height minus 160px for padding to completely avoid outer modal scrolling
-    const availableHeight = window.innerHeight * 0.85 - 160; 
-    const paperPhysicalHeight = 1133; 
-    let scale = availableHeight / paperPhysicalHeight;
-    
-    // Also cap scale by width so it doesn't overflow horizontally on narrow screens
-    const availableWidth = window.innerWidth * 0.92 - 60; 
-    scale = Math.min(scale, availableWidth / 816);
-    scale = Math.max(0.25, Math.min(scale, 1.0));
-    
-    // Expand modal to fit the paper beautifully, and lock outer scrolling
-    overlayContent.style.maxWidth = '1000px'; 
-    overlayContent.style.width = 'fit-content';
-    overlayContent.style.minWidth = 'min(420px, 92vw)'; // Prevents header buttons from squeezing
+    // Lock outer scrolling to prevent layout shifting
     overlayContent.style.overflowY = 'hidden';
     
-    // Apply precise dimensions to the scroll area so single page fits perfectly without scrollbar
-    const exactWidth = Math.round(816 * scale) + 40; // 40px overhead for generous grey background
-    const exactHeight = Math.round(paperPhysicalHeight * scale) + 28; // 28px for margin offset + padding/border
+    // Determine the available inner width for the paper:
+    const modalWidth = overlayContent.clientWidth || 440;
+    const paddingOffset = 40; // 20px padding left + 20px padding right
+    const containerWidth = modalWidth - paddingOffset - 12; // Deduct modal padding and scroll area borders
+    const paperWidth = 816;
     
-    previewArea.style.width = exactWidth + 'px';
+    // Scale so paper fits the width perfectly with a clean grey border
+    let scale = containerWidth / paperWidth;
+    
+    // Also scale down if height is constrained, to avoid any vertical scrolling
+    const availableHeight = window.innerHeight * 0.85 - 160; // safety margin for screen height
+    const paperPhysicalHeight = 1133; 
+    const scaleByHeight = availableHeight / paperPhysicalHeight;
+    
+    scale = Math.min(scale, scaleByHeight);
+    scale = Math.max(0.25, Math.min(scale, 1.0));
+    
+    // Apply precise dimensions to the scroll area
+    const exactHeight = Math.round(paperPhysicalHeight * scale) + 28; // 28px for margin offset + padding/borders
+    
+    previewArea.style.width = '100%'; // Centered horizontally with perfectly balanced grey border
     previewArea.style.height = exactHeight + 'px';
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
 function backToPrintSettings() {
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
-    overlayContent.style.maxWidth = '420px';
-    overlayContent.style.width = '92%';
     overlayContent.style.overflowY = 'auto'; // Restore standard scrolling
     
     const previewArea = document.getElementById('previewSheetArea');
