@@ -258,10 +258,16 @@ function openPrintPreview(choice) {
     let scale = availableWidth / 816;
     scale = Math.max(0.2, Math.min(scale, 1.0));
     
-    // Reset any manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
+    // Dynamically limit the height of the scroll area to prevent any bottom cut-offs on shorter viewports
+    const screenHeight = window.innerHeight;
+    const maxScrollHeight = isDesktop ? 580 : 440; // Default ceiling heights
+    const safeHeight = Math.floor(screenHeight * 0.90) - 150; // Accounting for padding, borders, headers, & footer tips
+    const computedHeight = Math.max(280, Math.min(safeHeight, maxScrollHeight));
+    
+    // Reset manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
     previewArea.style.padding = '';
     previewArea.style.width = '';
-    previewArea.style.height = '';
+    previewArea.style.height = computedHeight + 'px'; // Apply the safe height constraint
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
