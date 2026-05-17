@@ -2241,7 +2241,7 @@ body.mode-spelling .spelling-slots {
 }
 @media (min-width: 768px) {
     .preview-scroll-area {
-        height: 580px !important; /* Make the print preview much taller on larger desktop/tablet viewports */
+        height: 580px; /* Make the print preview much taller on larger desktop/tablet viewports, overridable by JS */
     }
 }
 .preview-scroll-area::-webkit-scrollbar {

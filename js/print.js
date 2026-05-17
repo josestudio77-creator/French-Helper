@@ -238,8 +238,8 @@ function openPrintPreview(choice) {
     // DYNAMIC SIZING FOR PREVIEW
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     
-    // Lock outer scrolling to prevent layout shifting
-    overlayContent.style.overflowY = 'hidden';
+    // Allow scrolling on the modal wrapper to absolutely prevent any bottom-cutoffs on short viewports
+    overlayContent.style.overflowY = 'auto';
     
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
@@ -265,9 +265,9 @@ function openPrintPreview(choice) {
         // Constrain scroll area height to wrap the scaled paper perfectly
         computedHeight = Math.round(1133 * scale) + 32;
         
-        // Adjust modal width dynamically to hug the paper's scaled width
+        // Adjust modal width dynamically to hug the paper's scaled width, with a beautiful 420px minimum limit
         const paperWidth = Math.round(816 * scale);
-        const modalWidth = paperWidth + 32; // Add 16px left/right padding
+        const modalWidth = Math.max(420, paperWidth + 32); // Enforce a 420px wide premium minimum!
         maxModalWidth = (modalWidth + 10) + 'px'; // Add 5px left/right borders
         overlayContent.style.width = 'fit-content';
     } else {
@@ -290,7 +290,9 @@ function openPrintPreview(choice) {
     // Reset manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
     previewArea.style.padding = '';
     previewArea.style.width = '';
-    previewArea.style.height = computedHeight + 'px'; // Apply safe computed height
+    
+    // Apply dynamic safe height with !important priority to override any CSS media query rules
+    previewArea.style.setProperty('height', computedHeight + 'px', 'important');
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
