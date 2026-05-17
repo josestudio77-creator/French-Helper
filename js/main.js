@@ -41,7 +41,7 @@ function startAppTransition() {
     const isModalOpen = document.getElementById('appModal').style.display === 'block';
     if (!isModalOpen) {
         playWelcomeChime();
-        preloadAlphabetAudio();
+        // Postpone heavy asset preloading to run when the browser is idle after transition
     }
 
     icon.classList.add('splash-immersive-zoom');
@@ -56,6 +56,11 @@ function startAppTransition() {
     setTimeout(() => {
         splash.style.display = 'none';
         checkForImport();
+        
+        // Highly optimized: Preload spelling/alphabet audio assets in background once screen is idle
+        if (!isModalOpen) {
+            setTimeout(preloadAlphabetAudio, 1000);
+        }
     }, 1500); 
 }
 

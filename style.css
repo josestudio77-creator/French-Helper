@@ -2309,9 +2309,9 @@ body.mode-spelling .spelling-slots {
      
     .splash-immersive-zoom {
         transform: scale(15) !important;
-        filter: blur(20px);
         opacity: 0 !important;
-        transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+        transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1), opacity 1.2s cubic-bezier(0.7, 0, 0.3, 1) !important;
+        will-change: transform, opacity;
     }
      
     .splash-text-fade {
