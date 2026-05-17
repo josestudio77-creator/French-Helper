@@ -11,6 +11,7 @@ const state = {
     history: JSON.parse(localStorage.getItem('frenchHistory') || '{}'),
     wins: parseInt(localStorage.getItem('gameWins') || '0'),
     losses: parseInt(localStorage.getItem('gameLosses') || '0'),
+    isPremiumUser: false, // FLAG FOR PAYWALL
     lastWord: "",
     gameActive: false,
     isSpelling: false,

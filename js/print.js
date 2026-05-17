@@ -48,26 +48,7 @@ function toggleTracingDetail() {
     updateTraceUI(currentVal);
 }
 
-function handlePrintChoice(choice) {
-    const reps = parseInt(document.getElementById('repeatCountInput').value);
-    const showHeader = document.getElementById('includeHeaderToggle').checked;
-    const tracingEnabled = document.getElementById('includeTracingToggle').checked;
-    
-    let traceMode = 'none'; 
-    if (tracingEnabled) {
-        const selectedRadio = document.querySelector('input[name="traceOption"]:checked');
-        traceMode = selectedRadio ? selectedRadio.value : 'first';
-    }
-    
-    closeOverlay('printSelectionOverlay');
-
-    if (choice === 'blank') {
-        const effectiveReps = showHeader ? 12 : 13;
-        runPrintLogic("[BLANK]", "blank", effectiveReps, showHeader, "Pratique de l'écriture", "none");
-    } else {
-        runPrintLogic(state.tempWordsToPrint, choice === 'cursive', reps, showHeader, state.tempPrintName, traceMode);
-    }
-}
+// handlePrintChoice removed, now routed directly through openPrintPreview
 
 function updateTraceUI(choice) {
     const isEnabled = document.getElementById('includeTracingToggle').checked;
@@ -242,6 +223,16 @@ function backToPrintSettings() {
 }
 
 function doPrintFromPreview() {
+    if (!state.isPremiumUser) {
+        openAppModal({
+            title: '⭐ Premium Feature',
+            text: 'Printing customized worksheets is a Premium feature. Upgrade your account to instantly print unlimited worksheets for your classroom!',
+            mode: 'view',
+            saveText: 'Upgrade Now'
+        });
+        return;
+    }
+
     const s = state.currentPreviewSettings;
     if (!s) return;
     runPrintLogic(s.words, s.isCursive, s.reps, s.showHeader, s.name, s.traceMode);
