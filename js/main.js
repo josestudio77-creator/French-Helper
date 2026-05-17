@@ -299,7 +299,7 @@ window.onload = () => {
         }
         // LOAD RECORDINGS FROM INDEXEDDB
         loadStudentRecordings();
-    }, 100);
+    }, 2000);
 };
 
 document.addEventListener('keydown', handleKeyPress);
