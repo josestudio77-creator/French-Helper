@@ -241,33 +241,56 @@ function openPrintPreview(choice) {
     // Lock outer scrolling to prevent layout shifting
     overlayContent.style.overflowY = 'hidden';
     
-    // Check if the viewport is a desktop-class widescreen (>= 768px)
-    const isDesktop = window.innerWidth >= 768;
-    const maxModalWidth = isDesktop ? '550px' : '400px';
-    
-    // Lock modal dimensions to avoid sizing jumps
-    overlayContent.style.width = '92vw';
-    overlayContent.style.maxWidth = maxModalWidth;
-    
-    // Calculate the perfect proportional scale based on constant modal constraints
     const screenWidth = window.innerWidth;
-    const modalWidth = Math.min(screenWidth * 0.92, isDesktop ? 550 : 400); // 92vw with dynamic max-width
-    const greyContainerWidth = modalWidth - 10; // Minus 5px left/right borders
-    const availableWidth = greyContainerWidth - 32; // Minus 16px left/right padding of grey area
-    
-    let scale = availableWidth / 816;
-    scale = Math.max(0.2, Math.min(scale, 1.0));
-    
-    // Dynamically limit the height of the scroll area to prevent any bottom cut-offs on shorter viewports
     const screenHeight = window.innerHeight;
-    const maxScrollHeight = isDesktop ? 580 : 440; // Default ceiling heights
-    const safeHeight = Math.floor(screenHeight * 0.90) - 150; // Accounting for padding, borders, headers, & footer tips
-    const computedHeight = Math.max(280, Math.min(safeHeight, maxScrollHeight));
+    
+    // Safety margin for top/bottom padding, borders, headers, and footer tips
+    const safetyMargin = 150;
+    const availableHeight = Math.floor(screenHeight * 0.90) - safetyMargin;
+    
+    // Check if the viewport is a desktop-class widescreen (>= 768px)
+    const isDesktop = screenWidth >= 768;
+    
+    let scale;
+    let computedHeight;
+    let maxModalWidth;
+    
+    if (isDesktop) {
+        // DESKTOP RULE: Fix height of paper to fit, and adjust width accordingly to wrap it perfectly
+        const paperHeightSpace = availableHeight - 32; // Subtract 16px top/bottom padding
+        scale = paperHeightSpace / 1133;
+        // Constrain scale to a gorgeous, readable, fully-fitting ceiling
+        scale = Math.max(0.25, Math.min(scale, 0.85));
+        
+        // Constrain scroll area height to wrap the scaled paper perfectly
+        computedHeight = Math.round(1133 * scale) + 32;
+        
+        // Adjust modal width dynamically to hug the paper's scaled width
+        const paperWidth = Math.round(816 * scale);
+        const modalWidth = paperWidth + 32; // Add 16px left/right padding
+        maxModalWidth = (modalWidth + 10) + 'px'; // Add 5px left/right borders
+        overlayContent.style.width = 'fit-content';
+    } else {
+        // MOBILE RULE: Fix width of container to take full width (92vw), and adjust height to fit viewport
+        const modalWidth = Math.min(screenWidth * 0.92, 400);
+        const greyContainerWidth = modalWidth - 10; // Minus 5px left/right borders
+        const availableWidth = greyContainerWidth - 32; // Minus 16px left/right padding
+        
+        scale = availableWidth / 816;
+        scale = Math.max(0.2, Math.min(scale, 1.0));
+        
+        computedHeight = Math.max(280, Math.min(availableHeight, 440));
+        maxModalWidth = '400px';
+        overlayContent.style.width = '92vw';
+    }
+    
+    // Apply dimensions to modal
+    overlayContent.style.maxWidth = maxModalWidth;
     
     // Reset manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
     previewArea.style.padding = '';
     previewArea.style.width = '';
-    previewArea.style.height = computedHeight + 'px'; // Apply the safe height constraint
+    previewArea.style.height = computedHeight + 'px'; // Apply safe computed height
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
