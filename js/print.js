@@ -217,8 +217,8 @@ function openPrintPreview(choice) {
     if (currentPageItems.length > 0) pages.push(currentPageItems);
 
     const paginatedHTML = pages.map((page, i) => `
-        <div class="worksheet-page-wrapper" style="width: calc(816px * var(--preview-scale, 0.45)); height: calc(1133px * var(--preview-scale, 0.45)); position: relative; margin-bottom: 20px; flex-shrink: 0; display: flex; justify-content: center; align-items: start;">
-            <div class="worksheet-page-sim" style="position: absolute; top: 0; left: 50%; transform: translate(-50%, 0) scale(var(--preview-scale, 0.45)); transform-origin: top center; margin: 0 !important;">
+        <div class="worksheet-page-wrapper" style="width: calc(816px * var(--preview-scale, 0.45)); height: calc(1133px * var(--preview-scale, 0.45)); position: relative; margin-bottom: 20px; flex-shrink: 0; overflow: visible;">
+            <div class="worksheet-page-sim" style="position: absolute; top: 0; left: 0; width: 816px !important; height: 1133px !important; min-height: 1133px !important; transform: scale(var(--preview-scale, 0.45)) !important; transform-origin: top left !important; margin: 0 !important; flex-shrink: 0;">
                 ${page.join('')}
             </div>
         </div>
