@@ -3,9 +3,11 @@
    French Helper
    =========================================== */
 
-function openPrintSelection(words, homeworkName) {
-    state.tempWordsToPrint = words || document.getElementById('hwInput').value.trim();
-    if (!state.tempWordsToPrint) { openAppModal({ title: 'Notice', text: 'Please enter some phrases first!', mode: 'view' }); return; }
+function openPrintSelection(words, homeworkName, alternateWords = null) {
+    state.tempWordsToPrintSingle = words || document.getElementById('hwInput').value.trim();
+    state.tempWordsToPrintAll = alternateWords;
+    
+    if (!state.tempWordsToPrintSingle) { openAppModal({ title: 'Notice', text: 'Please enter some phrases first!', mode: 'view' }); return; }
     state.tempPrintName = homeworkName || state.currentSetName || "Français";
     
     // 1. Reset Numeric Stepper
@@ -15,11 +17,24 @@ function openPrintSelection(words, homeworkName) {
     document.getElementById('includeHeaderToggle').checked = true; 
     document.getElementById('includeTracingToggle').checked = true; // Always start ON
     
-    // 3. Reset Radio Buttons to "First Line"
+    // 3. Reset Scope Toggle
+    const scopeContainer = document.getElementById('printScopeContainer');
+    const scopeToggle = document.getElementById('includeAllPhrasesToggle');
+    if (scopeContainer && scopeToggle) {
+        if (alternateWords) {
+            scopeContainer.style.display = 'block';
+            scopeToggle.checked = true; // Default to printing the entire list
+        } else {
+            scopeContainer.style.display = 'none';
+            scopeToggle.checked = false;
+        }
+    }
+
+    // 4. Reset Radio Buttons to "First Line"
     const firstRadio = document.querySelector('input[name="traceOption"][value="first"]');
     if (firstRadio) firstRadio.checked = true;
 
-    // 4. Refresh visuals (this colors the buttons correctly)
+    // 5. Refresh visuals (this colors the buttons correctly)
     toggleTracingDetail();
     
     openOverlay('printSelectionOverlay');
@@ -156,9 +171,15 @@ function openPrintPreview(choice) {
         traceMode = selectedRadio ? selectedRadio.value : 'first';
     }
 
+    // Determine target words based on Scope Toggle
+    const scopeContainer = document.getElementById('printScopeContainer');
+    const scopeToggle = document.getElementById('includeAllPhrasesToggle');
+    const printAll = scopeContainer && scopeContainer.style.display !== 'none' && scopeToggle && scopeToggle.checked;
+    const wordsPayload = (printAll && state.tempWordsToPrintAll) ? state.tempWordsToPrintAll : state.tempWordsToPrintSingle;
+
     // FIX REGRESSION: Blank sheet should print full page (12 or 13 lines depending on header presence)
     const effectiveReps = choice === 'blank' ? (showHeader ? 12 : 13) : reps;
-    const words = choice === 'blank' ? "[BLANK]" : state.tempWordsToPrint;
+    const words = choice === 'blank' ? "[BLANK]" : wordsPayload;
     const isCursive = choice === 'cursive' || choice === 'blank';
     const rawHTML = generateWorksheetHTML(words, isCursive, effectiveReps, showHeader, state.tempPrintName, traceMode);
     

@@ -705,29 +705,8 @@ function openPrintFromCard(phrase) {
         return;
     }
     
-    // Multiple phrases - ask which to print, then show print settings
-    openAppModal({
-        title: 'Print Worksheet',
-        text: 'Print just "' + phrase.substring(0, 30) + (phrase.length > 30 ? '...' : '') + '" or all ' + allPhrases.length + ' phrases?',
-        mode: 'view',
-        saveText: 'All ' + allPhrases.length + ' Phrases',
-        cancelText: 'This Phrase Only',
-        onAction: () => {
-            openPrintSelection(allWords, state.currentSetName || 'Français');
-        },
-        onSecondaryAction: () => {
-            openPrintSelection(phrase, state.currentSetName || 'Français');
-        }
-    });
-    // Show Cancel button immediately (no blink)
-    const btnClose = document.getElementById('appModalBtnClose');
-    if (btnClose) {
-        btnClose.style.display = 'block';
-        btnClose.textContent = 'Cancel';
-        btnClose.style.background = '#e2e8f0';
-        btnClose.style.color = '#4a5568';
-        btnClose.onclick = () => closeOverlay('appModal');
-    }
+    // Bypass the modal dialog, go straight to print settings with alternateWords enabled!
+    openPrintSelection(phrase, state.currentSetName || 'Français', allWords);
 }
 
 function closePrintPreview() {
