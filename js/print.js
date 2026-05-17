@@ -237,16 +237,18 @@ function openPrintPreview(choice) {
     // Maximize height based on viewport, adjust width to fit full page exactly.
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     
-    // Lock outer scrolling to prevent layout shifting
+    // Explicitly lock modal styles to standard 380px max-width bounds to prevent layout shift
+    overlayContent.style.width = '92vw';
+    overlayContent.style.maxWidth = '380px';
     overlayContent.style.overflowY = 'hidden';
     
-    // Determine the available inner width for the paper:
-    const modalWidth = overlayContent.clientWidth || 440;
+    // Calculate the absolute available width using predictable screen viewport boundaries
+    const modalWidth = Math.min(window.innerWidth * 0.92, 380);
     const paddingOffset = 40; // 20px padding left + 20px padding right
     const containerWidth = modalWidth - paddingOffset - 12; // Deduct modal padding and scroll area borders
     const paperWidth = 816;
     
-    // Scale so paper fits the width perfectly with a clean grey border
+    // Scale so paper fits the width perfectly with a snug, clean grey border
     let scale = containerWidth / paperWidth;
     
     // Also scale down if height is constrained, to avoid any vertical scrolling
@@ -260,13 +262,15 @@ function openPrintPreview(choice) {
     // Apply precise dimensions to the scroll area
     const exactHeight = Math.round(paperPhysicalHeight * scale) + 28; // 28px for margin offset + padding/borders
     
-    previewArea.style.width = '100%'; // Centered horizontally with perfectly balanced grey border
+    previewArea.style.width = '100%'; // Centered horizontally with perfectly balanced, snug grey border
     previewArea.style.height = exactHeight + 'px';
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
 function backToPrintSettings() {
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
+    overlayContent.style.width = '92vw';
+    overlayContent.style.maxWidth = '380px';
     overlayContent.style.overflowY = 'auto'; // Restore standard scrolling
     
     const previewArea = document.getElementById('previewSheetArea');
