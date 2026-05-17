@@ -237,7 +237,8 @@ function openPrintPreview(choice) {
     // Maximize height based on viewport, adjust width to fit full page exactly.
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     
-    const availableHeight = window.innerHeight * 0.95 - 140; // reserve for modal paddings + header + tip
+    // Reduce safe bound to 85% of screen height minus 160px for padding to completely avoid outer modal scrolling
+    const availableHeight = window.innerHeight * 0.85 - 160; 
     const paperPhysicalHeight = 1133; 
     let scale = availableHeight / paperPhysicalHeight;
     
@@ -246,9 +247,10 @@ function openPrintPreview(choice) {
     scale = Math.min(scale, availableWidth / 816);
     scale = Math.max(0.25, Math.min(scale, 1.0));
     
-    // Expand modal to fit the paper beautifully
+    // Expand modal to fit the paper beautifully, and lock outer scrolling
     overlayContent.style.maxWidth = '1000px'; 
     overlayContent.style.width = 'fit-content';
+    overlayContent.style.overflowY = 'hidden';
     
     // Apply precise dimensions to the scroll area so single page fits perfectly without scrollbar
     const exactWidth = Math.round(816 * scale) + 12; // 12px for padding/border
@@ -263,6 +265,7 @@ function backToPrintSettings() {
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     overlayContent.style.maxWidth = '420px';
     overlayContent.style.width = '92%';
+    overlayContent.style.overflowY = 'auto'; // Restore standard scrolling
     
     const previewArea = document.getElementById('previewSheetArea');
     previewArea.style.width = '100%';
