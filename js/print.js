@@ -233,14 +233,41 @@ function openPrintPreview(choice) {
     const previewArea = document.getElementById('previewSheetArea');
     previewArea.innerHTML = paginatedHTML;
 
-    // DYNAMIC SCALING: Match the width of the container perfectly
-    const containerWidth = previewArea.clientWidth - 10;
-    const paperWidth = 816; // 8.5in in px at 96dpi
-    const scale = Math.min(containerWidth / paperWidth, 1.0);
+    // DYNAMIC SIZING FOR PREVIEW
+    // Maximize height based on viewport, adjust width to fit full page exactly.
+    const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
+    
+    const availableHeight = window.innerHeight * 0.95 - 140; // reserve for modal paddings + header + tip
+    const paperPhysicalHeight = 1133; 
+    let scale = availableHeight / paperPhysicalHeight;
+    
+    // Also cap scale by width so it doesn't overflow horizontally on narrow screens
+    const availableWidth = window.innerWidth * 0.92 - 60; 
+    scale = Math.min(scale, availableWidth / 816);
+    scale = Math.max(0.25, Math.min(scale, 1.0));
+    
+    // Expand modal to fit the paper beautifully
+    overlayContent.style.maxWidth = '1000px'; 
+    overlayContent.style.width = 'fit-content';
+    
+    // Apply precise dimensions to the scroll area so single page fits perfectly without scrollbar
+    const exactWidth = Math.round(816 * scale) + 12; // 12px for padding/border
+    const exactHeight = Math.round(paperPhysicalHeight * scale) + 28; // 28px for margin offset + padding/border
+    
+    previewArea.style.width = exactWidth + 'px';
+    previewArea.style.height = exactHeight + 'px';
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
 function backToPrintSettings() {
+    const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
+    overlayContent.style.maxWidth = '420px';
+    overlayContent.style.width = '92%';
+    
+    const previewArea = document.getElementById('previewSheetArea');
+    previewArea.style.width = '100%';
+    previewArea.style.height = '420px'; // Reset to default
+
     document.getElementById('printSelectionMain').style.display = 'block';
     document.getElementById('printPreviewContainer').style.display = 'none';
 }
