@@ -245,7 +245,7 @@ function openPrintPreview(choice) {
     const screenHeight = window.innerHeight;
     
     const availableWidth = screenWidth * 0.92 - 60; // 92vw minus modal padding
-    const availableHeight = screenHeight * 0.85 - 160; // safety margin for screen height
+    const availableHeight = screenHeight * 0.90 - 140; // 90% height with tighter 140px safety margin to scale up proportionally
     
     const paperWidth = 816;
     const paperPhysicalHeight = 1133;

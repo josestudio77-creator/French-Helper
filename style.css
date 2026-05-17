@@ -2228,8 +2228,12 @@ body.mode-spelling .spelling-slots {
     display: flex;
     flex-direction: column;
     align-items: center;
-    scrollbar-width: thin;
+    scrollbar-width: none; /* Hide for Firefox */
+    -ms-overflow-style: none; /* Hide for IE/Edge */
     position: relative;
+}
+.preview-scroll-area::-webkit-scrollbar {
+    display: none; /* Hide for Chrome/Safari/Opera */
 }
 
 /* Simulation of a Letter size page (8.5 x 11) */
@@ -2238,7 +2242,7 @@ body.mode-spelling .spelling-slots {
     width: 8.5in; 
     min-height: 11.8in; /* Extended again for absolute margin clearance */
     padding: 0.5in 0.5in 0.4in 0.5in; /* MATCHES @page MARGINS EXACTLY */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22), 0 5px 15px rgba(0,0,0,0.15) !important; /* Premium 3D shadow */
     box-sizing: border-box;
     
     /* DYNAMIC SCALING */
