@@ -115,11 +115,17 @@ function initExitGuard() {
     window.onpopstate = function(event) {
         if (state.allowExit) return;
 
+        // Sort visible overlays by actual computed z-index in descending order so the visual top is popped first
         const visibleOverlays = Array.from(document.querySelectorAll('.overlay'))
-                                     .filter(ov => ov.style.display === 'block' && ov.id !== 'customSplash');
+                                     .filter(ov => ov.style.display === 'block' && ov.id !== 'customSplash')
+                                     .sort((a, b) => {
+                                         const zA = parseInt(window.getComputedStyle(a).zIndex) || 0;
+                                         const zB = parseInt(window.getComputedStyle(b).zIndex) || 0;
+                                         return zB - zA;
+                                     });
 
         if (visibleOverlays.length > 0) {
-            const topOverlayId = visibleOverlays[visibleOverlays.length - 1].id;
+            const topOverlayId = visibleOverlays[0].id;
 
             if (topOverlayId === 'hwDrawer' && hasUnsavedHomework()) {
                 cancelEdit();

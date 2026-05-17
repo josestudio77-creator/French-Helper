@@ -711,13 +711,15 @@ list.forEach(p => {
         
 function openPrintFromCard(phrase) {
     const allPhrases = state.currentScreenList || [];
-    const allWords = document.getElementById('hwInput').value.trim();
     
     if (allPhrases.length <= 1) {
         // Single phrase - go straight to print settings
-        openPrintSelection(allWords || phrase, state.currentSetName || 'Français');
+        openPrintSelection(phrase, state.currentSetName || 'Français');
         return;
     }
+    
+    // Construct the entire active phrase list from currentScreenList (works for both built-in sets and custom homework)
+    const allWords = allPhrases.join('\n');
     
     // Bypass the modal dialog, go straight to print settings with alternateWords enabled!
     openPrintSelection(phrase, state.currentSetName || 'Français', allWords);

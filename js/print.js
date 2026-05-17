@@ -23,7 +23,7 @@ function openPrintSelection(words, homeworkName, alternateWords = null) {
     if (scopeContainer && scopeToggle) {
         if (alternateWords) {
             scopeContainer.style.display = 'block';
-            scopeToggle.checked = true; // Default to printing the entire list
+            scopeToggle.checked = false; // Default to off (unchecked) when called from card
         } else {
             scopeContainer.style.display = 'none';
             scopeToggle.checked = false;
