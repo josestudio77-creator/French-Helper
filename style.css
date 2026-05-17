@@ -2218,20 +2218,31 @@ body.mode-spelling .spelling-slots {
 
 /* ==================== WORKSHEET PREVIEW ==================== */
 .preview-scroll-area {
-    height: 420px; /* Matched to the new fixed-height modal */
+    height: 440px; /* Gorgeous fixed height */
     box-sizing: border-box; /* Force border-box box model */
     overflow-y: auto;
     overflow-x: hidden;
     background: #e2e8f0; /* Soft light silver-grey for stunning drop shadow contrast */
-    padding: 5px; /* Minimal padding so paper is max width */
-    border-radius: 12px;
-    border: 1px solid #cbd5e1;
+    padding: 16px !important; /* Premium 16px margins on all sides of the paper */
+    border-radius: 0 !important; /* STRAIGHT CORNERS */
+    border-left: none !important;
+    border-right: none !important;
+    border-top: 2px solid #cbd5e1;
+    border-bottom: 2px solid #cbd5e1;
     display: flex;
     flex-direction: column;
     align-items: center;
     scrollbar-width: none; /* Hide for Firefox */
     -ms-overflow-style: none; /* Hide for IE/Edge */
     position: relative;
+    margin-left: -20px !important; /* Negative offset to negate 20px parent left padding */
+    margin-right: -20px !important; /* Negative offset to negate 20px parent right padding */
+    width: calc(100% + 40px) !important; /* Flush against the left/right modal outline */
+}
+@media (min-width: 768px) {
+    .preview-scroll-area {
+        height: 580px !important; /* Make the print preview much taller on larger desktop/tablet viewports */
+    }
 }
 .preview-scroll-area::-webkit-scrollbar {
     display: none; /* Hide for Chrome/Safari/Opera */

@@ -236,52 +236,45 @@ function openPrintPreview(choice) {
     previewArea.innerHTML = paginatedHTML;
 
     // DYNAMIC SIZING FOR PREVIEW
-    // Maximize height based on viewport, adjust width to fit full page exactly.
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     
     // Lock outer scrolling to prevent layout shifting
     overlayContent.style.overflowY = 'hidden';
     
-    // Calculate the absolute available screen size bounds
+    // Check if the viewport is a desktop-class widescreen (>= 768px)
+    const isDesktop = window.innerWidth >= 768;
+    const maxModalWidth = isDesktop ? '550px' : '400px';
+    
+    // Lock modal dimensions to avoid sizing jumps
+    overlayContent.style.width = '92vw';
+    overlayContent.style.maxWidth = maxModalWidth;
+    
+    // Calculate the perfect proportional scale based on constant modal constraints
     const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+    const modalWidth = Math.min(screenWidth * 0.92, isDesktop ? 550 : 400); // 92vw with dynamic max-width
+    const greyContainerWidth = modalWidth - 10; // Minus 5px left/right borders
+    const availableWidth = greyContainerWidth - 32; // Minus 16px left/right padding of grey area
     
-    const availableWidth = screenWidth * 0.92 - 60; // 92vw minus modal padding
-    const availableHeight = screenHeight * 0.90 - 140; // 90% height with tighter 140px safety margin to scale up proportionally
+    let scale = availableWidth / 816;
+    scale = Math.max(0.2, Math.min(scale, 1.0));
     
-    const paperWidth = 816;
-    const paperPhysicalHeight = 1133;
-    
-    // Calculate the perfect scale that respects both width and height constraints
-    const scaleByWidth = availableWidth / paperWidth;
-    const scaleByHeight = availableHeight / paperPhysicalHeight;
-    let scale = Math.min(scaleByWidth, scaleByHeight);
-    scale = Math.max(0.25, Math.min(scale, 1.0));
-    
-    // Calculate exact container dimensions with consistent 12px grey borders
-    const exactWidth = Math.round(paperWidth * scale) + 26; // 24px padding + 2px borders
-    const exactHeight = Math.round(paperPhysicalHeight * scale) + 38; // margin offset + padding/borders
-    
-    // Conform the modal width to wrap the scaled preview perfectly
-    overlayContent.style.width = 'fit-content';
-    overlayContent.style.maxWidth = (exactWidth + 40) + 'px'; // Add 40px modal padding
-    
-    previewArea.style.padding = '12px'; // Set consistent grey background padding
-    previewArea.style.width = exactWidth + 'px';
-    previewArea.style.height = exactHeight + 'px';
+    // Reset any manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
+    previewArea.style.padding = '';
+    previewArea.style.width = '';
+    previewArea.style.height = '';
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
 function backToPrintSettings() {
     const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
     overlayContent.style.width = '92vw';
-    overlayContent.style.maxWidth = '380px';
+    overlayContent.style.maxWidth = '400px';
     overlayContent.style.overflowY = 'auto'; // Restore standard scrolling
     
     const previewArea = document.getElementById('previewSheetArea');
-    previewArea.style.padding = '5px'; // Restore default style
-    previewArea.style.width = '100%';
-    previewArea.style.height = '420px'; // Reset to default
+    previewArea.style.padding = '';
+    previewArea.style.width = '';
+    previewArea.style.height = '';
 
     document.getElementById('printSelectionMain').style.display = 'block';
     document.getElementById('printPreviewContainer').style.display = 'none';
