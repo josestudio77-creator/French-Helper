@@ -11,7 +11,7 @@ const state = {
     history: JSON.parse(localStorage.getItem('frenchHistory') || '{}'),
     wins: parseInt(localStorage.getItem('gameWins') || '0'),
     losses: parseInt(localStorage.getItem('gameLosses') || '0'),
-    isPremiumUser: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:'), // Auto-unlocked for local development!
+    isPremiumUser: true, // Auto-unlocked temporarily for developer mobile testing
     lastWord: "",
     gameActive: false,
     isSpelling: false,

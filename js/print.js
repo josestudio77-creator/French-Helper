@@ -250,10 +250,11 @@ function openPrintPreview(choice) {
     // Expand modal to fit the paper beautifully, and lock outer scrolling
     overlayContent.style.maxWidth = '1000px'; 
     overlayContent.style.width = 'fit-content';
+    overlayContent.style.minWidth = 'min(420px, 92vw)'; // Prevents header buttons from squeezing
     overlayContent.style.overflowY = 'hidden';
     
     // Apply precise dimensions to the scroll area so single page fits perfectly without scrollbar
-    const exactWidth = Math.round(816 * scale) + 12; // 12px for padding/border
+    const exactWidth = Math.round(816 * scale) + 40; // 40px overhead for generous grey background
     const exactHeight = Math.round(paperPhysicalHeight * scale) + 28; // 28px for margin offset + padding/border
     
     previewArea.style.width = exactWidth + 'px';
