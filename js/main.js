@@ -118,6 +118,9 @@ function initExitGuard() {
 
             if (topOverlayId === 'hwDrawer' && hasUnsavedHomework()) {
                 cancelEdit();
+            } else if (topOverlayId === 'printSelectionOverlay' && document.getElementById('printPreviewContainer') && document.getElementById('printPreviewContainer').style.display === 'block') {
+                backToPrintSettings();
+                window.history.pushState('app-active', null, "");
             } else {
                 closeOverlay(topOverlayId);
                 window.history.pushState('app-active', null, "");

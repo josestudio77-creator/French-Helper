@@ -282,6 +282,20 @@ function closeOverlay(id) {
     const overlay = document.getElementById(id);
     if (overlay) overlay.style.display = 'none'; 
 
+    // If closing the printSelectionOverlay, reset back to print settings view
+    if (id === 'printSelectionOverlay') {
+        const mainUI = document.getElementById('printSelectionMain');
+        const prevUI = document.getElementById('printPreviewContainer');
+        if (mainUI) mainUI.style.display = 'block';
+        if (prevUI) prevUI.style.display = 'none';
+        const previewArea = document.getElementById('previewSheetArea');
+        if (previewArea) {
+            previewArea.style.padding = '5px';
+            previewArea.style.width = '100%';
+            previewArea.style.height = '420px';
+        }
+    }
+
     // If closing the appModal and it was an import modal, clear the hash
     if (id === 'appModal' && window.location.hash.startsWith('#import=')) {
         window.history.replaceState(null, document.title, window.location.pathname);
