@@ -278,10 +278,11 @@ function openPrintPreview(choice) {
         overlayContent.style.maxWidth = '';
         
         // Dynamic scaling to fit right panel width and safe height limit
+        const leftColWidth = document.getElementById('printSelectionMain').offsetWidth || 440;
         const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
         const targetHeight = (leftColHeight > 0) ? leftColHeight : 450;
         
-        const maxAvailableWidth = (window.innerWidth * 0.92) - 610; // 440 (left) + 30 (gap) + 60 (modal pad) + 80 (grey pad)
+        const maxAvailableWidth = (window.innerWidth * 0.92) - leftColWidth - 170; // gap (30) + modal pad (60) + grey pad (80)
         const draftingWidth = maxAvailableWidth > 200 ? maxAvailableWidth : 200;
         const draftingHeight = targetHeight;
         
@@ -311,6 +312,12 @@ function openPrintPreview(choice) {
         maxModalWidth = '400px';
         overlayContent.style.width = '92vw';
         overlayContent.style.maxWidth = maxModalWidth;
+        
+        if (previewContainer) {
+            previewContainer.style.width = '';
+            previewContainer.style.height = '';
+            previewContainer.style.flex = '';
+        }
     }
     
     // Reset manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
@@ -389,3 +396,32 @@ function updateLivePreview() {
     }
 }
 
+let printResizeTimer;
+window.addEventListener('resize', () => {
+    const overlay = document.getElementById('printSelectionOverlay');
+    if (overlay && overlay.classList.contains('active')) {
+        clearTimeout(printResizeTimer);
+        printResizeTimer = setTimeout(() => {
+            const isDesktop = window.innerWidth >= 1024;
+            const previewContainer = document.getElementById('printPreviewContainer');
+            const selectionMain = document.getElementById('printSelectionMain');
+            
+            if (isDesktop) {
+                selectionMain.style.display = 'block';
+                previewContainer.style.display = 'flex';
+                openPrintPreview(state.desktopStyleSelected || 'block');
+            } else {
+                selectionMain.style.display = 'block';
+                previewContainer.style.display = 'none';
+                
+                const overlayContent = overlay.querySelector('.overlay-content');
+                overlayContent.style.width = '92vw';
+                overlayContent.style.maxWidth = '400px';
+                
+                previewContainer.style.width = '';
+                previewContainer.style.height = '';
+                previewContainer.style.flex = '';
+            }
+        }, 150);
+    }
+});
