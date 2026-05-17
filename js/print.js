@@ -38,6 +38,18 @@ function openPrintSelection(words, homeworkName, alternateWords = null) {
     toggleTracingDetail();
     
     openOverlay('printSelectionOverlay');
+    
+    // 6. Responsive live rendering initialisation
+    if (window.innerWidth >= 1024) {
+        state.desktopStyleSelected = state.desktopStyleSelected || 'block';
+        document.getElementById('printPreviewContainer').style.display = 'flex';
+        setDesktopStyle(state.desktopStyleSelected);
+    } else {
+        document.getElementById('printPreviewContainer').style.display = 'none';
+        const overlayContent = document.getElementById('printSelectionOverlay').querySelector('.overlay-content');
+        overlayContent.style.width = '92vw';
+        overlayContent.style.maxWidth = '400px';
+    }
 }
 
 function changeReps(change) {
@@ -49,6 +61,8 @@ function changeReps(change) {
     if (newVal > 13) newVal = 13;
     
     input.value = newVal;
+    
+    if (window.innerWidth >= 1024) updateLivePreview();
 }
 
 function toggleTracingDetail() {
@@ -61,6 +75,8 @@ function toggleTracingDetail() {
     // Refresh colors based on current radio selection
     const currentVal = document.querySelector('input[name="traceOption"]:checked').value;
     updateTraceUI(currentVal);
+    
+    if (window.innerWidth >= 1024) updateLivePreview();
 }
 
 // handlePrintChoice removed, now routed directly through openPrintPreview
@@ -83,6 +99,8 @@ function updateTraceUI(choice) {
         radioAll.checked = true;
         if (isEnabled) btnAll.classList.add('active');
     }
+    
+    if (window.innerWidth >= 1024) updateLivePreview();
 }
 
 function runPrintLogic(words, cursive = false, reps = 3, header = false, name = "Français", trace = 'first') {
@@ -228,9 +246,12 @@ function openPrintPreview(choice) {
     state.currentPreviewSettings = { words, isCursive, reps: effectiveReps, showHeader, name: state.tempPrintName, traceMode };
 
     // Hide selection UI, Show Preview UI
-    document.getElementById('printSelectionMain').style.display = 'none';
+    const isDesktop = window.innerWidth >= 1024;
+    if (!isDesktop) {
+        document.getElementById('printSelectionMain').style.display = 'none';
+    }
     const previewContainer = document.getElementById('printPreviewContainer');
-    previewContainer.style.display = 'block';
+    previewContainer.style.display = isDesktop ? 'flex' : 'block';
     
     const previewArea = document.getElementById('previewSheetArea');
     previewArea.innerHTML = paginatedHTML;
@@ -248,28 +269,35 @@ function openPrintPreview(choice) {
     const safetyMargin = 150;
     const availableHeight = Math.floor(screenHeight * 0.90) - safetyMargin;
     
-    // Check if the viewport is a desktop-class widescreen (>= 768px)
-    const isDesktop = screenWidth >= 768;
-    
     let scale;
     let computedHeight;
     let maxModalWidth;
     
     if (isDesktop) {
-        // DESKTOP RULE: Fix height of paper to fit, and adjust width accordingly to wrap it perfectly
-        const paperHeightSpace = availableHeight - 32; // Subtract 16px top/bottom padding
-        scale = paperHeightSpace / 1133;
-        // Constrain scale to a gorgeous, readable, fully-fitting ceiling
-        scale = Math.max(0.25, Math.min(scale, 0.85));
+        overlayContent.style.width = '';
+        overlayContent.style.maxWidth = '';
         
-        // Constrain scroll area height to wrap the scaled paper perfectly
-        computedHeight = Math.round(1133 * scale) + 32;
+        // Dynamic scaling to fit right panel width and safe height limit
+        const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
+        const targetHeight = (leftColHeight > 0) ? leftColHeight : 450;
         
-        // Adjust modal width dynamically to hug the paper's scaled width, with a beautiful 420px minimum limit
-        const paperWidth = Math.round(816 * scale);
-        const modalWidth = Math.max(420, paperWidth + 32); // Enforce a 420px wide premium minimum!
-        maxModalWidth = (modalWidth + 10) + 'px'; // Add 5px left/right borders
-        overlayContent.style.width = 'fit-content';
+        const maxAvailableWidth = (window.innerWidth * 0.92) - 610; // 440 (left) + 30 (gap) + 60 (modal pad) + 80 (grey pad)
+        const draftingWidth = maxAvailableWidth > 200 ? maxAvailableWidth : 200;
+        const draftingHeight = targetHeight;
+        
+        const scaleX = draftingWidth / 816;
+        const scaleY = draftingHeight / 1133;
+        scale = Math.min(scaleX, scaleY);
+        scale = Math.max(0.25, Math.min(scale, 1.0));
+        
+        computedHeight = Math.round(1133 * scale);
+        
+        if (previewContainer) {
+            const paperWidth = Math.round(816 * scale);
+            previewContainer.style.width = (paperWidth + 80) + 'px';
+            previewContainer.style.height = targetHeight + 'px';
+            previewContainer.style.flex = 'none';
+        }
     } else {
         // MOBILE RULE: Fix width of container to take full width (92vw), and adjust height to fit viewport
         const modalWidth = Math.min(screenWidth * 0.92, 400);
@@ -282,17 +310,16 @@ function openPrintPreview(choice) {
         computedHeight = Math.max(280, Math.min(availableHeight, 440));
         maxModalWidth = '400px';
         overlayContent.style.width = '92vw';
+        overlayContent.style.maxWidth = maxModalWidth;
     }
-    
-    // Apply dimensions to modal
-    overlayContent.style.maxWidth = maxModalWidth;
     
     // Reset manual overrides, allowing CSS classes to perfectly stretch edge-to-edge
     previewArea.style.padding = '';
     previewArea.style.width = '';
     
     // Apply dynamic safe height with !important priority to override any CSS media query rules
-    previewArea.style.setProperty('height', computedHeight + 'px', 'important');
+    previewArea.style.removeProperty('height');
+    previewArea.style.setProperty('min-height', computedHeight + 'px', 'important');
     previewArea.style.setProperty('--preview-scale', scale);
 }
 
@@ -329,5 +356,36 @@ function doPrintFromPreview() {
     const s = state.currentPreviewSettings;
     if (!s) return;
     runPrintLogic(s.words, s.isCursive, s.reps, s.showHeader, s.name, s.traceMode);
+}
+
+function setDesktopStyle(choice) {
+    state.desktopStyleSelected = choice;
+    
+    // Toggle active state in segmented controls UI
+    const btns = {
+        block: document.getElementById('btnStyleBlock'),
+        cursive: document.getElementById('btnStyleCursive'),
+        blank: document.getElementById('btnStyleBlank')
+    };
+    
+    Object.keys(btns).forEach(key => {
+        const btn = btns[key];
+        if (btn) {
+            if (key === choice) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    });
+    
+    // Live update the preview!
+    updateLivePreview();
+}
+
+function updateLivePreview() {
+    if (window.innerWidth >= 1024) {
+        openPrintPreview(state.desktopStyleSelected || 'block');
+    }
 }
 

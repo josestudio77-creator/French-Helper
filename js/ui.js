@@ -290,9 +290,9 @@ function closeOverlay(id) {
         if (prevUI) prevUI.style.display = 'none';
         const previewArea = document.getElementById('previewSheetArea');
         if (previewArea) {
-            previewArea.style.padding = '5px';
-            previewArea.style.width = '100%';
-            previewArea.style.height = '420px';
+            previewArea.style.padding = '';
+            previewArea.style.width = '';
+            previewArea.style.height = '';
         }
     }
 
@@ -725,21 +725,6 @@ function openPrintFromCard(phrase) {
     openPrintSelection(phrase, state.currentSetName || 'Français', allWords);
 }
 
-function closePrintPreview() {
-    document.getElementById('printPreviewOverlay').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function doPrintFromPreview() {
-    const area = document.getElementById('printArea');
-    if (area && state.previewHtml) {
-        area.innerHTML = state.previewHtml;
-    }
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => { if (area) area.innerHTML = ''; }, 2000);
-    }, 500);
-}
 
 async function saveHW() {
     let name = document.getElementById('hwNameInput').value.trim();

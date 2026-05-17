@@ -55,96 +55,114 @@
 <!-- Update the popup content area -->
 <div id="printSelectionOverlay" class="overlay" style="z-index: 9600; display: none;">
     <!-- Fixed Style: Properly balanced padding and height -->
-    <div class="overlay-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92vw; max-width: 400px; padding: 20px 20px 15px 20px !important; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); box-sizing: border-box; max-height: 95vh; overflow-y: auto;">
+    <div class="overlay-content print-dialog-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); height: auto; width: 92vw; max-width: 400px; padding: 20px 20px 15px 20px !important; border: 5px solid #9d4edd; background: white; border-radius: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); box-sizing: border-box; max-height: 95vh; overflow-y: auto;">
         
-        <!-- WRAP THE SELECTION UI -->
-        <div id="printSelectionMain">
-            <h2 style="color: #9d4edd; margin-bottom: 5px; font-size: 1.3rem;">🖨️ Print Settings</h2>
-            <p style="font-size: 0.65rem; color: #9d4edd; font-weight: 800; margin-bottom: 15px; opacity: 0.8; letter-spacing: 1px;">WORKSHEET BUILDER</p>
+        <!-- Live Side-by-Side Wrapper -->
+        <div class="print-split-container">
+            
+            <!-- LEFT COLUMN: SETTINGS PANEL -->
+            <div id="printSelectionMain" class="print-col-left">
+                    <div style="text-align: center;">
+                        <h2 style="color: #9d4edd; margin-bottom: 8px; font-size: 1.6rem;">🖨️ Print Settings</h2>
+                        <p style="font-size: 0.8rem; color: #9d4edd; font-weight: 800; margin-bottom: 20px; opacity: 0.8; letter-spacing: 1px;">WORKSHEET BUILDER</p>
+                    </div>
 
-        
-        <!-- SECTION 1: REPETITION -->
-        <div style="margin-bottom: 20px; background: #fdf2ff; padding: 12px; border-radius: 18px; border: 2px dashed #9d4edd;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <button onclick="changeReps(-1)" style="width: 42px; height: 42px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.5rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #d67d50;">−</button>
-                <div style="text-align:center;">
-                    <input type="text" id="repeatCountInput" value="3" readonly style="width: 55px; border: none; background: transparent; font-size: 1.6rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
-                    <div style="font-size: 0.6rem; color: #9d4edd; font-weight: 800; margin-top: -5px;">REPETITIONS</div>
-                </div>
-                <button onclick="changeReps(1)" style="width: 42px; height: 42px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.5rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #2e8b57;">+</button>
-            </div>
-        </div>
-
-        <!-- SECTION 2: OPTIONS -->
-        <div style="text-align: left; margin-bottom: 20px;">
-            <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Options</p>
-            <div style="padding: 12px; background: #f8fafc; border-radius: 18px; border: 1px solid #f1f5f9;">
-                <!-- Scope Toggle (Dynamic) -->
-                <div id="printScopeContainer" style="margin-bottom: 12px; display: none;">
-                    <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
-                        <input type="checkbox" id="includeAllPhrasesToggle" style="transform: scale(1.2);"> Print all phrases in this list
-                    </label>
-                </div>
-
-                <!-- Header Toggle -->
-                <div style="margin-bottom: 12px;">
-                    <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
-                        <input type="checkbox" id="includeHeaderToggle" checked style="transform: scale(1.2);"> Name / Date Header
-                    </label>
-                </div>
-                
-                <!-- Tracing Row -->
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
-                        <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.2);"> Tracing text
-                    </label>
-                    
-                    <div id="tracingOptionsDetail" style="display: flex; gap: 8px; align-items: center;">
-                        <div id="btnTraceFirst" class="trace-type-btn active" onclick="updateTraceUI('first')">
-                            <div class="mini-line dark"></div>
-                            <div class="mini-line"></div>
-                            <div class="mini-line"></div>
-                            <input type="radio" name="traceOption" value="first" checked style="display:none;">
+                <!-- SECTION 1: REPETITION -->
+                <div style="margin-bottom: 25px; background: #fdf2ff; padding: 18px; border-radius: 18px; border: 2px dashed #9d4edd;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+                        <button onclick="changeReps(-1)" style="width: 52px; height: 52px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50;">−</button>
+                        <div style="text-align:center;">
+                            <input type="text" id="repeatCountInput" value="3" readonly style="width: 70px; border: none; background: transparent; font-size: 2rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
+                            <div style="font-size: 0.75rem; color: #9d4edd; font-weight: 900; margin-top: -5px; letter-spacing: 1px;">REPETITIONS</div>
                         </div>
-                        <div id="btnTraceAll" class="trace-type-btn" onclick="updateTraceUI('all')">
-                            <div class="mini-line dark"></div>
-                            <div class="mini-line dark"></div>
-                            <div class="mini-line dark"></div>
-                            <input type="radio" name="traceOption" value="all" style="display:none;">
+                        <button onclick="changeReps(1)" style="width: 52px; height: 52px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57;">+</button>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: OPTIONS -->
+                <div style="text-align: left; margin-bottom: 25px;">
+                    <p style="font-weight: 900; color: #64748b; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Options</p>
+                    <div style="padding: 18px; background: #f8fafc; border-radius: 18px; border: 1px solid #f1f5f9;">
+                        <!-- Scope Toggle (Dynamic) -->
+                        <div id="printScopeContainer" style="margin-bottom: 16px; display: none;">
+                            <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1rem;">
+                                <input type="checkbox" id="includeAllPhrasesToggle" onchange="if (window.innerWidth >= 768) updateLivePreview()" style="transform: scale(1.5);"> Print all phrases in this list
+                            </label>
+                        </div>
+
+                        <!-- Header Toggle -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1rem;">
+                                <input type="checkbox" id="includeHeaderToggle" checked onchange="if (window.innerWidth >= 768) updateLivePreview()" style="transform: scale(1.5);"> Name / Date Header
+                            </label>
+                        </div>
+                        
+                        <!-- Tracing Row -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1rem;">
+                                <input type="checkbox" id="includeTracingToggle" checked onchange="toggleTracingDetail()" style="transform: scale(1.5);"> Tracing text
+                            </label>
+                            
+                            <div id="tracingOptionsDetail" style="display: flex; gap: 12px; align-items: center;">
+                                <div id="btnTraceFirst" class="trace-type-btn active" onclick="updateTraceUI('first')">
+                                    <div class="mini-line dark"></div>
+                                    <div class="mini-line"></div>
+                                    <div class="mini-line"></div>
+                                    <input type="radio" name="traceOption" value="first" checked style="display:none;">
+                                </div>
+                                <div id="btnTraceAll" class="trace-type-btn" onclick="updateTraceUI('all')">
+                                    <div class="mini-line dark"></div>
+                                    <div class="mini-line dark"></div>
+                                    <div class="mini-line dark"></div>
+                                    <input type="radio" name="traceOption" value="all" style="display:none;">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- SECTION 3: STYLE SELECTION -->
-        <div style="text-align: left; margin-bottom: 15px;">
-            <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Style</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button onclick="openPrintPreview('block')" style="background: #118AB2; color: white; padding: 15px 5px; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 3px 0 #086d8d;">ABC Block</button>
-                <button onclick="openPrintPreview('cursive')" style="background: #ff6b8b; color: white; padding: 15px 5px; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 3px 0 #d6335c;">Cursive</button>
-                <button onclick="openPrintPreview('blank')" style="background: #64748b; color: white; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; grid-column: span 2; box-shadow: 0 3px 0 #334155;">📄 Blank Practice Sheet</button>
-            </div>
-        </div>
-        
-        <!-- Cancel Action -->
-        <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 15px; background: #e2e8f0; color: #4a5568; padding: 12px; width: 100%; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 3px 0 #cbd5e1;">Cancel</button>
-        </div> <!-- End printSelectionMain -->
+                <!-- SECTION 3: STYLE SELECTION (MOBILE FLOW) -->
+                <div id="printStyleSelectorMobile" style="text-align: left; margin-bottom: 15px;">
+                    <p style="font-weight: 900; color: #64748b; margin-bottom: 10px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Style Selection</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button onclick="openPrintPreview('block')" style="background: #118AB2; color: white; padding: 15px 5px; border-radius: 12px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'KG Primary Penmanship Alt', sans-serif; box-shadow: 0 3px 0 #086d8d;">ABC Block</button>
+                        <button onclick="openPrintPreview('cursive')" style="background: #ff6b8b; color: white; padding: 15px 5px; border-radius: 12px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; font-family: 'Playwrite US Trad', cursive; box-shadow: 0 3px 0 #d6335c;">Cursive</button>
+                        <button onclick="openPrintPreview('blank')" style="background: #64748b; color: white; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; grid-column: span 2; box-shadow: 0 3px 0 #334155;">📄 Blank Practice Sheet</button>
+                    </div>
+                    <!-- Cancel Action for Mobile -->
+                    <button onclick="closeOverlay('printSelectionOverlay')" style="margin-top: 15px; background: #e2e8f0; color: #4a5568; padding: 12px; width: 100%; border-radius: 12px; font-weight: 900; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 3px 0 #cbd5e1;">Cancel</button>
+                </div>
 
-        <!-- PREVIEW CONTAINER (HIDDEN BY DEFAULT) -->
-        <div id="printPreviewContainer" style="display: none;">
-            <div style="display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin-bottom: 15px; width: 100%;">
-                <button onclick="backToPrintSettings()" style="background: #e2e8f0; color: #4a5568; padding: 8px 12px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: start; font-size: 0.85rem; white-space: nowrap;">⬅️ Back</button>
-                <h3 style="margin: 0; color: #64748b; text-align: center; font-size: 1rem; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Preview</h3>
-                <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 8px 12px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: end; font-size: 0.85rem; white-space: nowrap;">🖨️ Print</button>
+                <!-- SECTION 3: STYLE SELECTION & PRINT ACTION (DESKTOP LIVE FLOW) -->
+                <div id="printStyleSelectorDesktop" style="display: none; text-align: left; margin-bottom: 20px;">
+                    <p style="font-weight: 900; color: #64748b; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Worksheet Style</p>
+                    <div class="style-segmented-control" style="display: flex; background: #f1f5f9; padding: 6px; border-radius: 16px; border: 1px solid #e2e8f0; gap: 6px; margin-bottom: 25px;">
+                        <button type="button" id="btnStyleBlock" onclick="setDesktopStyle('block')" class="segmented-btn active" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; font-family: 'KG Primary Penmanship Alt', sans-serif; border: none; cursor: pointer;">ABC Block</button>
+                        <button type="button" id="btnStyleCursive" onclick="setDesktopStyle('cursive')" class="segmented-btn" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; font-family: 'Playwrite US Trad', cursive; border: none; cursor: pointer;">Cursive</button>
+                        <button type="button" id="btnStyleBlank" onclick="setDesktopStyle('blank')" class="segmented-btn" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer;">Blank</button>
+                    </div>
+                    <!-- Desktop Actions -->
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; margin-top: 30px;">
+                        <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 20px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; white-space: nowrap;">🖨️ Print Worksheet</button>
+                        <button onclick="closeOverlay('printSelectionOverlay')" style="background: #e2e8f0; color: #4a5568; padding: 20px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: PREVIEW CONTAINER -->
+            <div id="printPreviewContainer" class="print-col-right" style="display: none;">
+                <div class="print-preview-header" style="display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin-bottom: 15px; width: 100%;">
+                    <button onclick="backToPrintSettings()" style="background: #e2e8f0; color: #4a5568; padding: 8px 12px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: start; font-size: 0.85rem; white-space: nowrap;">⬅️ Back</button>
+                    <h3 style="margin: 0; color: #64748b; text-align: center; font-size: 1rem; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Preview</h3>
+                    <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 8px 12px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; justify-self: end; font-size: 0.85rem; white-space: nowrap;">🖨️ Print</button>
+                </div>
+                
+                <div id="previewSheetArea" class="preview-scroll-area">
+                    <!-- Worksheet HTML will be injected here -->
+                </div>
             </div>
             
-            <div id="previewSheetArea" class="preview-scroll-area">
-                <!-- Worksheet HTML will be injected here -->
-            </div>
-            <p style="font-size: 0.75rem; color: #475569; font-weight: 700; margin-top: 15px; text-align: center; opacity: 0.85;">💡 This is an exact preview of the final printout.</p>
         </div>
-
     </div>
 </div>
 
@@ -212,23 +230,7 @@
     </div>
     
     
-<!-- Print Preview Overlay -->
-<div id="printPreviewOverlay" class="overlay" style="z-index: 20000; display: none; background: white;">
-    <div style="display: flex; flex-direction: column; height: 100vh;">
-        <div style="background: #f8fafc; padding: 8px 15px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
-            <button onclick="closePrintPreview()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px;">←</button>
-            <span style="font-weight: 900; color: #2d3748; font-size: 0.9rem;">Worksheet Preview</span>
-        </div>
-        <div id="printPreviewContent" style="flex: 1; overflow-y: auto; padding: 15px; background: white;">
-        </div>
-        <div style="padding: 10px 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; flex-shrink: 0;">
-            <button onclick="doPrintFromPreview()" style="flex: 2; background: #4cd964; color: white; border: none; border-radius: 12px; padding: 14px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 3px 0 #2e8b57;">Print</button>
-            <button onclick="closePrintPreview()" style="flex: 1; background: #e2e8f0; color: #4a5568; border: none; border-radius: 12px; padding: 14px; font-weight: 900; cursor: pointer;">Back</button>
-        </div>
-    </div>
-</div>
 
-    
 <!-- Worksheet Scanner Overlay (matches photo cropper design) -->
 <div id="scanOverlay" class="overlay" style="z-index: 30000; display: none;">
     <div class="overlay-content" style="padding:10px; display:flex; flex-direction:column; max-width: 450px; margin: 5vh auto; height: 85vh; background: white; border-radius: 30px; border: 5px solid #9d4edd; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
