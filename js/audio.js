@@ -1399,6 +1399,34 @@ async function toggleStudentRecording(btn, phrase) {
         return;
     }
 
+    // 1. Safety check for browser mediaDevices support (non-HTTPS or very old browsers)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        openAppModal({
+            title: 'Recording Not Supported',
+            text: 'Your browser or environment does not support audio recording. Make sure you are using a modern browser (such as Chrome, Edge, or Safari) over a secure HTTPS connection.',
+            mode: 'view'
+        });
+        return;
+    }
+
+    // 2. Proactively check if a microphone is physically connected to the system
+    try {
+        if (navigator.mediaDevices.enumerateDevices) {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const hasMic = devices.some(device => device.kind === 'audioinput');
+            if (devices.length > 0 && !hasMic) {
+                openAppModal({
+                    title: 'No Microphone Detected',
+                    text: 'We couldn\'t find any microphone or audio input device connected to this computer. Please connect a microphone to record your pronunciation.',
+                    mode: 'view'
+                });
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn("Failed to check for microphone presence:", e);
+    }
+
     try {
         window.speechSynthesis.cancel();
         if (state.currentlyPlayingAudio) {
@@ -1470,8 +1498,26 @@ async function toggleStudentRecording(btn, phrase) {
         }, RECORD_MAX_MS);
         
     } catch (err) {
-        console.error("Microphone access denied:", err);
-        openAppModal({ title: 'Microphone Required', text: 'Please allow microphone access to record your pronunciation.', mode: 'view' });
+        console.error("Microphone access failed:", err);
+        if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            openAppModal({
+                title: 'No Microphone Detected',
+                text: 'We couldn\'t find any microphone or audio input device connected to this computer. Please connect a microphone to record your pronunciation.',
+                mode: 'view'
+            });
+        } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            openAppModal({
+                title: 'Microphone Permission Required',
+                text: 'Please allow microphone access in your browser settings to record your pronunciation.',
+                mode: 'view'
+            });
+        } else {
+            openAppModal({
+                title: 'Microphone Required',
+                text: 'Please allow microphone access to record your pronunciation.',
+                mode: 'view'
+            });
+        }
     }
 }
 
