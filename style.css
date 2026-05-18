@@ -3008,7 +3008,7 @@ body.mode-spelling .spelling-slots {
     }
     
     .print-col-left {
-        width: 440px !important;
+        width: 380px !important;
         flex-shrink: 0;
         position: sticky;
         top: 0;
