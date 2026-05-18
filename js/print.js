@@ -300,7 +300,7 @@ function openPrintPreview(choice) {
         if (previewContainer) {
             const paperWidth = Math.round(816 * scale);
             previewContainer.style.width = (paperWidth + 80) + 'px';
-            previewContainer.style.height = targetHeight + 'px';
+            previewContainer.style.height = (targetHeight * leftScale) + 'px';
             previewContainer.style.flex = 'none';
         }
     } else {
@@ -499,7 +499,7 @@ function setDesktopStyle(choice) {
         if (previewContainer) {
             const paperWidth = Math.round(816 * scale);
             previewContainer.style.width = (paperWidth + 80) + 'px';
-            previewContainer.style.height = targetHeight + 'px';
+            previewContainer.style.height = (targetHeight * leftScale) + 'px';
             previewContainer.style.flex = 'none';
         }
     } else {

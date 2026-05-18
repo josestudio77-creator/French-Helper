@@ -2996,6 +2996,7 @@ body.mode-spelling .spelling-slots {
     .print-dialog-content {
         width: max-content !important;
         max-width: 92vw !important;
+        max-height: 88vh !important; /* Elegant vertical margins on shorter viewports */
         padding: 20px !important;
         overflow-y: auto !important;
     }
