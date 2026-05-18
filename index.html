@@ -68,21 +68,21 @@
                     </div>
 
                 <!-- SECTION 1: REPETITION -->
-                <div style="margin-bottom: 25px; background: #fdf2ff; padding: 18px; border-radius: 18px; border: 2px dashed #9d4edd;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-                        <button onclick="changeReps(-1)" style="width: 52px; height: 52px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50;">−</button>
+                <div style="margin-bottom: 15px; background: #fdf2ff; padding: 12px; border-radius: 16px; border: 2px dashed #9d4edd;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                        <button onclick="changeReps(-1)" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #ff9e6d; color: white; font-size: 1.6rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #d67d50;">−</button>
                         <div style="text-align:center;">
-                            <input type="text" id="repeatCountInput" value="3" readonly style="width: 70px; border: none; background: transparent; font-size: 2rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
-                            <div style="font-size: 0.75rem; color: #9d4edd; font-weight: 900; margin-top: -5px; letter-spacing: 1px;">REPETITIONS</div>
+                            <input type="text" id="repeatCountInput" value="3" readonly style="width: 60px; border: none; background: transparent; font-size: 1.5rem; text-align: center; font-weight: 900; color: #2d3748; outline: none;">
+                            <div style="font-size: 0.7rem; color: #9d4edd; font-weight: 900; margin-top: -2px; letter-spacing: 1px;">REPETITIONS</div>
                         </div>
-                        <button onclick="changeReps(1)" style="width: 52px; height: 52px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.8rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57;">+</button>
+                        <button onclick="changeReps(1)" style="width: 44px; height: 44px; border-radius: 50%; border: none; background: #4cd964; color: white; font-size: 1.6rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #2e8b57;">+</button>
                     </div>
                 </div>
 
                 <!-- SECTION 2: OPTIONS -->
-                <div style="text-align: left; margin-bottom: 25px;">
-                    <p style="font-weight: 900; color: #64748b; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Options</p>
-                    <div style="padding: 18px; background: #f8fafc; border-radius: 18px; border: 1px solid #f1f5f9;">
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <p style="font-weight: 900; color: #64748b; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Options</p>
+                    <div style="padding: 12px 18px; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9;">
                         <!-- Scope Toggle (Dynamic) -->
                         <div id="printScopeContainer" style="margin-bottom: 16px; display: none;">
                             <label style="font-weight: 800; color: #4a5568; cursor: pointer; display: flex; align-items: center; gap: 15px; font-size: 1rem;">
@@ -134,17 +134,17 @@
                 </div>
 
                 <!-- SECTION 3: STYLE SELECTION & PRINT ACTION (DESKTOP LIVE FLOW) -->
-                <div id="printStyleSelectorDesktop" style="display: none; text-align: left; margin-bottom: 20px;">
-                    <p style="font-weight: 900; color: #64748b; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Worksheet Style</p>
-                    <div class="style-segmented-control" style="display: flex; background: #f1f5f9; padding: 6px; border-radius: 16px; border: 1px solid #e2e8f0; gap: 6px; margin-bottom: 25px;">
-                        <button type="button" id="btnStyleBlock" onclick="setDesktopStyle('block')" class="segmented-btn active" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; font-family: 'KG Primary Penmanship Alt', sans-serif; border: none; cursor: pointer;">ABC Block</button>
-                        <button type="button" id="btnStyleCursive" onclick="setDesktopStyle('cursive')" class="segmented-btn" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; font-family: 'Playwrite US Trad', cursive; border: none; cursor: pointer;">Cursive</button>
-                        <button type="button" id="btnStyleBlank" onclick="setDesktopStyle('blank')" class="segmented-btn" style="flex: 1; padding: 14px 10px; border-radius: 12px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer;">Blank</button>
+                <div id="printStyleSelectorDesktop" style="display: none; text-align: left; margin-bottom: 5px;">
+                    <p style="font-weight: 900; color: #64748b; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; padding-left: 5px;">Worksheet Style</p>
+                    <div class="style-segmented-control" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 14px; border: 1px solid #e2e8f0; gap: 4px; margin-bottom: 15px;">
+                        <button type="button" id="btnStyleBlock" onclick="setDesktopStyle('block')" class="segmented-btn active" style="flex: 1; padding: 12px 8px; border-radius: 10px; font-weight: 800; font-size: 1.1rem; font-family: 'KG Primary Penmanship Alt', sans-serif; border: none; cursor: pointer;">ABC Block</button>
+                        <button type="button" id="btnStyleCursive" onclick="setDesktopStyle('cursive')" class="segmented-btn" style="flex: 1; padding: 12px 8px; border-radius: 10px; font-weight: 800; font-size: 1.1rem; font-family: 'Playwrite US Trad', cursive; border: none; cursor: pointer;">Cursive</button>
+                        <button type="button" id="btnStyleBlank" onclick="setDesktopStyle('blank')" class="segmented-btn" style="flex: 1; padding: 12px 8px; border-radius: 10px; font-weight: 800; font-size: 1rem; border: none; cursor: pointer;">Blank</button>
                     </div>
                     <!-- Desktop Actions -->
-                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; margin-top: 30px;">
-                        <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 20px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; white-space: nowrap;">🖨️ Print Worksheet</button>
-                        <button onclick="closeOverlay('printSelectionOverlay')" style="background: #e2e8f0; color: #4a5568; padding: 20px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1;">Cancel</button>
+                    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 15px; margin-top: 15px;">
+                        <button onclick="doPrintFromPreview()" style="background: #4cd964; color: white; padding: 16px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #2e8b57; white-space: nowrap;">🖨️ Print Worksheet</button>
+                        <button onclick="closeOverlay('printSelectionOverlay')" style="background: #e2e8f0; color: #4a5568; padding: 16px 15px; border-radius: 14px; font-weight: 900; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 4px 0 #cbd5e1;">Cancel</button>
                     </div>
                 </div>
             </div>

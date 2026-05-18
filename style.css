@@ -2996,7 +2996,7 @@ body.mode-spelling .spelling-slots {
     .print-dialog-content {
         width: max-content !important;
         max-width: 92vw !important;
-        padding: 30px !important;
+        padding: 20px !important;
         overflow-y: auto !important;
     }
     
@@ -3012,6 +3012,22 @@ body.mode-spelling .spelling-slots {
         flex-shrink: 0;
         position: sticky;
         top: 0;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        padding-right: 10px;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+    
+    .print-col-left::-webkit-scrollbar {
+        width: 6px;
+    }
+    .print-col-left::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .print-col-left::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
     }
     
     /* Ensure both settings and preview panels are visible side-by-side */
