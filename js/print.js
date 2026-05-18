@@ -473,9 +473,13 @@ function setDesktopStyle(choice) {
         overlayContent.style.maxWidth = '';
         
         // Dynamic scaling to fit right panel width and safe height limit
-        const leftColWidth = 440; // Fixed at 440px in CSS desktop media query
         const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
-        const targetHeight = (leftColHeight > 0) ? leftColHeight : 480; // nominal unscaled height is 480
+        const targetHeight = (leftColHeight > 0) ? leftColHeight : 520; // nominal unscaled height is 520
+        
+        // Calculate the current left column scale to get its exact visual width
+        const availableHeight = window.innerHeight - 120;
+        const leftScale = Math.max(0.82, Math.min(1.0, availableHeight / targetHeight));
+        const leftColWidth = 440 * leftScale;
         
         const maxAvailableWidth = (window.innerWidth * 0.92) - leftColWidth - 170; // gap (30) + modal pad (60) + grey pad (80)
         const draftingWidth = maxAvailableWidth > 200 ? maxAvailableWidth : 200;
@@ -600,6 +604,7 @@ function updatePrintSettingsScale() {
         if (selectionMain) {
             selectionMain.style.transform = '';
             selectionMain.style.marginBottom = '';
+            selectionMain.style.marginRight = '';
             selectionMain.style.transformOrigin = '';
         }
         return;
@@ -609,6 +614,7 @@ function updatePrintSettingsScale() {
     const availableHeight = window.innerHeight - 120;
     // The nominal height of the left column when unscaled
     const targetHeight = 520; 
+    const targetWidth = 440; // Fixed unscaled width in CSS desktop query
     
     let scale = availableHeight / targetHeight;
     scale = Math.max(0.82, Math.min(1.0, scale)); // Scale down to 82% minimum for perfect fit
@@ -616,9 +622,12 @@ function updatePrintSettingsScale() {
     selectionMain.style.transformOrigin = 'top left';
     selectionMain.style.transform = `scale(${scale})`;
     
-    // Crucial: reduce layout footprint so the container itself shrinks, avoiding premature scrollbars
-    const pixelDiff = targetHeight * (1 - scale);
-    selectionMain.style.marginBottom = `-${pixelDiff}px`;
+    // Crucial: reduce layout footprint so the container itself shrinks horizontally & vertically
+    const pixelDiffHeight = targetHeight * (1 - scale);
+    const pixelDiffWidth = targetWidth * (1 - scale);
+    
+    selectionMain.style.marginBottom = `-${pixelDiffHeight}px`;
+    selectionMain.style.marginRight = `-${pixelDiffWidth}px`;
 }
 
 let printResizeTimer;
