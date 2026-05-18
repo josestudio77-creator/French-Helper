@@ -278,8 +278,7 @@ function openPrintPreview(choice) {
         overlayContent.style.maxWidth = '';
         
         // Dynamic scaling to fit right panel width and safe height limit
-        const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
-        const targetHeight = (leftColHeight > 0) ? leftColHeight : 520; // nominal unscaled height is 520
+        const targetHeight = 550; // Stable nominal unscaled desktop target height
         
         // Calculate the current left column scale to get its exact visual width
         const availableHeight = window.innerHeight - 120;
@@ -477,8 +476,7 @@ function setDesktopStyle(choice) {
         overlayContent.style.maxWidth = '';
         
         // Dynamic scaling to fit right panel width and safe height limit
-        const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
-        const targetHeight = (leftColHeight > 0) ? leftColHeight : 520; // nominal unscaled height is 520
+        const targetHeight = 550; // Stable nominal unscaled desktop target height
         
         // Calculate the current left column scale to get its exact visual width
         const availableHeight = window.innerHeight - 120;
@@ -617,7 +615,7 @@ function updatePrintSettingsScale() {
     // Account for 120px safe space (modal padding, header spacing)
     const availableHeight = window.innerHeight - 120;
     // The nominal height of the left column when unscaled
-    const targetHeight = 520; 
+    const targetHeight = 550; 
     const targetWidth = 380; // Fixed unscaled width in CSS desktop query
     
     let scale = availableHeight / targetHeight;
