@@ -2994,21 +2994,21 @@ body.mode-spelling .spelling-slots {
 /* Two-column Live Print Layout on Desktop/Tablet Viewports */
 @media (min-width: 1024px) {
     .print-dialog-content {
-        width: max-content !important;
-        max-width: 92vw !important;
+        width: auto !important;
+        max-width: 780px !important;
         padding: 20px !important;
         overflow-y: auto !important;
     }
     
     .print-split-container {
         display: flex;
-        gap: 30px;
+        gap: 20px;
         align-items: start;
         text-align: left;
     }
     
     .print-col-left {
-        width: 440px !important;
+        width: 380px !important;
         flex-shrink: 0;
         position: sticky;
         top: 0;
@@ -3047,6 +3047,8 @@ body.mode-spelling .spelling-slots {
         box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
         box-sizing: border-box;
         overflow: hidden;
+        max-height: calc(100vh - 160px);
+        min-width: 180px;
     }
     
     /* Hide the mobile navigation subheader */
