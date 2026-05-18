@@ -25,8 +25,14 @@
         overflow-x: hidden; 
     }
     
+    button {
+        transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s, border-color 0.2s;
+        outline: none !important;
+    }
+    
     button:active, .key:active { 
-        transform: scale(1.15); 
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 rgba(0,0,0,0.15) !important;
     }
     
     
@@ -435,8 +441,9 @@
     }
     
     .snail-corner:active {
-        transform: scale(1.2);
+        transform: translateY(2px) scale(0.95);
         background-color: #ff6b8b !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
     }
     
     @keyframes snailPulse {
@@ -1092,12 +1099,14 @@
         border: none; 
         font-weight: 900; 
         cursor: pointer; 
-        transition: transform 0.1s; 
+        transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
         font-size: 1rem; 
+        box-shadow: 0 4px 0 rgba(0,0,0,0.1);
     }
     
     .modal-btn:active { 
-        transform: scale(0.95); 
+        transform: translateY(2px); 
+        box-shadow: 0 2px 0 rgba(0,0,0,0.1) !important; 
     }
     
     
@@ -1261,7 +1270,8 @@
     }
     
     .corner-badge:active { 
-        transform: scale(1.2); 
+        transform: translateY(2px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; 
     }
     
     .badge-left { 
@@ -1812,7 +1822,8 @@ body.mode-spelling .spelling-slots {
 }
 
 .accent-bar button:active {
-    transform: scale(0.92);
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(3, 105, 161, 0.2) !important;
     background: #bae6fd;
 }
 
@@ -2767,7 +2778,8 @@ body.mode-spelling .spelling-slots {
     box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
 }
 .folder-card:active {
-    transform: scale(0.96);
+    transform: translateY(2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
     background: rgba(255,255,255,1) !important;
     border-color: #118AB2 !important;
 }
@@ -2784,7 +2796,8 @@ body.mode-spelling .spelling-slots {
     box-shadow: 0 6px 20px rgba(0,0,0,0.13) !important;
 }
 .preset-btn:active {
-    transform: scale(0.96);
+    transform: translateY(2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
 }
 
 /* --- History items (backpack): match card style --- */
