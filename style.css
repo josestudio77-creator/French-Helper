@@ -3109,4 +3109,62 @@ body.mode-spelling .spelling-slots {
         margin-top: 10px !important;
         color: #64748b !important;
     }
+
+    /* === Desktop Overlay Layout Optimizations === */
+
+    /* Parent Settings: convert to 2-column grid */
+    #parentDrawer .overlay-content {
+        max-width: 768px !important;
+    }
+    #parentDrawer .parent-btn-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 16px !important;
+    }
+    #parentDrawer .parent-btn-grid button {
+        padding: 22px 15px !important;
+        font-size: 1.05rem !important;
+        min-height: 65px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+    }
+    /* Balanced footer for last button (Privacy Policy) */
+    #parentDrawer .parent-btn-grid button:last-child {
+        grid-column: span 2 !important;
+    }
+
+    /* Backpack Drawer: convert homework list to 2-column grid */
+    #bpModal .overlay-content {
+        max-width: 800px !important;
+    }
+    #bpList {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 16px !important;
+    }
+    #bpList .history-item {
+        margin-bottom: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        min-height: 180px !important;
+    }
+
+    /* Practice Presets: convert to a gorgeous 3-column layout */
+    #presetsOverlay .overlay-content {
+        max-width: 800px !important;
+    }
+    .preset-grid {
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 16px !important;
+    }
+    .preset-btn {
+        padding: 22px 10px !important;
+        font-size: 1.05rem !important;
+        min-height: 70px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
 }
