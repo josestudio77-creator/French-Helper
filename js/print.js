@@ -608,10 +608,10 @@ function updatePrintSettingsScale() {
     // Account for 120px safe space (modal padding, header spacing)
     const availableHeight = window.innerHeight - 120;
     // The nominal height of the left column when unscaled
-    const targetHeight = 480; 
+    const targetHeight = 520; 
     
     let scale = availableHeight / targetHeight;
-    scale = Math.max(0.85, Math.min(1.0, scale)); // Scale down to 85% maximum
+    scale = Math.max(0.82, Math.min(1.0, scale)); // Scale down to 82% minimum for perfect fit
     
     selectionMain.style.transformOrigin = 'top left';
     selectionMain.style.transform = `scale(${scale})`;

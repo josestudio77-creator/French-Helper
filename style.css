@@ -3012,11 +3012,9 @@ body.mode-spelling .spelling-slots {
         flex-shrink: 0;
         position: sticky;
         top: 0;
-        max-height: calc(100vh - 120px);
-        overflow-y: auto;
+        max-height: none !important;
+        overflow: visible !important;
         padding-right: 10px;
-        scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 transparent;
         transition: transform 0.2s ease, margin-bottom 0.2s ease;
     }
     
