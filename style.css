@@ -3001,6 +3001,10 @@ body.mode-spelling .spelling-slots {
         overflow-y: auto !important;
     }
     
+    .print-settings-header {
+        margin-top: 10px;
+    }
+    
     .print-split-container {
         display: flex;
         gap: 30px;
