@@ -3017,6 +3017,7 @@ body.mode-spelling .spelling-slots {
         padding-right: 10px;
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
+        transition: transform 0.2s ease, margin-bottom 0.2s ease;
     }
     
     .print-col-left::-webkit-scrollbar {
