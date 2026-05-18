@@ -473,9 +473,9 @@ function setDesktopStyle(choice) {
         overlayContent.style.maxWidth = '';
         
         // Dynamic scaling to fit right panel width and safe height limit
-        const leftColWidth = document.getElementById('printSelectionMain').offsetWidth || 440;
+        const leftColWidth = 440; // Fixed at 440px in CSS desktop media query
         const leftColHeight = document.getElementById('printSelectionMain').offsetHeight;
-        const targetHeight = (leftColHeight > 0) ? leftColHeight : 450;
+        const targetHeight = (leftColHeight > 0) ? leftColHeight : 480; // nominal unscaled height is 480
         
         const maxAvailableWidth = (window.innerWidth * 0.92) - leftColWidth - 170; // gap (30) + modal pad (60) + grey pad (80)
         const draftingWidth = maxAvailableWidth > 200 ? maxAvailableWidth : 200;
@@ -624,7 +624,7 @@ function updatePrintSettingsScale() {
 let printResizeTimer;
 window.addEventListener('resize', () => {
     const overlay = document.getElementById('printSelectionOverlay');
-    if (overlay && overlay.classList.contains('active')) {
+    if (overlay && overlay.style.display === 'block') {
         clearTimeout(printResizeTimer);
         printResizeTimer = setTimeout(() => {
             const isDesktop = window.innerWidth >= 1024;
