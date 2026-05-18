@@ -3019,7 +3019,7 @@ body.mode-spelling .spelling-slots {
         top: 0;
         max-height: none !important;
         overflow: visible !important;
-        transition: transform 0.2s ease, margin-bottom 0.2s ease;
+        transition: transform 0.2s ease, margin-bottom 0.2s ease, margin-right 0.2s ease;
     }
     
     .print-col-left::-webkit-scrollbar {
