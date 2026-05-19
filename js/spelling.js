@@ -420,7 +420,7 @@ state.currentSpellingState.currentLetterIndex++;
     }
 
     // 3. Identify the letter she is supposed to type
-    let targetLetter = state.targetWord[state.currentSpellingState.currentLetterIndex]?.toUpperCase();
+    let targetLetter = (state.targetWord && state.targetWord[state.currentSpellingState.currentLetterIndex]) ? state.targetWord[state.currentSpellingState.currentLetterIndex].toUpperCase() : undefined;
     
     // 4. Special Match Check: 
     // - Check for direct match (e.g. A matches A)
