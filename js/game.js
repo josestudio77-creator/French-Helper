@@ -172,7 +172,7 @@ function updateHangmanUI() {
         const leaves = document.getElementById('treeLeaves');
         leaves.style.opacity = "1";
         leaves.style.transform = "scale(1)"; // Final state
-        leaves.animate([
+        safeAnimate(leaves, [
             { transform: 'scale(0.5)', opacity: 0 },
             { transform: 'scale(1.05)', opacity: 1 },
             { transform: 'scale(1)', opacity: 1 }
@@ -183,7 +183,7 @@ function updateHangmanUI() {
         apple.style.display = "block";
         apple.style.opacity = "1";
         apple.style.transform = "translateY(0)"; // Final state
-        apple.animate([
+        safeAnimate(apple, [
             { transform: 'translateY(-50px)', opacity: 0, offset: 0 },
             { transform: 'translateY(0)', opacity: 1, offset: 0.5 },
             { transform: 'translateY(-15px)', opacity: 1, offset: 0.75 },
@@ -376,7 +376,7 @@ function drawHangman(s) {
         part.style.strokeDashoffset = "0";
         
         // A springy "Growth" animation
-        part.animate([
+        safeAnimate(part, [
             { strokeDashoffset: length, opacity: 0 },
             { strokeDashoffset: 0, opacity: 1 }
         ], {

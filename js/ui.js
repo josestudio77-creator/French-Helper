@@ -1716,6 +1716,14 @@ function installApp() {
         if (btn) btn.style.display = 'none';
         
         state.deferredPrompt = null; 
+    } else {
+        // Fallback instructions for iOS/Safari or browsers that don't support automated prompt
+        openAppModal({
+            title: '📱 Install French Helper',
+            text: 'To install this app on your iPad/iPhone:\n\n1. Tap the Share button 📤 in Safari (at the top or bottom of the screen).\n2. Scroll down the share menu and select "Add to Home Screen" ➕.\n3. Tap "Add" in the top-right corner to complete installation.',
+            mode: 'view',
+            saveText: 'Got it'
+        });
     }
 }
 

@@ -305,6 +305,14 @@ window.onload = () => {
         }
         // LOAD RECORDINGS FROM INDEXEDDB
         loadStudentRecordings();
+
+        // Show Install App button for iOS/iPad manual installation if not already standalone
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isIOS && !isStandalone) {
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = 'block';
+        }
     }, 2000);
 };
 

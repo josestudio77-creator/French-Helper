@@ -69,6 +69,7 @@
     
     h1 { 
         color: #ff6b8b; 
+        font-size: 1.3rem; /* Fallback for older Safari */
         font-size: clamp(1rem, 5.8vw, 1.5rem); 
         white-space: nowrap; 
         display: flex;
@@ -168,6 +169,7 @@
     }
 
     .french-text { 
+        font-size: 2.4rem; /* Fallback for older Safari */
         font-size: clamp(1.8rem, 4vw + 0.5rem, 3.5rem); 
         font-weight: 900; 
         color: #2d3748; 
@@ -225,6 +227,7 @@
     }
     
     .english-text { 
+        font-size: 1.6rem; /* Fallback for older Safari */
         font-size: clamp(1.3rem, 2.5vw + 0.5rem, 2.2rem); 
         color: #5a67d8; 
         font-weight: 800; 
@@ -252,6 +255,7 @@
     
     .pronunciation-text {
         display: block;
+        font-size: 1.1rem; /* Fallback for older Safari */
         font-size: clamp(0.9rem, 1.5vw + 0.4rem, 1.5rem);
         color: #4a5568; /* Boosted contrast from #718096 */
         font-style: italic;
@@ -514,6 +518,7 @@
     }
     
     .hangman-word { 
+        font-size: 2rem; /* Fallback for older Safari */
         font-size: clamp(1.6rem, 3.5vw + 0.5rem, 3rem); 
         margin: 10px 0; 
     }
@@ -1718,6 +1723,7 @@ body.mode-spelling #phrasesList {
  
 /* Individual letter slots */
 .bee-slot {
+    width: 32px; /* Fallback for older Safari */
     width: clamp(24px, 8vw, 36px);
     height: 46px;
     border: 2px solid #cbd5e0;
@@ -1764,7 +1770,9 @@ body.mode-spelling #phrasesList {
 /* Make spelling slots larger to match the wider screen in spelling mode */
 body.mode-spelling .bee-slot {
     height: 60px;
+    width: 48px; /* Fallback for older Safari */
     width: clamp(40px, 10vw, 55px);
+    font-size: 2.1rem; /* Fallback for older Safari */
     font-size: clamp(1.8rem, 5vw, 2.4rem);
 }
  

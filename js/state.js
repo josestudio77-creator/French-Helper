@@ -75,3 +75,25 @@ const state = {
 window.state = state;
 
 const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Home"];
+
+// Safe element animation utility for older devices (e.g. iOS < 13.4)
+window.safeAnimate = function(el, keyframes, options) {
+    if (!el) return null;
+    if (typeof el.animate === 'function') {
+        try {
+            return el.animate(keyframes, options);
+        } catch (e) {
+            console.warn("Element.animate failed:", e);
+        }
+    }
+    // Fallback: apply final keyframe styling instantly so UI state updates correctly
+    if (keyframes && keyframes.length > 0) {
+        const finalFrame = keyframes[keyframes.length - 1];
+        for (let prop in finalFrame) {
+            try {
+                el.style[prop] = finalFrame[prop];
+            } catch (e) {}
+        }
+    }
+    return null;
+};

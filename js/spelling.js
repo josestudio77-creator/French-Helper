@@ -108,7 +108,7 @@ setTimeout(() => {
 
     // Apply fade-in animation to the entire restored layout
     elementsToFade.forEach(el => {
-        el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+        safeAnimate(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
     });
 
     if (state.spellingScrollY !== undefined) requestAnimationFrame(() => window.scrollTo({ top: state.spellingScrollY, behavior: 'instant' }));
@@ -503,7 +503,7 @@ const card = state.currentSpellingState.card;
 if (typeof playBuzzSound === "function") playBuzzSound(); 
 
 // Visual feedback: Shake the card using Web Animations API
-card.animate([
+safeAnimate(card, [
     { transform: 'translateX(0)' },
     { transform: 'translateX(-8px)' },
     { transform: 'translateX(8px)' },
@@ -595,14 +595,14 @@ function exitSpellingTheater() {
         // Restore all cards with fade-in
         document.querySelectorAll('.phrase-card').forEach(c => {
             c.style.display = 'block';
-            c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+            safeAnimate(c, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
         // Restore header, nav, control panel with fade-in
         [header, bottomNav, controlPanel].forEach(el => {
             if (!el) return;
             el.style.display = el === bottomNav ? 'flex' : 'block';
-            el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+            safeAnimate(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
         const exitBtn = document.getElementById('exitSpellingTheaterBtn');

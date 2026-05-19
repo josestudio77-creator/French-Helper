@@ -1414,7 +1414,12 @@ async function toggleStudentRecording(btn, phrase) {
         if (navigator.mediaDevices.enumerateDevices) {
             const devices = await navigator.mediaDevices.enumerateDevices();
             const hasMic = devices.some(device => device.kind === 'audioinput');
-            if (devices.length > 0 && !hasMic) {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const allMasked = devices.every(device => !device.label);
+            
+            // On iOS/Safari, before microphone permission is granted, devices are masked and kind='audioinput' is hidden.
+            // Therefore, we only block if not iOS, not masked, and hasMic is indeed false.
+            if (devices.length > 0 && !hasMic && !allMasked && !isIOS) {
                 openAppModal({
                     title: 'No Microphone Detected',
                     text: 'We couldn\'t find any microphone or audio input device connected to this computer. Please connect a microphone to record your pronunciation.',
