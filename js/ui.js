@@ -373,7 +373,7 @@ for (let key in MASTER_DATA) {
 
     // 2. SECOND: Determine the English text. 
     // We prioritize the USER CACHE (your manual fix) over the MASTER_DATA.
-    const finalEn = state.cache[normalizedPhrase] || baseData?.en || "...";
+    const finalEn = state.cache[normalizedPhrase] || (baseData ? baseData.en : "") || "...";
 
     // 3. THIRD: Check for custom photo (Preserving all your specific parameters)
     if (state.customPhotos[normalizedPhrase]) {
@@ -388,8 +388,8 @@ return {
     photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
     isFreeCrop: isNewFormat ? photoData.isFreeCrop || false : false,
     customRatio: isNewFormat ? photoData.customRatio : null,
-    pronunciation: baseData?.pronunciation,
-    g: baseData?.g
+    pronunciation: baseData ? baseData.pronunciation : undefined,
+    g: baseData ? baseData.g : undefined
 };
     }
     
@@ -398,8 +398,8 @@ return {
 return {
     en: finalEn, // <--- Using the prioritized translation
     icon: state.customIcons[normalizedPhrase],
-    pronunciation: baseData?.pronunciation,
-    g: baseData?.g,
+    pronunciation: baseData ? baseData.pronunciation : undefined,
+    g: baseData ? baseData.g : undefined,
     isCustom: true
 };
     }
@@ -755,7 +755,7 @@ async function saveHW() {
         try {
             const oldData = JSON.parse(state.history[state.editingHomeworkName]);
             isFav = oldData.isFavorite || false;
-            targetMonth = oldData.month ?? state.selectedBpMonth;
+            targetMonth = (oldData.month !== undefined && oldData.month !== null) ? oldData.month : state.selectedBpMonth;
         } catch(e) { 
             console.error("Error recovering meta-data", e); 
         }

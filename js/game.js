@@ -285,7 +285,7 @@ function handleKeyPress(e) {
         let activeIndex = state.gameActive ? (guessed.length > 0 ? 0 : 0) : (state.currentSpellingState ? state.currentSpellingState.currentLetterIndex : 0);
         
         // If the game specifically needs 'Œ', treat 'O' or 'E' as a match
-        if (activeWord[activeIndex]?.toUpperCase() === 'Œ') key = 'Œ';
+        if (activeWord && activeWord[activeIndex] && activeWord[activeIndex].toUpperCase() === 'Œ') key = 'Œ';
     }
 
     if (!validKeys.includes(key)) return;

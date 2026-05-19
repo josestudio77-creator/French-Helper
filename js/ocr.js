@@ -148,9 +148,9 @@ async function _runCloudOCR(canvas) {
         throw new Error(msg);
     }
 
-    const parsed = data.ParsedResults?.[0];
+    const parsed = (data.ParsedResults && data.ParsedResults.length > 0) ? data.ParsedResults[0] : null;
     if (!parsed || parsed.FileParseExitCode !== 1) {
-        throw new Error(parsed?.ErrorMessage || 'OCR could not read the image');
+        throw new Error((parsed && parsed.ErrorMessage) || 'OCR could not read the image');
     }
 
     const text = parsed.ParsedText || '';

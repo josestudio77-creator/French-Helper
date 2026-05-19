@@ -393,7 +393,7 @@ btn.style.opacity = "0.5";
 btn.innerHTML = "<span>🎨</span> Drawing...";
     }
     
-    const loaderText = loader?.querySelector('p') || loader;
+    const loaderText = (loader && loader.querySelector) ? loader.querySelector('p') || loader : loader;
     if (loaderText) {
 loaderText.innerHTML = 'AI is drawing... <span style="font-size:0.7rem; opacity:0.8;">(preparing)</span>';
     }
