@@ -613,19 +613,19 @@ folder.onclick = () => performFolderAction(index);
         const badge = count > 0 ? `<div class="folder-badge">${count}</div>` : '';
         const label = month === "Home" ? "Home Practice" : month.substring(0, 3);
 
-        // Premium Modern SVG with Smooth Rounded Corners and Rich Gradients
+        // Premium Modern SVG with Smooth Rounded Corners and Rich Gradients (Brightened/Lightened)
         let svgContent = '';
         if (month === "Home") {
             svgContent = `
                 <svg class="folder-svg" viewBox="0 0 100 85" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="purpleBack-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#8b5cf6" />
-                            <stop offset="100%" stop-color="#5b21b6" />
+                            <stop offset="0%" stop-color="#c084fc" />
+                            <stop offset="100%" stop-color="#8b5cf6" />
                         </linearGradient>
                         <linearGradient id="purpleFront-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#a78bfa" />
-                            <stop offset="100%" stop-color="#7c3aed" />
+                            <stop offset="0%" stop-color="#f3e8ff" />
+                            <stop offset="100%" stop-color="#a78bfa" />
                         </linearGradient>
                     </defs>
                     <!-- Rounded Folder Back -->
@@ -639,12 +639,12 @@ folder.onclick = () => performFolderAction(index);
                 <svg class="folder-svg" viewBox="0 0 100 85" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="goldBack-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#f59e0b" />
-                            <stop offset="100%" stop-color="#b45309" />
+                            <stop offset="0%" stop-color="#fcd34d" />
+                            <stop offset="100%" stop-color="#f59e0b" />
                         </linearGradient>
                         <linearGradient id="goldFront-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#fbbf24" />
-                            <stop offset="100%" stop-color="#f59e0b" />
+                            <stop offset="0%" stop-color="#fef08a" />
+                            <stop offset="100%" stop-color="#fbbf24" />
                         </linearGradient>
                     </defs>
                     <!-- Rounded Folder Back -->

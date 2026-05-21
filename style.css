@@ -1316,7 +1316,7 @@
     
     .folder-badge {
         position: absolute;
-        top: 58%; /* Perfectly centered on the front pocket */
+        top: 66%; /* Lowered to center perfectly inside the front rectangular cover */
         left: 50%;
         transform: translate(-50%, -50%);
         background: #118AB2; /* Dynamic brand teal */
