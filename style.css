@@ -2700,10 +2700,8 @@ body.mode-spelling .spelling-slots {
     border: none !important;
     box-shadow: none;
     border-radius: 0;
-    padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Dynamically calculated to fully clear the bottom navigation buttons with precise spacing */
+    padding: 10px 14px calc(var(--bottom-nav-height) + 160px) 14px !important; /* Fully clears the fixed glassmorphic footer buttons */
     max-width: 600px; /* Gives it more room to stretch on larger screens */
-    display: flex !important;
-    flex-direction: column !important;
 }
 
 #bpModal .overlay-content h2 {
@@ -3258,6 +3256,29 @@ body.mode-spelling .spelling-slots {
         align-items: center !important;
         justify-content: center !important;
     }
+    .bp-fixed-footer {
+        max-width: 772px !important; /* Matches wide grid layout content bounds perfectly */
+    }
+}
+
+/* Fixed glassmorphic footer in Backpack modal */
+.bp-fixed-footer {
+    position: absolute;
+    bottom: calc(var(--bottom-nav-height) + 10px);
+    left: 0;
+    right: 0;
+    width: calc(100% - 30px);
+    max-width: 572px; /* Centered perfectly, aligning with month-grid and inner padding (600px max-width minus 14px padding each side) */
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 12px;
+    border-radius: 20px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.04), 0 10px 25px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.4);
+    box-sizing: border-box;
+    z-index: 8500;
 }
 
 /* Spacing fallback for checkboxes inside parent drawers & print selections */
