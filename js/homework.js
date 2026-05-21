@@ -609,16 +609,40 @@ try {
 
 folder.onclick = () => performFolderAction(index);
 
-const badge = counts[index] > 0 ? `<div class="folder-badge">${counts[index]}</div>` : '';
+        const count = counts[index];
+        const badge = count > 0 ? `<div class="folder-badge">${count}</div>` : '';
+        const label = month === "Home" ? "Home Practice" : month.substring(0, 3);
 
-const label = month === "Home" ? "Home Practice" : month.substring(0, 3);
+        // Premium Custom SVGs (purple for Home, gold for Months)
+        let svgContent = '';
+        if (month === "Home") {
+            svgContent = `
+                <svg class="folder-svg" viewBox="0 0 100 80">
+                    <!-- Folder Back flap -->
+                    <path d="M10 15 L35 15 L43 25 L90 25 L90 70 L10 70 Z" fill="#7b2cbf" />
+                    <!-- Folder Front pocket -->
+                    <path d="M10 32 L90 32 L90 70 L10 70 Z" fill="#9d4edd" />
+                </svg>
+            `;
+        } else {
+            svgContent = `
+                <svg class="folder-svg" viewBox="0 0 100 80">
+                    <!-- Folder Back flap -->
+                    <path d="M10 15 L35 15 L43 25 L90 25 L90 70 L10 70 Z" fill="#d97706" />
+                    <!-- Folder Front pocket -->
+                    <path d="M10 32 L90 32 L90 70 L10 70 Z" fill="#ffb703" />
+                </svg>
+            `;
+        }
 
-folder.innerHTML = `
-    ${badge}
-    <span class="folder-icon">📁</span>
-    <span class="folder-label">${label}</span>
-`;
-grid.appendChild(folder);
+        folder.innerHTML = `
+            <div class="folder-icon-container">
+                ${svgContent}
+                ${badge}
+            </div>
+            <span class="folder-label">${label}</span>
+        `;
+        grid.appendChild(folder);
     });
 }
 

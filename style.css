@@ -1283,17 +1283,29 @@
         background: #e0f2fe;
     }
     
-    .folder-icon { 
-        font-size: 2rem; 
-        margin-bottom: 5px; 
+    .folder-icon-container {
+        position: relative;
+        width: 60px;
+        height: 48px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .folder-svg {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
     }
     
     .folder-card.folder-home {
         grid-column: 1 / -1;
     }
     
-    .folder-card.folder-home .folder-icon {
-        font-size: 2.5rem;
+    .folder-card.folder-home .folder-icon-container {
+        width: 72px;
+        height: 58px;
     }
     .folder-label {
         font-size: 0.7rem;
@@ -1304,20 +1316,22 @@
     
     .folder-badge {
         position: absolute;
-        top: -5px;
-        right: -5px;
-        background: #118AB2;
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #118AB2; /* Sleek teal count badge */
         color: white;
-        font-size: 0.65rem;
+        font-size: 0.75rem;
         font-weight: 900;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
+        padding: 1px 7px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: 1.5px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        pointer-events: none;
+        line-height: 1.2;
     }
     
     .corner-badge {
