@@ -613,24 +613,44 @@ folder.onclick = () => performFolderAction(index);
         const badge = count > 0 ? `<div class="folder-badge">${count}</div>` : '';
         const label = month === "Home" ? "Home Practice" : month.substring(0, 3);
 
-        // Premium Custom SVGs (purple for Home, gold for Months)
+        // Premium Modern SVG with Smooth Rounded Corners and Rich Gradients
         let svgContent = '';
         if (month === "Home") {
             svgContent = `
-                <svg class="folder-svg" viewBox="0 0 100 80">
-                    <!-- Folder Back flap -->
-                    <path d="M10 15 L35 15 L43 25 L90 25 L90 70 L10 70 Z" fill="#7b2cbf" />
-                    <!-- Folder Front pocket -->
-                    <path d="M10 32 L90 32 L90 70 L10 70 Z" fill="#9d4edd" />
+                <svg class="folder-svg" viewBox="0 0 100 85" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="purpleBack-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#8b5cf6" />
+                            <stop offset="100%" stop-color="#5b21b6" />
+                        </linearGradient>
+                        <linearGradient id="purpleFront-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#a78bfa" />
+                            <stop offset="100%" stop-color="#7c3aed" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Rounded Folder Back -->
+                    <path d="M 12 25 C 12 18, 15 15, 22 15 L 38 15 C 43 15, 45 20, 48 23 C 50 25, 53 25, 57 25 L 84 25 C 89 25, 92 28, 92 33 L 92 72 C 92 77, 89 80, 84 80 L 16 80 C 11 80, 8 77, 8 72 L 8 33 C 8 28, 9 25, 12 25 Z" fill="url(#purpleBack-${index})" />
+                    <!-- Rounded Folder Front Cover -->
+                    <rect x="8" y="32" width="84" height="48" rx="8" ry="8" fill="url(#purpleFront-${index})" />
                 </svg>
             `;
         } else {
             svgContent = `
-                <svg class="folder-svg" viewBox="0 0 100 80">
-                    <!-- Folder Back flap -->
-                    <path d="M10 15 L35 15 L43 25 L90 25 L90 70 L10 70 Z" fill="#d97706" />
-                    <!-- Folder Front pocket -->
-                    <path d="M10 32 L90 32 L90 70 L10 70 Z" fill="#ffb703" />
+                <svg class="folder-svg" viewBox="0 0 100 85" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldBack-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#f59e0b" />
+                            <stop offset="100%" stop-color="#b45309" />
+                        </linearGradient>
+                        <linearGradient id="goldFront-${index}" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#fbbf24" />
+                            <stop offset="100%" stop-color="#f59e0b" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Rounded Folder Back -->
+                    <path d="M 12 25 C 12 18, 15 15, 22 15 L 38 15 C 43 15, 45 20, 48 23 C 50 25, 53 25, 57 25 L 84 25 C 89 25, 92 28, 92 33 L 92 72 C 92 77, 89 80, 84 80 L 16 80 C 11 80, 8 77, 8 72 L 8 33 C 8 28, 9 25, 12 25 Z" fill="url(#goldBack-${index})" />
+                    <!-- Rounded Folder Front Cover -->
+                    <rect x="8" y="32" width="84" height="48" rx="8" ry="8" fill="url(#goldFront-${index})" />
                 </svg>
             `;
         }
