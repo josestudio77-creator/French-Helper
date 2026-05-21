@@ -2696,7 +2696,7 @@ body.mode-spelling .spelling-slots {
     border: none !important;
     box-shadow: none;
     border-radius: 0;
-    padding: 10px 14px !important; /* Shrinks the inner gap to maximize width */
+    padding: 10px 14px 110px 14px !important; /* Inset bottom by 110px to fully clear the bottom navigation buttons */
     max-width: 600px; /* Gives it more room to stretch on larger screens */
 }
 
