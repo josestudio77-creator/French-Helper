@@ -1367,7 +1367,7 @@
     }
     
     .history-item { 
-        padding: 15px; 
+        padding: 15px 12px; /* Slightly reduced horizontal padding to maximize button container room */
         border: 3px solid #9d4edd;
         display: flex; 
         flex-direction: column; 
@@ -2716,7 +2716,7 @@ body.mode-spelling .spelling-slots {
     border-radius: 0;
     height: calc(100vh - 15px) !important; /* Full height minus top padding */
     padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Ends exactly 15px above bottom-nav, identical to main screen */
-    max-width: 600px; /* Gives it more room to stretch on larger screens */
+    max-width: 700px; /* Wider backpack container so inside buttons have plenty of space */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -3242,7 +3242,7 @@ body.mode-spelling .spelling-slots {
 
     /* Backpack Drawer: convert homework list to 2-column grid */
     #bpModal .overlay-content {
-        max-width: 800px !important;
+        max-width: 950px !important; /* Extremely wide and comfortable desktop layout */
     }
     #bpList {
         display: grid !important;
@@ -3255,6 +3255,7 @@ body.mode-spelling .spelling-slots {
         flex-direction: column !important;
         justify-content: space-between !important;
         min-height: 180px !important;
+        padding: 15px 10px !important; /* Optimized horizontal padding to give buttons maximum room */
     }
 
     /* Practice Presets: convert to a gorgeous 3-column layout */
