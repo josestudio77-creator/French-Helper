@@ -2702,6 +2702,8 @@ body.mode-spelling .spelling-slots {
     border-radius: 0;
     padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Dynamically calculated to fully clear the bottom navigation buttons with precise spacing */
     max-width: 600px; /* Gives it more room to stretch on larger screens */
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 #bpModal .overlay-content h2 {
