@@ -299,6 +299,7 @@ window.onload = () => {
     
     setTimeout(() => {
         setViewMode(state.viewMode);
+        initControlPanelCollapse();
         displayAudioPlayer();
         if (state.currentWeekAudio && state.viewMode !== 'dialogue') {
             setViewMode('dialogue');

@@ -595,14 +595,54 @@
     /* ==================== CONTROL PANEL & AUTOPLAY ==================== */
     
     .app-control-panel {
-        background: white !important;
-        border-radius: 25px;
+        background: linear-gradient(135deg, #f5f3ff, #ede9fe) !important;
+        border-radius: 25px !important;
         padding: 12px 15px;
         margin-bottom: 15px;
-        border: 3px solid #118AB2;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        position: relative; 
-        z-index: 5;
+        border: 3px solid #6366f1 !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+        position: -webkit-sticky;
+        position: sticky;
+        top: 10px; 
+        z-index: 100;
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    
+    .control-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px dashed #cbd5e1;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .control-panel-header:hover {
+        opacity: 0.85;
+    }
+    #controlPanelCollapseArrow {
+        font-size: 1rem;
+        color: #6366f1;
+        transition: transform 0.2s;
+        padding-left: 10px;
+        font-weight: 900;
+        display: inline-block;
+    }
+    .control-panel-body {
+        transition: max-height 0.3s ease-in-out;
+    }
+    .app-control-panel.collapsed .control-panel-body {
+        display: none !important;
+    }
+    .app-control-panel.collapsed .control-panel-header {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    .app-control-panel.collapsed {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+        border-radius: 20px !important;
     }
     
     #autoplayControls {
@@ -618,14 +658,14 @@
         font-weight: 900;
         font-size: 0.9rem;
         color: #2d3748;
-        margin-bottom: 10px;
         display: block;
-        border-bottom: 2px dashed #e2e8f0;
-        padding-bottom: 8px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 100%;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
     }
     
     .speech-speed-label { 

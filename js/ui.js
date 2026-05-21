@@ -1856,6 +1856,33 @@ function toggleHintMode() {
     }
     showKeyboardSettings(); // Rebuild the popup to update visually
 }
+
+function toggleControlPanelCollapse() {
+    const panel = document.querySelector('.app-control-panel');
+    const arrow = document.getElementById('controlPanelCollapseArrow');
+    if (!panel) return;
+    
+    const isCollapsed = panel.classList.toggle('collapsed');
+    if (arrow) {
+        arrow.textContent = isCollapsed ? '▼' : '▲';
+    }
+    localStorage.setItem('controlPanelCollapsed', isCollapsed ? 'true' : 'false');
+}
+
+function initControlPanelCollapse() {
+    const panel = document.querySelector('.app-control-panel');
+    const arrow = document.getElementById('controlPanelCollapseArrow');
+    if (!panel) return;
+    
+    const shouldCollapse = localStorage.getItem('controlPanelCollapsed') === 'true';
+    if (shouldCollapse) {
+        panel.classList.add('collapsed');
+        if (arrow) arrow.textContent = '▼';
+    } else {
+        panel.classList.remove('collapsed');
+        if (arrow) arrow.textContent = '▲';
+    }
+}
     
 
 
