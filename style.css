@@ -116,6 +116,7 @@
         font-size: 1rem;
         font-weight: 800;
         color: #4a5568;
+        margin: 0 4px !important; /* Spacing fallback for older Safari flex gap */
         
         /* The 3D chunky shadow effect */
         box-shadow: 0 4px 0 #cbd5e0, inset 0 -2px 0 rgba(0,0,0,0.02);
@@ -544,11 +545,11 @@
         font-weight: 900;
         cursor: pointer;
         white-space: nowrap;
+        margin: 0 3px !important; /* Spacing fallback for older Safari flex gap */
     }
     
     .game-actions {
         display: flex;
-        gap: 10px;
         margin-top: 25px;
         width: 100%;
     }
@@ -566,6 +567,7 @@
         justify-content: center;
         gap: 8px;
         white-space: nowrap;
+        margin: 0 5px !important; /* Spacing fallback for older Safari flex gap */
     }
     
     .game-actions button:active {
@@ -1526,6 +1528,7 @@
     border-radius: 12px !important; 
     background: #fffdf0 !important; 
     font-size: 1.1rem;
+    margin: 0 4px !important; /* Spacing fallback for older Safari flex gap */
     
     /* Forces the chunky shadow to match perfectly */
     box-shadow: 0 4px 0 #e6c200, inset 0 -2px 0 rgba(0,0,0,0.02) !important;
@@ -1674,10 +1677,11 @@ body.mode-spelling #phrasesList {
 .k-key {
     height: 40px !important; /* Shorter keys globally */
     font-size: 1rem !important;
+    margin: 2px !important; /* Fallback for older Safari flex gap */
 }
  
 .keyboard-row {
-    gap: 4px !important;
+    /* flex gap handled via key margins on older Safari */
 }
  
 
@@ -1739,6 +1743,10 @@ body.mode-spelling #phrasesList {
     transition: all 0.2s;
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
     flex-shrink: 1;
+    margin: 4px !important; /* Spacing fallback for older Safari flex gap */
+}
+.word-box .bee-slot {
+    margin: 2px !important; /* Tighter spacing inside spelling word boxes */
 }
  
 .bee-slot.filled {
@@ -1904,7 +1912,6 @@ body.mode-spelling .spelling-slots {
     .keyboard-row {
         display: flex;
         justify-content: center; /* This keeps your keyboard perfectly centered */
-        gap: 4px;
         width: 100%;
         flex-wrap: nowrap !important;
     }
@@ -1931,6 +1938,7 @@ body.mode-spelling .spelling-slots {
         transition: all 0.1s;
         box-shadow: 0 4px 0 #cbd5e0;
         box-sizing: border-box;
+        margin: 2px !important; /* Fallback for older Safari flex gap */
     }
      
     .k-key:active, .k-key.key-pressed { 
@@ -3175,4 +3183,11 @@ body.mode-spelling .spelling-slots {
         align-items: center !important;
         justify-content: center !important;
     }
+}
+
+/* Spacing fallback for checkboxes inside parent drawers & print selections */
+#parentDrawer label input[type="checkbox"],
+#printSelectionMain label input[type="checkbox"],
+#hwIsDialogue {
+    margin-right: 12px !important;
 }

@@ -270,11 +270,31 @@ function spkWithCallback(t, lang, forceInterrupt, speedOverride, isLetterMode, o
         u.rate = speedOverride || state.speechSpeed;
         const v = (lang === 'fr-FR') ? state.selectedFrVoice : state.cachedEnVoice;
         if (v) u.voice = v;
-        u.onerror = (e) => { console.warn('[Audio] TTS error:', e.error); if (onEnd) onEnd(); };
-        u.onend = () => { if (onEnd) onEnd(); };
+
+        let finished = false;
+        const complete = () => {
+            if (finished) return;
+            finished = true;
+            if (window.activeUtterances) {
+                const idx = window.activeUtterances.indexOf(u);
+                if (idx > -1) window.activeUtterances.splice(idx, 1);
+            }
+            if (onEnd) onEnd();
+        };
+
+        u.onerror = (e) => { 
+            console.warn('[Audio] TTS error:', e.error); 
+            complete(); 
+        };
+        u.onend = () => { 
+            complete(); 
+        };
+
+        // iOS GC prevention
+        window.activeUtterances = window.activeUtterances || [];
+        window.activeUtterances.push(u);
 
         setTimeout(() => {
-            window.speechSynthesis.cancel();
             window.speechSynthesis.speak(u);
         }, 50);
     } catch (e) {

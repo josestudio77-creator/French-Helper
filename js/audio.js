@@ -104,9 +104,21 @@ function initVoices() {
 
         state.frVoices = voices.filter(v => v.lang.toLowerCase().includes('fr'));
 
-        state.selectedFrVoice = state.frVoices.find(v => v.name.includes('Amelie') || v.name.includes('Thomas')) || state.frVoices[0] || null;
+        state.selectedFrVoice = state.frVoices.find(v => v.localService && (v.name.includes('Amelie') || v.name.includes('Thomas')))
+            || state.frVoices.find(v => v.name.includes('Amelie') || v.name.includes('Thomas'))
+            || state.frVoices.find(v => v.localService)
+            || state.frVoices[0] 
+            || null;
 
-        state.cachedEnVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Neural')) || voices.find(v => v.lang.startsWith('en')) || null;
+        // Prioritize local non-neural English voices on iOS/Safari to prevent cloud-request latencies, then fallback to others
+        const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+        state.cachedEnVoice = enVoices.find(v => v.localService && !v.name.includes('Neural')) 
+            || enVoices.find(v => v.name.includes('Samantha'))
+            || enVoices.find(v => v.name.includes('Daniel'))
+            || enVoices.find(v => v.name.includes('Siri'))
+            || enVoices.find(v => v.name.includes('Neural'))
+            || enVoices[0] 
+            || null;
 
         console.log('[Audio] Voices loaded: fr=' + (state.selectedFrVoice ? state.selectedFrVoice.name : 'default') + ', en=' + (state.cachedEnVoice ? state.cachedEnVoice.name : 'default'));
 
@@ -277,16 +289,26 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode
 
         if (v) u.voice = v;
 
-        u.onerror = (e) => console.warn('[Audio] TTS utterance error:', e.error);
+        u.onerror = (e) => {
+            console.warn('[Audio] TTS utterance error:', e.error);
+            if (window.activeUtterances) {
+                const idx = window.activeUtterances.indexOf(u);
+                if (idx > -1) window.activeUtterances.splice(idx, 1);
+            }
+        };
+        u.onend = () => {
+            if (window.activeUtterances) {
+                const idx = window.activeUtterances.indexOf(u);
+                if (idx > -1) window.activeUtterances.splice(idx, 1);
+            }
+        };
 
-
+        // Keep active reference to prevent GC on iOS Safari
+        window.activeUtterances = window.activeUtterances || [];
+        window.activeUtterances.push(u);
 
         setTimeout(() => {
-
-            window.speechSynthesis.cancel();
-
             window.speechSynthesis.speak(u);
-
         }, 50);
 
     } catch (e) {
