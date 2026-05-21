@@ -328,6 +328,10 @@
     
     /* ==================== BOTTOM NAVIGATION ==================== */
     
+    :root {
+        --bottom-nav-height: 80px;
+    }
+    
     .bottom-nav { 
         position: fixed; 
         bottom: 0; 
@@ -337,7 +341,7 @@
         border-top: 4px solid #5a67d8; 
         display: flex; 
         z-index: 9000;
-        height: 80px; 
+        height: var(--bottom-nav-height); 
     }
     
     .nav-item { 
@@ -421,7 +425,7 @@
         max-width: 500px;
         margin: 0 auto;
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        padding-bottom: 80px !important; 
+        padding-bottom: calc(var(--bottom-nav-height) + 15px) !important; 
         position: relative;
     }
     
@@ -2696,7 +2700,7 @@ body.mode-spelling .spelling-slots {
     border: none !important;
     box-shadow: none;
     border-radius: 0;
-    padding: 10px 14px 110px 14px !important; /* Inset bottom by 110px to fully clear the bottom navigation buttons */
+    padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Dynamically calculated to fully clear the bottom navigation buttons with precise spacing */
     max-width: 600px; /* Gives it more room to stretch on larger screens */
 }
 
@@ -2756,7 +2760,7 @@ body.mode-spelling .spelling-slots {
     box-shadow: none !important;
     border-radius: 0 !important;
     border: none !important;
-    padding: 15px 10px 80px 10px !important;
+    padding: 15px 10px calc(var(--bottom-nav-height) + 15px) 10px !important;
 }
 
 #folderSelectionOverlay .overlay-content h2 {
