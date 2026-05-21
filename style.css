@@ -601,17 +601,15 @@
         margin-bottom: 15px;
         border: 3px solid #6366f1 !important;
         box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
-        position: -webkit-sticky;
-        position: sticky;
-        top: 10px; 
-        z-index: 100;
+        position: relative; 
+        z-index: 5;
         transition: box-shadow 0.2s, transform 0.2s;
     }
     
     .control-panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        display: block;
+        position: relative;
+        text-align: center;
         border-bottom: 2px dashed #cbd5e1;
         padding-bottom: 8px;
         margin-bottom: 10px;
@@ -624,8 +622,11 @@
     #controlPanelCollapseArrow {
         font-size: 1rem;
         color: #6366f1;
+        position: absolute;
+        right: 25px; 
+        top: 50%;
+        transform: translateY(-50%);
         transition: transform 0.2s;
-        padding-left: 10px;
         font-weight: 900;
         display: inline-block;
     }
@@ -659,13 +660,12 @@
         font-size: 0.9rem;
         color: #2d3748;
         display: block;
+        text-align: center;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 100%;
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
+        max-width: calc(100% - 70px);
+        margin: 0 auto;
     }
     
     .speech-speed-label { 
@@ -2893,17 +2893,13 @@ body.mode-spelling .spelling-slots {
 
 /* GPU Hardware Acceleration for scrollable list cards on legacy WebKit */
 .phrase-card,
-.condensed-card,
-.history-item,
-.folder-card,
-.preset-btn {
+.condensed-card {
     will-change: transform;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     transform-style: preserve-3d;
-    contain: content; /* Isolates card layout and paint boundaries for rapid scroll lists */
 }
 
 /* --- Bottom action buttons (French, Record): deeper shadow for tap targets --- */
