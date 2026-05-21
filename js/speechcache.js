@@ -217,7 +217,21 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         console.warn('[SpeechCache] Lookup error, falling back to browser TTS:', err.message || err);
     }
     
-    // No cached audio — use browser TTS
+    // No cached audio in StorageDB — check for pre-recorded studio alphabet WAVs
+    if (lang === 'fr-FR' && text.trim().length === 1) {
+        const letterKey = text.trim().toLowerCase();
+        if (state.audioBuffers && state.audioBuffers[letterKey]) {
+            console.log('[SpeechCache] PLAYING PRE-RECORDED WAV FOR LETTER: "' + letterKey + '"');
+            if (typeof playLetterAudio === 'function') {
+                await new Promise((resolve) => {
+                    playLetterAudio(letterKey, resolve);
+                });
+                return;
+            }
+        }
+    }
+    
+    // No cached audio or pre-recorded WAV — use browser TTS
     // Wait for speech to actually finish before resolving
     console.log('[SpeechCache] FALLBACK TO BROWSER TTS: "' + text + '"');
     if (typeof spk === 'function') {
