@@ -2716,7 +2716,8 @@ body.mode-spelling .spelling-slots {
     border-radius: 0;
     height: calc(100vh - 15px) !important; /* Full height minus top padding */
     padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Ends exactly 15px above bottom-nav, identical to main screen */
-    max-width: 700px; /* Wider backpack container so inside buttons have plenty of space */
+    width: 100% !important; /* Stretch to fill available screen width inside overlay padding */
+    max-width: 850px !important; /* Generous default room for tablet/mobile portrait */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -3242,7 +3243,8 @@ body.mode-spelling .spelling-slots {
 
     /* Backpack Drawer: convert homework list to 2-column grid */
     #bpModal .overlay-content {
-        max-width: 950px !important; /* Extremely wide and comfortable desktop layout */
+        width: 100% !important;
+        max-width: 1250px !important; /* Massive and beautiful wide desktop grid layout */
     }
     #bpList {
         display: grid !important;
