@@ -25,6 +25,19 @@
         overflow-x: hidden; 
     }
     
+    button,
+    .key,
+    .k-key,
+    .tool-btn,
+    .card-btn,
+    .preset-btn,
+    .folder-card,
+    .history-item,
+    .bee-badge,
+    [role="button"] {
+        touch-action: manipulation; /* Removes 300ms click delay on mobile */
+    }
+
     button {
         transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s, border-color 0.2s;
         outline: none !important;
@@ -2792,9 +2805,8 @@ body.mode-spelling .spelling-slots {
 
 /* --- Folder cards: match homework card style --- */
 .folder-card {
-    background: rgba(255,255,255,0.94) !important;
-    border: 2px solid rgba(255,255,255,0.6) !important;
-    backdrop-filter: blur(14px);
+    background: #ffffff !important;
+    border: 2px solid rgba(0,0,0,0.06) !important;
     transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
 }
 .folder-card:hover {
@@ -2810,8 +2822,7 @@ body.mode-spelling .spelling-slots {
 
 /* --- Preset buttons: match folder card style --- */
 .preset-btn {
-    background: rgba(255,255,255,0.94) !important;
-    backdrop-filter: blur(6px);
+    background: #ffffff !important;
     border-width: 2px !important;
     transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
 }
@@ -2826,8 +2837,7 @@ body.mode-spelling .spelling-slots {
 
 /* --- History items (backpack): match card style --- */
 .history-item {
-    background: rgba(255,255,255,0.95) !important;
-    backdrop-filter: blur(14px);
+    background: #ffffff !important;
     border: 4px solid #9d4edd !important; /* THICKER solid purple border */
     transition: transform 0.15s, box-shadow 0.2s;
 }
@@ -2852,6 +2862,8 @@ body.mode-spelling .spelling-slots {
     transform: translate3d(0, 0, 0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
+    contain: content; /* Isolates card layout and paint boundaries for rapid scroll lists */
 }
 
 /* --- Bottom action buttons (French, Record): deeper shadow for tap targets --- */
