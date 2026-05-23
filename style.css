@@ -342,6 +342,7 @@
         display: flex; 
         z-index: 9000;
         height: var(--bottom-nav-height); 
+        overflow: visible; /* Allow centerpiece to float out */
     }
     
     .nav-item { 
@@ -379,15 +380,61 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 34px; /* Uniform slot matching our 3D SVGs */
+        height: 42px; /* Uniform slot matching our 3D SVGs */
         transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .nav-icon-img {
-        width: 32px;
-        height: 32px;
+        width: 38px;
+        height: 38px;
         object-fit: contain;
         display: block;
+        transition: transform 0.2s ease;
+    }
+    
+    /* Centerpiece Floating 3D Backpack Tab */
+    .nav-backpack {
+        position: relative;
+        overflow: visible !important;
+        padding-top: 46px !important;
+    }
+    
+    .nav-backpack span {
+        position: absolute !important;
+        top: -24px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 62px !important;
+        height: 62px !important;
+        background: #ffffff !important;
+        border: 4px solid #9d4edd !important;
+        border-radius: 50% !important;
+        box-shadow: 0 8px 20px rgba(157, 78, 221, 0.3), 
+                    0 4px 10px rgba(0, 0, 0, 0.1) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 10 !important;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+    
+    .nav-backpack .nav-icon-img {
+        width: 42px !important;
+        height: 42px !important;
+    }
+    
+    .nav-backpack.nav-item.active {
+        border-top: 6px solid transparent !important;
+        box-shadow: none !important;
+        padding-top: 46px !important;
+        background: #fdf2ff !important;
+    }
+    
+    .nav-backpack.nav-item.active span {
+        transform: translateX(-50%) scale(1.1) translateY(-4px) !important;
+        box-shadow: 0 12px 28px rgba(157, 78, 221, 0.45), 
+                    0 6px 14px rgba(0, 0, 0, 0.12) !important;
+        background: #fdf2ff !important;
     }
     
     /* Dynamic background holes for 3D SVGs */
