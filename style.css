@@ -366,16 +366,24 @@
     }
     
     .nav-item.active span {
-        transform: scale(1.2);
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        transform: scale(1.15);
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.12));
     }
        
     .nav-item span {
-        font-size: 1.7rem;
-        display: block;
-        line-height: 1;
-        transition: transform 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 34px; /* Uniform slot matching our 3D SVGs */
+        transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    
+    /* Dynamic background holes for 3D SVGs */
+    .nav-presets .palette-hole-bg { fill: #fff5f0; transition: fill 0.2s ease; }
+    .nav-presets.active .palette-hole-bg { fill: #ffffff; }
+
+    .nav-parent .gear-hole-bg { fill: #f0f9ff; transition: fill 0.2s ease; }
+    .nav-parent.active .gear-hole-bg { fill: #ffffff; }
     
     .nav-presets { 
         color: #ff9e6d; 
