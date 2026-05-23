@@ -220,10 +220,10 @@ state.currentSpellingState = {
 renderSpellingSlots();
 renderMiniKeyboard();
 
-// Then speak the word
+// Then speak the word after the theater entrance animation settles (900ms)
 setTimeout(() => {
     SpeechCache.playCachedAudio(words[0], 'fr-FR');
-}, 100);
+}, 900);
     }
     
 function renderSpellingSlots() {
