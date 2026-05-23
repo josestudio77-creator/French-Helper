@@ -308,9 +308,7 @@ function spkWithCallback(t, lang, forceInterrupt, speedOverride, isLetterMode, o
         window.activeUtterances = window.activeUtterances || [];
         window.activeUtterances.push(u);
 
-        setTimeout(() => {
-            window.speechSynthesis.speak(u);
-        }, 50);
+        window.speechSynthesis.speak(u);
     } catch (e) {
         console.error('Speech Synthesis Error:', e);
         if (onEnd) onEnd();

@@ -307,9 +307,7 @@ function spk(t, lang, forceInterrupt = false, speedOverride = null, isLetterMode
         window.activeUtterances = window.activeUtterances || [];
         window.activeUtterances.push(u);
 
-        setTimeout(() => {
-            window.speechSynthesis.speak(u);
-        }, 50);
+        window.speechSynthesis.speak(u);
 
     } catch (e) {
 
