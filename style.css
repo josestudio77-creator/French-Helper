@@ -380,13 +380,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 42px; /* Uniform slot matching our 3D SVGs */
+        height: 46px; /* Uniform slot matching our 3D SVGs */
         transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .nav-icon-img {
-        width: 38px;
-        height: 38px;
+        width: 46px; /* Enlarged to 46px to bring out maximum detail */
+        height: 46px;
         object-fit: contain;
         display: block;
         transition: transform 0.2s ease;
