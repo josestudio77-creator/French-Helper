@@ -423,6 +423,29 @@
                 drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)) !important;
     }
     
+    .nav-practice.nav-item.active .nav-icon-img {
+        filter: drop-shadow(0 10px 16px rgba(76, 217, 100, 0.45)) 
+                drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)) !important;
+    }
+
+    .nav-presets.nav-item.active .nav-icon-img,
+    .nav-presets.nav-item.active svg {
+        filter: drop-shadow(0 10px 16px rgba(255, 158, 109, 0.45)) 
+                drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)) !important;
+    }
+
+    .nav-game.nav-item.active .nav-icon-img,
+    .nav-game.nav-item.active svg {
+        filter: drop-shadow(0 10px 16px rgba(255, 107, 139, 0.45)) 
+                drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)) !important;
+    }
+
+    .nav-parent.nav-item.active .nav-icon-img,
+    .nav-parent.nav-item.active svg {
+        filter: drop-shadow(0 10px 16px rgba(17, 138, 178, 0.45)) 
+                drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15)) !important;
+    }
+    
     /* Dynamic background holes for 3D SVGs */
     .nav-presets .palette-hole-bg { fill: #fff5f0; transition: fill 0.2s ease; }
     .nav-presets.active .palette-hole-bg { fill: #ffffff; }
