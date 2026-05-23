@@ -639,7 +639,9 @@ function playVictorySound() {
 
         gain.gain.linearRampToValueAtTime(0.25, now + note.start + note.duration * 0.5);
 
-        gain.gain.exponentialRampToValueAtTime(0.01, now + note.start + note.duration);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + note.start + note.duration - 0.02);
+
+        gain.gain.linearRampToValueAtTime(0, now + note.start + note.duration);
 
         
 
@@ -707,7 +709,9 @@ function playTheaterIntro() {
 
         gain.gain.linearRampToValueAtTime(0.25, now + (index * 0.15) + 0.05);
 
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.15);
+
+        gain.gain.linearRampToValueAtTime(0, now + 1.2);
 
         
 
@@ -773,7 +777,9 @@ function playTheaterExit() {
 
         gain.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
 
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.0);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.95);
+
+        gain.gain.linearRampToValueAtTime(0, startTime + 1.0);
 
         
 
@@ -813,7 +819,9 @@ function playDingSound() {
 
     gain.gain.setValueAtTime(0.1, now);
 
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    gain.gain.linearRampToValueAtTime(0, now + 0.2);
 
     osc.connect(gain);
 

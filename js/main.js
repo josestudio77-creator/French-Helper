@@ -17,7 +17,8 @@ function playWelcomeChime() {
         osc.frequency.setValueAtTime(freq, now + (i * 0.1));
         gain.gain.setValueAtTime(0, now + (i * 0.1));
         gain.gain.linearRampToValueAtTime(0.1, now + (i * 0.1) + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.45);
+        gain.gain.linearRampToValueAtTime(0, now + 1.5);
         osc.connect(gain);
         gain.connect(state.musicContext.destination);
         osc.start(now + (i * 0.1));
