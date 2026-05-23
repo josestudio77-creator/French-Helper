@@ -473,6 +473,11 @@
         background: #f0fff4;
     }
     
+    .nav-practice .nav-icon-img {
+        width: 53px !important; /* Balance visual weight of wide open-book shape */
+        height: 53px !important;
+    }
+    
     .nav-parent { 
         color: #118AB2; 
         background: #f0f9ff; 
