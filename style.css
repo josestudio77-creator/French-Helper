@@ -366,15 +366,14 @@
     
     .nav-item.active {
         color: #ffffff !important; /* Premium high-contrast white text when active */
-        background: rgba(0, 0, 0, 0.24) !important; /* Semi-transparent tint letting brand colors shine through */
         box-shadow: inset 0 8px 12px rgba(0, 0, 0, 0.35), 
                     inset 4px 0 6px rgba(0, 0, 0, 0.20), 
                     inset -4px 0 6px rgba(0, 0, 0, 0.20) !important; /* Deeper physical pressed shadows */
     }
     
     .nav-item.active span {
-        transform: translateY(-17px) scale(1.23) !important; /* Unified premium 3D up-float matching the centerpiece */
-        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
+        transform: translateY(-20px) scale(1.28) !important; /* Dramatic, premium 3D up-float matching the centerpiece */
+        filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
     }
        
     .nav-item span {
@@ -400,8 +399,8 @@
     }
     
     .nav-item.active .nav-icon-img {
-        filter: drop-shadow(0 12px 14px rgba(45, 55, 72, 0.32)) 
-                drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18)) !important;
+        filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.45)) 
+                drop-shadow(0 6px 8px rgba(0, 0, 0, 0.22)) !important; /* Extremely deep floating ambient shadows */
     }
     
 
@@ -412,25 +411,40 @@
         color: #ff9e6d; 
         background: #fff5f0; 
     }
+    .nav-presets.active {
+        background: #d95d39 !important; /* Sophisticated warm terracotta copper well */
+    }
     
     .nav-game { 
         color: #ff6b8b; 
         background: #fff5f7; 
+    }
+    .nav-game.active {
+        background: #c12c58 !important; /* Sophisticated deep berry-pink well */
     }
     
     .nav-backpack { 
         color: #9d4edd; 
         background: #fdf2ff; 
     }
+    .nav-backpack.active {
+        background: #5a3e8c !important; /* Sophisticated royal deep purple well */
+    }
     
     .nav-practice {
         color: #4cd964;
         background: #f0fff4;
     }
+    .nav-practice.active {
+        background: #2d6a4f !important; /* Sophisticated rich deep forest green well */
+    }
     
     .nav-parent { 
         color: #118AB2; 
         background: #f0f9ff; 
+    }
+    .nav-parent.active {
+        background: #0f4c81 !important; /* Sophisticated classic deep navy-indigo well */
     }
     
     
