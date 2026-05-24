@@ -8,6 +8,10 @@
         font-display: swap;
     }
        
+    html {
+        scrollbar-gutter: stable;
+    }
+
     * { 
         box-sizing: border-box; 
         margin: 0; 
@@ -375,13 +379,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 46px; /* Uniform slot matching our 3D SVGs */
+        height: 52px; /* Uniform slot matching all 3D SVGs/images */
         transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .nav-icon-img {
-        width: 46px; /* Enlarged to 46px to bring out maximum detail */
-        height: 46px;
+        width: 52px; /* High detail uniform icon width */
+        height: 52px; /* High detail uniform icon height */
         object-fit: contain;
         display: block;
         transition: transform 0.2s ease;
@@ -391,21 +395,6 @@
     .nav-backpack {
         position: relative;
         overflow: visible !important;
-    }
-    
-    .nav-backpack span {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: 42px !important;
-        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    }
-    
-    .nav-backpack .nav-icon-img {
-        width: 52px !important; /* Large, rich centerpiece by default! */
-        height: 52px !important;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
     }
     
     .nav-backpack.nav-item.active .nav-icon-img {
