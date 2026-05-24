@@ -372,7 +372,7 @@
     }
     
     .nav-item.active span {
-        transform: translateY(-9px) scale(1.18); /* Unified premium up-float (reduced 20%) */
+        transform: translateY(-17px) scale(1.23) !important; /* Unified premium 3D up-float matching the centerpiece */
         filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
     }
        
@@ -411,11 +411,6 @@
         height: 52px !important;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-    }
-    
-    /* When active, the backpack itself scales up and floats upwards past the top border! */
-    .nav-backpack.nav-item.active span {
-        transform: translateY(-17px) scale(1.23) !important; /* Reduced up movement by 20% to exactly 17px */
     }
     
     .nav-backpack.nav-item.active .nav-icon-img {
