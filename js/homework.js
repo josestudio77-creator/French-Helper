@@ -894,7 +894,7 @@ async function translateIfNeeded(words, showProgress = true) {
                     msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Processed ${i + 1}/${list.length}...</div>`;
                 }
             }
-            await new Promise(resolve => setTimeout(resolve, 10));
+            // No delay needed — phonetic is synchronous, translations are already sequential
         }
     }
     
