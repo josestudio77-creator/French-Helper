@@ -839,59 +839,68 @@ onDelete: () => {
 }
 
 function needsTranslation(words) {
-    const list = words.split('\n').filter(l => l.trim().length > 0);
+    const list = words.split('\n').filter(l => l.trim().length > 1);
     for (let p of list) {
-const n = norm(p);
-if (!MASTER_DATA[p] && !(state.cache[n] && state.cache[n] !== "...")) {
-    return true; // Found a phrase that needs translation
-}
+        const n = norm(p);
+        const hasTranslation = MASTER_DATA[p] || (state.cache[n] && state.cache[n] !== "...");
+        const hasPronunciation = (MASTER_DATA[p] && MASTER_DATA[p].pronunciation) || state.customPronunciations[n];
+        if (!hasTranslation || !hasPronunciation) {
+            return true;
+        }
     }
-    return false; // All phrases translated
+    return false;
 }
 
 async function translateIfNeeded(words, showProgress = true) {
-    // NEW: Filter the list to ignore single letters (the alphabet)
-    // We only want to auto-translate phrases with 2 or more characters
     const list = words.split('\n').filter(l => l.trim().length > 1);
-    
-    // If the list is empty (it's just the alphabet), we return immediately
     if (list.length === 0) return words;
 
-    if (!needsTranslation(words)) return words; // Nothing to translate
+    if (!needsTranslation(words)) return words; 
     
     let successCount = 0;
     
     if (showProgress) {
-const msgDiv = document.getElementById('hwMessages');
-// Ensure this div exists before trying to update it
-if (msgDiv) {
-    msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">📝 Auto-translating... Please wait</div>';
-}
+        const msgDiv = document.getElementById('hwMessages');
+        if (msgDiv) {
+            msgDiv.innerHTML = '<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">📝 Translating & generating sound-alikes...</div>';
+        }
     }
     
-    // Translate each untranslated phrase
     for (let i = 0; i < list.length; i++) {
-const phrase = list[i];
-const n = norm(phrase);
+        const phrase = list[i];
+        const n = norm(phrase);
+        let updated = false;
 
-if (!MASTER_DATA[phrase] && !(state.cache[n] && state.cache[n] !== "...")) {
-    const result = await translateOne(phrase);
-    if (result) successCount++;
+        const hasTranslation = MASTER_DATA[phrase] || (state.cache[n] && state.cache[n] !== "...");
+        if (!hasTranslation) {
+            const result = await translateOne(phrase);
+            if (result) updated = true;
+        }
+
+        const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || state.customPronunciations[n];
+        if (!hasPronunciation) {
+            const result = await fetchPhoneticGuide(phrase);
+            if (result) updated = true;
+        }
+
+        if (updated) {
+            successCount++;
+            if (showProgress) {
+                const msgDiv = document.getElementById('hwMessages');
+                if (msgDiv) {
+                    msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Processed ${i + 1}/${list.length}...</div>`;
+                }
+            }
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+    }
     
     if (showProgress) {
         const msgDiv = document.getElementById('hwMessages');
-        msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Translated ${i + 1}/${list.length}...</div>`;
-    }
-    
-    // Small delay to avoid rate limiting
-    await new Promise(resolve => setTimeout(resolve, 300));
-}
-    }
-    
-    if (showProgress) {
-const msgDiv = document.getElementById('hwMessages');
-msgDiv.innerHTML = `<div class="success-message">✅ Auto-translated ${successCount} phrase${successCount > 1 ? 's' : ''}!</div>`;
-setTimeout(() => msgDiv.innerHTML = '', 2000);
+        if (msgDiv) {
+            msgDiv.innerHTML = `<div class="success-message">✅ Ready! Added translations & sound-alikes!</div>`;
+            setTimeout(() => msgDiv.innerHTML = '', 2000);
+        }
     }
     
     return words;
@@ -1039,5 +1048,32 @@ async function translateOne(p) {
         console.error('Translation error:', e);
         return null; 
     }
+}
+
+async function fetchPhoneticGuide(p) {
+    const n = norm(p);
+    for (let key in MASTER_DATA) {
+        if (norm(key) === n && MASTER_DATA[key].pronunciation) {
+            return MASTER_DATA[key].pronunciation;
+        }
+    }
+    if (state.customPronunciations[n]) {
+        return state.customPronunciations[n];
+    }
+    try {
+        const prompt = `You are a French teacher helper. Translate the French phrase "${p}" into a child-friendly English sound-alike phonetic pronunciation guide. Show ONLY the clean phonetic guide, without any extra text or explanation, and without quotes. Avoid academic symbols (use simple phonetic sound-alikes). Capitalize the stressed syllables. Examples: "Bonjour" -> "bohn-ZHOOR", "Au revoir" -> "oh ruh-VWAHR", "Comment ça va" -> "koh-MAHN sah vah". Phrase: "${p}"`;
+        const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+        if (!response.ok) throw new Error('Phonetic fetch failed');
+        let text = await response.text();
+        text = text.replace(/\[|\]|'|"/g, '').trim();
+        if (text && text.length < 100) {
+            state.customPronunciations[n] = text;
+            localStorage.setItem('customPronunciations', JSON.stringify(state.customPronunciations));
+            return text;
+        }
+    } catch (e) {
+        console.error('Phonetic generation error:', e);
+    }
+    return null;
 }
 

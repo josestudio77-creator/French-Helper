@@ -374,6 +374,7 @@ for (let key in MASTER_DATA) {
     // 2. SECOND: Determine the English text. 
     // We prioritize the USER CACHE (your manual fix) over the MASTER_DATA.
     const finalEn = state.cache[normalizedPhrase] || (baseData ? baseData.en : "") || "...";
+    const finalPronunciation = state.customPronunciations[normalizedPhrase] || (baseData ? baseData.pronunciation : undefined);
 
     // 3. THIRD: Check for custom photo (Preserving all your specific parameters)
     if (state.customPhotos[normalizedPhrase]) {
@@ -388,7 +389,7 @@ return {
     photoOrientation: isNewFormat ? photoData.orientation : 'landscape',
     isFreeCrop: isNewFormat ? photoData.isFreeCrop || false : false,
     customRatio: isNewFormat ? photoData.customRatio : null,
-    pronunciation: baseData ? baseData.pronunciation : undefined,
+    pronunciation: finalPronunciation,
     g: baseData ? baseData.g : undefined
 };
     }
@@ -398,7 +399,7 @@ return {
 return {
     en: finalEn, // <--- Using the prioritized translation
     icon: state.customIcons[normalizedPhrase],
-    pronunciation: baseData ? baseData.pronunciation : undefined,
+    pronunciation: finalPronunciation,
     g: baseData ? baseData.g : undefined,
     isCustom: true
 };
@@ -410,7 +411,7 @@ return {
 return {
     en: finalEn,
     icon: baseData.icon,
-    pronunciation: baseData.pronunciation,
+    pronunciation: finalPronunciation,
     g: baseData.g
 };
     }
@@ -430,7 +431,7 @@ return {
     else if (word.match(/cours|saute|chante|danse|dors|mange|joue|lis|ecris/)) smartIcon = "🎭";
     else if (word.match(/bonjour|salut|merci|revoir|bonne|nuit|soir/)) smartIcon = "👋";
     
-    return { en: finalEn, icon: smartIcon };
+    return { en: finalEn, icon: smartIcon, pronunciation: finalPronunciation };
 }
 
 function renderList(list) {

@@ -7,6 +7,7 @@ const state = {
     speechSpeed: parseFloat(localStorage.getItem('speechSpeed') || '0.7'),
     currentWeekAudio: null,
     cache: JSON.parse(localStorage.getItem('phraseTranslations') || '{}'),
+    customPronunciations: JSON.parse(localStorage.getItem('customPronunciations') || '{}'),
     syllableOverrides: JSON.parse(localStorage.getItem('syllableOverrides') || '{}'),
     history: JSON.parse(localStorage.getItem('frenchHistory') || '{}'),
     wins: parseInt(localStorage.getItem('gameWins') || '0'),
