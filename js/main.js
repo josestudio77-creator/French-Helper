@@ -176,7 +176,7 @@ function initExitGuard() {
 }
      
 // One-time cleanup: clear old AI-generated phonetic garbage from pre-v2 pipeline
-if (localStorage.getItem('phoneticDictVersion') !== 'v2') {
+if (localStorage.getItem('phoneticDictVersion') !== 'v3') {
     state.customPronunciations = {};
     localStorage.removeItem('customPronunciations');
     localStorage.setItem('phoneticDictVersion', 'v2');
