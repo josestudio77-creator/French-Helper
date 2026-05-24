@@ -448,8 +448,7 @@
     
 
 
-    .nav-parent .gear-hole-bg { fill: #f0f9ff; transition: fill 0.2s ease; }
-    .nav-parent.active .gear-hole-bg { fill: #ffffff; }
+
     
     .nav-presets { 
         color: #ff9e6d; 
