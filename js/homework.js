@@ -865,36 +865,37 @@ async function translateIfNeeded(words, showProgress = true) {
         }
     }
     
+    // Pass 1: Process all phonetics synchronously so they're ready before renderList
     for (let i = 0; i < list.length; i++) {
         const phrase = list[i];
         const n = norm(phrase);
-        let updated = false;
-
-        const hasTranslation = MASTER_DATA[phrase] || (state.cache[n] && state.cache[n] !== "");
-        if (!hasTranslation) {
-            const result = await translateOne(phrase);
-            if (result) updated = true;
-        }
-
         const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "");
         if (!hasPronunciation) {
             const result = fetchPhoneticGuide(phrase);
             if (result) {
                 state.customPronunciations[n] = result;
                 localStorage.setItem('customPronunciations', JSON.stringify(state.customPronunciations));
-                updated = true;
+                successCount++;
             }
         }
+    }
 
-        if (updated) {
-            successCount++;
-            if (showProgress) {
-                const msgDiv = document.getElementById('hwMessages');
-                if (msgDiv) {
-                    msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Processed ${i + 1}/${list.length}...</div>`;
+    // Pass 2: Fetch missing translations asynchronously
+    for (let i = 0; i < list.length; i++) {
+        const phrase = list[i];
+        const n = norm(phrase);
+        const hasTranslation = MASTER_DATA[phrase] || (state.cache[n] && state.cache[n] !== "");
+        if (!hasTranslation) {
+            const result = await translateOne(phrase);
+            if (result) {
+                successCount++;
+                if (showProgress) {
+                    const msgDiv = document.getElementById('hwMessages');
+                    if (msgDiv) {
+                        msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Processed ${i + 1}/${list.length}...</div>`;
+                    }
                 }
             }
-            // No delay needed — phonetic is synchronous, translations are already sequential
         }
     }
     
