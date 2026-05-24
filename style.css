@@ -507,7 +507,6 @@
         padding: 15px; 
         height: 90vh; 
         overflow-y: auto; 
-        -webkit-overflow-scrolling: touch; /* Native inertial scroll momentum on older iOS Safari */
         scrollbar-width: none; 
         -ms-overflow-style: none; 
         text-align: center;
@@ -2925,7 +2924,7 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack: homework cards more opaque */
 .history-item {
-    background: rgba(255,255,255,0.96) !important; /* Premium semi-transparent white without heavy GPU backdrop-blur rendering glitches */
+    background: #ffffff !important; /* Fully opaque — prevents scroll-clipping glitches from GPU compositing */
     border-color: rgba(157, 78, 221, 0.3) !important;
     /* Force GPU layer compositing on cards so browser renders full card boundaries during container scroll */
     -webkit-transform: translate3d(0, 0, 0);

@@ -85,11 +85,15 @@ setTimeout(() => {
     document.body.classList.remove('keyboard-buffer');
     state.currentSpellingState = null;
     
+    // Re-render standard list to ensure DOM is cleanly rebuilt and sync'd
+    if (typeof renderList === 'function' && state.currentScreenList) {
+        renderList(state.currentScreenList);
+    }
+    
     // 2. Restore display for all elements and fade them in together
     const elementsToFade = [];
     
     document.querySelectorAll('.phrase-card').forEach(c => {
-        c.style.display = 'block';
         elementsToFade.push(c);
     });
     
@@ -121,6 +125,15 @@ window.speechSynthesis.cancel();
 // --- ENTER SPELLING MODE ---
 playTheaterIntro();
 btn.innerHTML = "✖";
+
+// Ensure active Hangman game and music are completely deactivated
+state.gameActive = false;
+if (state.musicNode) {
+    try { state.musicNode.stop(); } catch(e) {}
+    state.musicNode = null;
+    const mBtn = document.getElementById('musicToggleBtn');
+    if (mBtn) mBtn.textContent = "🎵 Music: Off";
+}
 
 // SAVE ORIGINAL SPEECH SPEED AND SET SPELLING SPEED
 if (state.savedSpeechSpeed === null) {
@@ -327,8 +340,9 @@ if (enBtn) {
     if (globalKb) globalKb.style.display = 'none';
     document.body.classList.remove('keyboard-buffer');
 
-    // 3. Clear logic state
+    // 3. Clear logic state and kill any stale Hangman session
     state.currentSpellingState = null;
+    state.gameActive = false;
 }
 
 function renderMiniKeyboard() {
@@ -559,42 +573,16 @@ function exitSpellingTheater() {
 
     // Single smooth restoration at 600ms — matches toggleSpellingMode exit timing
     setTimeout(() => {
-        if (activeCard) {
-            activeCard.classList.remove('spelling-mode');
-            activeCard.classList.remove('theater-exit');
-            activeCard.querySelectorAll('.french-text, .pronunciation-text').forEach(el => {
-                el.style.display = 'block';
-            });
-            document.body.classList.remove('mode-spelling');
-            document.body.classList.remove('keyboard-buffer');
-            const spellingZone = activeCard.querySelector('.spelling-zone');
-            if (spellingZone) spellingZone.style.display = 'none';
-            const iconElement = activeCard.querySelector('.card-icon, .card-photo, .ai-placeholder-box');
-            if (iconElement) {
-                iconElement.style.display = '';
-                iconElement.style.pointerEvents = 'auto';
-                iconElement.style.cursor = 'pointer';
-            }
-            const sylToggle = activeCard.querySelector('.syl-toggle');
-            if (sylToggle) sylToggle.style.display = 'flex';
-            const enToggle = activeCard.querySelector('.en-toggle');
-            if (enToggle) enToggle.style.display = 'flex';
-            const printBtn = activeCard.querySelector('.print-card-btn');
-            if (printBtn) printBtn.style.display = 'flex';
-            const spellBtn = activeCard.querySelector('.spell-btn');
-            if (spellBtn) spellBtn.style.display = 'none';
-            const recordContainer = activeCard.querySelector('.record-play-container');
-            if (recordContainer) recordContainer.style.display = 'flex';
-            const frenchText = activeCard.querySelector('.french-text');
-            if (frenchText) {
-                const frBtn = activeCard.querySelector('.spk-fr');
-                if (frBtn) frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText.textContent, 'fr-FR', true);
-            }
+        document.body.classList.remove('mode-spelling');
+        document.body.classList.remove('keyboard-buffer');
+
+        // Re-render standard list to ensure DOM is cleanly rebuilt and sync'd
+        if (typeof renderList === 'function' && state.currentScreenList) {
+            renderList(state.currentScreenList);
         }
 
         // Restore all cards with fade-in
         document.querySelectorAll('.phrase-card').forEach(c => {
-            c.style.display = 'block';
             safeAnimate(c, [{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
         });
 
