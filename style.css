@@ -386,7 +386,7 @@
     
     .nav-item.active span {
         transform: translateY(-10px) scale(1.395) !important; /* Premium vertical pop scaling 44px up to the original 61.3px active size */
-        filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
+        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08)); /* Beautifully subtle container shadow */
     }
        
     .nav-item span {
@@ -412,8 +412,8 @@
     }
     
     .nav-item.active .nav-icon-img {
-        filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.48)) 
-                drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35)) !important; /* Crisp, tight projected shadows close to the button */
+        filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.12)) 
+                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08)) !important; /* Softer, refined shadows close to the button */
     }
     
 
