@@ -1108,6 +1108,21 @@ function getSyllables(word) {
 
     // Maintain original case
 
+    // POST-PROCESSING: Split at apostrophes so contractions show as separate colors
+    // e.g., "j'aime" splits to ["j'", "aime"] matching phonetic "zh-em"
+    let apostropheSplit = [];
+    for (let syl of res) {
+        let idx = syl.indexOf("'");
+        if (idx < 0) idx = syl.indexOf("’");
+        if (idx >= 0) {
+            if (idx > 0) apostropheSplit.push(syl.substring(0, idx + 1));
+            if (idx + 1 < syl.length) apostropheSplit.push(syl.substring(idx + 1));
+        } else {
+            apostropheSplit.push(syl);
+        }
+    }
+    res = apostropheSplit;
+
     let originalIndex = 0;
 
     let finalRes = [];
