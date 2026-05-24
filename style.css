@@ -361,8 +361,6 @@
     
     .nav-item.active {
         background: white !important;
-        border-left: 1px solid rgba(0, 0, 0, 0.05);
-        border-right: 1px solid rgba(0, 0, 0, 0.05);
         box-shadow: inset 4px 0 8px rgba(0, 0, 0, 0.05), 
                     inset -4px 0 8px rgba(0, 0, 0, 0.05), 
                     inset 0 6px 10px rgba(0, 0, 0, 0.08) !important;
