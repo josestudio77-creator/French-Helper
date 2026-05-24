@@ -579,7 +579,7 @@ list.forEach(p => {
     // --- END SMART AI CANVAS LOGIC ---
     
     const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
-    const pGuide = data.pronunciation ? `<span class="pronunciation-text">[ ${data.pronunciation} ]</span>` : '';
+    const pGuide = `<span class="pronunciation-text" style="cursor: pointer;" title="Double-click to edit phonetics">${data.pronunciation ? '[ ' + data.pronunciation + ' ]' : '[ click to add phonetics ]'}</span>`;
     
     const spellingHTML = `
         <div class="spelling-zone" style="display:none; padding: 0;">
@@ -702,6 +702,21 @@ list.forEach(p => {
         if (now - lastTap < 300) triggerFix(e);
         lastTap = now;
     });
+    
+    const pronTextEl = card.querySelector('.pronunciation-text');
+    if (pronTextEl) {
+        const triggerPronFix = (e) => {
+            e.preventDefault();
+            manualFixPronunciation(p, data.pronunciation || '');
+        };
+        pronTextEl.ondblclick = triggerPronFix;
+        let lastPronTap = 0;
+        pronTextEl.addEventListener('touchstart', (e) => {
+            const now = Date.now();
+            if (now - lastPronTap < 300) triggerPronFix(e);
+            lastPronTap = now;
+        });
+    }
     
     container.appendChild(card);
 }); 
@@ -1326,6 +1341,21 @@ function manualFixSyllables(word, currentSyllables) {
                 if (!state.syllableOverrides) state.syllableOverrides = {};
                 state.syllableOverrides[cleanLower] = newSyllables;
                 localStorage.setItem('syllableOverrides', JSON.stringify(state.syllableOverrides));
+                renderList(state.currentScreenList);
+            }
+        }
+    });
+}
+
+function manualFixPronunciation(p, currentPron) {
+    openAppModal({
+        title: `🔧 Fix Pronunciation: ${p}`,
+        text: currentPron,
+        mode: 'edit',
+        onSave: (fix) => {
+            if (fix) {
+                state.customPronunciations[norm(p)] = fix;
+                localStorage.setItem('customPronunciations', JSON.stringify(state.customPronunciations));
                 renderList(state.currentScreenList);
             }
         }

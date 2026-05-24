@@ -729,20 +729,25 @@ ${displayTitle}
 async function loadHomeworkForPractice(name, words, audio) {
     // STOP AUTO-PLAY when loading homework
     if (state.isAutoPlaying) {
-stopAutoPlay();
+        stopAutoPlay();
     }
     
-    await translateIfNeeded(words, false);
+    // Start background translation & phonetic generation so the UI transitions instantly!
+    translateIfNeeded(words, false).then(() => {
+        if (state.currentSetName === name) {
+            renderList(words.split('\n').filter(w => w.trim()));
+        }
+    }).catch(e => console.error('Background translation error:', e));
     
     state.currentSetName = name;
     localStorage.setItem('currentSetName', name);
     
     let hwData = { isDialogue: false, audio: null };
     try {
-const parsed = JSON.parse(state.history[name]);
-if (parsed.words !== undefined) {
-    hwData = parsed;
-}
+        const parsed = JSON.parse(state.history[name]);
+        if (parsed.words !== undefined) {
+            hwData = parsed;
+        }
     } catch (e) {}
     
     state.currentIsDialogue = !!hwData.isDialogue;
@@ -753,17 +758,17 @@ if (parsed.words !== undefined) {
     state.lastLoadedHomework = words;
     
     if (state.currentWeekAudio) {
-localStorage.setItem('currentWeekAudio', JSON.stringify(state.currentWeekAudio));
+        localStorage.setItem('currentWeekAudio', JSON.stringify(state.currentWeekAudio));
     } else {
-localStorage.removeItem('currentWeekAudio');
+        localStorage.removeItem('currentWeekAudio');
     }
     
     displayAudioPlayer();
     
     if (state.currentWeekAudio) {
-state.viewMode = 'dialogue'; 
+        state.viewMode = 'dialogue'; 
     } else {
-state.viewMode = hwData.isDialogue ? 'dialogue' : 'cards'; 
+        state.viewMode = hwData.isDialogue ? 'dialogue' : 'cards'; 
     }
     localStorage.setItem('viewMode', state.viewMode);
     
@@ -772,11 +777,11 @@ state.viewMode = hwData.isDialogue ? 'dialogue' : 'cards';
     
     const diagBtn = document.getElementById('btnViewDialogue');
     if (diagBtn) {
-if (state.currentWeekAudio) {
-    diagBtn.innerHTML = "🎧 Recording";
-} else {
-    diagBtn.innerHTML = state.currentIsDialogue ? "💬 Dialogue" : "📝 List";
-}
+        if (state.currentWeekAudio) {
+            diagBtn.innerHTML = "🎧 Recording";
+        } else {
+            diagBtn.innerHTML = state.currentIsDialogue ? "💬 Dialogue" : "📝 List";
+        }
     }
     
     closeOverlay('bpModal');
@@ -843,7 +848,7 @@ function needsTranslation(words) {
     for (let p of list) {
         const n = norm(p);
         const hasTranslation = MASTER_DATA[p] || (state.cache[n] && state.cache[n] !== "...");
-        const hasPronunciation = (MASTER_DATA[p] && MASTER_DATA[p].pronunciation) || state.customPronunciations[n];
+        const hasPronunciation = (MASTER_DATA[p] && MASTER_DATA[p].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "...");
         if (!hasTranslation || !hasPronunciation) {
             return true;
         }
@@ -877,7 +882,7 @@ async function translateIfNeeded(words, showProgress = true) {
             if (result) updated = true;
         }
 
-        const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || state.customPronunciations[n];
+        const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "...");
         if (!hasPronunciation) {
             const result = await fetchPhoneticGuide(phrase);
             if (result) updated = true;
@@ -1057,11 +1062,15 @@ async function fetchPhoneticGuide(p) {
             return MASTER_DATA[key].pronunciation;
         }
     }
-    if (state.customPronunciations[n]) {
+    if (state.customPronunciations[n] && state.customPronunciations[n] !== "...") {
         return state.customPronunciations[n];
     }
+    
+    // Set a loading indicator so we don't spam multiple fetches in parallel
+    state.customPronunciations[n] = "...";
+    
     try {
-        const prompt = `You are a French teacher helper. Translate the French phrase "${p}" into a child-friendly English sound-alike phonetic pronunciation guide. Show ONLY the clean phonetic guide, without any extra text or explanation, and without quotes. Avoid academic symbols (use simple phonetic sound-alikes). Capitalize the stressed syllables. Examples: "Bonjour" -> "bohn-ZHOOR", "Au revoir" -> "oh ruh-VWAHR", "Comment ça va" -> "koh-MAHN sah vah". Phrase: "${p}"`;
+        const prompt = `You are a French teacher helper. Translate the French phrase "${p}" into a child-friendly English sound-alike phonetic pronunciation guide. Show ONLY the clean phonetic guide, without any extra text or explanation, and without quotes. Use simple lowercase letters for normal syllables and UPPERCASE for stressed syllables. Avoid all academic/linguistic phonetic symbols (no IPA, no 'ə', etc.). Examples: 'Bonjour' -> 'bohn-ZHOOR', 'Au revoir' -> 'oh ruh-VWAHR', 'une rue' -> 'ewn rew', 'Je vois' -> 'zhuh vwah', 'Comment ça va' -> 'koh-MAHN sah vah'. Phrase: "${p}"`;
         const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
         if (!response.ok) throw new Error('Phonetic fetch failed');
         let text = await response.text();
@@ -1074,6 +1083,169 @@ async function fetchPhoneticGuide(p) {
     } catch (e) {
         console.error('Phonetic generation error:', e);
     }
+    
+    // FALLBACK: If API fails, is rate-limited (429), or offline, generate highly-accurate offline phonetics!
+    const fallback = generatePhoneticFallback(p);
+    if (fallback) {
+        state.customPronunciations[n] = fallback;
+        localStorage.setItem('customPronunciations', JSON.stringify(state.customPronunciations));
+        return fallback;
+    }
+    
     return null;
+}
+
+function generatePhoneticFallback(phrase) {
+    if (!phrase) return "";
+    
+    // Dictionary of extremely common French words mapped to child-friendly phonetics
+    const dict = {
+        "je": "zhuh",
+        "tu": "tew",
+        "il": "eel",
+        "elle": "el",
+        "nous": "noo",
+        "vous": "voo",
+        "ils": "eel",
+        "elles": "el",
+        "le": "luh",
+        "la": "lah",
+        "les": "lay",
+        "un": "uhn",
+        "une": "ewn",
+        "des": "day",
+        "du": "dew",
+        "de": "duh",
+        "en": "ahn",
+        "pour": "poor",
+        "dans": "dahn",
+        "sur": "sewr",
+        "avec": "ah-vek",
+        "sans": "sahn",
+        "est": "ay",
+        "sont": "sohn",
+        "a": "ah",
+        "ont": "ohn",
+        "vois": "vwah",
+        "voici": "vwah-see",
+        "voilà": "vwah-lah",
+        "rue": "rew",
+        "maison": "may-zohn",
+        "chat": "shah",
+        "chien": "shyehn",
+        "bonjour": "bohn-zhoor",
+        "au": "oh",
+        "aux": "oh",
+        "revoir": "ruh-vwahr",
+        "salut": "sah-lew",
+        "merci": "mair-see",
+        "oui": "wee",
+        "non": "nohn",
+        "bleu": "bluh",
+        "rouge": "roozh",
+        "jaune": "zhohn",
+        "vert": "vair",
+        "blanc": "blahn",
+        "noir": "nwahr",
+        "rose": "rohz",
+        "gris": "gree",
+        "marron": "mah-rohn",
+        "violet": "vee-oh-lay",
+        "orange": "oh-rahnzh",
+        "c'est": "say",
+        "ce": "suh",
+        "cette": "set",
+        "ces": "say",
+        "mon": "mohn",
+        "ma": "mah",
+        "mes": "may",
+        "ton": "tohn",
+        "ta": "tah",
+        "tes": "tay",
+        "son": "sohn",
+        "sa": "sah",
+        "ses": "say",
+        "qui": "kee",
+        "que": "kuh",
+        "quoi": "kwah",
+        "où": "oo",
+        "quand": "kahn",
+        "comment": "koh-mahn",
+        "pourquoi": "poor-kwah"
+    };
+
+    const words = phrase.toLowerCase().replace(/[,.?!;:]/g, "").split(/\s+/);
+    const phoneticWords = words.map(w => {
+        if (!w) return "";
+        // Clean apostrophes like c', j', l', d'
+        let prefix = "";
+        let baseWord = w;
+        if (w.includes("'") || w.includes("’")) {
+            const parts = w.split(/['’]/);
+            if (parts.length > 1 && parts[0].length <= 2) {
+                const prep = parts[0];
+                baseWord = parts[1];
+                if (prep === "j") prefix = "zh-";
+                else if (prep === "l") prefix = "l-";
+                else if (prep === "c") prefix = "s-";
+                else if (prep === "d") prefix = "d-";
+                else if (prep === "qu") prefix = "k-";
+                else prefix = prep + "-";
+            }
+        }
+        
+        // Check dictionary
+        if (dict[baseWord]) {
+            return prefix + dict[baseWord];
+        }
+        
+        // Simple rules engine for other words
+        let wordPhonetic = baseWord;
+        
+        // Pre-replace common endings
+        wordPhonetic = wordPhonetic.replace(/eau[x]?$/g, "oh");
+        wordPhonetic = wordPhonetic.replace(/au[x]?$/g, "oh");
+        wordPhonetic = wordPhonetic.replace(/oi[s|t|d|g]?$/g, "wah");
+        wordPhonetic = wordPhonetic.replace(/ou[s|t|d|x]?$/g, "oo");
+        
+        // Grapheme mappings
+        wordPhonetic = wordPhonetic
+            .replace(/ch/g, "sh")
+            .replace(/gn/g, "ny")
+            .replace(/ph/g, "f")
+            .replace(/th/g, "t")
+            .replace(/qu/g, "k")
+            .replace(/oi/g, "wah")
+            .replace(/ou/g, "oo")
+            .replace(/eau/g, "oh")
+            .replace(/au/g, "oh")
+            .replace(/eu/g, "uh")
+            .replace(/œu/g, "uh")
+            .replace(/ui/g, "wee")
+            .replace(/ai/g, "ay")
+            .replace(/ei/g, "ay")
+            .replace(/est$/g, "ay")
+            .replace(/c([eiyeéèêë])/g, "s$1")
+            .replace(/g([eiyeéèêë])/g, "zh$1")
+            .replace(/ç/g, "s")
+            .replace(/j/g, "zh");
+            
+        // Silent final consonants (for multi-syllable or moderately long words)
+        if (wordPhonetic.length > 3) {
+            wordPhonetic = wordPhonetic.replace(/[stxzdg]s?$/g, "");
+        }
+        
+        // Normalizing final e
+        wordPhonetic = wordPhonetic.replace(/e$/g, "uh");
+        
+        // Remove consecutive duplicate letters
+        wordPhonetic = wordPhonetic.replace(/([a-z])\1/g, "$1");
+        
+        return prefix + wordPhonetic;
+    });
+
+    // Join and format
+    let result = phoneticWords.filter(w => w.length > 0).join(" ");
+    return result;
 }
 
