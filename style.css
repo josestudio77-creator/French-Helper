@@ -379,14 +379,13 @@
         left: 0;
         right: 0;
         height: 6px;
-        background-color: currentColor !important; /* Dynamically inherits the high-contrast active brand color */
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
     }
     
     .nav-item.active span {
         transform: translateY(-10px) scale(1.395) !important; /* Premium vertical pop scaling 44px up to the original 61.3px active size */
-        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08)); /* Beautifully subtle container shadow */
+        filter: drop-shadow(0 7px 11px rgba(0, 0, 0, 0.12)); /* Perfectly balanced container shadow */
     }
        
     .nav-item span {
@@ -412,8 +411,8 @@
     }
     
     .nav-item.active .nav-icon-img {
-        filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.12)) 
-                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08)) !important; /* Softer, refined shadows close to the button */
+        filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.26)) 
+                drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18)) !important; /* Perfectly balanced crisp projected shadows close to the button */
     }
     
 
@@ -427,6 +426,9 @@
     .nav-presets.active {
         color: #8c3a1e !important; /* High contrast deep copper text */
     }
+    .nav-presets.active::after {
+        background-color: #ff9e6d !important; /* Vibrant brand orange/peach indicator bar */
+    }
     
     .nav-game { 
         color: #ff6b8b; 
@@ -434,6 +436,9 @@
     }
     .nav-game.active {
         color: #7c1c38 !important; /* High contrast deep berry text */
+    }
+    .nav-game.active::after {
+        background-color: #ff6b8b !important; /* Vibrant brand pink/rose indicator bar */
     }
     
     .nav-backpack { 
@@ -443,6 +448,9 @@
     .nav-backpack.active {
         color: #4a2c73 !important; /* High contrast deep purple text */
     }
+    .nav-backpack.active::after {
+        background-color: #9d4edd !important; /* Vibrant brand purple/violet indicator bar */
+    }
     
     .nav-practice {
         color: #4cd964;
@@ -451,6 +459,9 @@
     .nav-practice.active {
         color: #1e3f20 !important; /* High contrast deep forest green text */
     }
+    .nav-practice.active::after {
+        background-color: #4cd964 !important; /* Vibrant brand green indicator bar */
+    }
     
     .nav-parent { 
         color: #118AB2; 
@@ -458,6 +469,9 @@
     }
     .nav-parent.active {
         color: #0a3c5c !important; /* High contrast deep navy-blue text */
+    }
+    .nav-parent.active::after {
+        background-color: #118AB2 !important; /* Vibrant brand sky blue indicator bar */
     }
     
     
