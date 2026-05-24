@@ -3310,6 +3310,12 @@ body.mode-spelling .spelling-slots {
         align-items: center !important;
         justify-content: center !important;
     }
+    
+    /* Desktop Navigation Active Label Magnification */
+    .nav-item.active {
+        font-size: 0.95rem !important; /* Much larger and more readable active text on desktop */
+        letter-spacing: 0.01em;
+    }
 }
 
 /* Spacing fallback for checkboxes inside parent drawers & print selections */
