@@ -3007,6 +3007,7 @@ body.mode-spelling .spelling-slots {
     background: #ffffff !important;
     border: 4px solid #9d4edd !important; /* THICKER solid purple border */
     transition: transform 0.15s, box-shadow 0.2s;
+    transform: translateZ(0); /* Force GPU layer — fixes Android scroll clipping */
 }
 
 .history-item:hover {
