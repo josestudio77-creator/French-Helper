@@ -927,6 +927,7 @@ function loadCurrentHomework() {
     }
     
     // Don't override state.currentSetName here - we already set it in onload
+    translateIfNeeded(words, false);
     renderList(words.split('\n').filter(w => w.trim()));
 
     // Call setViewMode to ensure UI matches
