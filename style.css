@@ -365,7 +365,6 @@
     }
     
     .nav-item.active {
-        color: #ffffff !important; /* Premium high-contrast white text when active */
         box-shadow: inset 0 8px 12px rgba(0, 0, 0, 0.35), 
                     inset 4px 0 6px rgba(0, 0, 0, 0.20), 
                     inset -4px 0 6px rgba(0, 0, 0, 0.20) !important; /* Deeper physical pressed shadows */
@@ -412,7 +411,8 @@
         background: #fff5f0; 
     }
     .nav-presets.active {
-        background: #d95d39 !important; /* Sophisticated warm terracotta copper well */
+        background: #ebdcd5 !important; /* Soft warm clay-tinted grey */
+        color: #8c3a1e !important; /* High contrast deep copper text */
     }
     
     .nav-game { 
@@ -420,7 +420,8 @@
         background: #fff5f7; 
     }
     .nav-game.active {
-        background: #c12c58 !important; /* Sophisticated deep berry-pink well */
+        background: #f3e4e8 !important; /* Soft cool rose-tinted grey */
+        color: #7c1c38 !important; /* High contrast deep berry text */
     }
     
     .nav-backpack { 
@@ -428,7 +429,8 @@
         background: #fdf2ff; 
     }
     .nav-backpack.active {
-        background: #5a3e8c !important; /* Sophisticated royal deep purple well */
+        background: #ebdff0 !important; /* Soft royal lavender-tinted grey */
+        color: #4a2c73 !important; /* High contrast deep purple text */
     }
     
     .nav-practice {
@@ -436,7 +438,8 @@
         background: #f0fff4;
     }
     .nav-practice.active {
-        background: #2d6a4f !important; /* Sophisticated rich deep forest green well */
+        background: #e2ebe5 !important; /* Soft organic sage-tinted grey */
+        color: #1e3f20 !important; /* High contrast deep forest green text */
     }
     
     .nav-parent { 
@@ -444,7 +447,8 @@
         background: #f0f9ff; 
     }
     .nav-parent.active {
-        background: #0f4c81 !important; /* Sophisticated classic deep navy-indigo well */
+        background: #dce4ec !important; /* Soft classic blue-tinted grey */
+        color: #0a3c5c !important; /* High contrast deep navy-blue text */
     }
     
     
