@@ -1082,9 +1082,10 @@ function getLiaisonConsonant(word) {
 function startsWithVowel(word) {
     if (!word) return false;
     const clean = word.toLowerCase().replace(/^[ljmtsdcn]'/, "").trim();
-    // silent h words (hôpital, heure, hiver, histoire, homme, etc.)
-    if (/^(hôpital|heure|hiver|histoire|homme|hôtel|habite|huile|herbe|honneur|horloge)/.test(clean)) return true;
-    return /^[aeiouyàâéèêëîïôûùœæh]/.test(clean);
+    // Match standard French vowels and accented initial vowels (excluding h)
+    if (/^[aeiouyàâéèêëîïôûùœæ]/.test(clean)) return true;
+    // Only match h-initial words that are verified mute/silent H
+    return /^(hôpital|heure|hiver|histoire|homme|hôtel|habite|huile|herbe|honneur|horloge|hélicoptère|humide)/.test(clean);
 }
 
 /**
@@ -1203,8 +1204,9 @@ function wordToPhoneticRules(word) {
     // Grapheme mappings (order matters — longer patterns first)
     w = w
         .replace(/ille$/g, "ee-yuh")
-        .replace(/eil/g, "ay")
         .replace(/eill/g, "ay")
+        .replace(/eil/g, "ay")
+        .replace(/ill/g, "y")
         .replace(/ch/g, "sh")
         .replace(/gn/g, "ny")
         .replace(/ph/g, "f")
@@ -1220,16 +1222,32 @@ function wordToPhoneticRules(word) {
         .replace(/ai/g, "ay")
         .replace(/ei/g, "ay")
         .replace(/est$/g, "ay")
+        // Nasal vowels (N & M)
         .replace(/an(?![aeiouy])/g, "ahn")
         .replace(/en(?![aeiouy])/g, "ahn")
+        .replace(/am(?![aeiouy])/g, "ahn")
+        .replace(/em(?![aeiouy])/g, "ahn")
         .replace(/in(?![aeiouy])/g, "an")
+        .replace(/im(?![aeiouy])/g, "an")
         .replace(/on(?![aeiouy])/g, "ohn")
+        .replace(/om(?![aeiouy])/g, "ohn")
         .replace(/un(?![aeiouy])/g, "uhn")
+        .replace(/um(?![aeiouy])/g, "uhn")
+        // Vowel accents
+        .replace(/[èêë]/g, "eh")
+        .replace(/[àâ]/g, "ah")
+        .replace(/[ô]/g, "oh")
+        .replace(/[û]/g, "ew")
+        .replace(/é/g, "ay")
+        // Soft vowels C and G
         .replace(/c([eiyeéèêë])/g, "s$1")
         .replace(/g([eiyeéèêë])/g, "zh$1")
         .replace(/ç/g, "s")
         .replace(/j/g, "zh")
-        .replace(/é/g, "ay");
+        // Single 's' between vowels
+        .replace(/([aeiouyàâéèêëîïôûùœæ])s([aeiouyàâéèêëîïôûùœæ])/g, "$1z$2")
+        // Hard 'c' -> 'k'
+        .replace(/c(?![eiyeéèêë])/g, "k");
     
     // Silent final consonants
     w = w.replace(/[stxzdgp]s?$/g, "");
