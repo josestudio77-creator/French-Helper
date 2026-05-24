@@ -961,8 +961,7 @@ function openBP() {
                         ${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}
                     </span>
                 </button>
-                    
-               <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px; gap:2px;">
+               <div class="hw-action-row">
                    <div class="icon-wrapper"><button class="icon-btn edit-icon" style="background: #118AB2; color: white;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg></button><span class="icon-label">Edit</span></div>
                    
                    <div class="icon-wrapper"><button class="icon-btn print-icon" style="background: #64748b; color: white;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg></button><span class="icon-label">Print</span></div>

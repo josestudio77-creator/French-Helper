@@ -1423,7 +1423,7 @@
     }
     
     .history-item { 
-        padding: 15px 12px; /* Slightly reduced horizontal padding to maximize button container room */
+        padding: 16px 8px; /* Optimized padding to give inner buttons maximum room */
         border: 3px solid #9d4edd;
         display: flex; 
         flex-direction: column; 
@@ -1432,6 +1432,18 @@
         border-radius: 20px; 
         margin-bottom: 15px; 
         box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    /* --- Action row holding utility buttons --- */
+    .hw-action-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: 14px !important;
+        padding: 6px 4px !important; /* Generous padded container around buttons */
+        box-sizing: border-box !important;
+        gap: 8px !important; /* Beautiful spacing so buttons never touch */
     }
     
     .history-item .load-btn, .history-item .del-btn {
@@ -2771,9 +2783,9 @@ body.mode-spelling .spelling-slots {
     box-shadow: none;
     border-radius: 0;
     height: calc(100vh - 15px) !important; /* Full height minus top padding */
-    padding: 10px 14px calc(var(--bottom-nav-height) + 15px) 14px !important; /* Ends exactly 15px above bottom-nav, identical to main screen */
+    padding: 10px 8px calc(var(--bottom-nav-height) + 15px) 8px !important; /* Ends exactly 15px above bottom-nav, identical to main screen, expanded side breathing room */
     width: 100% !important; /* Stretch to fill available screen width inside overlay padding */
-    max-width: 850px !important; /* Generous default room for tablet/mobile portrait */
+    max-width: 950px !important; /* Expanded default room for tablet/mobile portrait */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -3405,7 +3417,11 @@ body.mode-spelling .spelling-slots {
         flex-direction: column !important;
         justify-content: space-between !important;
         min-height: 180px !important;
-        padding: 15px 10px !important; /* Optimized horizontal padding to give buttons maximum room */
+        padding: 20px 18px !important; /* Restored generous premium card padding since desktop has massive room */
+    }
+    .hw-action-row {
+        padding: 8px 12px !important;
+        gap: 16px !important; /* Premium wide spacing on desktop viewports */
     }
 
     /* Practice Presets: convert to a gorgeous 3-column layout */
