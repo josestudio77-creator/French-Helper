@@ -163,6 +163,7 @@
     .abc-c { fill: #5a67d8; }
     .abc-arc-a { stroke: #ff6b8b; opacity: 0.6; }
     .abc-arc-b { stroke: #4cd964; opacity: 0.6; }
+    .abc-arc-c { stroke: #5a67d8; opacity: 0.6; }
     .syl-toggle.active .abc-a,
     .syl-toggle.active .abc-b,
     .syl-toggle.active .abc-c { fill: white; }

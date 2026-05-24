@@ -622,12 +622,13 @@ list.forEach(p => {
          <div class="card-tools">
              <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
              <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Show syllables &amp; pronunciation">
-                 <svg width="40" height="20" viewBox="0 0 44 16" style="display:block; margin:0 auto;">
-                     <text class="abc-a" x="2" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">A</text>
-                     <path class="abc-arc abc-arc-a" d="M2,13 Q7,16 13,13" fill="none" stroke-width="1.2" stroke-linecap="round"/>
-                     <text class="abc-b" x="15" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">B</text>
-                     <path class="abc-arc abc-arc-b" d="M16,13 Q21,16 27,13" fill="none" stroke-width="1.2" stroke-linecap="round"/>
-                     <text class="abc-c" x="30" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">C</text>
+                 <svg width="48" height="22" viewBox="0 0 48 22" style="display:block; margin:0 auto;">
+                     <text class="abc-a" x="8" y="12" font-size="13.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">A</text>
+                     <path class="abc-arc abc-arc-a" d="M2,16 Q8,20 14,16" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+                     <text class="abc-b" x="24" y="12" font-size="13.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">B</text>
+                     <path class="abc-arc abc-arc-b" d="M18,16 Q24,20 30,16" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+                     <text class="abc-c" x="40" y="12" font-size="13.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">C</text>
+                     <path class="abc-arc abc-arc-c" d="M34,16 Q40,20 46,16" fill="none" stroke-width="1.8" stroke-linecap="round"/>
                  </svg>
              </div>
              <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
