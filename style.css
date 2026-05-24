@@ -373,7 +373,7 @@
     }
     
     .nav-item.active span {
-        transform: translateY(-10px) scale(1.18) !important; /* Premium tight vertical pop keeping icon close to label */
+        transform: translateY(-10px) scale(1.395) !important; /* Premium vertical pop scaling 44px up to the original 61.3px active size */
         filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
     }
        
@@ -381,13 +381,13 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 52px; /* Uniform slot matching all 3D SVGs/images */
+        height: 44px; /* Uniform 44px slot matching all 3D SVGs/images */
         transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .nav-icon-img {
-        width: 52px; /* High detail uniform icon width */
-        height: 52px; /* High detail uniform icon height */
+        width: 44px; /* Refined 44px default icon width */
+        height: 44px; /* Refined 44px default icon height */
         object-fit: contain;
         display: block;
         transition: transform 0.2s ease;
