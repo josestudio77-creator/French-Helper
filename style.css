@@ -398,8 +398,8 @@
     }
     
     .nav-item.active .nav-icon-img {
-        filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.45)) 
-                drop-shadow(0 6px 8px rgba(0, 0, 0, 0.22)) !important; /* Extremely deep floating ambient shadows */
+        filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.48)) 
+                drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35)) !important; /* Crisp, tight projected shadows close to the button */
     }
     
 
