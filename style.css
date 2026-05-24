@@ -483,10 +483,7 @@
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         padding-bottom: calc(var(--bottom-nav-height) + 15px) !important; 
         position: relative;
-        /* Force GPU layer compositing to completely eliminate partial paint scrolling cutoff glitches */
-        -webkit-transform: translate3d(0, 0, 0);
-        transform: translate3d(0, 0, 0);
-        will-change: transform;
+        /* GPU promotion removed from scroll container */
     }
     
     /* Z-Index Hierarchy */
@@ -2792,10 +2789,7 @@ body.mode-spelling .spelling-slots {
     max-width: 950px !important; /* Expanded default room for tablet/mobile portrait */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Force GPU layer compositing to completely prevent partial paint scrolling cutoff glitches */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    will-change: transform;
+    /* GPU promotion removed from scroll container */
 }
 
 #bpModal .overlay-content h2 {
