@@ -371,7 +371,7 @@
     }
     
     .nav-item.active span {
-        transform: translateY(-20px) scale(1.28) !important; /* Dramatic, premium 3D up-float matching the centerpiece */
+        transform: translateY(-10px) scale(1.18) !important; /* Premium tight vertical pop keeping icon close to label */
         filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
     }
        
