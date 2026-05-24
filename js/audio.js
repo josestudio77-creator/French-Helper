@@ -110,15 +110,30 @@ function initVoices() {
             || state.frVoices[0] 
             || null;
 
-        // Prioritize local non-neural English voices on iOS/Safari to prevent cloud-request latencies, then fallback to others
+        // English voice: platform-aware to avoid Windows low-quality voices (David/Zira mispronounce words)
+        const isWin = navigator.platform && navigator.platform.includes('Win');
+        const isMac = navigator.platform && navigator.platform.includes('Mac');
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
         const enVoices = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
-        state.cachedEnVoice = enVoices.find(v => v.localService && !v.name.includes('Neural')) 
-            || enVoices.find(v => v.name.includes('Samantha'))
-            || enVoices.find(v => v.name.includes('Daniel'))
-            || enVoices.find(v => v.name.includes('Siri'))
-            || enVoices.find(v => v.name.includes('Neural'))
-            || enVoices[0] 
-            || null;
+        if (isIOS || isMac) {
+            // iOS/macOS: Samantha/Siri/Daniel are excellent quality local voices
+            state.cachedEnVoice = enVoices.find(v => v.localService && !v.name.includes('Neural'))
+                || enVoices.find(v => v.name.includes('Samantha'))
+                || enVoices.find(v => v.name.includes('Daniel'))
+                || enVoices.find(v => v.name.includes('Siri'))
+                || enVoices.find(v => v.name.includes('Neural'))
+                || enVoices[0] || null;
+        } else if (isAndroid) {
+            // Android: Google TTS voices are high quality, prefer any en voice
+            state.cachedEnVoice = enVoices.find(v => v.name.includes('Google')) || enVoices[0] || null;
+        } else {
+            // Windows: avoid Microsoft David/Zira — prefer Neural or non-local cloud voices
+            state.cachedEnVoice = enVoices.find(v => v.name.includes('Neural'))
+                || enVoices.find(v => !v.localService)
+                || enVoices.find(v => !v.name.includes('Microsoft'))
+                || enVoices[0] || null;
+        }
 
         console.log('[Audio] Voices loaded: fr=' + (state.selectedFrVoice ? state.selectedFrVoice.name : 'default') + ', en=' + (state.cachedEnVoice ? state.cachedEnVoice.name : 'default'));
 
