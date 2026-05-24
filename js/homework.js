@@ -1149,13 +1149,13 @@ function fetchPhoneticGuide(p) {
                 let prefix = "";
                 const prep = parts[0];
                 const base = parts[1];
-                if (prep === "j") prefix = "zh-";
-                else if (prep === "l" || prep === "n") prefix = prep + "-";
-                else if (prep === "c" || prep === "s") prefix = "s-";
-                else if (prep === "d") prefix = "d-";
-                else if (prep === "qu") prefix = "k-";
-                else if (prep === "m" || prep === "t") prefix = prep + "-";
-                else prefix = prep + "-";
+                if (prep === "j") prefix = "zh";
+                else if (prep === "l" || prep === "n") prefix = prep;
+                else if (prep === "c" || prep === "s") prefix = "s";
+                else if (prep === "d") prefix = "d";
+                else if (prep === "qu") prefix = "k";
+                else if (prep === "m" || prep === "t") prefix = prep;
+                else prefix = prep;
                 if (PHONETIC_DICT[base]) return prefix + PHONETIC_DICT[base];
                 return prefix + wordToPhoneticRules(base);
             }
