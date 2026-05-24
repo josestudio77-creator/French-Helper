@@ -1,30 +1,30 @@
-// sw.js - Service Worker V983 (Modular JS architecture)
-const CACHE_NAME = 'french-fun-v983'; // Bumped: force UI updates on mobile
+// sw.js - Service Worker V984 (Modular JS architecture)
+const CACHE_NAME = 'french-fun-v984'; // Bumped: force UI updates on mobile
 const urlsToCache = [
   './',
-  './index.html?v=983',
-  './style.css?v=983',
+  './index.html?v=984',
+  './style.css?v=984',
   './manifest.json',
   './icon.png',
-  './backpack.webp?v=983',
-  './Practice.png?v=983',
-  './presets.webp?v=983',
-  './game.webp?v=983',
-  './parent.webp?v=983',
+  './backpack.webp?v=984',
+  './Practice.png?v=984',
+  './presets.webp?v=984',
+  './game.webp?v=984',
+  './parent.webp?v=984',
   './KGPrimaryPenmanshipAlt.woff2',
-  './js/storage.js?v=983',
-  './js/speechcache.js?v=983',
-  './js/config.js?v=983',
-  './js/state.js?v=983',
-  './js/audio.js?v=983',
-  './js/ai.js?v=983',
-  './js/ui.js?v=983',
-  './js/homework.js?v=983',
-  './js/game.js?v=983',
-  './js/print.js?v=983',
-  './js/spelling.js?v=983',
-  './js/ocr.js?v=983',
-  './js/main.js?v=983'
+  './js/storage.js?v=984',
+  './js/speechcache.js?v=984',
+  './js/config.js?v=984',
+  './js/state.js?v=984',
+  './js/audio.js?v=984',
+  './js/ai.js?v=984',
+  './js/ui.js?v=984',
+  './js/homework.js?v=984',
+  './js/game.js?v=984',
+  './js/print.js?v=984',
+  './js/spelling.js?v=984',
+  './js/ocr.js?v=984',
+  './js/main.js?v=984'
 ];
 
 // Install event - cache files
