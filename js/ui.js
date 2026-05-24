@@ -623,11 +623,11 @@ list.forEach(p => {
              <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
              <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Show syllables &amp; pronunciation">
                  <svg width="48" height="22" viewBox="0 0 48 22" style="display:block; margin:0 auto;">
-                     <text class="abc-a" x="8" y="11" font-size="14.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">A</text>
-                     <text class="abc-b" x="24" y="11" font-size="14.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">B</text>
-                     <text class="abc-c" x="40" y="11" font-size="14.5" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">C</text>
-                     <path class="abc-arc abc-arc-a" d="M8,15 Q16,19.5 24,15" fill="none" stroke-width="1.8" stroke-linecap="round"/>
-                     <path class="abc-arc abc-arc-b" d="M24,15 Q32,19.5 40,15" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+                     <text class="abc-a" x="8" y="13" font-size="17" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">A</text>
+                     <text class="abc-b" x="24" y="13" font-size="17" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">B</text>
+                     <text class="abc-c" x="40" y="13" font-size="17" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">C</text>
+                     <path class="abc-arc abc-arc-a" d="M8,16.5 Q16,21 24,16.5" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+                     <path class="abc-arc abc-arc-b" d="M24,16.5 Q32,21 40,16.5" fill="none" stroke-width="1.8" stroke-linecap="round"/>
                  </svg>
              </div>
              <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
