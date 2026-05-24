@@ -1203,6 +1203,12 @@ function wordToPhoneticRules(word) {
     
     // Grapheme mappings (order matters — longer patterns first)
     w = w
+        // Soft vowels C and G (MUST run first while original vowels are pristine!)
+        .replace(/c([eiyeéèêë])/g, "s$1")
+        .replace(/g([eiyeéèêë])/g, "zh$1")
+        .replace(/ç/g, "s")
+        .replace(/j/g, "zh")
+        
         .replace(/ille$/g, "ee-yuh")
         .replace(/eill/g, "ay")
         .replace(/eil/g, "ay")
@@ -1239,11 +1245,6 @@ function wordToPhoneticRules(word) {
         .replace(/[ô]/g, "oh")
         .replace(/[û]/g, "ew")
         .replace(/é/g, "ay")
-        // Soft vowels C and G
-        .replace(/c([eiyeéèêë])/g, "s$1")
-        .replace(/g([eiyeéèêë])/g, "zh$1")
-        .replace(/ç/g, "s")
-        .replace(/j/g, "zh")
         // Single 's' between vowels
         .replace(/([aeiouyàâéèêëîïôûùœæ])s([aeiouyàâéèêëîïôûùœæ])/g, "$1z$2")
         // Hard 'c' -> 'k'
