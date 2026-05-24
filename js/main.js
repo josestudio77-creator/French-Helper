@@ -175,6 +175,13 @@ function initExitGuard() {
     };
 }
      
+// One-time cleanup: clear old AI-generated phonetic garbage from pre-v2 pipeline
+if (localStorage.getItem('phoneticDictVersion') !== 'v2') {
+    state.customPronunciations = {};
+    localStorage.removeItem('customPronunciations');
+    localStorage.setItem('phoneticDictVersion', 'v2');
+}
+
 window.onload = () => {
     setTimeout(() => {
         const icon = document.getElementById('splashIcon');

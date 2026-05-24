@@ -157,6 +157,17 @@
         text-transform: lowercase;
     }
 
+    /* ABC button: rainbow letters matching syllable colors */
+    .abc-a { fill: #ff6b8b; }
+    .abc-b { fill: #4cd964; }
+    .abc-c { fill: #5a67d8; }
+    .abc-arc-a { stroke: #ff6b8b; opacity: 0.6; }
+    .abc-arc-b { stroke: #4cd964; opacity: 0.6; }
+    .syl-toggle.active .abc-a,
+    .syl-toggle.active .abc-b,
+    .syl-toggle.active .abc-c { fill: white; }
+    .syl-toggle.active .abc-arc { stroke: rgba(255,255,255,0.45); }
+
     .syl-toggle.active {
         background: #5a67d8 !important;
         color: white !important;

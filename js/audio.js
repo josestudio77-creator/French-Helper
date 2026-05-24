@@ -889,7 +889,8 @@ function getSyllables(word) {
 
     if (!word) return [];
 
-    if (word.length <= 3) return [word]; // Too short to split reliably
+    // All words go through the V/C engine — even short ones like "ami" (a-mi).
+    // Words without multiple vowels (like "le", "un") naturally stay as one syllable.
 
 
 

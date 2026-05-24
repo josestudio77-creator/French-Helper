@@ -579,7 +579,8 @@ list.forEach(p => {
     // --- END SMART AI CANVAS LOGIC ---
     
     const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
-    const pGuide = `<span class="pronunciation-text" style="cursor: pointer;" title="Double-click to edit phonetics">${data.pronunciation ? '[ ' + data.pronunciation + ' ]' : '[ click to add phonetics ]'}</span>`;
+    const pGuideVisible = state.syllableMode ? '' : 'display:none;';
+    const pGuide = `<span class="pronunciation-text" style="cursor: pointer; ${pGuideVisible}" title="Double-click to edit phonetics">${data.pronunciation ? '[ ' + data.pronunciation + ' ]' : ''}</span>`;
     
     const spellingHTML = `
         <div class="spelling-zone" style="display:none; padding: 0;">
@@ -620,7 +621,15 @@ list.forEach(p => {
         <div class="card-main-content">
          <div class="card-tools">
              <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
-             <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Syllables">abc</div>
+             <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Show syllables &amp; pronunciation">
+                 <svg width="40" height="20" viewBox="0 0 44 16" style="display:block; margin:0 auto;">
+                     <text class="abc-a" x="2" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">A</text>
+                     <path class="abc-arc abc-arc-a" d="M2,13 Q7,16 13,13" fill="none" stroke-width="1.2" stroke-linecap="round"/>
+                     <text class="abc-b" x="15" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">B</text>
+                     <path class="abc-arc abc-arc-b" d="M16,13 Q21,16 27,13" fill="none" stroke-width="1.2" stroke-linecap="round"/>
+                     <text class="abc-c" x="30" y="10" font-size="11" font-weight="900" font-family="Nunito, sans-serif">C</text>
+                 </svg>
+             </div>
              <div class="tool-btn en-toggle" title="English Translation" style="font-weight: 900; color: #5a67d8;">EN</div>
              <div class="tool-btn print-card-btn" title="Print Worksheet" onclick="openPrintFromCard('${p.replace(/'/g, "\\'")}')" style="color: #64748b;">
                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>

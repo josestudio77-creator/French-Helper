@@ -129,7 +129,8 @@ function executeImportProcess(finalName, weekData) {
     state.currentSetName = finalName;
     localStorage.setItem('currentSetName', finalName);
     
-    translateIfNeeded(weekData.words, false).then(() => {
+    translateIfNeeded(weekData.words, false); // phonetic is now synchronous, no re-render needed
+        if (false) { // dead block preserved for diff clarity
         renderList(weekData.words.split('\n').filter(w => w.trim()));
     });
 
@@ -733,7 +734,8 @@ async function loadHomeworkForPractice(name, words, audio) {
     }
     
     // Start background translation & phonetic generation so the UI transitions instantly!
-    translateIfNeeded(words, false).then(() => {
+    translateIfNeeded(words, false); // phonetic is synchronous now, no re-render needed
+        if (false) { // dead block for diff clarity
         if (state.currentSetName === name) {
             renderList(words.split('\n').filter(w => w.trim()));
         }
@@ -847,8 +849,8 @@ function needsTranslation(words) {
     const list = words.split('\n').filter(l => l.trim().length > 1);
     for (let p of list) {
         const n = norm(p);
-        const hasTranslation = MASTER_DATA[p] || (state.cache[n] && state.cache[n] !== "...");
-        const hasPronunciation = (MASTER_DATA[p] && MASTER_DATA[p].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "...");
+        const hasTranslation = MASTER_DATA[p] || (state.cache[n] && state.cache[n] !== "");
+        const hasPronunciation = (MASTER_DATA[p] && MASTER_DATA[p].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "");
         if (!hasTranslation || !hasPronunciation) {
             return true;
         }
@@ -876,16 +878,20 @@ async function translateIfNeeded(words, showProgress = true) {
         const n = norm(phrase);
         let updated = false;
 
-        const hasTranslation = MASTER_DATA[phrase] || (state.cache[n] && state.cache[n] !== "...");
+        const hasTranslation = MASTER_DATA[phrase] || (state.cache[n] && state.cache[n] !== "");
         if (!hasTranslation) {
             const result = await translateOne(phrase);
             if (result) updated = true;
         }
 
-        const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "...");
+        const hasPronunciation = (MASTER_DATA[phrase] && MASTER_DATA[phrase].pronunciation) || (state.customPronunciations[n] && state.customPronunciations[n] !== "");
         if (!hasPronunciation) {
-            const result = await fetchPhoneticGuide(phrase);
-            if (result) updated = true;
+            const result = fetchPhoneticGuide(phrase);
+            if (result) {
+                state.customPronunciations[n] = result;
+                localStorage.setItem('customPronunciations', JSON.stringify(state.customPronunciations));
+                updated = true;
+            }
         }
 
         if (updated) {
@@ -896,7 +902,7 @@ async function translateIfNeeded(words, showProgress = true) {
                     msgDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:0.8rem; margin-top:5px;">Processed ${i + 1}/${list.length}...</div>`;
                 }
             }
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 10));
         }
     }
     
@@ -1055,14 +1061,202 @@ async function translateOne(p) {
     }
 }
 
-async function fetchPhoneticGuide(p) {
+// ===== DETERMINISTIC PHONETIC PIPELINE (no AI, no API) =====
+
+/**
+ * Look up a liaison consonant for a word that precedes a vowel-initial word.
+ * Returns the linking sound string (e.g. "z", "n", "t") or "".
+ */
+function getLiaisonConsonant(word) {
+    const w = word.toLowerCase().replace(/[,.?!;:]/g, "").trim();
+    // s/x/z-based liaison
+    if (/^(les|des|mes|tes|ses|nos|vos|leurs|ces|aux|plus|dans|sans|chez|très)$/.test(w)) return "z";
+    // n-based liaison
+    if (/^(un|mon|ton|son|en|bien|rien|ancien|certain|aucun|chacun|quelqu'un)$/.test(w)) return "n";
+    // t/d-based liaison
+    if (/^(petit|grand|quand|pendant|tout|comment|avant|devant)$/.test(w)) return "t";
+    // f->v liaison (rare, mostly "neuf")
+    if (/^neuf$/.test(w)) return "v";
+    // est liaison
+    if (/^est$/.test(w)) return "t";
+    return "";
+}
+
+/**
+ * Check if a word starts with a vowel or silent h (triggers liaison).
+ */
+function startsWithVowel(word) {
+    if (!word) return false;
+    const clean = word.toLowerCase().replace(/^[ljmtsdcn]'/, "").trim();
+    // silent h words (hôpital, heure, hiver, histoire, homme, etc.)
+    if (/^(hôpital|heure|hiver|histoire|homme|hôtel|habite|huile|herbe|honneur|horloge)/.test(clean)) return true;
+    return /^[aeiouyàâéèêëîïôûùœæh]/.test(clean);
+}
+
+/**
+ * Apply liaison and enchaînement rules to a sequence of phonetic words.
+ */
+function applyLiaisonRules(phoneticWords, originalWords) {
+    if (!phoneticWords || phoneticWords.length < 2) return phoneticWords;
+    const result = [...phoneticWords];
+    for (let i = 0; i < result.length - 1; i++) {
+        const orig = originalWords[i] || "";
+        const nextOrig = originalWords[i + 1] || "";
+        if (!startsWithVowel(nextOrig)) continue;
+        const liaison = getLiaisonConsonant(orig);
+        if (liaison) {
+            // Append liaison consonant to the first word, and it links to the second
+            result[i] = result[i] + "-" + liaison;
+        }
+        // Enchaînement: if first word ends with a consonant sound and next starts with vowel,
+        // the consonant slides over visually (shown with a hyphen connecting them)
+        else if (result[i] && /[bdfgklmnprstvwyz]$/.test(result[i].replace(/-/g, "")) && !result[i].endsWith("-")) {
+            // Only if the final consonant is actually pronounced in French
+            const pronouncedFinal = /[lrfk]$/.test(result[i].replace(/-/g, ""));
+            if (pronouncedFinal) {
+                result[i] = result[i] + "-";
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * Deterministic word-by-word phonetic lookup.
+ * 1. Try MASTER_DATA for exact phrase match (handles multi-word entries like "Je cours")
+ * 2. Split into words, look up each in PHONETIC_DICT
+ * 3. Apply liaison rules
+ * 4. Fall back to grapheme-to-phoneme rules for unknown words
+ * No API calls. Works offline. 100% deterministic.
+ */
+function fetchPhoneticGuide(p) {
+    const n = norm(p);
+    
+    // Check user corrections first (set via double-tap "Fix Pronunciation")
+    if (state.customPronunciations[n] && state.customPronunciations[n] !== "") {
+        return state.customPronunciations[n];
+    }
+    
+    // 1. Try MASTER_DATA for exact phrase match
+    for (let key in MASTER_DATA) {
+        if (norm(key) === n && MASTER_DATA[key].pronunciation) {
+            return MASTER_DATA[key].pronunciation;
+        }
+    }
+    
+    // 2. Split into words and look up each
+    const rawWords = p.split(/\s+/).filter(w => w.length > 0);
+    const phoneticWords = rawWords.map((word, i) => {
+        const nw = norm(word).replace(/[,.?!;:]/g, "").trim();
+        if (!nw) return "";
+        
+        // Handle apostrophe contractions (j', l', c', d', n', s', qu', m', t')
+        if (nw.includes("'") || nw.includes("’")) {
+            const parts = nw.split(/['’]/);
+            if (parts.length > 1 && parts[0].length <= 2) {
+                let prefix = "";
+                const prep = parts[0];
+                const base = parts[1];
+                if (prep === "j") prefix = "zh-";
+                else if (prep === "l" || prep === "n") prefix = prep + "-";
+                else if (prep === "c" || prep === "s") prefix = "s-";
+                else if (prep === "d") prefix = "d-";
+                else if (prep === "qu") prefix = "k-";
+                else if (prep === "m" || prep === "t") prefix = prep + "-";
+                else prefix = prep + "-";
+                if (PHONETIC_DICT[base]) return prefix + PHONETIC_DICT[base];
+                return prefix + wordToPhoneticRules(base);
+            }
+        }
+        
+        // Check PHONETIC_DICT
+        if (PHONETIC_DICT[nw]) return PHONETIC_DICT[nw];
+        
+        // Check MASTER_DATA for single-word pronunciation
+        for (let key in MASTER_DATA) {
+            if (norm(key) === nw && MASTER_DATA[key].pronunciation) {
+                return MASTER_DATA[key].pronunciation;
+            }
+        }
+        
+        // Fall back to grapheme-to-phoneme rules
+        return wordToPhoneticRules(nw);
+    });
+    
+    // 3. Apply liaison rules
+    const liaised = applyLiaisonRules(phoneticWords, rawWords);
+    
+    // 4. Join and return
+    const result = liaised.filter(w => w.length > 0).join(" ");
+    if (!result) return null;
+    return result;
+}
+
+/**
+ * Grapheme-to-phoneme rules engine for individual French words
+ * not found in PHONETIC_DICT or MASTER_DATA.
+ */
+function wordToPhoneticRules(word) {
+    if (!word || word.length === 0) return "";
+    let w = word.toLowerCase().replace(/[,.?!;:]/g, "");
+    
+    // Pre-replace common endings
+    w = w.replace(/eau[x]?$/g, "oh");
+    w = w.replace(/au[x]?$/g, "oh");
+    w = w.replace(/oi[s|t|d|g]?$/g, "wah");
+    w = w.replace(/ou[s|t|d|x]?$/g, "oo");
+    
+    // Grapheme mappings (order matters — longer patterns first)
+    w = w
+        .replace(/ille$/g, "ee-yuh")
+        .replace(/eil/g, "ay")
+        .replace(/eill/g, "ay")
+        .replace(/ch/g, "sh")
+        .replace(/gn/g, "ny")
+        .replace(/ph/g, "f")
+        .replace(/th/g, "t")
+        .replace(/qu/g, "k")
+        .replace(/oi/g, "wah")
+        .replace(/ou/g, "oo")
+        .replace(/eau/g, "oh")
+        .replace(/au/g, "oh")
+        .replace(/eu/g, "uh")
+        .replace(/œu/g, "uh")
+        .replace(/ui/g, "wee")
+        .replace(/ai/g, "ay")
+        .replace(/ei/g, "ay")
+        .replace(/est$/g, "ay")
+        .replace(/an(?![aeiouy])/g, "ahn")
+        .replace(/en(?![aeiouy])/g, "ahn")
+        .replace(/in(?![aeiouy])/g, "an")
+        .replace(/on(?![aeiouy])/g, "ohn")
+        .replace(/un(?![aeiouy])/g, "uhn")
+        .replace(/c([eiyeéèêë])/g, "s$1")
+        .replace(/g([eiyeéèêë])/g, "zh$1")
+        .replace(/ç/g, "s")
+        .replace(/j/g, "zh")
+        .replace(/é/g, "ay");
+    
+    // Silent final consonants
+    w = w.replace(/[stxzdgp]s?$/g, "");
+    
+    // Normalize final e
+    w = w.replace(/e$/g, "uh");
+    
+    // Remove consecutive duplicate letters
+    w = w.replace(/([a-z])\1/g, "$1");
+    
+    return w;
+}
+
+async function fetchPhoneticGuide_old(p) {
     const n = norm(p);
     for (let key in MASTER_DATA) {
         if (norm(key) === n && MASTER_DATA[key].pronunciation) {
             return MASTER_DATA[key].pronunciation;
         }
     }
-    if (state.customPronunciations[n] && state.customPronunciations[n] !== "...") {
+    if (state.customPronunciations[n] && state.customPronunciations[n] !== "") {
         return state.customPronunciations[n];
     }
     
@@ -1248,4 +1442,3 @@ function generatePhoneticFallback(phrase) {
     let result = phoneticWords.filter(w => w.length > 0).join(" ");
     return result;
 }
-
