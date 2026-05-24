@@ -483,6 +483,10 @@
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         padding-bottom: calc(var(--bottom-nav-height) + 15px) !important; 
         position: relative;
+        /* Force GPU layer compositing to completely eliminate partial paint scrolling cutoff glitches */
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        will-change: transform;
     }
     
     /* Z-Index Hierarchy */
@@ -2788,6 +2792,10 @@ body.mode-spelling .spelling-slots {
     max-width: 950px !important; /* Expanded default room for tablet/mobile portrait */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    /* Force GPU layer compositing to completely prevent partial paint scrolling cutoff glitches */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
 }
 
 #bpModal .overlay-content h2 {
@@ -2869,10 +2877,11 @@ body.mode-spelling .spelling-slots {
 
 /* Folder cards: more opaque to stand out against gradient */
 .folder-card {
-    background: rgba(255,255,255,0.92) !important;
+    background: rgba(255,255,255,0.96) !important;
     border: 2px solid rgba(255,255,255,0.5) !important;
     box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
-    backdrop-filter: blur(6px);
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 .folder-card:active {
     background: rgba(255,255,255,1) !important;
@@ -2889,9 +2898,11 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack: homework cards more opaque */
 .history-item {
-    background: rgba(255,255,255,0.92) !important;
-    backdrop-filter: blur(6px);
+    background: rgba(255,255,255,0.96) !important; /* Premium semi-transparent white without heavy GPU backdrop-blur rendering glitches */
     border-color: rgba(157, 78, 221, 0.3) !important;
+    /* Force GPU layer compositing on cards so browser renders full card boundaries during container scroll */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 
 /* Parent Settings: buttons more defined */
