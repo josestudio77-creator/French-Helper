@@ -129,10 +129,7 @@ function executeImportProcess(finalName, weekData) {
     state.currentSetName = finalName;
     localStorage.setItem('currentSetName', finalName);
     
-    translateIfNeeded(weekData.words, false); // phonetic is now synchronous, no re-render needed
-        if (false) { // dead block preserved for diff clarity
-        renderList(weekData.words.split('\n').filter(w => w.trim()));
-    });
+    translateIfNeeded(weekData.words, false);
 
     // CLEAR THE HASH AFTER IMPORT
     window.history.replaceState(null, document.title, window.location.pathname);
@@ -733,13 +730,8 @@ async function loadHomeworkForPractice(name, words, audio) {
         stopAutoPlay();
     }
     
-    // Start background translation & phonetic generation so the UI transitions instantly!
-    translateIfNeeded(words, false); // phonetic is synchronous now, no re-render needed
-        if (false) { // dead block for diff clarity
-        if (state.currentSetName === name) {
-            renderList(words.split('\n').filter(w => w.trim()));
-        }
-    }).catch(e => console.error('Background translation error:', e));
+    // Phonetic generation is now synchronous — no background re-render needed
+    translateIfNeeded(words, false).catch(e => console.error('Background translation error:', e));
     
     state.currentSetName = name;
     localStorage.setItem('currentSetName', name);
