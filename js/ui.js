@@ -580,7 +580,7 @@ list.forEach(p => {
     
     const gIcon = data.g ? `<div class="gender-icon">${data.g === 'f' ? '👧' : '👦'}</div>` : '';
     const pGuideVisible = state.syllableMode ? '' : 'display:none;';
-    const pGuide = `<span class="pronunciation-text" style="cursor: pointer; ${pGuideVisible}" title="Double-click to edit phonetics">${data.pronunciation ? '[ ' + data.pronunciation + ' ]' : ''}</span>`;
+    const pGuide = `<span class="pronunciation-text" style="cursor: pointer; ${pGuideVisible}" title="Double-click to edit phonetics">${data.pronunciation ? '[ ' + data.pronunciation.replace(/-/g, ' ') + ' ]' : ''}</span>`;
     
     const spellingHTML = `
         <div class="spelling-zone" style="display:none; padding: 0;">
