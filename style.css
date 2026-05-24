@@ -355,11 +355,11 @@
         flex-direction: column; 
         align-items: center; 
         justify-content: flex-end; /* Anchor elements towards the bottom */
-        padding-bottom: 12px; /* Fixed baseline from the bottom boundary */
+        padding-bottom: 8px; /* Fixed baseline from the bottom boundary on mobile */
         font-weight: 900; 
         cursor: pointer; 
         font-size: 0.74rem; /* Tiny bit smaller for premium, elegant typography */
-        gap: 6px;
+        gap: 2px; /* Pull icons closer to labels and away from top border */
         line-height: 1;
         transition: all 0.2s ease;
     }
@@ -3317,6 +3317,15 @@ body.mode-spelling .spelling-slots {
     .nav-item.active {
         font-size: 1.22rem !important; /* Magnificent, bold, highly legible labels on desktop viewports */
         letter-spacing: 0.02em;
+    }
+    
+    :root {
+        --bottom-nav-height: 90px !important; /* Premium spacious desktop height */
+    }
+    
+    .nav-item {
+        padding-bottom: 12px !important; /* Fixed baseline for wide desktop viewports */
+        gap: 3px !important; /* Pull desktop icons down and keep closer to labels */
     }
 }
 
