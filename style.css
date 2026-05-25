@@ -1,23 +1,5 @@
 
 
-#bpModal {
-    position: static !important;
-    min-height: 100vh;
-    display: block;
-    width: 100%;
-    padding: 10px;
-}
-#bpModal .overlay-content {
-    overflow-y: visible !important;
-    height: auto !important;
-    max-height: none !important;
-}
-body.bp-open {
-    overflow-y: auto !important;
-}
-body.bp-open .container {
-    display: none;
-}
 /* ==================== FONTS & GLOBAL RESET ==================== */
     
     @font-face {
@@ -447,7 +429,6 @@ body.bp-open .container {
                 drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18)) !important; /* Perfectly balanced crisp projected shadows close to the button */
     }
     
-
 
     
     .nav-presets { 
@@ -2940,6 +2921,12 @@ body.mode-spelling .spelling-slots {
     border: 2px solid rgba(255,255,255,0.3) !important;
     backdrop-filter: blur(14px);
     border-radius: 16px !important;
+}
+#bpModal .overlay-content > div:first-child {
+    position: sticky;
+    top: -10px;
+    z-index: 10;
+    margin-bottom: 15px;
 }
 
 /* Backpack: homework cards more opaque */
