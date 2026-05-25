@@ -429,7 +429,6 @@
     
 
 
-
     
     .nav-presets { 
         color: #ff9e6d; 
@@ -3237,14 +3236,6 @@ body.mode-spelling .spelling-slots {
 }
 
 /* Backpack: header bar stays fixed */
-#bpModal .overlay-content > div:first-child {
-    position: sticky; 
-    top: 0; /* Stays at top — negative values overlap content below on Chrome Mobile */
-    z-index: 10;
-    margin-top: -10px; /* Pull header up slightly to cover the padding gap */
-    padding-top: 10px; /* Offset the negative margin so text stays in place */
-    margin-bottom: 15px;
-}
 
 /* Parent Settings: title stays fixed */
 #parentDrawer .overlay-content h2 {
