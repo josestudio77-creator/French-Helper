@@ -1,3 +1,21 @@
+
+
+#bpModal {
+    position: absolute !important;
+    top: 0;
+    min-height: 100vh;
+}
+#bpModal .overlay-content {
+    overflow-y: visible !important;
+    height: auto !important;
+    max-height: none !important;
+}
+body.bp-open {
+    overflow-y: auto !important;
+}
+body.bp-open .container {
+    display: none;
+}
 /* ==================== FONTS & GLOBAL RESET ==================== */
     
     @font-face {
@@ -519,6 +537,7 @@
     
     /* Z-Index Hierarchy */
     #bpModal, #gameDrawer, #parentDrawer, #presetsOverlay, #hwDrawer {
+    /* Backpack uses body scroll — see #bpModal override below */
         z-index: 8500 !important; 
     }
     

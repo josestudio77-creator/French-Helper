@@ -276,6 +276,12 @@ function openOverlay(id) {
     }
     
     // 6. SPECIFIC LOGIC (Preserved)
+    if(id === 'bpModal') {
+        // Use body scroll for backpack — hide practice screen, overlay flows naturally
+        document.querySelector('.container').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.body.style.position = 'static';
+    }
     if(id === 'gameDrawer') { 
         state.wins = 0; state.losses = 0; updateScoreUI();
         const globalKb = document.getElementById('keyboard');
@@ -322,6 +328,12 @@ function closeOverlay(id) {
         window.history.replaceState(null, document.title, window.location.pathname);
     }
     
+    if (id === 'bpModal') {
+        // Restore practice screen (hidden during body-scroll backpack)
+        document.querySelector('.container').style.display = '';
+        document.body.style.position = '';
+        document.body.style.overflow = '';
+    }
     if (id === 'gameDrawer') {
         const globalKb = document.getElementById('keyboard');
         if (globalKb) globalKb.classList.remove('active');
