@@ -506,7 +506,7 @@
         border-radius: 30px; 
         padding: 15px; 
         height: 90vh; 
-        overflow-y: auto; 
+        overflow-y: auto; overflow-anchor: none; /* Prevents Chrome Android scroll-paint glitch */ 
         scrollbar-width: none; 
         -ms-overflow-style: none; 
         text-align: center;
