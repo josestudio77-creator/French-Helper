@@ -1,9 +1,11 @@
 
 
 #bpModal {
-    position: absolute !important;
-    top: 0;
+    position: static !important;
     min-height: 100vh;
+    display: block;
+    width: 100%;
+    padding: 10px;
 }
 #bpModal .overlay-content {
     overflow-y: visible !important;
