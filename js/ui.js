@@ -214,6 +214,11 @@ function navJump(targetId) {
         if (el) el.style.display = 'none';
     });
 
+    // Native Body Scroll: Always restore the container and remove bp-open on nav
+    document.body.classList.remove('bp-open');
+    const mainContainer = document.querySelector('.container');
+    if (mainContainer) mainContainer.style.display = 'block';
+
     clearVictoryItems();
     document.body.style.overflow = 'auto';
     document.body.classList.remove('keyboard-buffer');
@@ -284,6 +289,10 @@ function openOverlay(id) {
         if (drawerContent) drawerContent.classList.add('keyboard-buffer');
         setTimeout(startHangman, 50); 
     } else if (id === 'bpModal') {
+        // Transition to native body scroll for backpack
+        const mainContainer = document.querySelector('.container');
+        if (mainContainer) mainContainer.style.display = 'none';
+        document.body.classList.add('bp-open');
         openBP();
     }
 }
@@ -291,6 +300,12 @@ function openOverlay(id) {
 function closeOverlay(id) { 
     const overlay = document.getElementById(id);
     if (overlay) overlay.style.display = 'none'; 
+
+    if (id === 'bpModal' || document.body.classList.contains('bp-open')) {
+        document.body.classList.remove('bp-open');
+        const mainContainer = document.querySelector('.container');
+        if (mainContainer) mainContainer.style.display = 'block';
+    }
 
     // --- DEACTIVATE ACTIVE HANGMAN GAME AND MUSIC ON DRAWER CLOSE ---
     if (id === 'gameDrawer') {

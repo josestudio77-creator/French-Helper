@@ -2916,16 +2916,33 @@ body.mode-spelling .spelling-slots {
 
 /* Backpack header: glass effect instead of purple box */
 #bpModal .overlay-content > div:first-child {
-    background: rgba(255,255,255,0.2) !important;
-    border: 2px solid rgba(255,255,255,0.3) !important;
-    backdrop-filter: blur(14px);
+    background: #fdf2ff !important;
+    border: 3px solid #9d4edd !important;
     border-radius: 16px !important;
 }
-#bpModal .overlay-content > div:first-child {
-    position: sticky;
-    top: -10px;
-    z-index: 10;
-    margin-bottom: 15px;
+
+body.bp-open {
+    overflow-y: auto !important;
+}
+body.bp-open #bpModal {
+    position: static !important;
+    min-height: 100vh;
+    display: block;
+    width: 100%;
+    padding: 0 10px !important;
+    background: transparent !important;
+}
+body.bp-open #bpModal .overlay-content {
+    overflow-y: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    padding-bottom: calc(var(--bottom-nav-height) + 25px) !important;
+    -webkit-transform: none;
+    transform: none;
+    will-change: auto;
+}
+body.bp-open #bpModal .overlay-content > div:first-child {
+    margin-bottom: 25px;
 }
 
 /* Backpack: homework cards more opaque */
