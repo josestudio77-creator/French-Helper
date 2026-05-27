@@ -29,6 +29,7 @@ const state = {
     currentIsDialogue: false,
     isAutoPlaying: false,
     autoPlayTimeout: null,
+    autoPlaySessionId: 0,
     currentSetName: localStorage.getItem('currentSetName') || '',
     appVersion: "1.0.0",
     musicVolume: parseInt(localStorage.getItem('musicVolume') || '30'),

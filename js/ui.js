@@ -561,7 +561,8 @@ list.forEach((p, index) => {
     line.onclick = () => {
         if (state.isAutoPlaying) {
             clearTimeout(state.autoPlayTimeout);
-            playLine(index); // Jump autoplay to this phrase and continue
+            state.autoPlaySessionId = (state.autoPlaySessionId || 0) + 1; // Invalidate old loops
+            playLine(index, state.autoPlaySessionId); // Jump autoplay to this phrase and continue
         } else {
             SpeechCache.playCachedAudio(cleanText, 'fr-FR', true);
         }
@@ -1410,6 +1411,7 @@ function manualFixPronunciation(p, currentPron) {
 
 function startAutoPlay() {
     state.isAutoPlaying = true;
+    state.autoPlaySessionId = (state.autoPlaySessionId || 0) + 1;
     document.getElementById('playAllBtn').innerHTML = "⏹️ Stop";
     
     if (state.currentScreenList && state.currentScreenList.length > 10) {
@@ -1420,11 +1422,12 @@ function startAutoPlay() {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); 
     
-    playLine(0);
+    playLine(0, state.autoPlaySessionId);
 }
 
 function stopAutoPlay() {
     state.isAutoPlaying = false;
+    state.autoPlaySessionId = (state.autoPlaySessionId || 0) + 1;
     if (state.autoPlayTimeout) {
         clearTimeout(state.autoPlayTimeout);
         state.autoPlayTimeout = null;
@@ -1441,12 +1444,13 @@ function stopAutoPlay() {
     window.speechSynthesis.cancel();
 }
 
-  async function playLine(index) {
+  async function playLine(index, sessionId) {
     if (!state.isAutoPlaying) return;
+    if (sessionId !== undefined && sessionId !== state.autoPlaySessionId) return;
     
     if (index >= state.currentScreenList.length) {
         if (state.loopMode) {
-            playLine(0);
+            playLine(0, sessionId);
         } else {
             stopAutoPlay();
         }
@@ -1478,9 +1482,12 @@ function stopAutoPlay() {
         // fallback already handled inside playCachedAudio
     }
     
+    // Check if loop was cancelled while audio was playing
+    if (!state.isAutoPlaying || (sessionId !== undefined && sessionId !== state.autoPlaySessionId)) return;
+    
     if (state.isAutoPlaying) {
         state.autoPlayTimeout = setTimeout(() => {
-            playLine(index + 1);
+            playLine(index + 1, sessionId);
         }, userGap);
     }
 }
