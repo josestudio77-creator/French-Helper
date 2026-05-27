@@ -357,8 +357,7 @@
         right: 0; 
         background: white; 
         border-top: 4px solid #f3f4f6; /* Premium thicker off-white rim that defines the top edge cleanly */
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.20), 
-                    0 -3px 8px rgba(0, 0, 0, 0.10); /* Deeper, more noticeable premium upward shadow to elevate the bar */
+        /* Removed heavy box-shadow to prevent Chrome Android scroll-paint clipping bugs */
         display: flex; 
         z-index: 9000;
         height: var(--bottom-nav-height); 
