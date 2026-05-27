@@ -1146,9 +1146,9 @@
     /* ==================== ICON BUTTONS & GROUPS ==================== */
     
     .icon-btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px !important;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px !important;
         border: 2px solid rgba(255, 255, 255, 0.4) !important;
         padding: 0 !important;
         margin: 0 auto 4px auto !important;
@@ -1456,7 +1456,7 @@
     }
     
     .history-item { 
-        padding: 16px 8px; /* Optimized padding to give inner buttons maximum room */
+        padding: 16px 4px; /* Minimized padding to give inner buttons maximum horizontal room */
         border: 3px solid #9d4edd;
         display: flex; 
         flex-direction: column; 
@@ -2930,7 +2930,7 @@ body.bp-open #bpModal {
     min-height: 100vh;
     display: block;
     width: 100%;
-    padding: 0 10px !important;
+    padding: 0 5px !important; /* Maximized width for mobile layout */
     background: transparent !important;
 }
 body.bp-open #bpModal .overlay-content {
