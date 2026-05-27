@@ -1456,7 +1456,7 @@
     }
     
     .history-item { 
-        padding: 16px 4px; /* Minimized padding to give inner buttons maximum horizontal room */
+        padding: 16px 12px; /* Increased padding to give breathing room on the left/right edges */
         border: 3px solid #9d4edd;
         display: flex; 
         flex-direction: column; 

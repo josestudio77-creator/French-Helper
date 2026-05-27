@@ -1015,12 +1015,12 @@ function openBP() {
 
                 <div style="width:100%; margin-bottom:8px; padding: 0 10px;">
                     <div class="hw-clickable-title" 
-                         style="font-weight:900; font-size:1.1rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                         style="font-weight:900; font-size:1.25rem; color:#2d3748; cursor:pointer; text-decoration:underline dotted #9d4edd; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                         ${name} ${hasAudio}
                     </div>
                 </div>
                 
-                <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:12px; padding:10px 0; font-weight:900; font-size:1.4rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57; line-height:1.2; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <button class="practice-big-btn" style="width:100%; background:#4cd964; color:white; border:none; border-radius:24px; padding:10px 0; font-weight:900; font-size:1.4rem; margin:5px 0 8px 0; cursor:pointer; box-shadow:0 4px 0 #2e8b57; line-height:1.2; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                     <span style="letter-spacing:1px;">PRACTICE</span>
                     <span style="font-size: 0.8rem; font-weight: 800; opacity: 0.95; text-transform: uppercase; margin-top:2px;">
                         ${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}
