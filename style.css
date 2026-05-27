@@ -2923,6 +2923,7 @@ body.mode-spelling .spelling-slots {
 
 body.bp-open {
     overflow-y: auto !important;
+    padding-bottom: 0 !important; /* Removes double padding with .overlay-content */
 }
 body.bp-open #bpModal {
     position: static !important;
@@ -2936,7 +2937,7 @@ body.bp-open #bpModal .overlay-content {
     overflow-y: visible !important;
     height: auto !important;
     max-height: none !important;
-    padding-bottom: calc(var(--bottom-nav-height) + 5px) !important;
+    padding-bottom: calc(var(--bottom-nav-height) + 15px) !important;
     -webkit-transform: none;
     transform: none;
     will-change: auto;
