@@ -561,10 +561,7 @@ list.forEach((p, index) => {
     line.onclick = () => {
         if (state.isAutoPlaying) {
             clearTimeout(state.autoPlayTimeout);
-            window.speechSynthesis.cancel();
-            SpeechCache.playCachedAudio(cleanText, 'fr-FR', true).then(() => {
-                if (state.isAutoPlaying) playLine(index);
-            });
+            playLine(index); // Jump autoplay to this phrase and continue
         } else {
             SpeechCache.playCachedAudio(cleanText, 'fr-FR', true);
         }

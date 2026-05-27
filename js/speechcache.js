@@ -192,26 +192,33 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
             const audio = new Audio(url);
             state.currentlyPlayingAudio = audio;
             
-            audio.onended = () => {
-                URL.revokeObjectURL(url);
-                if (state.currentlyPlayingAudio === audio) {
-                    state.currentlyPlayingAudio = null;
-                }
-            };
-            
-            audio.onerror = () => {
-                URL.revokeObjectURL(url);
-                if (state.currentlyPlayingAudio === audio) {
-                    state.currentlyPlayingAudio = null;
-                }
-                console.warn('[SpeechCache] Playback error, falling back to browser TTS');
-                if (typeof spk === 'function') {
-                    spk(text, lang, forceInterrupt, speedOverride, isLetterMode);
-                }
-            };
-            
-            await audio.play();
-            return;
+            return new Promise((resolve) => {
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    if (state.currentlyPlayingAudio === audio) {
+                        state.currentlyPlayingAudio = null;
+                    }
+                    resolve();
+                };
+                
+                audio.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    if (state.currentlyPlayingAudio === audio) {
+                        state.currentlyPlayingAudio = null;
+                    }
+                    console.warn('[SpeechCache] Playback error, falling back to browser TTS');
+                    if (typeof spk === 'function') {
+                        spkWithCallback(text, lang, forceInterrupt, speedOverride, isLetterMode, resolve);
+                    } else {
+                        resolve();
+                    }
+                };
+                
+                audio.play().catch(e => {
+                    console.warn('[SpeechCache] Audio play rejected:', e);
+                    resolve();
+                });
+            });
         }
     } catch (err) {
         console.warn('[SpeechCache] Lookup error, falling back to browser TTS:', err.message || err);
