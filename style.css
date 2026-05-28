@@ -75,7 +75,7 @@
     
     .header { 
         background: white; 
-        border-radius: 20px; 
+        border-radius: 28px; 
         padding: 10px 25px; 
         margin-bottom: 10px; 
         border: 4px solid #ff9e6d; 
@@ -104,7 +104,7 @@
     
     .phrase-card { 
         background: #fdfbf7; 
-        border-radius: 25px; 
+        border-radius: 32px; 
         padding: 12px 20px 18px 20px; 
         margin: 15px auto; 
         border: 5px solid #a3e4d7; 
@@ -316,7 +316,7 @@
     
     .card-btn { 
         border: none; 
-        border-radius: 18px; 
+        border-radius: 24px; 
         padding: 15px; 
         font-weight: 900; 
         color: white; 
@@ -513,7 +513,7 @@
     
     .overlay-content {
         background: white; 
-        border-radius: 30px; 
+        border-radius: 36px; 
         padding: 15px; 
         height: 90vh; 
         overflow-y: auto; overflow-anchor: none; /* Prevents Chrome Android scroll-paint glitch */ 
@@ -611,7 +611,7 @@
 
     #gameStageContainer { 
         background: #f0f9ff; 
-        border-radius: 20px; 
+        border-radius: 32px; 
         display: flex;
         align-items: center;
         justify-content: center;
@@ -700,7 +700,7 @@
     
     .app-control-panel {
         background: linear-gradient(135deg, #f5f3ff, #ede9fe) !important;
-        border-radius: 25px !important;
+        border-radius: 32px !important;
         padding: 12px 15px;
         margin-bottom: 15px;
         border: 3px solid #6366f1 !important;
@@ -839,7 +839,7 @@
     
     .condensed-card {
         background: #fdfbf7;
-        border-radius: 25px;
+        border-radius: 32px;
         padding: 20px 15px;
         margin: 15px 0;
         border: 5px solid #a3e4d7;
@@ -1057,7 +1057,7 @@
         height: 6rem;
         border: 3px dashed #a3e4d7;
         background: #f0fff4;
-        border-radius: 25px;
+        border-radius: 32px;
         display: flex;
         flex-direction: column;
         align-items: center;
