@@ -356,11 +356,12 @@
         left: 0; 
         right: 0; 
         background: white; 
-        border-top: 4px solid #f3f4f6; /* Premium thicker off-white rim that defines the top edge cleanly */
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.1); /* Restored shadow for separation */
+        border-radius: 24px 24px 0 0; /* Modern, curved premium top corners */
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.08); /* Soft, diffused premium drop shadow */
         display: flex; 
         z-index: 9000;
-        height: var(--bottom-nav-height); 
+        height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px)); 
+        padding-bottom: env(safe-area-inset-bottom, 0px); /* iPhone/Android gesture bar safe area */
         overflow: visible; /* Allow centerpiece to float out */
     }
     
