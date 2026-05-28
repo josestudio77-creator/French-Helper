@@ -3002,7 +3002,7 @@ body.bp-open #bpModal .overlay-content > div:first-child {
 .phrase-card,
 .condensed-card {
     box-shadow: 0 4px 14px rgba(0,0,0,0.10) !important;
-    border-radius: 18px !important;
+    border-radius: 32px !important;
 }
 
 /* --- Folder cards: match homework card style --- */
