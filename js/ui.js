@@ -650,9 +650,6 @@ list.forEach(p => {
             <button class="card-btn spell-btn" style="display: none; background: #ecc94b; color: #744210; padding: 15px 5px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
                 <span>🐝 Spell</span>
             </button>
-            <button class="card-btn puzzle-btn" onclick="triggerHaptic(15); togglePuzzleMode(this, '${p.replace(/'/g, "\\'")}')" style="background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                <span>🧩 <span class="btn-text">Puzzle</span></span>
-            </button>
         </div>
     `;
     
@@ -662,6 +659,7 @@ list.forEach(p => {
         <div class="card-main-content">
          <div class="card-tools">
              <div class="tool-btn bee-badge" onclick="toggleSpellingMode(this, '${p.replace(/'/g, "\\'")}')" title="Spelling Bee">🐝</div>
+             <div class="tool-btn puzzle-badge" onclick="togglePuzzleMode(this, '${p.replace(/'/g, "\\'")}')" title="Word Puzzle" style="font-size: 1.4rem; cursor: pointer;">🧩</div>
              <div class="tool-btn syl-toggle ${state.syllableMode ? 'active' : ''}" onclick="toggleSyllableMode(this)" title="Show syllables &amp; pronunciation">
                  <svg width="48" height="22" viewBox="0 0 48 22" style="display:block; margin:0 auto;">
                      <text class="abc-a" x="10" y="14" font-size="20" font-weight="900" font-family="Nunito, sans-serif" text-anchor="middle">A</text>

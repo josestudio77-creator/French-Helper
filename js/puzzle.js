@@ -23,44 +23,57 @@ function togglePuzzleMode(btn, phrase) {
     const card = btn.closest('.phrase-card');
     if (!card) return;
 
-    // We need to manage the UI states (hide main content, show puzzle zone)
-    const mainContent = card.querySelector('.main-phrase');
-    const pGuide = card.querySelector('.pronunciation-text');
-    let puzzleZone = card.querySelector('.puzzle-zone');
-
     const isCurrentlyActive = btn.classList.contains('active-puzzle-btn');
+
+    // UI elements to hide/show
+    const elementsToHide = card.querySelectorAll('.card-tools, .card-icon, .card-photo, .ai-placeholder-box, .french-text, .english-text, .pronunciation-text');
+    let puzzleZone = card.querySelector('.puzzle-zone');
+    let exitBtn = card.querySelector('.puzzle-exit-btn');
 
     if (isCurrentlyActive) {
         // Turn OFF puzzle mode
         btn.classList.remove('active-puzzle-btn');
-        btn.style.background = '#e2e8f0'; // default bg
-        btn.style.color = '#1a202c'; // default text
-        if(mainContent) mainContent.style.display = '';
-        if(pGuide && state.syllableMode) pGuide.style.display = '';
+        btn.style.color = ''; // Restore default
+        
+        elementsToHide.forEach(el => {
+            if (el.classList.contains('card-tools')) {
+                el.style.display = 'flex';
+            } else {
+                el.style.display = '';
+            }
+        });
+        
         if(puzzleZone) puzzleZone.style.display = 'none';
+        if(exitBtn) exitBtn.style.display = 'none';
         
         // Clean up puzzle
         if (puzzleZone) puzzleZone.innerHTML = '';
         window.puzzleState.activeCard = null;
     } else {
         // Turn ON puzzle mode
-        // Turn off other buttons (like spell mode or recording) if we want?
-        
         btn.classList.add('active-puzzle-btn');
-        btn.style.background = '#4299e1'; // premium blue active state
-        btn.style.color = 'white';
         
-        if(mainContent) mainContent.style.display = 'none';
-        if(pGuide) pGuide.style.display = 'none';
+        elementsToHide.forEach(el => el.style.display = 'none');
         
+        // Create puzzle zone if it doesn't exist
         if(!puzzleZone) {
-            // Should be created by ui.js, but fallback just in case
             puzzleZone = document.createElement('div');
             puzzleZone.className = 'puzzle-zone';
-            card.querySelector('.card-main-content').insertBefore(puzzleZone, card.querySelector('.card-tools'));
+            card.querySelector('.card-main-content').appendChild(puzzleZone);
+        }
+        
+        // Create exit button if it doesn't exist
+        if(!exitBtn) {
+            exitBtn = document.createElement('button');
+            exitBtn.className = 'puzzle-exit-btn';
+            exitBtn.innerHTML = '❌ Exit Puzzle';
+            exitBtn.onclick = () => togglePuzzleMode(btn, phrase);
+            card.insertBefore(exitBtn, card.firstChild);
         }
         
         puzzleZone.style.display = 'block';
+        exitBtn.style.display = 'block';
+        
         initPuzzle(puzzleZone, phrase);
     }
 }
