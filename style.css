@@ -382,6 +382,15 @@
         transition: all 0.2s ease;
     }
     
+    /* Ensure the hitboxes/backgrounds of the outer buttons perfectly match the curved dock */
+    .nav-item:first-child {
+        border-top-left-radius: 28px;
+    }
+    
+    .nav-item:last-child {
+        border-top-right-radius: 28px;
+    }
+    
     .nav-item.active {
         /* Pressed shadow and grey background effects removed per request */
     }
