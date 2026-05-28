@@ -3519,3 +3519,27 @@ body.bp-open #bpModal .overlay-content > div:first-child {
 #hwIsDialogue {
     margin-right: 12px !important;
 }
+
+/* =========================================================
+   PERFORMANCE DEBUGGING: 
+   Temporarily disable heavy background animations and sparkles 
+   to diagnose Android Chrome scrolling layout dropping bugs.
+   ========================================================= */
+body, 
+.backpack-screen, 
+.presets-screen, 
+.student-info-screen, 
+.teacher-tools-screen, 
+.teacher-pass-screen, 
+.parent-screen {
+    animation: none !important;
+}
+
+.sparkles-container {
+    display: none !important;
+    animation: none !important;
+}
+
+.sparkle {
+    animation: none !important;
+}
