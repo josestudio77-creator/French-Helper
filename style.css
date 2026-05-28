@@ -3553,4 +3553,102 @@ body,
 
 .sparkle {
     animation: none !important;
+}   
+ /* ==================== WORD PUZZLE STYLES ==================== */
+.puzzle-zone {
+    padding: 10px 0;
+    width: 100%;
+}
+
+.puzzle-slots-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 25px;
+    min-height: 55px; /* Minimum height for a line of slots */
+}
+
+.puzzle-slot {
+    border: 3px dashed #cbd5e0;
+    border-radius: 16px;
+    min-width: 60px;
+    height: 48px;
+    background: rgba(226, 232, 240, 0.3);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.puzzle-slot[data-filled="true"] {
+    border-color: transparent;
+    background: transparent;
+}
+
+.puzzle-bank-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    min-height: 150px; /* Space for scattered pieces */
+    padding: 20px 10px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 20px;
+    position: relative;
+}
+
+.puzzle-piece {
+    background: white;
+    border: 3px solid #6366f1;
+    color: #4338ca;
+    font-weight: 900;
+    font-size: 1.2rem;
+    padding: 8px 18px;
+    border-radius: 16px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    touch-action: none; /* Crucial for custom touch drag */
+    z-index: 10;
+}
+
+.puzzle-piece.dragging {
+    cursor: grabbing;
+    transform: scale(1.1) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    opacity: 0.9;
+}
+
+.puzzle-piece.locked {
+    cursor: default;
+    border-color: #48bb78;
+    color: #2f855a;
+    background: #f0fff4;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Scattering Animation */
+.drop-anim {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.5);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.drop-anim.scattered {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--target-rot));
+}
+
+/* Victory Pop */
+@keyframes victoryPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.victory-pop {
+    animation: victoryPop 0.5s ease-out;
 }

@@ -650,6 +650,9 @@ list.forEach(p => {
             <button class="card-btn spell-btn" style="display: none; background: #ecc94b; color: #744210; padding: 15px 5px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
                 <span>🐝 Spell</span>
             </button>
+            <button class="card-btn puzzle-btn" onclick="triggerHaptic(15); togglePuzzleMode(this, '${p.replace(/'/g, "\\'")}')" style="background: #e2e8f0; color: #1a202c; padding: 15px 5px; font-weight: 800; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <span>🧩 <span class="btn-text">Puzzle</span></span>
+            </button>
         </div>
     `;
     
