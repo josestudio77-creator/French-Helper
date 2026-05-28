@@ -356,8 +356,9 @@
         left: 0; 
         right: 0; 
         background: white; 
-        border-radius: 24px 24px 0 0; /* Modern, curved premium top corners */
-        box-shadow: 0 -8px 30px rgba(0,0,0,0.08); /* Soft, diffused premium drop shadow */
+        border-top: 3px solid #e2e8f0; /* Crisp top border for visual separation */
+        border-radius: 28px 28px 0 0; /* Distinct, sweeping rounded corners */
+        box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.18); /* Much stronger, highly visible drop shadow */
         display: flex; 
         z-index: 9000;
         height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px)); 
