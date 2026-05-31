@@ -32,6 +32,7 @@ function togglePuzzleMode(btn, phrase) {
 
     if (isCurrentlyActive) {
         // Turn OFF puzzle mode
+        card.classList.remove('puzzle-mode');
         btn.classList.remove('active-puzzle-btn');
         btn.style.color = ''; // Restore default
         
@@ -51,6 +52,7 @@ function togglePuzzleMode(btn, phrase) {
         window.puzzleState.activeCard = null;
     } else {
         // Turn ON puzzle mode
+        card.classList.add('puzzle-mode');
         btn.classList.add('active-puzzle-btn');
         
         elementsToHide.forEach(el => el.style.display = 'none');
@@ -169,14 +171,14 @@ function handleDragStart(e) {
     // Only if it's not already absolute
     if (el.style.position !== 'absolute') {
         el.style.position = 'absolute';
-        el.style.left = rect.left + 'px';
-        el.style.top = rect.top + 'px';
+        el.style.left = (rect.left + window.scrollX) + 'px';
+        el.style.top = (rect.top + window.scrollY) + 'px';
         // Move to body to avoid clipping
         document.body.appendChild(el);
     }
     
-    window.puzzleState.initialLeft = parseFloat(el.style.left) || rect.left;
-    window.puzzleState.initialTop = parseFloat(el.style.top) || rect.top;
+    window.puzzleState.initialLeft = parseFloat(el.style.left);
+    window.puzzleState.initialTop = parseFloat(el.style.top);
     
     document.addEventListener('touchmove', handleDragMove, {passive: false});
     document.addEventListener('touchend', handleDragEnd);

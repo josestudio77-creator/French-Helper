@@ -3595,6 +3595,8 @@ body,
     flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
+    align-content: flex-start;
+    align-items: flex-start;
     min-height: 150px; /* Space for scattered pieces */
     padding: 20px 10px;
     background: rgba(0, 0, 0, 0.02);
@@ -3671,7 +3673,7 @@ body,
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     z-index: 100;
 }
-.card-main-content {
+.phrase-card.puzzle-mode .card-main-content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
