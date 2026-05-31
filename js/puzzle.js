@@ -112,7 +112,7 @@ function togglePuzzleMode(btn, phrase) {
         initPuzzle(puzzleZone, phrase);
         
         if (typeof spk === 'function') {
-            spk("Let's put all the words in order!", 'en-US', true);
+            spk("Let's put all the words in order!", 'en-US', true, 1.0);
         }
     }
 }
@@ -152,7 +152,25 @@ function initPuzzle(container, phrase) {
     });
     
     // Shuffle words for bank
-    const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+    let shuffledWords = [...words];
+    if (words.length > 1) {
+        let isSame = true;
+        let attempts = 0;
+        while (isSame && attempts < 10) {
+            for (let i = shuffledWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+            }
+            isSame = true;
+            for (let i = 0; i < words.length; i++) {
+                if (words[i] !== shuffledWords[i]) {
+                    isSame = false;
+                    break;
+                }
+            }
+            attempts++;
+        }
+    }
     
     // Create pieces in the bank
     
@@ -433,15 +451,19 @@ function triggerConfetti() {
         const duration = Math.random() * 2 + 1; // 1-3 seconds
         const delay = Math.random() * 0.5;
         
-        confetti.animate([
-            { transform: `translate3d(0, 0, 0) rotate(0deg)`, opacity: 1 },
-            { transform: `translate3d(${Math.random() * 100 - 50}px, 100vh, 0) rotate(${Math.random() * 720}deg)`, opacity: 0 }
-        ], {
-            duration: duration * 1000,
-            delay: delay * 1000,
-            easing: 'cubic-bezier(.37,0,.63,1)',
-            fill: 'forwards'
-        });
+        try {
+            confetti.animate([
+                { transform: `translate3d(0, 0, 0) rotate(0deg)`, opacity: 1 },
+                { transform: `translate3d(${Math.random() * 100 - 50}px, 100vh, 0) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+            ], {
+                duration: duration * 1000,
+                delay: delay * 1000,
+                easing: 'cubic-bezier(.37,0,.63,1)',
+                fill: 'forwards'
+            });
+        } catch(e) {
+            console.warn("Animation API error", e);
+        }
         
         // Clean up
         setTimeout(() => {
