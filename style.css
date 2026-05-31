@@ -3569,7 +3569,7 @@ body,
 .puzzle-slots-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 6px;
     justify-content: center;
     align-items: center;
     margin-bottom: 25px;
@@ -3594,7 +3594,7 @@ body,
     background: transparent;
     min-width: 0;
     min-height: 0;
-    padding: 0 4px; /* tightly pack words like a sentence */
+    padding: 0; /* completely remove padding */
 }
 
 .puzzle-bank-container {
@@ -3641,6 +3641,7 @@ body,
     box-shadow: none;
     color: inherit; /* inherit the dark grey color of standard text */
     padding: 0;
+    margin: 0; /* remove the 6px margin so words pack tightly */
     font-size: clamp(1.8rem, 4vw + 0.5rem, 3.5rem); /* grow to match practice card size */
 }
 
