@@ -75,10 +75,11 @@ function togglePuzzleMode(btn, phrase) {
         // Create exit button if it doesn't exist
         if(!exitBtn) {
             exitBtn = document.createElement('button');
-            exitBtn.className = 'puzzle-exit-btn';
-            exitBtn.innerHTML = '❌ Exit Puzzle';
+            exitBtn.className = 'puzzle-exit-btn card-btn';
+            exitBtn.innerHTML = '<span>❌ Exit</span>';
             exitBtn.onclick = () => togglePuzzleMode(btn, phrase);
-            card.insertBefore(exitBtn, card.firstChild);
+            const cardBtns = card.querySelector('.card-btns');
+            if (cardBtns) cardBtns.appendChild(exitBtn);
         }
         
         puzzleZone.style.display = 'block';
@@ -197,13 +198,20 @@ function handleDragStart(e) {
     window.puzzleState.startX = clientX;
     window.puzzleState.startY = clientY;
     
-    // Convert to absolute positioning relative to document body for unconstrained dragging
-    // Only if it's not already absolute
+    // Create a ghost placeholder so layout doesn't collapse
+    const placeholder = document.createElement('div');
+    placeholder.className = 'puzzle-placeholder';
+    placeholder.style.width = rect.width + 'px';
+    placeholder.style.height = rect.height + 'px';
+    placeholder.style.order = el.style.order;
+    // Only insert placeholder if not already absolute
     if (el.style.position !== 'absolute') {
+        el.parentNode.insertBefore(placeholder, el);
+        el._placeholder = placeholder;
+        
         el.style.position = 'absolute';
         el.style.left = (rect.left + window.scrollX) + 'px';
         el.style.top = (rect.top + window.scrollY) + 'px';
-        // Move to body to avoid clipping
         document.body.appendChild(el);
     }
     
@@ -322,6 +330,12 @@ function snapToSlot(piece, slot) {
     piece.style.top = '';
     piece.style.transform = 'none'; // reset scatter rotation
     
+    // Remove placeholder if it exists
+    if (piece._placeholder && piece._placeholder.parentNode) {
+        piece._placeholder.parentNode.removeChild(piece._placeholder);
+        piece._placeholder = null;
+    }
+    
     slot.appendChild(piece);
     
     checkVictory(piece._sourceCard);
@@ -335,7 +349,13 @@ function returnPieceToBank(piece) {
         piece.style.position = 'static';
         piece.style.left = '';
         piece.style.top = '';
-        bank.appendChild(piece);
+        
+        if (piece._placeholder && piece._placeholder.parentNode === bank) {
+            bank.replaceChild(piece, piece._placeholder);
+            piece._placeholder = null;
+        } else {
+            bank.appendChild(piece);
+        }
     }
 }
 
