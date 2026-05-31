@@ -90,7 +90,7 @@ function togglePuzzleMode(btn, phrase) {
         if(!exitBtn) {
             exitBtn = document.createElement('button');
             exitBtn.className = 'puzzle-exit-btn card-btn';
-            exitBtn.innerHTML = '<span>❌</span>';
+            exitBtn.innerHTML = '<span>❌ Exit</span>';
             exitBtn.onclick = () => {
                 const totalWords = phrase.split(' ').filter(w => w.trim().length > 0).length;
                 const filledSlots = card.querySelectorAll('.puzzle-slot[data-filled="true"]').length;
