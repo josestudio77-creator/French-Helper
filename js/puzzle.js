@@ -47,6 +47,14 @@ function togglePuzzleMode(btn, phrase) {
         if(puzzleZone) puzzleZone.style.display = 'none';
         if(exitBtn) exitBtn.style.display = 'none';
         
+        const recordPlay = card.querySelector('.record-play-container');
+        if (recordPlay) recordPlay.style.display = 'flex';
+        
+        const scoreboard = card.querySelector('.puzzle-scoreboard');
+        if (scoreboard) scoreboard.style.display = 'none';
+        const victoryPopup = card.querySelector('.puzzle-victory-popup');
+        if (victoryPopup) victoryPopup.style.display = 'none';
+        
         // Clean up puzzle
         if (puzzleZone) puzzleZone.innerHTML = '';
         window.puzzleState.activeCard = null;
@@ -76,6 +84,21 @@ function togglePuzzleMode(btn, phrase) {
         puzzleZone.style.display = 'block';
         exitBtn.style.display = 'block';
         
+        const recordPlay = card.querySelector('.record-play-container');
+        if (recordPlay) recordPlay.style.display = 'none';
+        
+        let scoreboard = card.querySelector('.puzzle-scoreboard');
+        if (!scoreboard) {
+            scoreboard = document.createElement('div');
+            scoreboard.className = 'puzzle-scoreboard';
+            const cardBtns = card.querySelector('.card-btns');
+            if (cardBtns) cardBtns.insertBefore(scoreboard, cardBtns.firstChild);
+        }
+        scoreboard.style.display = 'flex';
+        
+        let victoryPopup = card.querySelector('.puzzle-victory-popup');
+        if (victoryPopup) victoryPopup.style.display = 'none';
+        
         initPuzzle(puzzleZone, phrase);
     }
 }
@@ -83,6 +106,14 @@ function togglePuzzleMode(btn, phrase) {
 function initPuzzle(container, phrase) {
     container.innerHTML = ''; // clear existing
     const card = container.closest('.phrase-card');
+    
+    // Initialize scoreboard logic
+    card._puzzleScore = { correct: 0, wrong: 0 };
+    card._puzzlePhrase = phrase;
+    updateScoreBoard(card);
+    
+    let victoryPopup = card.querySelector('.puzzle-victory-popup');
+    if (victoryPopup) victoryPopup.style.display = 'none';
     
     // Split phrase by spaces (Option B: keeping punctuation attached for simplicity)
     const words = phrase.split(' ').filter(w => w.trim().length > 0);
@@ -245,11 +276,18 @@ function checkDropTarget(piece) {
             // Snapped! Check if it's the right word
             if (slot.dataset.word === piece.dataset.word) {
                 // Correct
+                card._puzzleScore.correct++;
+                updateScoreBoard(card);
                 snapToSlot(piece, slot);
                 snapped = true;
                 break;
             } else {
-                // Wrong word for this slot - optionally play error sound, just let it bounce back
+                // Wrong word for this slot
+                card._puzzleScore.wrong++;
+                updateScoreBoard(card);
+                triggerHaptic(50); // buzz
+                piece.classList.add('error-shake');
+                setTimeout(() => piece.classList.remove('error-shake'), 400);
             }
         }
     }
@@ -304,12 +342,10 @@ function checkVictory(card) {
             triggerConfetti();
         }
         
-        // Maybe pop animation on the whole puzzle zone
-        const container = card.querySelector('.puzzle-slots-container');
-        if (container) {
-            container.classList.add('victory-pop');
-            setTimeout(() => container.classList.remove('victory-pop'), 500);
-        }
+        // Trigger Victory Popup after 1.5 seconds
+        setTimeout(() => {
+            showVictoryPopup(card);
+        }, 1500);
     }
 }
 
@@ -348,4 +384,57 @@ function triggerConfetti() {
             if (confetti.parentNode) confetti.parentNode.removeChild(confetti);
         }, (duration + delay) * 1000);
     }
+}
+function updateScoreBoard(card) {
+    if (!card._puzzleScore) return;
+    const scoreboard = card.querySelector('.puzzle-scoreboard');
+    if (scoreboard) {
+        scoreboard.innerHTML = \<span class="score-correct">? \</span><span class="score-wrong">? \</span>\;
+    }
+}
+
+function showVictoryPopup(card) {
+    let popup = card.querySelector('.puzzle-victory-popup');
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.className = 'puzzle-victory-popup';
+        popup.innerHTML = \
+            <div class="victory-popup-content">
+                <h2>Great Job! ??</h2>
+                <p>Would you like to try again?</p>
+                <div class="victory-popup-btns">
+                    <button class="vp-btn yes-btn">? Yes</button>
+                    <button class="vp-btn no-btn">? No</button>
+                </div>
+            </div>
+        \;
+        
+        // Find puzzle zone and append it
+        const puzzleZone = card.querySelector('.puzzle-zone');
+        if (puzzleZone) {
+            puzzleZone.appendChild(popup);
+        }
+    }
+    
+    // Attach event listeners dynamically to ensure they use current phrase
+    const yesBtn = popup.querySelector('.yes-btn');
+    const noBtn = popup.querySelector('.no-btn');
+    const activeBtn = card.querySelector('.active-puzzle-btn');
+    
+    // We stored the original phrase in initPuzzle on the activeCard, wait, we removed activeCard!
+    // We should pass originalPhrase somewhere, maybe on the card object.
+    
+    yesBtn.onclick = () => {
+        if (card._puzzlePhrase) {
+            initPuzzle(card.querySelector('.puzzle-zone'), card._puzzlePhrase);
+        }
+    };
+    
+    noBtn.onclick = () => {
+        if (activeBtn && card._puzzlePhrase) {
+            togglePuzzleMode(activeBtn, card._puzzlePhrase);
+        }
+    };
+    
+    popup.style.display = 'flex';
 }

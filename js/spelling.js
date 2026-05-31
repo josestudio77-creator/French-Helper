@@ -65,6 +65,8 @@ setTimeout(() => {
     if (enToggle2) enToggle2.style.display = 'flex';
     const printBtn2 = card.querySelector('.print-card-btn');
     if (printBtn2) printBtn2.style.display = 'flex';
+    const puzzleBtn2 = card.querySelector('.puzzle-badge');
+    if (puzzleBtn2) puzzleBtn2.style.display = 'flex';
 
     // Restore text elements
     card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
@@ -183,6 +185,8 @@ const enToggle = card.querySelector('.en-toggle');
 if (enToggle) enToggle.style.display = 'none';
 const printBtn = card.querySelector('.print-card-btn');
 if (printBtn) printBtn.style.display = 'none';
+const puzzleBtn = card.querySelector('.puzzle-badge');
+if (puzzleBtn) puzzleBtn.style.display = 'none';
 
 // ONLY HIDE TEXT - keep the VISUAL (emoji/photo) visible!
 card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEach(el => {
@@ -322,6 +326,8 @@ const iconElement = card.querySelector('.card-icon, .card-photo, .ai-placeholder
 if (iconElement) iconElement.style.display = '';
 const sylToggle = card.querySelector('.syl-toggle');
 if (sylToggle) sylToggle.style.display = 'flex';
+const puzzleBtn2 = card.querySelector('.puzzle-badge');
+if (puzzleBtn2) puzzleBtn2.style.display = 'flex';
 // Hide spelling area
 const zone = card.querySelector('.spelling-zone');
 if (zone) zone.style.display = 'none';
