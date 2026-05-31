@@ -79,9 +79,9 @@ function togglePuzzleMode(btn, phrase) {
         if (!scoreboard) {
             scoreboard = document.createElement('div');
             scoreboard.className = 'puzzle-scoreboard';
-            const cardBtns = card.querySelector('.card-btns');
-            if (cardBtns && cardBtns.parentNode) {
-                cardBtns.parentNode.insertBefore(scoreboard, cardBtns.nextSibling);
+            const cardContent = card.querySelector('.card-main-content');
+            if (cardContent) {
+                cardContent.insertBefore(scoreboard, cardContent.firstChild);
             }
         }
         scoreboard.style.display = 'flex';
