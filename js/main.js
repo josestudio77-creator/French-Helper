@@ -5,25 +5,39 @@
 
 function playWelcomeChime() {
     if (!state.musicContext) state.musicContext = new (window.AudioContext || window.webkitAudioContext)();
-    if (state.musicContext.state === 'suspended') state.musicContext.resume();
     
-    const now = state.musicContext.currentTime;
-    const notes = [261.63, 329.63, 392.00, 523.25]; 
-    
-    notes.forEach((freq, i) => {
-        const osc = state.musicContext.createOscillator();
-        const gain = state.musicContext.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + (i * 0.1));
-        gain.gain.setValueAtTime(0, now + (i * 0.1));
-        gain.gain.linearRampToValueAtTime(0.1, now + (i * 0.1) + 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.45);
-        gain.gain.linearRampToValueAtTime(0, now + 1.5);
-        osc.connect(gain);
-        gain.connect(state.musicContext.destination);
-        osc.start(now + (i * 0.1));
-        osc.stop(now + 1.5);
-    });
+    const tryPlay = () => {
+        const now = state.musicContext.currentTime;
+        const notes = [261.63, 329.63, 392.00, 523.25]; 
+        
+        notes.forEach((freq, i) => {
+            const osc = state.musicContext.createOscillator();
+            const gain = state.musicContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + (i * 0.1));
+            gain.gain.setValueAtTime(0, now + (i * 0.1));
+            gain.gain.linearRampToValueAtTime(0.1, now + (i * 0.1) + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.45);
+            gain.gain.linearRampToValueAtTime(0, now + 1.5);
+            osc.connect(gain);
+            gain.connect(state.musicContext.destination);
+            osc.start(now + (i * 0.1));
+            osc.stop(now + 1.5);
+        });
+    };
+
+    if (state.musicContext.state === 'suspended') {
+        const reqTime = Date.now();
+        state.musicContext.resume().then(() => {
+            // Only play if it unlocked immediately (within 1 second)
+            // This prevents the sound from queueing and playing randomly later when the user interacts
+            if (Date.now() - reqTime < 1000) {
+                tryPlay();
+            }
+        });
+    } else {
+        tryPlay();
+    }
 }
 
 function startAppTransition() {

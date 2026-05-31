@@ -301,9 +301,13 @@ function checkDropTarget(piece) {
                 if (typeof playDingSound === 'function') playDingSound();
                 triggerHaptic(20);
                 
-                // Flash the card background
-                card.style.background = 'linear-gradient(135deg, #c6f6d5 0%, #b2f5ea 100%)';
-                setTimeout(() => card.style.background = '', 300); // let CSS revert to puzzle-mode default
+                // Shine the card background
+                card.classList.add('puzzle-success-shine');
+                setTimeout(() => card.classList.remove('puzzle-success-shine'), 800); 
+                
+                // Joy pop the piece
+                piece.classList.add('word-joy-pop');
+                setTimeout(() => piece.classList.remove('word-joy-pop'), 600);
                 
                 snapToSlot(piece, slot);
                 snapped = true;

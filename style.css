@@ -3604,7 +3604,7 @@ body,
     justify-content: center;
     align-items: flex-start;
     padding: 20px 10px;
-    background: rgba(0, 0, 0, 0.02);
+    background: transparent;
     border-radius: 20px;
     position: relative;
 }
@@ -3706,6 +3706,32 @@ body,
     flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
+}
+
+.phrase-card.puzzle-mode .spk-fr {
+    flex: 0 0 auto !important; /* Lock the French button to its original size */
+}
+
+@keyframes shineSweep {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+.puzzle-success-shine {
+    background: linear-gradient(120deg, #f0fdf4 0%, #c6f6d5 20%, #f0fdf4 40%, #f0fdf4 100%) !important;
+    background-size: 200% auto !important;
+    animation: shineSweep 0.6s ease-out forwards;
+}
+
+@keyframes wordJoyPop {
+    0% { transform: scale(1) translateY(0); color: inherit; }
+    30% { transform: scale(1.15) translateY(-8px) rotate(2deg); color: #38a169; }
+    60% { transform: scale(1.05) translateY(2px) rotate(-1deg); color: #2f855a; }
+    100% { transform: scale(1) translateY(0); color: inherit; }
+}
+
+.word-joy-pop {
+    animation: wordJoyPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .puzzle-placeholder {
