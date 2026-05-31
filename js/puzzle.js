@@ -92,7 +92,7 @@ function togglePuzzleMode(btn, phrase) {
             scoreboard = document.createElement('div');
             scoreboard.className = 'puzzle-scoreboard';
             const cardBtns = card.querySelector('.card-btns');
-            if (cardBtns) cardBtns.insertBefore(scoreboard, cardBtns.firstChild);
+            if (cardBtns) cardBtns.appendChild(scoreboard);
         }
         scoreboard.style.display = 'flex';
         
@@ -149,6 +149,7 @@ function initPuzzle(container, phrase) {
         piece.textContent = word;
         piece.dataset.word = word;
         piece._sourceCard = card; // Link piece to its home card
+        piece.style.order = index; // Keep original slot order for returning
         
         // Random slight rotation for messy "scattered" look in the bank
         const rot = (Math.random() - 0.5) * 10;
@@ -389,7 +390,10 @@ function updateScoreBoard(card) {
     if (!card._puzzleScore) return;
     const scoreboard = card.querySelector('.puzzle-scoreboard');
     if (scoreboard) {
-        scoreboard.innerHTML = `<span class="score-correct">✅ ${card._puzzleScore.correct}</span><span class="score-wrong">❌ ${card._puzzleScore.wrong}</span>`;
+        scoreboard.innerHTML = `
+            <div class="score-badge score-correct">✅ <span>${card._puzzleScore.correct}</span></div>
+            <div class="score-badge score-wrong">❌ <span>${card._puzzleScore.wrong}</span></div>
+        `;
     }
 }
 

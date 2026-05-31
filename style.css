@@ -3681,19 +3681,27 @@ body,
 /* Puzzle Scoreboard */
 .puzzle-scoreboard {
     display: flex;
-    gap: 15px;
-    font-weight: 800;
-    color: #4a5568;
-    background: #f7fafc;
-    padding: 10px 20px;
-    border-radius: 12px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    flex: 1; /* Match the flex layout of the old record-play-container */
+    justify-content: space-around;
     align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 8px 12px;
 }
-.score-correct { color: #38a169; font-size: 1.1rem; }
-.score-wrong { color: #e53e3e; font-size: 1.1rem; }
+.score-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+.score-correct { color: #38a169; }
+.score-wrong { color: #e53e3e; }
 
 /* Puzzle Victory Popup */
 .puzzle-victory-popup {
