@@ -72,19 +72,6 @@ function togglePuzzleMode(btn, phrase) {
             card.querySelector('.card-main-content').appendChild(puzzleZone);
         }
         
-        // Create exit button if it doesn't exist
-        if(!exitBtn) {
-            exitBtn = document.createElement('button');
-            exitBtn.className = 'puzzle-exit-btn card-btn';
-            exitBtn.innerHTML = '<span>❌ Exit</span>';
-            exitBtn.onclick = () => togglePuzzleMode(btn, phrase);
-            const cardBtns = card.querySelector('.card-btns');
-            if (cardBtns) cardBtns.appendChild(exitBtn);
-        }
-        
-        puzzleZone.style.display = 'block';
-        exitBtn.style.display = 'block';
-        
         const recordPlay = card.querySelector('.record-play-container');
         if (recordPlay) recordPlay.style.display = 'none';
         
@@ -96,6 +83,28 @@ function togglePuzzleMode(btn, phrase) {
             if (cardBtns) cardBtns.appendChild(scoreboard);
         }
         scoreboard.style.display = 'flex';
+
+        // Create exit button if it doesn't exist (created AFTER scoreboard so it's on the right)
+        if(!exitBtn) {
+            exitBtn = document.createElement('button');
+            exitBtn.className = 'puzzle-exit-btn card-btn';
+            exitBtn.innerHTML = '<span>❌</span>';
+            exitBtn.onclick = () => {
+                const totalWords = phrase.split(' ').filter(w => w.trim().length > 0).length;
+                const filledSlots = card.querySelectorAll('.puzzle-slot[data-filled="true"]').length;
+                
+                if (filledSlots < totalWords) {
+                    showExitConfirmPopup(card, btn, phrase);
+                } else {
+                    togglePuzzleMode(btn, phrase);
+                }
+            };
+            const cardBtns = card.querySelector('.card-btns');
+            if (cardBtns) cardBtns.appendChild(exitBtn);
+        }
+        
+        puzzleZone.style.display = 'block';
+        exitBtn.style.display = 'block';
         
         let victoryPopup = card.querySelector('.puzzle-victory-popup');
         if (victoryPopup) victoryPopup.style.display = 'none';
@@ -482,6 +491,41 @@ function showVictoryPopup(card) {
         if (activeBtn && card._puzzlePhrase) {
             togglePuzzleMode(activeBtn, card._puzzlePhrase);
         }
+    };
+    
+    popup.style.display = 'flex';
+}
+
+function showExitConfirmPopup(card, btn, phrase) {
+    let popup = card.querySelector('.puzzle-exit-popup');
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.className = 'puzzle-victory-popup puzzle-exit-popup';
+        popup.innerHTML = `
+            <div class="victory-popup-content" style="border-color: #fc8181;">
+                <h2>Leave Puzzle? 😢</h2>
+                <p>Are you sure you want to exit before finishing?</p>
+                <div class="victory-popup-btns">
+                    <button class="vp-btn exit-yes-btn" style="background: #fed7d7; color: #c53030; border-color: #fc8181;">❌ Yes, Exit</button>
+                    <button class="vp-btn exit-no-btn" style="background: #c6f6d5; color: #22543d; border-color: #68d391;">✅ No, Stay</button>
+                </div>
+            </div>
+        `;
+        const puzzleZone = card.querySelector('.puzzle-zone');
+        if (puzzleZone) puzzleZone.appendChild(popup);
+        popup = card.querySelector('.puzzle-exit-popup');
+    }
+    
+    const yesBtn = popup.querySelector('.exit-yes-btn');
+    const noBtn = popup.querySelector('.exit-no-btn');
+    
+    yesBtn.onclick = () => {
+        popup.style.display = 'none';
+        togglePuzzleMode(btn, phrase);
+    };
+    
+    noBtn.onclick = () => {
+        popup.style.display = 'none';
     };
     
     popup.style.display = 'flex';
