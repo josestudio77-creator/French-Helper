@@ -40,6 +40,41 @@ function playWelcomeChime() {
     }
 }
 
+function playRewardSound() {
+    if (!state.musicContext) state.musicContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const tryPlay = () => {
+        const now = state.musicContext.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        
+        notes.forEach((freq, i) => {
+            const osc = state.musicContext.createOscillator();
+            const gain = state.musicContext.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + (i * 0.08));
+            gain.gain.setValueAtTime(0, now + (i * 0.08));
+            gain.gain.linearRampToValueAtTime(0.15, now + (i * 0.08) + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.08) + 0.5);
+            gain.gain.linearRampToValueAtTime(0, now + (i * 0.08) + 0.6);
+            osc.connect(gain);
+            gain.connect(state.musicContext.destination);
+            osc.start(now + (i * 0.08));
+            osc.stop(now + (i * 0.08) + 0.6);
+        });
+    };
+
+    if (state.musicContext.state === 'suspended') {
+        const reqTime = Date.now();
+        state.musicContext.resume().then(() => {
+            if (Date.now() - reqTime < 1000) {
+                tryPlay();
+            }
+        });
+    } else {
+        tryPlay();
+    }
+}
+
 function startAppTransition() {
     const splash = document.getElementById('customSplash');
     if (!splash || splash.style.display === 'none') return;

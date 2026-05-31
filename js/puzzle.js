@@ -111,6 +111,10 @@ function togglePuzzleMode(btn, phrase) {
         
         initPuzzle(puzzleZone, phrase);
         
+        if (typeof playWelcomeChime === 'function') {
+            playWelcomeChime();
+        }
+        
         if (typeof spk === 'function') {
             spk("Let's put all the words in order!", 'en-US', true, 1.0);
         }
@@ -544,7 +548,7 @@ function showExitConfirmPopup(card, btn, phrase) {
     let popup = card.querySelector('.puzzle-exit-popup');
     if (!popup) {
         popup = document.createElement('div');
-        popup.className = 'puzzle-victory-popup puzzle-exit-popup puzzle-exit-overlay';
+        popup.className = 'puzzle-victory-popup puzzle-exit-popup';
         popup.innerHTML = `
             <div class="victory-popup-content" style="border-color: #fc8181;">
                 <h2>Leave Puzzle? 😢</h2>

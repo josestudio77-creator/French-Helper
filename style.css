@@ -3740,13 +3740,15 @@ body,
 
 @keyframes nextSlotPulse {
     0% { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 0 0 rgba(99, 102, 241, 0); }
-    50% { border-color: rgba(99, 102, 241, 1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
+    50% { border-color: rgba(99, 102, 241, 1); box-shadow: 0 0 15px rgba(99, 102, 241, 0.8); }
     100% { border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 0 0 rgba(99, 102, 241, 0); }
 }
 
 .next-slot-hint {
     animation: nextSlotPulse 1.5s infinite ease-in-out;
-    background: rgba(255, 255, 255, 0.5) !important;
+    background: rgba(235, 244, 255, 0.9) !important;
+    border-style: solid !important;
+    border-width: 3px !important;
 }
 /* Puzzle Scoreboard */
 .puzzle-scoreboard {
@@ -3784,10 +3786,6 @@ body,
     justify-content: center;
     border-radius: 20px;
     backdrop-filter: blur(8px);
-}
-
-.puzzle-exit-overlay {
-    background: rgba(0,0,0,0.4);
 }
 .victory-popup-content {
     background: white;
