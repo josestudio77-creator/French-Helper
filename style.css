@@ -3709,7 +3709,7 @@ body,
 }
 
 .phrase-card.puzzle-mode .spk-fr {
-    flex: 0 0 auto !important; /* Lock the French button to its original size */
+    flex: 0 0 calc(50% - 5px) !important; /* Lock the French button to match its 50% grid size from practice mode */
 }
 
 @keyframes shineSweep {
