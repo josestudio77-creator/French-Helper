@@ -251,6 +251,7 @@ function handleDragStart(e) {
     placeholder.className = 'puzzle-placeholder';
     placeholder.style.width = rect.width + 'px';
     placeholder.style.height = rect.height + 'px';
+    placeholder.style.margin = window.getComputedStyle(el).margin;
     placeholder.style.order = el.style.order;
     // Only insert placeholder if not already absolute
     if (el.style.position !== 'absolute') {

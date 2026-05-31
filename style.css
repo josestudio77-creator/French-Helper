@@ -3700,17 +3700,7 @@ body,
     flex-grow: 1;
 }
 
-/* Override card-btns for puzzle mode to fit all 3 items on one row */
-.phrase-card.puzzle-mode .card-btns {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-}
-
-.phrase-card.puzzle-mode .spk-fr {
-    flex: 0 0 calc(50% - 5px) !important; /* Lock the French button to match its 50% grid size from practice mode */
-}
+/* Remove flex override to keep standard grid layout for French and Exit buttons */
 
 @keyframes shineSweep {
     0% { background-position: 200% center; }
@@ -3753,7 +3743,8 @@ body,
 /* Puzzle Scoreboard */
 .puzzle-scoreboard {
     display: flex;
-    flex: 1; /* Match the flex layout of the old record-play-container */
+    width: 100%;
+    margin-top: 10px;
     justify-content: space-around;
     align-items: center;
     background: #f8fafc;
