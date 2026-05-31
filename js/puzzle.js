@@ -279,6 +279,15 @@ function checkDropTarget(piece) {
                 // Correct
                 card._puzzleScore.correct++;
                 updateScoreBoard(card);
+                
+                // Success feedback
+                if (typeof playDingSound === 'function') playDingSound();
+                triggerHaptic(20);
+                
+                // Flash the card background
+                card.style.background = 'linear-gradient(135deg, #c6f6d5 0%, #b2f5ea 100%)';
+                setTimeout(() => card.style.background = '', 300); // let CSS revert to puzzle-mode default
+                
                 snapToSlot(piece, slot);
                 snapped = true;
                 break;
@@ -286,6 +295,9 @@ function checkDropTarget(piece) {
                 // Wrong word for this slot
                 card._puzzleScore.wrong++;
                 updateScoreBoard(card);
+                
+                // Error feedback
+                if (typeof playBuzzSound === 'function') playBuzzSound();
                 triggerHaptic(50); // buzz
                 piece.classList.add('error-shake');
                 setTimeout(() => piece.classList.remove('error-shake'), 400);
@@ -390,10 +402,25 @@ function updateScoreBoard(card) {
     if (!card._puzzleScore) return;
     const scoreboard = card.querySelector('.puzzle-scoreboard');
     if (scoreboard) {
+        // Find existing badges or create them
+        let correctBadge = scoreboard.querySelector('.score-correct');
+        let wrongBadge = scoreboard.querySelector('.score-wrong');
+        
+        let oldCorrect = correctBadge ? parseInt(correctBadge.querySelector('span').textContent) : -1;
+        let oldWrong = wrongBadge ? parseInt(wrongBadge.querySelector('span').textContent) : -1;
+        
         scoreboard.innerHTML = `
             <div class="score-badge score-correct">✅ <span>${card._puzzleScore.correct}</span></div>
             <div class="score-badge score-wrong">❌ <span>${card._puzzleScore.wrong}</span></div>
         `;
+        
+        // Add pop animation if score changed
+        if (oldCorrect !== -1 && card._puzzleScore.correct > oldCorrect) {
+            scoreboard.querySelector('.score-correct').classList.add('score-pop');
+        }
+        if (oldWrong !== -1 && card._puzzleScore.wrong > oldWrong) {
+            scoreboard.querySelector('.score-wrong').classList.add('score-pop');
+        }
     }
 }
 
