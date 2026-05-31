@@ -3592,6 +3592,9 @@ body,
 .puzzle-slot[data-filled="true"] {
     border-color: transparent;
     background: transparent;
+    min-width: 0;
+    min-height: 0;
+    padding: 0 4px; /* tightly pack words like a sentence */
 }
 
 .puzzle-bank-container {
@@ -3628,6 +3631,7 @@ body,
     transform: scale(1.1) !important;
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     opacity: 0.9;
+    transition: none !important; /* Instant 1:1 hardware drag tracking */
 }
 
 .puzzle-piece.locked {
@@ -3674,24 +3678,33 @@ body,
     animation: scorePopAnim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .puzzle-exit-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
     background: #fed7d7;
     color: #c53030;
     border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
+    border-radius: 12px;
+    padding: 6px 10px;
     font-weight: 800;
     font-size: 0.9rem;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 100;
+    flex: 0 0 auto; /* Ensure it stays small and doesn't stretch */
 }
 .phrase-card.puzzle-mode .card-main-content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+}
+
+/* Override card-btns for puzzle mode to fit all 3 items on one row */
+.phrase-card.puzzle-mode .card-btns {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.puzzle-placeholder {
+    flex-shrink: 0; /* Prevent gap from closing */
 }
 /* Puzzle Scoreboard */
 .puzzle-scoreboard {
