@@ -82,8 +82,7 @@ function togglePuzzleMode(btn, phrase) {
 
 function initPuzzle(container, phrase) {
     container.innerHTML = ''; // clear existing
-    window.puzzleState.activeCard = container;
-    window.puzzleState.originalPhrase = phrase;
+    const card = container.closest('.phrase-card');
     
     // Split phrase by spaces (Option B: keeping punctuation attached for simplicity)
     const words = phrase.split(' ').filter(w => w.trim().length > 0);
@@ -98,9 +97,6 @@ function initPuzzle(container, phrase) {
     container.appendChild(slotsContainer);
     container.appendChild(bankContainer);
     
-    window.puzzleState.slots = [];
-    window.puzzleState.pieces = [];
-    
     // Create slots
     words.forEach((word, index) => {
         const slot = document.createElement('div');
@@ -108,25 +104,27 @@ function initPuzzle(container, phrase) {
         slot.dataset.index = index;
         slot.dataset.word = word;
         slotsContainer.appendChild(slot);
-        window.puzzleState.slots.push(slot);
     });
     
     // Shuffle words for bank
     const shuffledWords = [...words].sort(() => Math.random() - 0.5);
     
     // Create pieces in the bank
+    
+    const piecesToAnimate = [];
     shuffledWords.forEach((word, index) => {
         const piece = document.createElement('div');
         piece.className = 'puzzle-piece drop-anim'; // add animation class
         piece.textContent = word;
         piece.dataset.word = word;
+        piece._sourceCard = card; // Link piece to its home card
         
         // Random slight rotation for messy "scattered" look in the bank
         const rot = (Math.random() - 0.5) * 10;
         piece.style.setProperty('--target-rot', rot + 'deg');
         
         bankContainer.appendChild(piece);
-        window.puzzleState.pieces.push(piece);
+        piecesToAnimate.push(piece);
         
         // Setup dragging
         setupTouchDrag(piece);
@@ -134,7 +132,7 @@ function initPuzzle(container, phrase) {
     
     // Trigger scattering animation slightly delayed to allow DOM flush
     setTimeout(() => {
-        window.puzzleState.pieces.forEach(p => {
+        piecesToAnimate.forEach(p => {
             p.classList.add('scattered');
         });
     }, 50);
@@ -229,7 +227,10 @@ function checkDropTarget(piece) {
     
     let snapped = false;
     
-    for (const slot of window.puzzleState.slots) {
+    const card = piece._sourceCard;
+    const localSlots = Array.from(card.querySelectorAll('.puzzle-slot'));
+    
+    for (const slot of localSlots) {
         if (slot.dataset.filled === 'true') continue;
         
         const slotRect = slot.getBoundingClientRect();
@@ -272,13 +273,13 @@ function snapToSlot(piece, slot) {
     
     slot.appendChild(piece);
     
-    checkVictory();
+    checkVictory(piece._sourceCard);
 }
 
 function returnPieceToBank(piece) {
     triggerHaptic(10);
     // Find the original bank
-    const bank = window.puzzleState.activeCard.querySelector('.puzzle-bank-container');
+    const bank = piece._sourceCard.querySelector('.puzzle-bank-container');
     if (bank) {
         piece.style.position = 'static';
         piece.style.left = '';
@@ -287,8 +288,9 @@ function returnPieceToBank(piece) {
     }
 }
 
-function checkVictory() {
-    const allSlotsFilled = window.puzzleState.slots.every(slot => slot.dataset.filled === 'true');
+function checkVictory(card) {
+    const localSlots = Array.from(card.querySelectorAll('.puzzle-slot'));
+    const allSlotsFilled = localSlots.every(slot => slot.dataset.filled === 'true');
     if (allSlotsFilled) {
         console.log("Puzzle Completed!");
         
@@ -303,7 +305,7 @@ function checkVictory() {
         }
         
         // Maybe pop animation on the whole puzzle zone
-        const container = window.puzzleState.activeCard.querySelector('.puzzle-slots-container');
+        const container = card.querySelector('.puzzle-slots-container');
         if (container) {
             container.classList.add('victory-pop');
             setTimeout(() => container.classList.remove('victory-pop'), 500);
