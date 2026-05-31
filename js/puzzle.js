@@ -80,7 +80,9 @@ function togglePuzzleMode(btn, phrase) {
             scoreboard = document.createElement('div');
             scoreboard.className = 'puzzle-scoreboard';
             const cardBtns = card.querySelector('.card-btns');
-            if (cardBtns) cardBtns.appendChild(scoreboard);
+            if (cardBtns && cardBtns.parentNode) {
+                cardBtns.parentNode.insertBefore(scoreboard, cardBtns.nextSibling);
+            }
         }
         scoreboard.style.display = 'flex';
 
