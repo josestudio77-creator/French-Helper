@@ -110,6 +110,10 @@ function togglePuzzleMode(btn, phrase) {
         if (victoryPopup) victoryPopup.style.display = 'none';
         
         initPuzzle(puzzleZone, phrase);
+        
+        if (typeof spk === 'function') {
+            spk("Let's put all the words in order!", 'en-US', true);
+        }
     }
 }
 
@@ -177,7 +181,20 @@ function initPuzzle(container, phrase) {
         piecesToAnimate.forEach(p => {
             p.classList.add('scattered');
         });
+        updateNextSlotHint(card);
     }, 50);
+}
+
+function updateNextSlotHint(card) {
+    const allSlots = Array.from(card.querySelectorAll('.puzzle-slot'));
+    // Remove hint from all
+    allSlots.forEach(s => s.classList.remove('next-slot-hint'));
+    
+    // Find first empty slot
+    const firstEmpty = allSlots.find(s => s.dataset.filled === 'false');
+    if (firstEmpty) {
+        firstEmpty.classList.add('next-slot-hint');
+    }
 }
 
 function setupTouchDrag(el) {
@@ -351,6 +368,7 @@ function snapToSlot(piece, slot) {
     
     slot.appendChild(piece);
     
+    updateNextSlotHint(piece._sourceCard);
     checkVictory(piece._sourceCard);
 }
 
@@ -504,7 +522,7 @@ function showExitConfirmPopup(card, btn, phrase) {
     let popup = card.querySelector('.puzzle-exit-popup');
     if (!popup) {
         popup = document.createElement('div');
-        popup.className = 'puzzle-victory-popup puzzle-exit-popup';
+        popup.className = 'puzzle-victory-popup puzzle-exit-popup puzzle-exit-overlay';
         popup.innerHTML = `
             <div class="victory-popup-content" style="border-color: #fc8181;">
                 <h2>Leave Puzzle? 😢</h2>
