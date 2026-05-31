@@ -389,7 +389,7 @@ function updateScoreBoard(card) {
     if (!card._puzzleScore) return;
     const scoreboard = card.querySelector('.puzzle-scoreboard');
     if (scoreboard) {
-        scoreboard.innerHTML = \<span class="score-correct">? \</span><span class="score-wrong">? \</span>\;
+        scoreboard.innerHTML = `<span class="score-correct">✅ ${card._puzzleScore.correct}</span><span class="score-wrong">❌ ${card._puzzleScore.wrong}</span>`;
     }
 }
 
@@ -398,16 +398,16 @@ function showVictoryPopup(card) {
     if (!popup) {
         popup = document.createElement('div');
         popup.className = 'puzzle-victory-popup';
-        popup.innerHTML = \
+        popup.innerHTML = `
             <div class="victory-popup-content">
-                <h2>Great Job! ??</h2>
+                <h2>Great Job! 🎉</h2>
                 <p>Would you like to try again?</p>
                 <div class="victory-popup-btns">
-                    <button class="vp-btn yes-btn">? Yes</button>
-                    <button class="vp-btn no-btn">? No</button>
+                    <button class="vp-btn yes-btn">✅ Yes</button>
+                    <button class="vp-btn no-btn">❌ No</button>
                 </div>
             </div>
-        \;
+        `;
         
         // Find puzzle zone and append it
         const puzzleZone = card.querySelector('.puzzle-zone');
@@ -420,9 +420,6 @@ function showVictoryPopup(card) {
     const yesBtn = popup.querySelector('.yes-btn');
     const noBtn = popup.querySelector('.no-btn');
     const activeBtn = card.querySelector('.active-puzzle-btn');
-    
-    // We stored the original phrase in initPuzzle on the activeCard, wait, we removed activeCard!
-    // We should pass originalPhrase somewhere, maybe on the card object.
     
     yesBtn.onclick = () => {
         if (card._puzzlePhrase) {
