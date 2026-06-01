@@ -11,10 +11,10 @@
     }
        
     :root {
-        --bg-pink: #ffe6ea;
-        --bg-blue: #d4f0ff;
-        --bg-lavender: #f0e3ff;
-        --bg-cyan: #d4fafc;
+        --bg-pink: #ff9ebb;
+        --bg-blue: #93d8ff;
+        --bg-lavender: #d6b5ff;
+        --bg-cyan: #90e7fc;
     }
 
     html {
@@ -193,7 +193,8 @@
     .card-icon { 
         font-size: 4.5rem; 
         display: block; 
-        margin-bottom: 10px; 
+        margin-top: 12px;
+        margin-bottom: 12px; 
         cursor: pointer; 
     }
     

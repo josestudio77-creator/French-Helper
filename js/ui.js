@@ -808,7 +808,17 @@ function openPrintFromCard(phrase) {
 
 async function saveHW() {
     let name = document.getElementById('hwNameInput').value.trim();
-    const words = document.getElementById('hwInput').value.trim();
+    
+    // Process input: remove trailing dot from each phrase/line if present
+    const rawWords = document.getElementById('hwInput').value.trim();
+    const cleanPhrases = rawWords.split('\n').map(p => {
+        let trimmed = p.trim();
+        if (trimmed.endsWith('.')) {
+            trimmed = trimmed.slice(0, -1).trim();
+        }
+        return trimmed;
+    });
+    const words = cleanPhrases.join('\n');
     const isDiag = document.getElementById('hwIsDialogue').checked;
 
     // 1. Validation: Name and Words are required
