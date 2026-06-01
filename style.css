@@ -10,6 +10,13 @@
         font-display: swap;
     }
        
+    :root {
+        --bg-pink: #ffe6ea;
+        --bg-blue: #d4f0ff;
+        --bg-lavender: #f0e3ff;
+        --bg-cyan: #d4fafc;
+    }
+
     html {
         scrollbar-gutter: stable;
     }
@@ -23,7 +30,7 @@
     }
     
     body { 
-        background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite; 
+        background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite; 
         padding: 10px; 
         padding-bottom: 95px; 
         min-height: 100vh; 
@@ -505,7 +512,7 @@
         left: 0; 
         right: 0; 
         bottom: 0; 
-        background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+        background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
         z-index: 8000; 
         padding: 15px; 
     }
@@ -991,6 +998,7 @@
         border-radius: 15px;
         object-fit: cover;
         object-position: center;
+        margin-top: 10px;
         margin-bottom: 10px;
         border: 4px solid #a3e4d7;
         cursor: pointer;
@@ -3273,14 +3281,14 @@ body.bp-open #bpModal .overlay-content > div:first-child {
 #presetsOverlay .overlay-content h2 {
     position: sticky; top: -10px; z-index: 10;
     padding: 12px 0; margin: -10px 0 10px 0;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
     
 }
 #presetsOverlay .overlay-content p {
     position: sticky; top: 42px; z-index: 9;
     padding: 4px 0 8px 0; margin: -10px 0 10px 0;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
 }
 
@@ -3290,7 +3298,7 @@ body.bp-open #bpModal .overlay-content > div:first-child {
 #parentDrawer .overlay-content h2 {
     position: sticky; top: -10px; z-index: 10;
     padding: 12px 0; margin: -10px 0 15px 0;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
     
 }
@@ -3299,14 +3307,14 @@ body.bp-open #bpModal .overlay-content > div:first-child {
 #folderSelectionOverlay .overlay-content h2 {
     position: sticky; top: -15px; z-index: 10;
     padding: 12px 0 4px 0; margin: -15px 0 5px 0;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     border-radius: 0 0 16px 16px;
     
 }
 #folderSelectionOverlay .overlay-content h2 + p {
     position: sticky; top: 37px; z-index: 9;
     margin: 0 0 15px 0; padding: 6px 0 8px 0;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
     font-size: 0.8rem;
 }
 
@@ -3315,7 +3323,7 @@ body.bp-open #bpModal .overlay-content > div:first-child {
     position: sticky; top: 37px; z-index: 8;
     margin: 0 0 15px 0; padding: 6px 0 8px 0;
     font-size: 0.85rem !important;
-    background: linear-gradient(135deg, #ffccd5, #b5e6ff, #e8d5ff, #b5f0ff); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
+    background: linear-gradient(135deg, var(--bg-pink), var(--bg-blue), var(--bg-lavender), var(--bg-cyan)); background-size: 400% 400%; animation: gradientFlow 30s ease infinite;
 }
 
 /* Folder selector: cancel button scrolls naturally */

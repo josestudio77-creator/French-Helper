@@ -273,6 +273,7 @@ function renderKeyboard() {
 
 // UNIFIED KEYBOARD SUPPORT (Laptop/Desktop)
 function handleKeyPress(e) {
+    if (!e || typeof e.key !== 'string') return;
     let key = e.key.toUpperCase();
     
     // Support standard A-Z, space, and common French accents
