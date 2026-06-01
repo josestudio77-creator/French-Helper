@@ -1837,8 +1837,8 @@
 /* ========== THEATER MODE OVERRIDES (BODY & UI) ========== */
  
 body.mode-spelling {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow: hidden !important;
+    
     background: #fff8e7;
 }
  
@@ -2052,6 +2052,7 @@ body.mode-spelling .spelling-slots {
         pointer-events: none;
         flex-direction: column;
         gap: 8px;
+        min-height: 250px; /* Prevent blinking when DOM is cleared during re-render */
         transform: translateY(100%);
         transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
         box-sizing: border-box; /* CRITICAL: Includes padding in width calculation */
@@ -2933,7 +2934,7 @@ body.mode-spelling .spelling-slots {
 }
 
 body.bp-open {
-    overflow-y: auto !important;
+    overflow: hidden !important;
     padding-bottom: 0 !important; /* Removes double padding with .overlay-content */
 }
 body.bp-open #bpModal {
@@ -3345,7 +3346,7 @@ body.bp-open #bpModal .overlay-content > div:first-child {
         max-width: 92vw !important;
         max-height: 88vh !important; /* Elegant vertical margins on shorter viewports */
         padding: 20px !important;
-        overflow-y: auto !important;
+        overflow: hidden !important;
     }
     
     .print-settings-header {
@@ -3553,7 +3554,8 @@ body,
 
 .sparkle {
     animation: none !important;
-}   
+}  
+ 
  /* ==================== WORD PUZZLE STYLES ==================== */
 .puzzle-zone {
     padding: 10px 0;

@@ -211,11 +211,16 @@ frBtn.onclick = () => SpeechCache.playCachedAudio(frenchText, 'fr-FR', true);
 
 if (globalKb) {
     globalKb.style.display = 'flex';
-    renderMiniKeyboard();
 }
 document.body.classList.add('keyboard-buffer');
 
 startNewSpellingGame(card, fullPhrase);
+
+// Slide up the keyboard shortly after rendering it so the CSS transition works
+setTimeout(() => {
+    if (globalKb) globalKb.classList.add('active');
+}, 50);
+
 window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
