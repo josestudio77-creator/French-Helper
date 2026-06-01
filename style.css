@@ -117,7 +117,7 @@
     .card-tools {
         display: flex;
         flex-direction: row;
-        gap: 8px;
+        gap: 4px;
         width: 100%;
         margin: 0 0 14px 0;
     }
@@ -135,7 +135,7 @@
         font-size: 1rem;
         font-weight: 800;
         color: #4a5568;
-        margin: 0 4px !important; /* Spacing fallback for older Safari flex gap */
+        margin: 0 !important; /* Premium: remove fallback margins so gap handles perfect widening */
         
         /* The 3D chunky shadow effect */
         box-shadow: 0 4px 0 #cbd5e0, inset 0 -2px 0 rgba(0,0,0,0.02);
@@ -301,6 +301,7 @@
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         position: relative;
+        margin-top: 20px;
     }
 
     /* Mobile: hide button text to keep icons only */
