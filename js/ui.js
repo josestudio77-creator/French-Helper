@@ -301,7 +301,7 @@ function closeOverlay(id) {
     const overlay = document.getElementById(id);
     if (overlay) overlay.style.display = 'none'; 
 
-    if (id === 'bpModal' || document.body.classList.contains('bp-open')) {
+    if (id === 'bpModal') {
         document.body.classList.remove('bp-open');
         const mainContainer = document.querySelector('.container');
         if (mainContainer) mainContainer.style.display = 'block';

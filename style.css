@@ -2945,7 +2945,8 @@ body.mode-spelling .spelling-slots {
 }
 
 body.bp-open {
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     padding-bottom: 0 !important; /* Removes double padding with .overlay-content */
 }
 body.bp-open #bpModal {
