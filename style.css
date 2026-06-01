@@ -263,17 +263,15 @@
         font-size: clamp(1.3rem, 2.5vw + 0.5rem, 2.2rem); 
         color: #5a67d8; 
         font-weight: 800; 
-        display: block; 
-        min-height: 1.6rem; 
+        display: none; 
         border-radius: 12px; 
         padding: 5px; 
-        margin-bottom: 10px;
-        opacity: 0;
-        transition: opacity 0.35s ease;
+        margin-bottom: 6px;
+        animation: popIn 0.2s ease;
         pointer-events: none;
     }
     .english-text.visible {
-        opacity: 1;
+        display: block !important;
         pointer-events: auto;
     }
     

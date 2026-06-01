@@ -641,6 +641,7 @@ list.forEach(p => {
                     onmouseup="cancelLongPress()" 
                     onmouseleave="cancelLongPress()"
                     ontouchstart="startLongPress(event, '${p.replace(/'/g, "\\'")}')" 
+                    ontouchmove="cancelLongPress()"
                     ontouchend="cancelLongPress()"
                     onclick="triggerHaptic(15); playStudentRecording('${p.replace(/'/g, "\\'")}')" 
                     style="display:none; flex: 1; background: #4cd964; color: white; padding: 15px 5px; font-size: 0.9rem; font-weight: 800; border-radius: 12px; border: none; cursor: pointer;">
@@ -710,22 +711,33 @@ list.forEach(p => {
     
     let enDismissTimer = null;
     enToggleBtn.onclick = async () => {
+        const pronTextEl = card.querySelector('.pronunciation-text');
         if (!engTextEl.classList.contains('visible')) {
+            // Hide phonetic guide if it's currently displayed
+            if (pronTextEl) pronTextEl.style.setProperty('display', 'none', 'important');
+            
             engTextEl.classList.add('visible');
             enToggleBtn.style.background = '#5a67d8';
             enToggleBtn.style.color = 'white';
+            
             // Clear any pending dismiss
             if (enDismissTimer) { clearTimeout(enDismissTimer); enDismissTimer = null; }
+            
             // Speak and wait for audio to finish, then auto-dismiss
             try {
                 await SpeechCache.playCachedAudio(data.en, 'en-US', true);
             } catch(e) { /* ignore */ }
+            
             // Only dismiss if still visible (user may have tapped again)
             if (engTextEl.classList.contains('visible')) {
                 enDismissTimer = setTimeout(() => {
                     engTextEl.classList.remove('visible');
                     enToggleBtn.style.background = 'white';
                     enToggleBtn.style.color = '#5a67d8';
+                    // Restore pronunciation guide if syllableMode is active
+                    if (state.syllableMode && pronTextEl) {
+                        pronTextEl.style.setProperty('display', 'block', 'important');
+                    }
                 }, 600);
             }
         } else {
@@ -733,6 +745,10 @@ list.forEach(p => {
             enToggleBtn.style.background = 'white';
             enToggleBtn.style.color = '#5a67d8';
             if (enDismissTimer) { clearTimeout(enDismissTimer); enDismissTimer = null; }
+            // Restore pronunciation guide if syllableMode is active
+            if (state.syllableMode && pronTextEl) {
+                pronTextEl.style.setProperty('display', 'block', 'important');
+            }
         }
     };
     
