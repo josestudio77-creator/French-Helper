@@ -228,7 +228,7 @@ function initExitGuard() {
 if (localStorage.getItem('phoneticDictVersion') !== 'v3') {
     state.customPronunciations = {};
     localStorage.removeItem('customPronunciations');
-    localStorage.setItem('phoneticDictVersion', 'v2');
+    localStorage.setItem('phoneticDictVersion', 'v3');
 }
 
 window.onload = () => {
