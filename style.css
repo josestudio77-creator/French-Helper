@@ -3569,7 +3569,7 @@ body,
 .puzzle-slots-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25em; /* Perfectly proportional space character width */
+    gap: 14px; /* Balanced spacing for readability */
     justify-content: center;
     align-items: center;
     margin-bottom: 25px;
