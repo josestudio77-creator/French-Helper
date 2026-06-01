@@ -1837,9 +1837,16 @@
 /* ========== THEATER MODE OVERRIDES (BODY & UI) ========== */
  
 body.mode-spelling {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
     overflow: hidden !important;
-    
     background: #fff8e7;
+    box-sizing: border-box !important;
 }
  
 /* Hide normal navigation and controls */
