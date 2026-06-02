@@ -293,6 +293,8 @@ function openOverlay(id) {
         const mainContainer = document.querySelector('.container');
         if (mainContainer) mainContainer.style.display = 'none';
         document.body.classList.add('bp-open');
+        document.body.style.overflow = 'auto'; // Unlock scroll so backpack body scroll works natively
+        state.selectedBpMonth = findMonthWithHomework(); // Automatically skip empty folders when first opening
         openBP();
     }
 }
@@ -988,6 +990,11 @@ function performCloseHwDrawer() {
 }
 
 function openBP() {
+    // Ensure body scroll is unlocked when the backpack is open, so it scrolls natively
+    if (document.getElementById('bpModal') && document.getElementById('bpModal').style.display === 'block') {
+        document.body.style.overflow = 'auto';
+    }
+
     const list = document.getElementById('bpList'); 
     const headerTitle = document.getElementById('bpFolderName');
     if (!list || !headerTitle) return;

@@ -1215,16 +1215,48 @@
     
     /* ==================== MODAL STYLES ==================== */
     
+    /* Unified Centered Flexbox Overlays for Popups/Dialogs */
+    .dialog-overlay {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+        padding: 20px 10px !important;
+        box-sizing: border-box;
+    }
+    
+    /* When displayed block inline by JS, force flex */
+    .dialog-overlay[style*="display: block"] {
+        display: flex !important;
+    }
+    
+    .dialog-modal-box {
+        background: white; 
+        border-radius: 30px; 
+        padding: 25px; 
+        border: 5px solid #9d4edd;
+        width: 100%;
+        max-width: 420px; 
+        margin: auto !important; /* Centering and scroll safety inside flex container */
+        text-align: center; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
+        position: relative;
+        box-sizing: border-box;
+    }
+
     .modal-box {
         background: white; 
         border-radius: 30px; 
         padding: 25px; 
         border: 5px solid #9d4edd;
+        width: 100%;
         max-width: 400px; 
-        margin: 15vh auto; 
+        margin: auto !important; 
         text-align: center; 
         box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
         position: relative;
+        box-sizing: border-box;
     }
     
     .modal-title { 
@@ -1244,6 +1276,8 @@
         color: #2d3748; 
         line-height: 1.5; 
         min-height: 60px; 
+        max-height: 280px; 
+        overflow-y: auto; 
         word-break: break-word;
         white-space: pre-wrap;
     }
