@@ -55,11 +55,18 @@ function togglePuzzleMode(btn, phrase) {
         const victoryPopup = card.querySelector('.puzzle-victory-popup');
         if (victoryPopup) victoryPopup.style.display = 'none';
         
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('puzzle_exit', { phrase: phrase });
+        }
+
         // Clean up puzzle
         if (puzzleZone) puzzleZone.innerHTML = '';
         window.puzzleState.activeCard = null;
     } else {
         // Turn ON puzzle mode
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('puzzle_start', { phrase: phrase });
+        }
         card.classList.add('puzzle-mode');
         btn.classList.add('active-puzzle-btn');
         
@@ -420,6 +427,9 @@ function checkVictory(card) {
     const allSlotsFilled = localSlots.every(slot => slot.dataset.filled === 'true');
     if (allSlotsFilled) {
         console.log("Puzzle Completed!");
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('puzzle_success', { phrase: card._puzzlePhrase });
+        }
         
         // Play victory sound
         if (window.playRewardSound) {

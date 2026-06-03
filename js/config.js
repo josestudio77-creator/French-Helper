@@ -3,6 +3,10 @@
    French Helper - Do not edit at runtime
    =========================================== */
 
+/* ===== ANALYTICS CONFIGURATION ===== */
+// Paste your Google Analytics 4 Measurement ID here (e.g. 'G-XXXXXXXXXX')
+const GA_MEASUREMENT_ID = 'G-5DYJQ7T0TP'; 
+
 /* ===== MASTER_DATA Dictionary ===== */
 const MASTER_DATA = {
     "Bonjour":{en:"Hello",icon:"👋",pronunciation:"bohn-ZHOOR"},"Salut":{en:"Hi",icon:"👋",pronunciation:"sah-LU"},"Merci":{en:"Thank you",icon:"🙏",pronunciation:"mehr-SEE"},"De rien":{en:"You're welcome",icon:"😇",pronunciation:"duh ree-EN"},"Au revoir":{en:"Goodbye",icon:"👋",pronunciation:"oh ruh-VWAHR"},

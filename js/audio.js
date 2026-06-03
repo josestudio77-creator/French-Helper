@@ -74,6 +74,12 @@ function updateSpeechSpeed(value) {
 
     localStorage.setItem('speechSpeed', state.speechSpeed);
 
+    if (typeof trackAppEvent === 'function') {
+
+        trackAppEvent('change_speed', { speed: state.speechSpeed });
+
+    }
+
     
 
     // If we're in auto-play mode, DON'T interrupt - just update the speed
@@ -1515,6 +1521,10 @@ async function toggleStudentRecording(btn, phrase) {
                     const wavBlob = audioBufferToWav(trimmedBuffer);
                     await StorageDB.storeRecording(phrase, wavBlob);
                     
+                    if (typeof trackAppEvent === 'function') {
+                        trackAppEvent('student_record', { phrase: phrase });
+                    }
+                    
                     const card = btn.closest('.phrase-card');
                     if (card) {
                         const playBtn = card.querySelector('.play-record-btn');
@@ -1675,7 +1685,9 @@ function playStudentRecording(phrase) {
 
     if (!trimmedBuffer) return;
 
-    
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('student_record_play', { phrase: phrase });
+    }
 
     // Stop any existing playing recording
 

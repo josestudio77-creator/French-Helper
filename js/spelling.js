@@ -150,6 +150,9 @@ if (slider) slider.value = state.speechSpeed;
 if (speedDisplay) speedDisplay.textContent = state.speechSpeed.toFixed(2);
 
 state.isInSpellingMode = true;
+if (typeof trackAppEvent === 'function') {
+    trackAppEvent('spelling_start', { phrase: fullPhrase });
+}
 
 // Hide UI
 if (controlPanel) controlPanel.style.display = 'none';
@@ -487,6 +490,9 @@ if (state.currentSpellingState.currentLetterIndex >= state.targetWord.length) {
                 
                 if (state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length) {
                     // --- FULL PHRASE SUCCESS ---
+                    if (typeof trackAppEvent === 'function') {
+                        trackAppEvent('spelling_success', { phrase: state.currentSpellingState.phrase });
+                    }
                     if (typeof celebrate === "function") celebrate();
                     if (typeof playVictorySound === "function") playVictorySound();
                     
@@ -539,6 +545,18 @@ safeAnimate(card, [
 
 function exitSpellingTheater() {
     if (typeof playTheaterExit === "function") playTheaterExit();
+
+    if (state.currentSpellingState) {
+        const completed = state.currentSpellingState.currentWordIndex >= state.currentSpellingState.words.length;
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('spelling_exit', {
+                phrase: state.currentSpellingState.phrase,
+                completed: completed,
+                words_completed: state.currentSpellingState.currentWordIndex,
+                total_words: state.currentSpellingState.words.length
+            });
+        }
+    }
 
     // Restore original speech speed (force-exit path bypasses toggleSpellingMode)
     if (state.savedSpeechSpeed !== null) {

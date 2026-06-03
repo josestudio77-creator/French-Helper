@@ -67,6 +67,11 @@ function startHangman() {
     
     guessed = [state.targetWord[0]]; 
     mistakes = 0; 
+    
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('hangman_start', { word: state.targetWord });
+    }
+    
     document.getElementById('gameMsg').textContent = "Guess a letter!";
     drawHangman(0); 
     renderKeyboard(); 
@@ -147,6 +152,10 @@ function updateHangmanUI() {
         state.gameActive = false; 
         state.isSpelling = false; // Stop any ongoing spelling audio
         
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('hangman_win', { word: state.targetWord, mistakes: mistakes });
+        }
+        
         state.wins++; 
         updateScoreUI(); 
         
@@ -196,6 +205,9 @@ function updateHangmanUI() {
     } else if (isGameOverLoss) {
         state.gameActive = false; 
         state.isSpelling = false;
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('hangman_loss', { word: state.targetWord });
+        }
         state.losses++; 
         updateScoreUI();
         document.getElementById('gameMsg').textContent = "Good try! 👍"; 
@@ -318,6 +330,11 @@ function updateScoreUI() {
 }
 
 function exitGame() { 
+    if (state.gameActive && state.targetWord) {
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('hangman_exit', { word: state.targetWord });
+        }
+    }
     state.gameActive = false; 
     
     // Clear any victory animations

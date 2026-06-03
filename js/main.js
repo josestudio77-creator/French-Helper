@@ -232,6 +232,7 @@ if (localStorage.getItem('phoneticDictVersion') !== 'v3') {
 }
 
 window.onload = () => {
+    initAnalytics(); // Initialize Google Analytics
     setTimeout(() => {
         const icon = document.getElementById('splashIcon');
         const text = document.getElementById('splashText');

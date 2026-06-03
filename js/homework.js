@@ -32,6 +32,14 @@ openAppModal({
     mode: 'view', 
     actionText: "📤 Share Now",
     onAction: () => {
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('share_week', {
+                week_name: weekName,
+                phrase_count: phraseList.length,
+                has_audio: !!audioData,
+                has_photos: Object.keys(hPhotos).length > 0
+            });
+        }
         if (audioData || Object.keys(hPhotos).length > 0) {
             const data = {
                 history: { [weekName]: JSON.stringify({ words: wordsText, audio: audioData, month: existingData.month, isDialogue: existingData.isDialogue, isFavorite: false, date: new Date().toISOString() })},
@@ -66,6 +74,13 @@ function shareAllWeeks() {
             mode: 'view',
             actionText: "💾 Save Backup",
             onAction: () => {
+                if (typeof trackAppEvent === 'function') {
+                    trackAppEvent('export_all_backpack', {
+                        homework_count: hwCount,
+                        photo_count: photoCount,
+                        note_count: noteCount
+                    });
+                }
                 const data = { history: state.history, cache: state.cache, customIcons: state.customIcons, customPhotos: state.customPhotos, wins: state.wins, losses: state.losses, speechSpeed: state.speechSpeed, homeworkNotes: state.homeworkNotes, appVersion: "French Phrases Helper" };
                 attemptFileShare(JSON.stringify(data), `french-fun-full-backup.json`, '🇫🇷 French Fun Full Backup');
             }
@@ -303,6 +318,15 @@ function performActualImport(data, incomingKeys, overwrite, targetMonthIndex) {
     
     // Set the backpack's month tracker to the new month
     state.selectedBpMonth = targetMonthIndex;
+
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('import_homework_success', {
+            imported_count: importedCount,
+            updated_count: updatedCount,
+            skipped_count: skippedCount,
+            overwrite: overwrite
+        });
+    }
     
     let resultMsg = `Import Complete!\n✅ ${importedCount} new items added.`;
     if (updatedCount > 0) resultMsg += `\n🔄 ${updatedCount} items replaced.`;
@@ -536,6 +560,9 @@ function toggleFavorite(name) {
     d.isFavorite = !d.isFavorite;
     state.history[name] = JSON.stringify(d);
     localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('toggle_favorite', { homework: name, is_favorite: d.isFavorite });
+    }
     setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
     
     // UI Refresh Logic
@@ -667,16 +694,22 @@ folder.onclick = () => performFolderAction(index);
 // 4. The "Final Step" - actually does the move or the navigation
 function performFolderAction(newMonthIndex) {
     if (state.homeworkToMove) {
-// --- ACTION: MOVE ---
-let hwData = JSON.parse(state.history[state.homeworkToMove]);
-hwData.month = newMonthIndex;
-state.history[state.homeworkToMove] = JSON.stringify(hwData);
-localStorage.setItem('frenchHistory', JSON.stringify(state.history));
-    setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
+        // --- ACTION: MOVE ---
+        let hwData = JSON.parse(state.history[state.homeworkToMove]);
+        hwData.month = newMonthIndex;
+        state.history[state.homeworkToMove] = JSON.stringify(hwData);
+        localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+        setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('move_homework', { homework: state.homeworkToMove, month_index: newMonthIndex });
+        }
     } else {
-// --- ACTION: NAVIGATE ---
-state.selectedBpMonth = newMonthIndex;
-state.showFavsOnly = false; // Turn off favorites filter when picking a month folder
+        // --- ACTION: NAVIGATE ---
+        state.selectedBpMonth = newMonthIndex;
+        if (typeof trackAppEvent === 'function') {
+            trackAppEvent('navigate_folder', { month_index: newMonthIndex });
+        }
+        state.showFavsOnly = false; // Turn off favorites filter when picking a month folder
 const favBtn = document.getElementById('btnFavFilter');
 if(favBtn) {
     favBtn.style.background = "white";

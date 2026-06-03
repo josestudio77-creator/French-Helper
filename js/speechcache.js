@@ -185,6 +185,9 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
         if (blob && blob.size > 100) {
             // CACHED AUDIO AVAILABLE
             console.log('[SpeechCache] PLAYING CACHED: "' + text + '"');
+            if (typeof trackAppEvent === 'function') {
+                trackAppEvent('tts_play', { text: text, lang: lang, is_letter: !!isLetterMode, cached: true });
+            }
             
 
             
@@ -241,6 +244,9 @@ async function playCachedAudio(text, lang, forceInterrupt, speedOverride, isLett
     // No cached audio or pre-recorded WAV — use browser TTS
     // Wait for speech to actually finish before resolving
     console.log('[SpeechCache] FALLBACK TO BROWSER TTS: "' + text + '"');
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('tts_play', { text: text, lang: lang, is_letter: !!isLetterMode, cached: false });
+    }
     if (typeof spk === 'function') {
         await new Promise((resolve) => {
             spkWithCallback(text, lang, forceInterrupt, speedOverride, isLetterMode, resolve);

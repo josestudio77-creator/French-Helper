@@ -3,6 +3,51 @@
    French Helper
    =========================================== */
 
+/* ===== GOOGLE ANALYTICS INTEGRATION ===== */
+function initAnalytics() {
+    if (typeof GA_MEASUREMENT_ID !== 'undefined' && GA_MEASUREMENT_ID && GA_MEASUREMENT_ID.trim() !== '') {
+        try {
+            // 1. Create script tag
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+            document.head.appendChild(script);
+
+            // 2. Setup dataLayer and gtag
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function() { dataLayer.push(arguments); };
+            window.gtag('js', new Date());
+            
+            // Disable tracking during local file:/// testing to keep analytics data clean
+            const isLocal = window.location.protocol === 'file:';
+            if (isLocal) {
+                console.log('📊 Local testing detected. Google Analytics calls will print to console only.');
+                window.gtag('config', GA_MEASUREMENT_ID, { 'send_page_view': false });
+            } else {
+                window.gtag('config', GA_MEASUREMENT_ID);
+            }
+            console.log('📊 Google Analytics initialized successfully.');
+        } catch (e) {
+            console.error('📊 Failed to initialize Google Analytics:', e);
+        }
+    } else {
+        // Safe no-op dummy fallback to prevent errors when analytics ID is not configured
+        window.gtag = function() {
+            console.log('📊 [Analytics No-Op]:', ...arguments);
+        };
+    }
+}
+
+function trackAppEvent(eventName, params = {}) {
+    try {
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', eventName, params);
+        }
+    } catch (e) {
+        console.error('📊 Tracking error:', e);
+    }
+}
+
 function triggerHaptic(duration = 15) {
     if (navigator.vibrate) {
         navigator.vibrate(duration);
@@ -192,6 +237,7 @@ function insertChar(char, targetId) {
 
 function navJump(targetId) {
     triggerHaptic(10);
+    trackAppEvent('screen_view', { screen_name: targetId || 'practice' });
 
     if (document.body.classList.contains('mode-spelling')) {
         exitSpellingTheater();
@@ -253,6 +299,7 @@ function navJump(targetId) {
 
 function openOverlay(id) { 
     console.log('Opening overlay:', id);
+    trackAppEvent('open_overlay', { overlay_id: id });
     
     // 1. Safety: Stop auto-play and pause all audio
     if (state.isAutoPlaying) stopAutoPlay();
@@ -362,6 +409,9 @@ function closeOverlay(id) {
 function setViewMode(mode) {
     state.viewMode = mode;
     localStorage.setItem('viewMode', mode);
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('change_view_mode', { mode: mode });
+    }
     
     // 1. Logic: If we are switching views, hide the global keyboard and buffer
     const globalKb = document.getElementById('keyboard');
@@ -914,6 +964,15 @@ async function saveHW() {
     // 12. Success Message & Exit
     msgDiv.innerHTML = '';
     showToast('✅ Saved Successfully!');
+
+    if (typeof trackAppEvent === 'function') {
+        trackAppEvent('save_homework', {
+            name: name,
+            phrase_count: words.split('\n').filter(w => w.trim()).length,
+            is_dialogue: isDiag,
+            has_teacher_audio: !!state.currentWeekAudio
+        });
+    }
     
     // Auto-backup: deferred to avoid UI lag
     setTimeout(() => { try { StorageDB.autoBackup(); StorageDB.exportBackupToFile(); } catch(e) {} }, 300);
@@ -1126,6 +1185,9 @@ function deleteHomeworkItem(name) {
         saveText: "🗑️ Delete",
         cancelText: "Cancel",
         onAction: () => {
+            if (typeof trackAppEvent === 'function') {
+                trackAppEvent('delete_homework', { homework: name });
+            }
             // Delete logic
             delete state.history[name]; 
             if (state.homeworkNotes && state.homeworkNotes[name]) delete state.homeworkNotes[name];
@@ -1173,6 +1235,9 @@ function renameHomework(oldName) {
             }
             
             localStorage.setItem('frenchHistory', JSON.stringify(state.history));
+            if (typeof trackAppEvent === 'function') {
+                trackAppEvent('rename_homework', { old_name: oldName, new_name: newName });
+            }
             setTimeout(() => { try { StorageDB.autoBackup(); } catch(e) {} }, 300);
             
             // 4. Update the current screen if you are currently practicing this set
