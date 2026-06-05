@@ -1362,17 +1362,26 @@ function saveDataAsFile(content, fileName) {
     }, 500);
 }
 
-function debugStorage() {
-    console.log('=== STORAGE DEBUG ===');
-    console.log('homeworkPhrases:', localStorage.getItem('homeworkPhrases'));
-    console.log('frenchHistory:', JSON.parse(localStorage.getItem('frenchHistory') || '{}'));
-    console.log('state.currentWeekAudio:', localStorage.getItem('currentWeekAudio'));
-    console.log('phraseTranslations:', JSON.parse(localStorage.getItem('phraseTranslations') || '{}'));
-    console.log('gameWins:', localStorage.getItem('gameWins'));
-    console.log('gameLosses:', localStorage.getItem('gameLosses'));
-    console.log('state.speechSpeed:', localStorage.getItem('speechSpeed'));
-    console.log('=====================');
-    openAppModal({ title: 'Debug', text: 'Check console for storage debug info (F12)', mode: 'view' });
+function sendFeedback() {
+    openAppModal({
+        title: "💬 Parent Feedback",
+        text: "",
+        mode: 'edit',
+        hideChars: true,
+        onSave: (feedbackText) => {
+            const cleanText = feedbackText.trim();
+            if (!cleanText) {
+                showToast("Feedback cannot be empty!", 'error');
+                return false;
+            }
+            if (typeof trackAppEvent === 'function') {
+                trackAppEvent('parent_feedback', { feedback_text: cleanText });
+            }
+            closeOverlay('appModal');
+            showToast("Thank you for your feedback! ❤️");
+            return false;
+        }
+    });
 }
 
 function saveAndExit() {
