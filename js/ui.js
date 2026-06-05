@@ -1378,7 +1378,17 @@ function sendFeedback() {
                 trackAppEvent('parent_feedback', { feedback_text: cleanText });
             }
             closeOverlay('appModal');
-            showToast("Thank you for your feedback! ❤️");
+            
+            // Generate and trigger email mailto link
+            const emailRecipient = "josestudio77@gmail.com";
+            const subject = encodeURIComponent("French Helper App Feedback");
+            const body = encodeURIComponent(cleanText);
+            
+            setTimeout(() => {
+                window.location.href = `mailto:${emailRecipient}?subject=${subject}&body=${body}`;
+                showToast("Opening your email app... ✉️");
+            }, 100);
+            
             return false;
         }
     });
