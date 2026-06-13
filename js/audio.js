@@ -1513,7 +1513,7 @@ async function toggleStudentRecording(btn, phrase) {
                 const ctx = state.voiceContext || new (window.AudioContext || window.webkitAudioContext)();
                 if (!state.voiceContext) state.voiceContext = ctx;
                 const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-                const trimmedBuffer = trimSilence(audioBuffer, 0.015);
+                const trimmedBuffer = trimSilence(audioBuffer, 0.005);
                 if (trimmedBuffer) {
                     state.recordings[phrase] = trimmedBuffer;
                     
@@ -1644,9 +1644,8 @@ function _stopRecording(btn, phrase) {
 
 
 
-    // Add a ~150ms padding to prevent clipping the attack/decay of the voice
-
-    const paddingSamples = Math.floor(audioBuffer.sampleRate * 0.15); 
+    // Add a ~250ms padding to prevent clipping the attack/decay of the voice
+    const paddingSamples = Math.floor(audioBuffer.sampleRate * 0.25); 
 
     start = Math.max(0, start - paddingSamples);
 
