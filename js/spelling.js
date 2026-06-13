@@ -78,6 +78,12 @@ setTimeout(() => {
     if (spellBtn) spellBtn.style.display = 'none';
     if (recordContainer) recordContainer.style.display = 'flex';
 
+    // Restore card-btns to parent card level
+    const cardBtns = card.querySelector('.card-btns');
+    if (cardBtns) {
+        card.appendChild(cardBtns);
+    }
+
     // Restore French button click handler
     const frenchText = card.querySelector('.french-text');
     if (frenchText) {
@@ -169,7 +175,7 @@ document.body.classList.add('mode-spelling');
 card.classList.remove('theater-exit');
 card.offsetHeight; // force reflow — ensures theater-exit is fully removed before spelling-mode starts
 card.classList.add('spelling-mode');
-card.style.display = 'block';
+card.style.display = 'flex';
 
 if (globalKb) {
     globalKb.classList.add('active');
@@ -197,6 +203,12 @@ card.querySelectorAll('.french-text, .english-text, .pronunciation-text').forEac
 });
 
 spellingZone.style.display = 'block';
+
+// Move card-btns inside spelling-zone so they scroll together with the slots
+const cardBtns = card.querySelector('.card-btns');
+if (cardBtns && spellingZone) {
+    spellingZone.appendChild(cardBtns);
+}
 
 // Update buttons to SPELLING MODE behavior
 if (recordContainer) recordContainer.style.display = 'none';

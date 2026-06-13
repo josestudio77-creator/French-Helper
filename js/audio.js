@@ -1605,7 +1605,12 @@ function _stopRecording(btn, phrase) {
         const playBtn = card.querySelector('.play-record-btn');
         if (playBtn) playBtn.style.display = 'block';
     }
-    // Don't stop tracks — keeps microphone permission alive
+    
+    // Stop all audio tracks to release the hardware microphone resource system-wide
+    if (state.persistentAudioStream) {
+        state.persistentAudioStream.getTracks().forEach(track => track.stop());
+        state.persistentAudioStream = null;
+    }
     state.activeAudioStream = null;
 }function trimSilence(audioBuffer, threshold = 0.05) {
 
